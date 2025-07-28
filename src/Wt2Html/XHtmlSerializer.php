@@ -46,22 +46,9 @@ class XHtmlSerializer {
 		'listing' => true
 	];
 
-	private const ENTITY_ENCODINGS = [
-		'single' => [ '<' => '&lt;', '&' => '&amp;', "'" => '&apos;' ],
-		'double' => [ '<' => '&lt;', '&' => '&amp;', '"' => '&quot;' ],
-		'xml' => [ '<' => '&lt;', '&' => '&amp;', "\u{0338}" => '&#x338;' ],
-	];
-
-	/**
-	 * HTML entity encoder helper.
-	 * Only supports the few entities we'll actually need: <&'"
-	 * @param string $raw Input string
-	 * @param string $encodeChars Set of characters to encode, "single", "double", or "xml"
-	 * @return string
-	 */
-	private static function encodeHtmlEntities( string $raw, string $encodeChars ): string {
-		return strtr( $raw, self::ENTITY_ENCODINGS[$encodeChars] );
-	}
+	private const ENTITY_ENCODINGS_SINGLE = [ '<' => '&lt;', '&' => '&amp;', "'" => '&apos;' ];
+	private const ENTITY_ENCODINGS_DOUBLE = [ '<' => '&lt;', '&' => '&amp;', '"' => '&quot;' ];
+	private const ENTITY_ENCODINGS_XML = [ '<' => '&lt;', '&' => '&amp;', "\u{0338}" => '&#x338;' ];
 
 	/**
 	 * Serialize an HTML DOM3 node to XHTML. The XHTML and associated information will be fed
@@ -91,17 +78,20 @@ class XHtmlSerializer {
 				}
 				foreach ( $attrs as $an => $av ) {
 					if ( $smartQuote
-						// More double quotes than single quotes in value?
-						&& substr_count( $av, '"' ) > substr_count( $av, "'" )
+						&& str_contains( $av, '"' )
+						&& ( !str_contains( $av, "'" )
+							// More double quotes than single quotes in value?
+							|| substr_count( $av, '"' ) > substr_count( $av, "'" )
+						)
 					) {
 						// use single quotes
 						$accum( ' ' . $an . "='"
-							. self::encodeHtmlEntities( $av, 'single' ) . "'",
+							. strtr( $av, self::ENTITY_ENCODINGS_SINGLE ) . "'",
 							$node );
 					} else {
 						// use double quotes
 						$accum( ' ' . $an . '="'
-							. self::encodeHtmlEntities( $av, 'double' ) . '"',
+							. strtr( $av, self::ENTITY_ENCODINGS_DOUBLE ) . '"',
 							$node );
 					}
 				}
@@ -157,7 +147,7 @@ class XHtmlSerializer {
 
 			case XML_TEXT_NODE:
 				'@phan-var Text $node'; // @var Text $node
-				$accum( self::encodeHtmlEntities( $node->nodeValue, 'xml' ), $node );
+				$accum( strtr( $node->nodeValue, self::ENTITY_ENCODINGS_XML ), $node );
 				return;
 
 			case XML_COMMENT_NODE:
