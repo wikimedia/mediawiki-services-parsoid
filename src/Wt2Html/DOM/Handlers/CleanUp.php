@@ -207,6 +207,11 @@ class CleanUp {
 				$node->removeChild( $c );
 				$trimmedLen += strlen( $c->nodeValue );
 				$updateDSR = !$skipped;
+			} elseif ( $c instanceof Element && DOMUtils::hasTypeOf( $c, 'mw:DisplaySpace' ) ) {
+				$node->removeChild( $c );
+				// even though content of node is 2-byte character (NBSP), original space was 1-byte character
+				$trimmedLen += 1;
+				$updateDSR = !$skipped;
 			} elseif ( !WTUtils::isRenderingTransparentNode( $c ) ) {
 				break;
 			} else {

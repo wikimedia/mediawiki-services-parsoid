@@ -94,7 +94,6 @@
         "html2wt": "; x\n: a\n: b"
     },
     "Nesting: Multi-level (Parsoid only)": {
-        "html2html": "\n<dl data-parsoid='{\"dsr\":[1,82,0,0]}'><dt data-parsoid='{\"dsr\":[1,6,1,0,1,1]}'>t1</dt>\n<dd data-parsoid='{\"dsr\":[7,17,1,0,1,6]}'>d1</dd>\n<dt data-parsoid='{\"dsr\":[18,82,1,0]}'><dl data-parsoid='{\"dsr\":[19,82,0,0]}'><dt data-parsoid='{\"dsr\":[19,24,1,0,1,1]}'>t2</dt>\n<dd data-parsoid='{\"dsr\":[25,45,2,0,1,14]}'>:d2</dd>\n<dt data-parsoid='{\"dsr\":[46,82,2,0]}'><dl data-parsoid='{\"dsr\":[48,82,0,0]}'><dt data-parsoid='{\"dsr\":[48,53,1,0,1,1]}'>t3</dt>\n<dd data-parsoid='{\"dsr\":[54,82,3,0,0,20]}'><span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[57,58,0,0]}'> </span>::d3</dd></dl></dt></dl></dt></dl>\n",
         "html2wt": "\n; t1 \n: d1      \n;; t2 \n;: :d2              \n;;; t3 \n;;: ::d3                    \n",
         "selser [[[3],0,0,[[[3],0,2,4]]]]": ";:d1\n;;::d2\n;: 3ewt3t\n;: qgfjwx\n",
         "selser [[0,1,4,[[3,1,3,3]]]]": ";t1:d1\n: zu5kx8\n::d2\n"

@@ -81,6 +81,9 @@
     "2. Nested mixed wikitext and html list (incompatible)": {
         "html2wt": "; hi\n: {{1x|<li>ho</li>}}"
     },
+    "2. T400845: Dom/Handlers/CleanUp.php: Added mw:DisplaySpace spaces removal": {
+        "selser [3,3,[1,0,0,0,[4],2,1,2,3,0,4,3,1],4,[2],3,0]": "*%\n*&nbsp;%\n*swr1pi\n* lsg9kh\n*&nbsp;%\n* qafa6r\n* mmozjh\n*%\n1x7x7pi\n 13b49po  % pre 1\n\n''' % BOLD '''"
+    },
     "2. Template wrapping shouldn't ignore fostered content": {
         "wt2wt": "\nhiho\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
         "selser [2,[3,0]]": "7r98ao\n\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",

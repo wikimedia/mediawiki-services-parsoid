@@ -17412,3 +17412,157 @@ added between the divtags:
 </div>
 </b>
 !! end
+
+!! test
+1. T400845: Dom/Handlers/CleanUp.php: Added mw:DisplaySpace spaces removal
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|%
+|&nbsp;%
+| %
+| &nbsp;%
+|&nbsp; %
+|  %
+|   %
+|}
+
+*%
+*&nbsp;%
+* %
+* &nbsp;%
+*&nbsp; %
+*  %
+*   %
+
+   % pre 1
+
+''' % BOLD '''
+!! html/php
+<table>
+<tbody><tr>
+<td>%
+</td>
+<td>&#160;%
+</td>
+<td>%
+</td>
+<td>&#160;%
+</td>
+<td>&#160;&#160;%
+</td>
+<td>%
+</td>
+<td>%
+</td></tr></tbody></table>
+<ul><li>%</li>
+<li>&#160;%</li>
+<li>%</li>
+<li>&#160;%</li>
+<li>&#160;&#160;%</li>
+<li>%</li>
+<li>%</li></ul>
+<pre> &#160;% pre 1
+</pre>
+<p><b>&#160;% BOLD </b>
+</p>
+!! html/parsoid
+<table>
+<tbody><tr><td>%</td>
+<td><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</td>
+<td data-parsoid='{"dsr":[15,18,1,0,1,0]}'>%</td>
+<td data-parsoid='{"dsr":[19,28,1,0,1,0]}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</td>
+<td><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:DisplaySpace"> </span>%</td>
+<td data-parsoid='{"dsr":[39,43,1,0,2,0]}'>%</td>
+<td data-parsoid='{"dsr":[44,49,1,0,3,0]}'>%</td></tr>
+</tbody></table>
+
+<ul><li data-parsoid='{}'>%</li>
+<li data-parsoid='{}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</li>
+<li data-parsoid='{"dsr":[66,69,1,0,1,0]}'>%</li>
+<li data-parsoid='{"dsr":[70,79,1,0,1,0]}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</li>
+<li data-parsoid='{}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:DisplaySpace"> </span>%</li>
+<li data-parsoid='{"dsr":[90,94,1,0,2,0]}'>%</li>
+<li data-parsoid='{"dsr":[95,100,1,0,3,0]}'>%</li></ul>
+
+<pre>  % pre 1</pre>
+
+<p><b><span typeof="mw:DisplaySpace"> </span>% BOLD </b></p>
+!! end
+
+!! test
+2. T400845: Dom/Handlers/CleanUp.php: Added mw:DisplaySpace spaces removal
+!! wikitext
+{|
+|%
+|&nbsp;%
+|%
+|&nbsp;%
+|&nbsp; %
+|%
+|%
+|}
+
+*%
+*&nbsp;%
+*%
+*&nbsp;%
+*&nbsp; %
+*%
+*%
+
+   % pre 1
+
+''' % BOLD '''
+!! html/php
+<table>
+<tbody><tr>
+<td>%
+</td>
+<td>&#160;%
+</td>
+<td>%
+</td>
+<td>&#160;%
+</td>
+<td>&#160;&#160;%
+</td>
+<td>%
+</td>
+<td>%
+</td></tr></tbody></table>
+<ul><li>%</li>
+<li>&#160;%</li>
+<li>%</li>
+<li>&#160;%</li>
+<li>&#160;&#160;%</li>
+<li>%</li>
+<li>%</li></ul>
+<pre> &#160;% pre 1
+</pre>
+<p><b>&#160;% BOLD </b>
+</p>
+!! html/parsoid
+<table>
+<tbody><tr><td>%</td>
+<td><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</td>
+<td data-parsoid='{"dsr":[15,18,1,0,1,0]}'>%</td>
+<td data-parsoid='{"dsr":[19,28,1,0,1,0]}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</td>
+<td><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:DisplaySpace"> </span>%</td>
+<td data-parsoid='{"dsr":[39,43,1,0,2,0]}'>%</td>
+<td data-parsoid='{"dsr":[44,49,1,0,3,0]}'>%</td></tr>
+</tbody></table>
+
+<ul><li data-parsoid='{}'>%</li>
+<li data-parsoid='{}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</li>
+<li data-parsoid='{"dsr":[66,69,1,0,1,0]}'>%</li>
+<li data-parsoid='{"dsr":[70,79,1,0,1,0]}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>%</li>
+<li data-parsoid='{}'><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:DisplaySpace"> </span>%</li>
+<li data-parsoid='{"dsr":[90,94,1,0,2,0]}'>%</li>
+<li data-parsoid='{"dsr":[95,100,1,0,3,0]}'>%</li></ul>
+
+<pre>  % pre 1</pre>
+
+<p><b><span typeof="mw:DisplaySpace"> </span>% BOLD </b></p>
+!! end
