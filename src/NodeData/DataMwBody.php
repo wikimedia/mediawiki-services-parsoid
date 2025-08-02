@@ -62,8 +62,8 @@ class DataMwBody implements JsonCodecable {
 		return $extApi->htmlToDom( $this->html );
 	}
 
-	public function hasHtml() {
-		return isset( $this->html );
+	public function hasHtml(): bool {
+		return $this->html !== null;
 	}
 
 	/**
