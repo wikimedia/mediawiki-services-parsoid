@@ -160,14 +160,11 @@ abstract class SiteConfig {
 			// Treat this as a configuration array, create a new anonymous
 			// ExtensionModule object for it.
 			$module = new class( $configOrSpec ) implements ExtensionModule {
-				private $config;
-
-				/** @param array $config */
-				public function __construct( $config ) {
-					$this->config = $config;
+				public function __construct(
+					private readonly array $config,
+				) {
 				}
 
-				/** @inheritDoc */
 				public function getConfig(): array {
 					return $this->config;
 				}
