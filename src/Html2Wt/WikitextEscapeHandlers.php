@@ -1063,7 +1063,7 @@ class WikitextEscapeHandlers {
 		if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
 			$needNowikiCount++;
 		}
-		if ( $isTemplate && !$serializeAsNamed && str_contains( $str, '=' ) ) {
+		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && str_contains( $str, '=' ) ) {
 			$needNowikiCount++;
 		}
 		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && str_ends_with( $str, '}' ) ) {
@@ -1215,19 +1215,10 @@ class WikitextEscapeHandlers {
 						// FIXME $da->tsr will be undefined below.
 						// Should we throw an explicit exception here?
 					}
-					// Template arg parsing has higher precendence than xml
-					// tag attributes, so the '=' would need protection.
-					// However, extensions are an exception.
-					// Note that if we nowiki escape the tag src as a string,
-					// we're breaking the semantics so it might worth trying
-					// to force serializing as a named argument if we can.
-					$checkNowiki = $t instanceof XMLTagTk &&
-						WTUtils::hasLiteralHTMLMarker( $da ) &&
-						$t->getName() !== 'extension';
 					self::appendStr(
 						$da->tsr->substr( $arg ),
 						$last,
-						$checkNowiki,
+						false,
 						$buf,
 						$openNowiki,
 						$isTemplate,
@@ -1282,18 +1273,10 @@ class WikitextEscapeHandlers {
 							}
 						}
 					} else {
-						// Template arg parsing has higher precendence than xml
-						// tag attributes, so the '=' would need protection.
-						// However, extensions are an exception.
-						// Note that if we nowiki escape the tag src as a string,
-						// we're breaking the semantics so it might worth trying
-						// to force serializing as a named argument if we can.
-						$checkNowiki = WTUtils::hasLiteralHTMLMarker( $da ) &&
-							$t->getName() !== 'extension';
 						self::appendStr(
 							$tkSrc,
 							$last,
-							$checkNowiki,
+							false,
 							$buf,
 							$openNowiki,
 							$isTemplate,
