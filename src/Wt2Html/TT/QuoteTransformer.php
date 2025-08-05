@@ -19,24 +19,7 @@ use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2html\TokenHandlerPipeline;
-
-/**
- * PORT-FIXME: Maybe we need to look at all uses of flatten
- * and move it to a real helper in PHPUtils.js
- *
- * Flattens arrays with nested arrays
- */
-function array_flatten( array $array ): array {
-	$ret = [];
-	foreach ( $array as $key => $value ) {
-		if ( is_array( $value ) ) {
-			PHPUtils::pushArray( $ret, array_flatten( $value ) );
-		} else {
-			$ret[$key] = $value;
-		}
-	}
-	return $ret;
-}
+use Wikimedia\Parsoid\Wt2html\TokenizerUtils;
 
 /**
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
@@ -45,22 +28,19 @@ class QuoteTransformer extends LineBasedHandler {
 	/** Chunks alternate between quote tokens and sequences of non-quote
 	 * tokens.  The quote tokens are later replaced with the actual tag
 	 * token for italic or bold.  The first chunk is a non-quote chunk.
-	 * @var array
 	 */
-	private $chunks;
+	private array $chunks;
 
 	/**
 	 * The current chunk we're accumulating into.
-	 * @var array
 	 */
-	private $currentChunk;
+	private array $currentChunk;
 
 	/**
 	 * Last italic / last bold open tag seen.  Used to add autoInserted flags
 	 * where necessary.
-	 * @var array
 	 */
-	private $last;
+	private array $last;
 
 	/**
 	 * @param TokenHandlerPipeline $manager manager environment
@@ -287,8 +267,8 @@ class QuoteTransformer extends LineBasedHandler {
 			$this->env->trace( "quote", $this->pipelineId, "-----> ", $token );
 		}
 		$this->startNewChunk();
-		// PORT-FIXME: Is there a more efficient way of doing this?
-		$res = array_flatten( $this->chunks );
+
+		$res = TokenizerUtils::flattenIfArray( $this->chunks );
 
 		// prepare for next line
 		$this->reset();

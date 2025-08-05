@@ -340,7 +340,6 @@ class DOMHandler {
 		$space = '';
 		if ( WTUtils::isNewElt( $node ) ) {
 			$fc = DiffDOMUtils::firstNonDeletedChild( $node );
-			// PORT-FIXME are different \s semantics going to be a problem?
 			if ( $fc && ( !( $fc instanceof Text ) || !preg_match( '/^\s/', $fc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
@@ -364,7 +363,6 @@ class DOMHandler {
 		$space = '';
 		if ( WTUtils::isNewElt( $node ) ) {
 			$lc = DiffDOMUtils::lastNonDeletedChild( $node );
-			// PORT-FIXME are different \s semantics going to be a problem?
 			if ( $lc && ( !( $lc instanceof Text ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
