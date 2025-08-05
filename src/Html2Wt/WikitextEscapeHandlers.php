@@ -990,16 +990,18 @@ class WikitextEscapeHandlers {
 	 * @param bool &$serializeAsNamed
 	 * @param array $opts [ 'numPositionalArgs' => int, 'argPositionalIndex' => int, 'type' => string,
 	 * 'numArgs' => int, 'argIndex' => int ]
+	 * @param bool $isHTMLTag
 	 */
 	private static function appendStr(
 		string $str, bool $isLast, bool $checkNowiki, string &$buf, bool &$openNowiki,
-		bool $isTemplate, bool &$serializeAsNamed, array $opts
+		bool $isTemplate, bool &$serializeAsNamed, array $opts, bool $isHTMLTag
 	): void {
+		if ( $openNowiki && ( !$checkNowiki || $isHTMLTag ) ) {
+			$buf .= '</nowiki>';
+			$openNowiki = false;
+		}
+
 		if ( !$checkNowiki ) {
-			if ( $openNowiki ) {
-				$buf .= '</nowiki>';
-				$openNowiki = false;
-			}
 			$buf .= $str;
 			return;
 		}
@@ -1043,13 +1045,32 @@ class WikitextEscapeHandlers {
 			//
 			// 1. Either there were no original positional args
 			// 2. Or, only the last positional arg uses '='
-			if ( $opts['numPositionalArgs'] === 0 ||
-				$opts['numPositionalArgs'] === $opts['argPositionalIndex']
+			// 3. Or, = is potentially part of an html tag attribute
+			if (
+				$opts['numPositionalArgs'] === 0 ||
+				$opts['numPositionalArgs'] === $opts['argPositionalIndex'] ||
+				$isHTMLTag
 			) {
 				$serializeAsNamed = true;
 			} else {
 				$needNowikiCount++;
 			}
+		}
+
+		// Template arg parsing has higher precendence than xml
+		// tag attributes, so the '=' would need protection.
+		// However, extensions are an exception.
+		//
+		// Note that if we nowiki escape the tag src as a string,
+		// we're breaking the semantics so we force serializing
+		// as a named argument.
+		//
+		// Also, xml tags can hide content (like extension tags)
+		// in attributes that the naive checks here in appendStr
+		// won't realize don't need escaping so return early.
+		if ( $isHTMLTag ) {
+			$buf .= $str;
+			return;
 		}
 
 		if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
@@ -1139,7 +1160,8 @@ class WikitextEscapeHandlers {
 						$openNowiki,
 						$isTemplate,
 						$serializeAsNamed,
-						$opts
+						$opts,
+						false
 					);
 					continue;
 				} elseif ( TokenUtils::hasTypeOf( $t, 'mw:Nowiki' ) ) {
@@ -1170,7 +1192,8 @@ class WikitextEscapeHandlers {
 							$openNowiki,
 							$isTemplate,
 							$serializeAsNamed,
-							$opts
+							$opts,
+							false
 						);
 					}
 					continue;
@@ -1186,7 +1209,8 @@ class WikitextEscapeHandlers {
 					$openNowiki,
 					$isTemplate,
 					$serializeAsNamed,
-					$opts
+					$opts,
+					false
 				);
 				continue;
 			}
@@ -1206,15 +1230,19 @@ class WikitextEscapeHandlers {
 						// FIXME $da->tsr will be undefined below.
 						// Should we throw an explicit exception here?
 					}
+					$isHTMLTag = $t instanceof XMLTagTk &&
+						WTUtils::hasLiteralHTMLMarker( $da ) &&
+						$t->getName() !== 'extension';
 					self::appendStr(
 						$da->tsr->substr( $arg ),
 						$last,
-						false,
+						$isHTMLTag,
 						$buf,
 						$openNowiki,
 						$isTemplate,
 						$serializeAsNamed,
-						$opts
+						$opts,
+						$isHTMLTag
 					);
 					break;
 				case $t instanceof SelfclosingTagTk:
@@ -1244,7 +1272,8 @@ class WikitextEscapeHandlers {
 									$openNowiki,
 									$isTemplate,
 									$serializeAsNamed,
-									$opts
+									$opts,
+									false
 								);
 							} else {
 								// Convert to a named param w/ the same reasoning
@@ -1264,15 +1293,18 @@ class WikitextEscapeHandlers {
 							}
 						}
 					} else {
+						$isHTMLTag = WTUtils::hasLiteralHTMLMarker( $da ) &&
+							$t->getName() !== 'extension';
 						self::appendStr(
 							$tkSrc,
 							$last,
-							false,
+							$isHTMLTag,
 							$buf,
 							$openNowiki,
 							$isTemplate,
 							$serializeAsNamed,
-							$opts
+							$opts,
+							$isHTMLTag
 						);
 					}
 					break;
