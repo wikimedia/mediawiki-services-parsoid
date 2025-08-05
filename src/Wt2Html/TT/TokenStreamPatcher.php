@@ -131,9 +131,9 @@ class TokenStreamPatcher extends LineBasedHandler {
 	/**
 	 * @return array<string|Token>
 	 */
-	private function convertTokenToString( Token $token ): array {
-		$da = $token->dataParsoid;
-		$tsr = $da->tsr ?? null;
+	private function convertNonHTMLTokenToString( Token $token ): array {
+		$dp = $token->dataParsoid;
+		$tsr = $dp->tsr ?? null;
 
 		if ( $tsr && $tsr->end > $tsr->start ) {
 			// > will only hold if these are valid numbers
@@ -141,26 +141,75 @@ class TokenStreamPatcher extends LineBasedHandler {
 			// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
 			$toks = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] );
 			return $this->reprocessTokens( $tsr->start, $toks, true );
-		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {
+		} elseif ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
 			$tokenName = ( $token instanceof XMLTagTk ) ? $token->getName() : '';
-			switch ( $tokenName ) {
-				case 'td':
-					return [ ( $token->dataParsoid->stx ?? '' ) === 'row' ? '||' : '|' ];
-				case 'th':
-					return [ ( $token->dataParsoid->stx ?? '' ) === 'row' ? '!!' : '!' ];
-				case 'tr':
-					return [ '|-' ];
-				case 'caption':
-					return [ $token instanceof TagTk ? '|+' : '' ];
-				case 'table':
-					return [ $token instanceof EndTagTk ? '|}' : $token ];
-				case 'listItem':
-					return [ implode( '', $token->getAttributeV( 'bullets' ) ) ];
+			if ( $tokenName === 'listItem' ) {
+				return [ implode( '', $token->getAttributeV( 'bullets' ) ) ];
+			} elseif ( !in_array( $tokenName, [ 'table', 'caption', 'tr', 'td', 'th' ], true ) ) {
+				return [ $token ];
 			}
 
-			return [ $token ];
+			// Only table tags from here on
+			$buf = $dp->startTagSrc ?? null;
+			if ( !$buf ) {
+				switch ( $tokenName ) {
+					case 'td':
+						$buf = ( $dp->stx ?? '' ) === 'row' ? '||' : '|';
+						break;
+					case 'th':
+						$buf = ( $dp->stx ?? '' ) === 'row' ? '!!' : '!';
+						break;
+					case 'tr':
+						$buf = '|-';
+						break;
+					case 'caption':
+						$buf = $token instanceof TagTk ? '|+' : '';
+						break;
+					case 'table':
+						if ( $token instanceof EndTagTk ) {
+							// Won't have attributes. Bail early!
+							return [ '|}' ];
+						}
+						$buf = '{|';
+						break;
+				}
+			}
+
+			// Extract attributes
+			$needsRetokenization = false;
+			$cellAttrSrc = $dp->getTemp()->attrSrc ?? null;
+			if ( $cellAttrSrc ) {
+				// Copied from TableFixups::convertAttribsToContent
+				if ( preg_match( "#['[{<]#", $cellAttrSrc ) ) {
+					$needsRetokenization = true;
+				}
+				$buf .= $cellAttrSrc . '|';
+			} else {
+				// FIXME: It should be rare for us to get here.
+				// This code will lose information and normalize attributes.
+				foreach ( $token->attribs as $kv ) {
+					$k = $kv->ksrc ?? TokenUtils::tokensToString( $kv->k ?? "" );
+					$v = $kv->vsrc ?? TokenUtils::tokensToString( $kv->v ?? "" );
+					if ( $v ) {
+						$quote = preg_match( '/"/', "$v" ) ? "'" : '"';
+						$v = "=$quote$v$quote";
+					}
+					if ( preg_match( "#['[{<]#", "$k=$v" ) ) {
+						$needsRetokenization = true;
+					}
+					$buf .= " $k$v";
+				}
+			}
+
+			if ( $needsRetokenization ) {
+				// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
+				$toks = $this->tokenizer->tokenizeSync( $buf, [ 'sol' => false ] );
+				return $this->reprocessTokens( null /* tsr->start not available */, $toks, true );
+			} else {
+				return [ $buf ];
+			}
 		}
 	}
 
@@ -321,12 +370,12 @@ class TokenStreamPatcher extends LineBasedHandler {
 					$tokenName = $token->getName();
 					if ( $tokenName === 'listItem' && isset( $this->options['attrExpansion'] ) ) {
 						// Convert list items back to bullet wikitext in attribute context
-						$tokens = $this->convertTokenToString( $token );
+						$tokens = $this->convertNonHTMLTokenToString( $token );
 					} elseif ( $tokenName === 'table' ) {
 						$this->wikiTableNesting++;
 					} elseif ( in_array( $tokenName, [ 'td', 'th', 'tr', 'caption' ], true ) ) {
 						if ( $this->wikiTableNesting === 0 ) {
-							$tokens = $this->convertTokenToString( $token );
+							$tokens = $this->convertNonHTMLTokenToString( $token );
 						}
 					}
 				}
@@ -341,7 +390,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 						}
 					} elseif ( $token->getName() === 'table' || $token->getName() === 'caption' ) {
 						// Convert this to "|}"
-						$tokens = $this->convertTokenToString( $token );
+						$tokens = $this->convertNonHTMLTokenToString( $token );
 					}
 				}
 				$this->clearSOL();
