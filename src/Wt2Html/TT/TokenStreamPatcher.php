@@ -52,7 +52,11 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 */
 	public function resetState( array $options ): void {
 		parent::resetState( $options );
-		$this->inIndependentParse = $this->atTopLevel || isset( $this->options['attrExpansion'] );
+		$this->inIndependentParse = $this->atTopLevel
+			// Attribute expansion is effectively its own document context
+			|| isset( $this->options['attrExpansion'] )
+			// Ext-tag processing is effectively its own document context
+			|| isset( $this->options['extTag'] );
 	}
 
 	private function reset(): void {

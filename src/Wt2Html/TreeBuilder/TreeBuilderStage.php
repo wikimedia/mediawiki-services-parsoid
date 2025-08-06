@@ -404,8 +404,8 @@ class TreeBuilderStage extends PipelineStage {
 		if ( ( $dp->stx ?? null ) !== 'html' &&
 			( $name === 'td' || $name === 'tr' || $name === 'th' )
 		) {
-			// A stripped wikitext-syntax table tag outside of a table. Re-insert the original
-			// page source.
+			// A stripped wikitext-syntax table tag outside of a table.
+			// Re-insert the original page source.
 			if ( !empty( $dp->tsr ) &&
 				$dp->tsr->start !== null && $dp->tsr->end !== null
 			) {

@@ -17217,6 +17217,22 @@ Extension tag with embedded html
 <p><span typeof="mw:Extension/embedtag" about="#mwt2" data-mw='{"name":"embedtag","attrs":{},"body":{"html":"Content with a &lt;a rel=\"mw:WikiLink\" href=\"./Broken_link?action=edit&amp;redlink=1\" title=\"Broken link\" class=\"new\" typeof=\"mw:LocalizedAttrs\" data-parsoid=&apos;{\"stx\":\"simple\",\"a\":{\"href\":\"./Broken_link\"},\"sa\":{\"href\":\"broken link\"}}&apos; data-mw-i18n=&apos;{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Broken link\"]}}&apos;>broken link&lt;/a>."}}'></span></p>
 !! end
 
+# standalone/integrated have slightly different wt2html output based on template-expansion & tokenization differences
+!! test
+Extension tag with td-like wikitext
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+<embedtag>
+{{1x|
+{{!}} foo {{!}}
+}}
+| bar |
+</embedtag>
+!! html/parsoid+integrated
+<p><span typeof="mw:Extension/embedtag" about="#mwt2" data-mw='{"name":"embedtag","attrs":{},"body":{"html":"\n&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n{{!}} foo {{!}}\\n\"}},\"i\":0}}]}&apos;>\n| foo |\n&lt;/span>\n| bar |\n"}}'></span></p>
+!! end
+
 !! test
 Cloned formatting element with extension tag that unpacks itself in attribute name position
 !! options
