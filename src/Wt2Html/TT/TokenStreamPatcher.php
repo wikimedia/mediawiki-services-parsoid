@@ -101,12 +101,12 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * Fully reprocess the output tokens from the tokenizer through
 	 * all the other handlers in stage 2.
 	 *
-	 * @param int|false $srcOffset See TokenUtils::shiftTokenTSR, which has b/c for null
+	 * @param ?int $srcOffset
 	 * @param array $toks
 	 * @param bool $popEOF
 	 * @return array<string|Token>
 	 */
-	private function reprocessTokens( $srcOffset, array $toks, bool $popEOF = false ): array {
+	private function reprocessTokens( ?int $srcOffset, array $toks, bool $popEOF = false ): array {
 		// Update tsr
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
 

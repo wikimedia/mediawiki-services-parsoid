@@ -297,27 +297,15 @@ class TokenUtils {
 	}
 
 	/**
-	 * Shift TSR of a token
-	 *
-	 * PORT-FIXME: In JS this was sometimes called with $offset=undefined, which meant do
-	 * nothing by default, except if there was a third parameter set to true, in which case it
-	 * meant the same thing as $offset = null. We can't pass in undefined in PHP, so this should
-	 * usually be handled with isset() is the caller. But isset() returns true if the variable is
-	 * null, so let's use false instead of null for whatever the previous code meant by a null
-	 * offset.
-	 *
-	 * @param array<Token|string> $tokens
-	 * @param int|false $offset
+	 * Shift TSR of a token by the requested $offset value.
+	 * A null value of $offset resets TSR on all tokens since we cannot
+	 * compute a reliable new value of $tsr and the old value of $tsr
+	 * should not be used either.
 	 */
-	public static function shiftTokenTSR( array $tokens, $offset ): void {
+	public static function shiftTokenTSR( array $tokens, ?int $offset ): void {
 		// Bail early if we can
 		if ( $offset === 0 ) {
 			return;
-		}
-
-		// JS b/c
-		if ( $offset === null ) {
-			$offset = false;
 		}
 
 		// update/clear tsr
@@ -330,32 +318,30 @@ class TokenUtils {
 					$da = $t->dataParsoid;
 					$tsr = $da->tsr ?? null;
 					if ( $tsr ) {
-						if ( $offset ) {
-							$da->tsr = $tsr->offset( $offset );
-						} else {
-							$da->tsr = null;
+						$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
+					}
+
+					if ( $offset !== null ) {
+						if ( isset( $da->extTagOffsets ) ) {
+							$da->extTagOffsets =
+								$da->extTagOffsets->offset( $offset );
 						}
-					}
 
-					if ( $offset && isset( $da->extTagOffsets ) ) {
-						$da->extTagOffsets =
-							$da->extTagOffsets->offset( $offset );
-					}
+						// SSS FIXME: offset will always be available in
+						// chunky-tokenizer mode in which case we wont have
+						// buggy offsets below.  The null scenario is only
+						// for when the token-stream-patcher attempts to
+						// reparse a string -- it is likely to only patch up
+						// small string fragments and the complicated use cases
+						// below should not materialize.
+						// CSA: token-stream-patcher shouldn't have problems
+						// now that $frame->srcText is always accurate?
 
-					// SSS FIXME: offset will always be available in
-					// chunky-tokenizer mode in which case we wont have
-					// buggy offsets below.  The null scenario is only
-					// for when the token-stream-patcher attempts to
-					// reparse a string -- it is likely to only patch up
-					// small string fragments and the complicated use cases
-					// below should not materialize.
-					// CSA: token-stream-patcher shouldn't have problems
-					// now that $frame->srcText is always accurate?
-
-					// content offsets for ext-links
-					if ( $offset && isset( $da->tmp->extLinkContentOffsets ) ) {
-						$da->tmp->extLinkContentOffsets =
-							$da->tmp->extLinkContentOffsets->offset( $offset );
+						// content offsets for ext-links
+						if ( isset( $da->tmp->extLinkContentOffsets ) ) {
+							$da->tmp->extLinkContentOffsets =
+								$da->tmp->extLinkContentOffsets->offset( $offset );
+						}
 					}
 
 					// Process attributes
@@ -370,7 +356,7 @@ class TokenUtils {
 							}
 
 							// src offsets used to set mw:TemplateParams
-							if ( !$offset ) {
+							if ( $offset === null ) {
 								$a->srcOffsets = null;
 							} elseif ( $a->srcOffsets !== null ) {
 								$a->srcOffsets = $a->srcOffsets->offset( $offset );
