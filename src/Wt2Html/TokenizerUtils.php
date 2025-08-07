@@ -180,11 +180,9 @@ class TokenizerUtils {
 
 		$a = [];
 		if ( $attrInfo ) {
-			if ( $tagName !== 'caption' ) {
-				$dp->getTemp()->attrSrc = substr(
-					$pegSource, $tsr->start, $tsr->end - $tsr->start - strlen( $attrInfo[2] )
-				);
-			}
+			$dp->getTemp()->attrSrc = substr(
+				$pegSource, $tsr->start, $tsr->end - $tsr->start - strlen( $attrInfo[2] )
+			);
 			$a = $attrInfo[0];
 			if ( !$a ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
@@ -195,7 +193,7 @@ class TokenizerUtils {
 				// 2. Not "|"
 				$dp->attrSepSrc = $attrInfo[2];
 			}
-		} elseif ( $tagName !== 'caption' ) {
+		} else {
 			$dp->getTemp()->attrSrc = '';
 		}
 

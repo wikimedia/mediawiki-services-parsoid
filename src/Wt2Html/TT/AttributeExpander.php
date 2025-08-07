@@ -140,6 +140,7 @@ class AttributeExpander extends UniversalTokenHandler {
 		// Since we no longer know where this token now ends tsr-wise,
 		// set tsr->end to null
 		$token->dataParsoid->tsr->end = null;
+		$token->dataParsoid->getTemp()->attrSrc = '';
 
 		if ( $startMeta ) {
 			// Support template wrapping with the following steps:

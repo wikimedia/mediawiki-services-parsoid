@@ -2095,6 +2095,7 @@ table_content_line =
 
 table_start_tag "table_start_tag" =
 	b:"{" p:pipe
+	attrStartPos:POSITION
 	// ok to normalize away stray |} on rt (see T59360)
 	ta:(table_attributes<table=false> / unreachable)
 	tsEndPos:POSITION
@@ -2111,6 +2112,9 @@ table_start_tag "table_start_tag" =
 			// Variation from default
 			$dp->startTagSrc = $b . $p;
 		}
+		$dp->getTemp()->attrSrc = substr(
+			$this->input, $attrStartPos, $tsEndPos - $attrStartPos
+		);
 
 		return array_merge(
 			[ new TagTk( 'table', $ta, $dp ) ],
@@ -2139,6 +2143,7 @@ table_row_tag =
 	// avoid recursion via nested_block_in_table
 	! <tableDataBlock>
 	p:pipe dashes:$"-"+
+	attrStartPos:POSITION
 	a:(table_attributes<table=false> / unreachable)
 	tagEndPos:POSITION
 	s2:space*
@@ -2151,6 +2156,9 @@ table_row_tag =
 		$da = new DataParsoid;
 		$da->tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		$da->startTagSrc = $p . $dashes;
+		$da->getTemp()->attrSrc = substr(
+			$this->input, $attrStartPos, $tagEndPos - $attrStartPos
+		);
 
 		// We rely on our tree builder to close the row as needed. This is
 		// needed to support building tables from fragment templates with

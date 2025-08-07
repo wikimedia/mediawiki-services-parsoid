@@ -378,7 +378,7 @@ private function a3($t, $n) {
 		return $ret;
 	
 }
-private function a4($b, $p, $ta, $tsEndPos, $s2) {
+private function a4($b, $p, $attrStartPos, $ta, $tsEndPos, $s2) {
 
 		$coms = TokenizerUtils::popComments( $ta );
 		if ( $coms ) {
@@ -391,6 +391,9 @@ private function a4($b, $p, $ta, $tsEndPos, $s2) {
 			// Variation from default
 			$dp->startTagSrc = $b . $p;
 		}
+		$dp->getTemp()->attrSrc = substr(
+			$this->input, $attrStartPos, $tsEndPos - $attrStartPos
+		);
 
 		return array_merge(
 			[ new TagTk( 'table', $ta, $dp ) ],
@@ -475,10 +478,10 @@ private function a13($b) {
 	
 }
 private function a14() {
- $this->unreachable(); 
+ return $this->endOffset(); 
 }
 private function a15() {
- return $this->endOffset(); 
+ $this->unreachable(); 
 }
 private function a16($p) {
  return Utils::isProtocolValid( $p, $this->env ); 
@@ -1815,7 +1818,7 @@ private function a146($p, $startPos, $lt) {
 			return [$p, $maybeContent];
 		
 }
-private function a147($p, $dashes, $a, $tagEndPos, $s2) {
+private function a147($p, $dashes, $attrStartPos, $a, $tagEndPos, $s2) {
 
 		$coms = TokenizerUtils::popComments( $a );
 		if ( $coms ) {
@@ -1825,6 +1828,9 @@ private function a147($p, $dashes, $a, $tagEndPos, $s2) {
 		$da = new DataParsoid;
 		$da->tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		$da->startTagSrc = $p . $dashes;
+		$da->getTemp()->attrSrc = substr(
+			$this->input, $attrStartPos, $tagEndPos - $attrStartPos
+		);
 
 		// We rely on our tree builder to close the row as needed. This is
 		// needed to support building tables from fragment templates with
@@ -2269,26 +2275,28 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r4 = self::$FAILED;
     goto seq_1;
   }
+  $r7 = $this->parsePOSITION(true);
+  // attrStartPos <- $r7
   // start choice_2
-  $r7 = $this->parsetable_attributes(true, $boolParams & ~0x10, $param_tagType, $param_preproc, $param_th);
-  if ($r7!==self::$FAILED) {
+  $r8 = $this->parsetable_attributes(true, $boolParams & ~0x10, $param_tagType, $param_preproc, $param_th);
+  if ($r8!==self::$FAILED) {
     goto choice_2;
   }
-  $r7 = $this->parseunreachable(true);
+  $r8 = $this->parseunreachable(true);
   choice_2:
-  // ta <- $r7
-  $r8 = $this->parsePOSITION(true);
-  // tsEndPos <- $r8
-  $r9 = strspn($this->input, "\x09 ", $this->currPos);
-  // s2 <- $r9
-  $this->currPos += $r9;
-  $r9 = substr($this->input, $this->currPos - $r9, $r9);
-  $r9 = mb_str_split($r9, 1, "utf-8");
+  // ta <- $r8
+  $r9 = $this->parsePOSITION(true);
+  // tsEndPos <- $r9
+  $r10 = strspn($this->input, "\x09 ", $this->currPos);
+  // s2 <- $r10
+  $this->currPos += $r10;
+  $r10 = substr($this->input, $this->currPos - $r10, $r10);
+  $r10 = mb_str_split($r10, 1, "utf-8");
   $r4 = true;
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a4($r5, $r6, $r7, $r8, $r9);
+    $r4 = $this->a4($r5, $r6, $r7, $r8, $r9, $r10);
   } else {
     if (!$silence) { $this->fail(2); }
   }
@@ -3435,6 +3443,17 @@ return $this->traceCall(function($silence, &$param_th, &$param_preproc) {
 }, "tlb", ["\$silence", "&\$param_th", "&\$param_preproc"], [$silence, &$param_th, &$param_preproc]);
 
 }
+private function parsePOSITION($silence) {
+return $this->traceCall(function($silence) {
+  $p2 = $this->currPos;
+  $r1 = true;
+  $this->savedPos = $p2;
+  $r1 = $this->a14();
+  // free $p2
+  return $r1;
+}, "POSITION", ["\$silence"], [$silence]);
+
+}
 private function parseunreachable($silence) {
 return $this->traceCall(function($silence) {
   $key = 486;
@@ -3448,7 +3467,7 @@ return $this->traceCall(function($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a14();
+  $r3 = $this->a15();
   if ($r3) {
     $r3 = false;
   } else {
@@ -3467,17 +3486,6 @@ return $this->traceCall(function($silence) {
   );
   return $r2;
 }, "unreachable", ["\$silence"], [$silence]);
-
-}
-private function parsePOSITION($silence) {
-return $this->traceCall(function($silence) {
-  $p2 = $this->currPos;
-  $r1 = true;
-  $this->savedPos = $p2;
-  $r1 = $this->a15();
-  // free $p2
-  return $r1;
-}, "POSITION", ["\$silence"], [$silence]);
 
 }
 private function parseurl_protocol($silence) {
@@ -17541,26 +17549,28 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   }
   // free $r9
   // free $p8
+  $r9 = $this->parsePOSITION($silence);
+  // attrStartPos <- $r9
   // start choice_2
-  $r9 = $this->parsetable_attributes($silence, $boolParams & ~0x10, $param_tagType, $param_preproc, $param_th);
-  if ($r9!==self::$FAILED) {
+  $r10 = $this->parsetable_attributes($silence, $boolParams & ~0x10, $param_tagType, $param_preproc, $param_th);
+  if ($r10!==self::$FAILED) {
     goto choice_2;
   }
-  $r9 = $this->parseunreachable($silence);
+  $r10 = $this->parseunreachable($silence);
   choice_2:
-  // a <- $r9
-  $r10 = $this->parsePOSITION($silence);
-  // tagEndPos <- $r10
-  $r11 = strspn($this->input, "\x09 ", $this->currPos);
-  // s2 <- $r11
-  $this->currPos += $r11;
-  $r11 = substr($this->input, $this->currPos - $r11, $r11);
-  $r11 = mb_str_split($r11, 1, "utf-8");
+  // a <- $r10
+  $r11 = $this->parsePOSITION($silence);
+  // tagEndPos <- $r11
+  $r12 = strspn($this->input, "\x09 ", $this->currPos);
+  // s2 <- $r12
+  $this->currPos += $r12;
+  $r12 = substr($this->input, $this->currPos - $r12, $r12);
+  $r12 = mb_str_split($r12, 1, "utf-8");
   $r4 = true;
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a147($r6, $r7, $r9, $r10, $r11);
+    $r4 = $this->a147($r6, $r7, $r9, $r10, $r11, $r12);
   }
   // free $r5
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(

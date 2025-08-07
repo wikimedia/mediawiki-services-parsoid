@@ -5583,9 +5583,6 @@ parsoid=wt2html,wt2wt
 <span about="#mwt6" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}} class=&apos;boo&apos; {{!}} bar"}},"i":0}}]}'>| class='boo' | bar</span></p>
 !! end
 
-# The choice of ' quotes in the test wikitext is deliberate to trigger the difference
-# in standalone & integrated modes to demonstrate that in the absence of information
-# from PEG tokenizer in tokens, we lose information by normalizing attributes.
 !! test
 2. Templated table wikitext syntax outside wiki-tables
 !! options
@@ -5595,10 +5592,8 @@ parsoid=wt2html,wt2wt
 !! html/php
 <p>|- class='trclass'
 </p>
-!! html/parsoid+standalone
+!! html/parsoid
 <p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- class=&apos;trclass&apos;"}},"i":0}}]}'>|- class='trclass'</span></p>
-!! html/parsoid+integrated
-<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- class=&apos;trclass&apos;"}},"i":0}}]}'>|- class="trclass"</span></p>
 !! end
 
 !! test

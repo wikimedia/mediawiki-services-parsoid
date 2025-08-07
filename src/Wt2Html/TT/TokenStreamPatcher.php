@@ -185,27 +185,18 @@ class TokenStreamPatcher extends LineBasedHandler {
 				if ( preg_match( "#['[{<]#", $cellAttrSrc ) ) {
 					$needsRetokenization = true;
 				}
-				$buf .= $cellAttrSrc . '|';
-			} else {
-				// FIXME: It should be rare for us to get here.
-				// This code will lose information and normalize attributes.
-				foreach ( $token->attribs as $kv ) {
-					$k = $kv->ksrc ?? TokenUtils::tokensToString( $kv->k ?? "" );
-					$v = $kv->vsrc ?? TokenUtils::tokensToString( $kv->v ?? "" );
-					if ( $v ) {
-						$quote = preg_match( '/"/', "$v" ) ? "'" : '"';
-						$v = "=$quote$v$quote";
-					}
-					if ( preg_match( "#['[{<]#", "$k=$v" ) ) {
-						$needsRetokenization = true;
-					}
-					$buf .= " $k$v";
+				$buf .= $cellAttrSrc;
+				if ( in_array( $tokenName, [ 'caption', 'td', 'th' ], true ) ) {
+					$buf .= '|';
 				}
 			}
 
 			if ( $needsRetokenization ) {
 				// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
 				$toks = $this->tokenizer->tokenizeSync( $buf, [ 'sol' => false ] );
+				// FIXME: Passing null here will drop token tsr before expansion.
+				// If any templates are present, we'll likely get a crasher in
+				// template handling.
 				return $this->reprocessTokens( null /* tsr->start not available */, $toks, true );
 			} else {
 				return [ $buf ];
