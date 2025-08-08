@@ -196,12 +196,9 @@ class TokenStreamPatcher extends LineBasedHandler {
 			}
 
 			if ( $needsRetokenization ) {
-				// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
+				// sol === false ensures that the pipe will not be parsed as td/th/tr/table/caption
 				$toks = $this->tokenizer->tokenizeSync( $buf, [ 'sol' => false ] );
-				// FIXME: Passing null here will drop token tsr before expansion.
-				// If any templates are present, we'll likely get a crasher in
-				// template handling.
-				return $this->reprocessTokens( null /* tsr->start not available */, $toks, true );
+				return $this->reprocessTokens( $tsr->start ?? $this->srcOffset, $toks, true );
 			} else {
 				return [ $buf ];
 			}
