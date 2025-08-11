@@ -215,9 +215,10 @@ class ParserPipeline {
 
 		// Set frame
 		$frame = $initialState['frame'];
-		if ( !$this->atTopLevel ) {
+
+		if ( !$this->atTopLevel || isset( $initialState['srcText'] ) ) {
 			$tplArgs = $initialState['tplArgs'] ?? null;
-			$srcText = $initialState['srcText'] ?? null;
+			$srcText = $initialState['srcText'] ?? $frame->getSrcText();
 			if ( isset( $tplArgs['title'] ) ) {
 				$title = $tplArgs['title'];
 				$args = $tplArgs['attribs']; // KV[]

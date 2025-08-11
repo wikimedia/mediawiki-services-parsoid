@@ -15,8 +15,8 @@ use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
+use Wikimedia\WikiPEG\SyntaxError;
 
 /**
  * This class is an attempt to fixup the token stream to reparse strings
@@ -29,7 +29,6 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
  * heuristics and tricks to handle different scenarios.
  */
 class TokenStreamPatcher extends LineBasedHandler {
-	private PegTokenizer $tokenizer;
 	private ?int $srcOffset;
 	private bool $sol;
 	private array $tokenBuf;
@@ -41,7 +40,6 @@ class TokenStreamPatcher extends LineBasedHandler {
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
-		$this->tokenizer = new PegTokenizer( $this->env );
 		$this->reset();
 	}
 
@@ -102,33 +100,27 @@ class TokenStreamPatcher extends LineBasedHandler {
 	}
 
 	/**
-	 * Fully reprocess the output tokens from the tokenizer through
-	 * all the other handlers in stage 2.
-	 *
-	 * @param ?int $srcOffset
-	 * @param array $toks
-	 * @param bool $popEOF
-	 * @return array<string|Token>
+	 * Reprocess source to tokens as they would be entering the
+	 * TokenStreamPatcher, ie. expanded to the end of stage 2
 	 */
-	private function reprocessTokens( ?int $srcOffset, array $toks, bool $popEOF = false ): array {
-		// Update tsr
-		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
-
+	private function reprocessTokens(
+		?int $srcOffset, string $str, bool $sol, ?string $startRule = null
+	): array {
 		$toks = (array)PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
-			$toks,
+			$str,
 			[
-				'pipelineType' => 'peg-tokens-to-expanded-tokens',
+				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => [],
-				'sol' => true,
+				'sol' => $sol,
+				'startRule' => $startRule,
 				'toplevel' => $this->atTopLevel,
+				'srcText' => $str,
 			]
 		);
-
-		if ( $popEOF ) {
-			array_pop( $toks ); // pop EOFTk
-		}
+		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
+		TokenUtils::stripEOFTkFromTokens( $toks );
 		return $toks;
 	}
 
@@ -143,8 +135,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 			// > will only hold if these are valid numbers
 			$str = $tsr->substr( $this->manager->getFrame()->getSrcText() );
 			// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
-			$toks = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] );
-			return $this->reprocessTokens( $tsr->start, $toks, true );
+			return $this->reprocessTokens( $tsr->start, $str, false );
 		} elseif ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
@@ -197,8 +188,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 
 			if ( $needsRetokenization ) {
 				// sol === false ensures that the pipe will not be parsed as td/th/tr/table/caption
-				$toks = $this->tokenizer->tokenizeSync( $buf, [ 'sol' => false ] );
-				return $this->reprocessTokens( $tsr->start ?? $this->srcOffset, $toks, true );
+				return $this->reprocessTokens( $tsr->start ?? $this->srcOffset, $buf, false );
 			} else {
 				return [ $buf ];
 			}
@@ -273,24 +263,22 @@ class TokenStreamPatcher extends LineBasedHandler {
 					if ( $this->inIndependentParse && str_starts_with( $token, '{|' ) ) {
 						// Reparse string with the 'table_start_tag' rule
 						// and fully reprocess them.
-						$retoks = $this->tokenizer->tokenizeAs( $token, 'table_start_tag', /* sol */true );
-						if ( $retoks === false ) {
+						try {
+							$tokens = $this->reprocessTokens( $this->srcOffset, $token, true, 'table_start_tag' );
+							$this->wikiTableNesting++;
+						} catch ( SyntaxError ) {
 							// XXX: The string begins with table start syntax,
 							// we really shouldn't be here. Anything else on the
 							// line would get swallowed up as attributes.
 							$this->env->log( 'error', 'Failed to tokenize table start tag.' );
 							$this->clearSOL();
-						} else {
-							$tokens = $this->reprocessTokens( $this->srcOffset, $retoks );
-							$this->wikiTableNesting++;
 						}
 					} elseif ( $this->inIndependentParse && $T2529hack ) { // {| has been handled above
-						$retoks = $this->tokenizer->tokenizeAs( $token, 'list_item', /* sol */true );
-						if ( $retoks === false ) {
+						try {
+							$tokens = $this->reprocessTokens( $this->srcOffset, $token, true, 'list_item' );
+						} catch ( SyntaxError ) {
 							$this->env->log( 'error', 'Failed to tokenize list item.' );
 							$this->clearSOL();
-						} else {
-							$tokens = $this->reprocessTokens( $this->srcOffset, $retoks );
 						}
 					} elseif ( preg_match( '/^\s*$/D', $token ) ) {
 						// White-space doesn't change SOL state

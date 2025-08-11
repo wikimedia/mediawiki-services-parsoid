@@ -107,6 +107,7 @@ class PipelineUtils {
 	 *    - string srcText - if set, defines the source text for the expansion
 	 *    - SourceRange  srcOffsets - if set, defines the range within the
 	 *          source text that $content corresponds to
+	 *    - string startRule The start rule to use when tokenizing
 	 *    - bool   sol Whether tokens should be processed in start-of-line context.
 	 *    - bool   toplevel Whether the pipeline is considered atTopLevel
 	 *    - stdClass   tplInfo Template info for pipelines created when DOM processing
@@ -127,12 +128,15 @@ class PipelineUtils {
 			'tplInfo' => $opts['tplInfo'] ?? null,
 			'frame' => $frame,
 			'tplArgs' => $opts['tplArgs'] ?? null,
-			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
+			'srcText' => $opts['srcText'] ?? null,
 			'srcOffsets' => $opts['srcOffsets'] ?? null,
 		] );
 
 		// Off the starting block ... ready, set, go!
-		return $pipeline->parse( $content, [ 'sol' => $opts['sol'] ] );
+		return $pipeline->parse( $content, [
+			'sol' => $opts['sol'],
+			'startRule' => $opts['startRule'] ?? null
+		] );
 	}
 
 	/**
