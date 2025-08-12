@@ -34,7 +34,7 @@ interface ContentMetadataCollector {
 	 * ::setRevisionUsedSha1Base36()
 	 * ::setSpeculativePageIdUsed()
 	 *   T292865: these should be plumbed through direct from ParserOptions
-	 *   or use the ::setOutputFlag() or addOutputData() mechanism.
+	 *   or use the ::setOutputFlag() or appendOutputStrings() mechanism.
 	 * ::setTimestamp()
 	 *   This is used by ParserCache and is a little optimization used to
 	 *   show the correct 'article was last edited on blablablah' box on
@@ -102,8 +102,11 @@ interface ContentMetadataCollector {
 	 * ::addExtraCSPDefaultSrc()
 	 * ::addExtraCSPStyleSrc()
 	 * ::addExtraCSPScriptSrc()
-	 * ::updateRuntimeAdaptiveExpiry()
 	 *   T296345: handled through ::appendOutputStrings()
+	 * ::updateRuntimeAdaptiveExpiry()
+	 *   See discussion in T296345.  Parsoid shouldn't need to know about
+	 *   this; extensions can bypass Parsoid to invoke the ParserOutput
+	 *   method directly.
 	 *
 	 * == Temporarily omitted ==
 	 * ::addTemplate()
