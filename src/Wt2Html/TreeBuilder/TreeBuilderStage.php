@@ -203,6 +203,8 @@ class TreeBuilderStage extends PipelineStage {
 	 * @param Token|string $token
 	 */
 	public function processToken( $token ): void {
+		$this->env->trace( 'html', $this->pipelineId, $token );
+
 		if ( $this->pipelineId === 0 ) {
 			if ( $this->env->bumpWt2HtmlResourceUse( 'token' ) === false ) {
 				// `false` indicates that this bump pushed us over the threshold
@@ -225,8 +227,6 @@ class TreeBuilderStage extends PipelineStage {
 		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
 			$tmp->tagId = $this->tagId++;
 		}
-
-		$this->env->trace( 'html', $this->pipelineId, $token );
 
 		// Store the last token
 		$this->lastToken = $token;

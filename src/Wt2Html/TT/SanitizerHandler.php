@@ -147,7 +147,9 @@ class SanitizerHandler extends UniversalTokenHandler {
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->trace( 'sanitizer', $this->pipelineId, $newToken );
+		if ( $newToken ) {
+			$env->trace( 'sanitizer', $this->pipelineId, ' ---> ', $newToken );
+		}
 		return ( $newToken === null || $newToken === $token ) ? null : [ $newToken ];
 	}
 }
