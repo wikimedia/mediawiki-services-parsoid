@@ -703,8 +703,18 @@ class Env {
 			);
 			$this->topLevelDoc = $topLevelDoc;
 		} else {
+			$this->topLevelDoc = DOMCompat::newDocument( isHtml: true );
+			$documentElement = $this->topLevelDoc->documentElement;
+			if ( !$documentElement ) {
+				$documentElement = $this->topLevelDoc->createElement( 'html' );
+				$this->topLevelDoc->appendChild( $documentElement );
+			}
+			$body = DOMCompat::getBody( $this->topLevelDoc );
+			if ( !$body ) {
+				$body = $this->topLevelDoc->createElement( 'body' );
+				$documentElement->appendChild( $body );
+			}
 			$this->remexPipeline = new RemexPipeline( $this );
-			$this->topLevelDoc = $this->remexPipeline->doc;
 			// Prepare and load.
 			// (Loading should be easy since the doc is expected to be empty.)
 			$options = [
@@ -714,7 +724,7 @@ class Env {
 			];
 			DOMDataUtils::prepareDoc( $this->topLevelDoc );
 			DOMDataUtils::visitAndLoadDataAttribs(
-				DOMCompat::getBody( $this->topLevelDoc ), $options
+				$body, $options
 			);
 			// Mark the document as loaded so we can try to catch errors which
 			// might try to reload this again later.
@@ -739,13 +749,7 @@ class Env {
 		if ( !$toFragment ) {
 			return $this->remexPipeline;
 		} else {
-			$pipeline = new RemexPipeline( $this );
-			// Attach the top-level bag to the document, for the convenience
-			// of code that modifies the data within the RemexHtml TreeBuilder
-			// pipeline, prior to the migration of nodes to the top-level
-			// document.
-			DOMDataUtils::prepareChildDoc( $this->topLevelDoc, $pipeline->doc );
-			return $pipeline;
+			return new RemexPipeline( $this );
 		}
 	}
 

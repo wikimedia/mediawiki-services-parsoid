@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\ParsoidDOMBuilder;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
@@ -47,7 +47,7 @@ class DOMUtils {
 		}
 		// If DOMCompat::isUsing84Dom use Remex to parse.
 
-		$domBuilder = new DOMBuilder; // our DOMBuilder, not remex's
+		$domBuilder = new ParsoidDOMBuilder; // our DOMBuilder, not remex's
 		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );

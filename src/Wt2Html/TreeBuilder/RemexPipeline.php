@@ -4,31 +4,26 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
+use Wikimedia\RemexHtml\HTMLData;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
 use Wikimedia\RemexHtml\TreeBuilder\TreeMutationTracer;
 
 class RemexPipeline {
-	/** @var Dispatcher */
-	public $dispatcher;
+	public Dispatcher $dispatcher;
 
-	/** @var TreeBuilder */
-	public $treeBuilder;
+	public TreeBuilder $treeBuilder;
 
-	/** @var TreeMutationRelay */
-	private $relay;
+	private TreeMutationRelay $relay;
 
-	/** @var DOMBuilder */
-	public $domBuilder;
+	public ParsoidDOMFragmentBuilder $domBuilder;
 
-	/** @var Document */
-	public $doc;
+	public DocumentFragment $documentFragment;
 
 	private int $nextFakeLength = 1;
 
@@ -44,7 +39,7 @@ class RemexPipeline {
 	 * @param Env $env
 	 */
 	public function __construct( Env $env ) {
-		$this->domBuilder = new DOMBuilder;
+		$this->domBuilder = new ParsoidDOMFragmentBuilder( $env->getTopLevelDoc() );
 		$this->relay = new TreeMutationRelay( $this->domBuilder );
 		if ( $env->hasTraceFlag( 'remex' ) ) {
 			$tracer = new TreeMutationTracer(
@@ -62,16 +57,13 @@ class RemexPipeline {
 		// Create dummy Tokenizer
 		$tokenizer = new Tokenizer( $this->dispatcher, '', [ 'ignoreErrors' => true ] );
 
-		$this->dispatcher->startDocument( $tokenizer, null, null );
-		$this->dispatcher->doctype( 'html', '', '', false, 0, 0 );
-		$this->dispatcher->startTag( 'body', new PlainAttributes(), false, 0, 0 );
+		$this->dispatcher->startDocument( $tokenizer, HTMLData::NS_HTML, 'body' );
+		$this->documentFragment = $this->domBuilder->getFragment();
+	}
 
-		$doc = $this->domBuilder->getFragment();
-		if ( $doc instanceof Document ) {
-			$this->doc = $doc;
-		} else {
-			throw new InternalException( 'Invalid document type' );
-		}
+	// Helper function: return the owner document of the DocumentFragment.
+	private function ownerDoc(): Document {
+		return $this->documentFragment->ownerDocument;
 	}
 
 	/**
@@ -84,7 +76,7 @@ class RemexPipeline {
 		$this->dispatcher->flushTableText();
 		$this->dispatcher->inHead->startTag(
 			'meta',
-			new Attributes( $this->doc, $attribs ),
+			new Attributes( $this->ownerDoc(), $attribs ),
 			false, 0, 0
 		);
 	}
@@ -100,7 +92,7 @@ class RemexPipeline {
 	public function insertImplicitStartTag(
 		string $name, array $attribs, bool $selfClose = false
 	): void {
-		$attribsObj = new Attributes( $this->doc, $attribs );
+		$attribsObj = new Attributes( $this->ownerDoc(), $attribs );
 		$this->dispatcher->startTag( $name, $attribsObj, $selfClose, 0, 0 );
 	}
 
@@ -117,7 +109,7 @@ class RemexPipeline {
 	public function insertExplicitStartTag(
 		string $name, array $attribs, bool $selfClose = false
 	): ?Element {
-		$attribsObj = new Attributes( $this->doc, $attribs );
+		$attribsObj = new Attributes( $this->ownerDoc(), $attribs );
 		$this->relay->matchStartTag( $attribsObj );
 		$this->dispatcher->startTag( $name, $attribsObj, $selfClose, 0, 0 );
 		$element = $this->relay->getMatchedElement();

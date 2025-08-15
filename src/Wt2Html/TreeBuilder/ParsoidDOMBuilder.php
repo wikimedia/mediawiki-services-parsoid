@@ -11,13 +11,12 @@ use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
 /**
  * This is the DOMBuilder subclass used by Wt2Html
  */
-class DOMBuilder extends RemexDOMBuilder {
+class ParsoidDOMBuilder extends RemexDOMBuilder {
 	public function __construct() {
 		parent::__construct( DOMCompat::isStandardsMode() ? [
-			'suppressIdAttribute' => !DOMCompat::isUsing84Dom(),
+			'suppressIdAttribute' => DOMCompat::isUsingDodo(),
 			'domExceptionClass' => DOMException::class,
 			'domImplementationClass' => DOMImplementation::class,
-			'suppressHtmlNamespace' => true,
 		] : [
 			'suppressHtmlNamespace' => true,
 		] );
@@ -33,3 +32,5 @@ class DOMBuilder extends RemexDOMBuilder {
 		return DOMCompat::newDocument();
 	}
 }
+/** @deprecated since 0.22 */
+class_alias( ParsoidDOMBuilder::class, '\Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder' );

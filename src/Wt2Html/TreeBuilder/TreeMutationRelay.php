@@ -8,11 +8,12 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\RemexHtml\DOM\DOMBuilder;
 use Wikimedia\RemexHtml\TreeBuilder\Element;
 use Wikimedia\RemexHtml\TreeBuilder\RelayTreeHandler;
 
 /**
- * This is a stage inserted between RemexHtml's TreeBuilder and our DOMBuilder
+ * This is a stage inserted between RemexHtml's TreeBuilder and our ParsoidDOMBuilder
  * subclass. Any code that needs to modify the tree mutation event stream
  * should go here. It's currently used for auto-insert detection.
  */

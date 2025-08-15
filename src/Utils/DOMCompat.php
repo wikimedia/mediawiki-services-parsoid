@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\DOM\HTMLDocument;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
-use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\ParsoidDOMFragmentBuilder;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\RemexHtml\HTMLData;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
@@ -506,7 +506,7 @@ class DOMCompat {
 	 */
 	public static function setInnerHTML( $element, string $html ): void {
 		// Always use Remex for parsing, even in standards mode.
-		$domBuilder = new DOMBuilder; // Our version, not Remex's
+		$domBuilder = new ParsoidDOMFragmentBuilder( $element->ownerDocument );
 		$treeBuilder = new TreeBuilder( $domBuilder );
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
@@ -520,8 +520,8 @@ class DOMCompat {
 		self::replaceChildren( $element );
 
 		$frag = $domBuilder->getFragment();
-		'@phan-var Node $frag'; // @var Node $frag
-		DOMUtils::migrateChildrenBetweenDocs(
+		'@phan-var DocumentFragment $frag'; // @var DocumentFragment $frag
+		DOMUtils::migrateChildren(
 			$frag, $element
 		);
 	}
