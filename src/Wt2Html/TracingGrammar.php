@@ -20,7 +20,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\NodeData\DataParsoid;
 	use Wikimedia\Parsoid\NodeData\TempData;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
-	use Wikimedia\Parsoid\Tokens\EOFTk;
 	use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\KV;
@@ -374,7 +373,6 @@ private function a3($t, $n) {
 		if ( count( $n ) ) {
 			PHPUtils::pushArray($ret, $n);
 		}
-		$ret[] = new EOFTk();
 		return $ret;
 	
 }

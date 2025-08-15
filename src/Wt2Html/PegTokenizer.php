@@ -99,6 +99,9 @@ class PegTokenizer extends PipelineStage {
 			// Should never happen.
 			throw $exception;
 		}
+
+		// Downstream stages expect EOFTk at the end of the token stream.
+		$result[] = new EOFTk();
 		return $result;
 	}
 

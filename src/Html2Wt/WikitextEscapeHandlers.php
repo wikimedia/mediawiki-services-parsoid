@@ -334,22 +334,6 @@ class WikitextEscapeHandlers {
 		return false;
 	}
 
-	/**
-	 * Tokenize string and pop EOFTk
-	 *
-	 * @param string $str
-	 * @param bool $sol
-	 * @return array
-	 */
-	public function tokenizeStr( string $str, bool $sol ): array {
-		$tokens = $this->tokenizer->tokenizeSync( $str, [ 'sol' => $sol ] );
-		Assert::invariant(
-			array_pop( $tokens ) instanceof EOFTk,
-			'Expected EOF token!'
-		);
-		return $tokens;
-	}
-
 	public function textCanParseAsLink( Node $node, SerializerState $state, string $text ): bool {
 		$env = $state->getEnv();
 		$env->trace(
@@ -373,7 +357,7 @@ class WikitextEscapeHandlers {
 		}
 
 		$str = $state->currLine->text . $text;
-		$tokens = $this->tokenizeStr( $str, false ); // sol state is irrelevant here
+		$tokens = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] ); // sol state is irrelevant here
 		$n = count( $tokens );
 		$lastToken = $tokens[$n - 1];
 
@@ -489,7 +473,7 @@ class WikitextEscapeHandlers {
 			$text = str_replace( "\n", "\n ", $text );
 		}
 
-		$tokens = $this->tokenizeStr( $text, $sol );
+		$tokens = $this->tokenizer->tokenizeSync( $text, [ 'sol' => $sol ] );
 
 		// If the token stream has a XmlTagTk or CommentTk
 		// then this text needs escaping!
@@ -680,7 +664,7 @@ class WikitextEscapeHandlers {
 		// instead of entity enclosed text
 		$text = preg_replace( '#&lt;(/?nowiki\s*/?\s*)&gt;#i', '<$1>', $text );
 
-		$tokens = $this->tokenizeStr( $text, $sol );
+		$tokens = $this->tokenizer->tokenizeSync( $text, [ 'sol' => $sol ] );
 
 		foreach ( $tokens as $t ) {
 			if ( is_string( $t ) ) {
@@ -1126,7 +1110,7 @@ class WikitextEscapeHandlers {
 		$openNowiki = false;
 		$isTemplate = $opts['type'] === 'template';
 
-		$tokens = $this->tokenizeStr( $arg, false );
+		$tokens = $this->tokenizer->tokenizeSync( $arg, [ 'sol' => false ] );
 
 		for ( $i = 0, $n = count( $tokens ); $i < $n; $i++ ) {
 			$t = $tokens[$i];
