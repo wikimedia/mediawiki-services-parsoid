@@ -24,6 +24,18 @@ class OnlyInclude extends UniversalTokenHandler {
 
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
+		$this->resetState( $options );
+	}
+
+	/**
+	 * Resets any internal state for this token handler.
+	 *
+	 * @param array $options
+	 */
+	public function resetState( array $options ): void {
+		parent::resetState( $options );
+		$this->inOnlyInclude = false;
+		$this->foundOnlyInclude = false;
 		$this->enabled = $this->options['inTemplate'] &&
 			$this->env->nativeTemplateExpansionEnabled();
 	}
