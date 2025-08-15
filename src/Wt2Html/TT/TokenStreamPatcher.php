@@ -88,6 +88,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 	public function onEnd( EOFTk $token ): ?array {
 		$res = $this->onAny( $token );
 		$this->reset();
+		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $res );
 		return $res;
 	}
 
@@ -388,6 +389,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 			$this->tokenBuf = [];
 		}
 
+		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $tokens );
 		return $tokens;
 	}
 }
