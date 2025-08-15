@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
@@ -117,6 +118,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 				'startRule' => $startRule,
 				'toplevel' => $this->atTopLevel,
 				'srcText' => $str,
+				'srcOffsets' => new SourceRange( 0, strlen( $str ) ),
 			]
 		);
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );

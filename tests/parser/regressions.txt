@@ -199,3 +199,13 @@ parsoid=wt2html
 <table data-parsoid='{"stx":"html"}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><i>a</i></td><td title="&amp;" data-parsoid='{"stx":"html","a":{"title":"&amp;"},"sa":{"title":"&amp;amp;"}}'>b</td></tr></tbody></table>
 <link rel="mw:PageProp/Category" href="./Category:C" />
 !! end
+
+!! test
+Ensure source offsets are reset when reprocessing
+!! options
+parsoid=wt2wt
+!! wikitext
+| dir="{{#dir:hu}}" | [[mail:{{{1}}}|123]]
+!! html/parsoid
+-- unused in wt2wt --
+!! end
