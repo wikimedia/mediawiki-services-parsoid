@@ -280,11 +280,19 @@ class AttributeExpander extends UniversalTokenHandler {
 		$postNLToks = [];
 		$tmpDataMW = null;
 		$oldAttrs = $token->attribs;
+		$tokenName = $token->getName();
 		// Build newAttrs lazily (on-demand) to avoid creating
 		// objects in the common case where nothing of significance
 		// happens in this code.
 		$newAttrs = null;
-		$nlTkOkay = TokenUtils::isHTMLTag( $token ) || !TokenUtils::isTableTag( $token );
+		// FIXME: td/th/caption need different handling.
+		// For now, we are limiting this to table & tr tags because
+		// the code below uses 'table_attributes' to reparse the string
+		// which is only valid for table & tr tokens. The fix for td/th/caption
+		// may be as simple as using the 'row_syntax_table_args' rule. To be
+		// investigated and fixed.
+		$nlTkOkay = TokenUtils::isHTMLTag( $token ) ||
+			( $tokenName !== 'table' && $tokenName !== 'tr' );
 		$annotationTypes = [];
 
 		// Identify attributes that were generated in full or in part using templates
@@ -614,7 +622,7 @@ class AttributeExpander extends UniversalTokenHandler {
 			//
 			// Template tokens are omitted because the attribute expander is
 			// just being used to resolve the template target.
-			if ( $token->getName() !== 'template' ) {
+			if ( $tokenName !== 'template' ) {
 				$token->addAttribute( 'about', $this->env->newAboutId() );
 				$token->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 				foreach ( $annotationTypes as $annotationType ) {
