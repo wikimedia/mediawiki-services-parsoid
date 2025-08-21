@@ -1339,25 +1339,26 @@ broken_wikilink =
 	}
 
 wikilink_preproc =
+	wikilink_preproc_internal / "[[" inlineline "]]"
+
+wikilink_preproc_internal =
 	"[["
 	spos:POSITION
 	target:wikilink_preprocessor_text?
 	tpos:POSITION
-	lcs:(
-	  l:wikilink_content inline_breaks { return [$l,null]; }
-	  / l:inlineline { return [null,$l]; }
-	)
+	lcs:wikilink_content
+	inline_breaks
 	"]]"
 	{
-		[$lcs, $not_wikilink] = $lcs;
-		$pipeTrick = $lcs && count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
-		if ( $target === null || $pipeTrick || $not_wikilink) {
+		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
+		if ( $target === null || $pipeTrick ) {
 			$textTokens = [];
 			$textTokens[] = '[[';
 			if ( $target ) {
+				// FIXME: $target should really be retokenized
 				$textTokens[] = $target;
 			}
-			foreach ( $lcs ?? [] as $a ) {
+			foreach ( $lcs as $a ) {
 				// $a[0] is a pipe
 				// FIXME: Account for variation, emit a template tag
 				$textTokens[] = '|';
@@ -1365,9 +1366,6 @@ wikilink_preproc =
 				if ( count( $a[1]->v ) > 0 ) {
 					$textTokens[] = $a[1]->v;
 				}
-			}
-			if ( $not_wikilink ) {
-			   $textTokens[] = $not_wikilink;
 			}
 			$textTokens[] = ']]';
 			return $textTokens;
@@ -2487,7 +2485,6 @@ include_limits =
 						$contentToks = $tokenizer->tokenizeSync(
 							$justContent, [ 'sol' => true ]
 						);
-						TokenUtils::stripEOFTkFromTokens( $contentToks );
 						array_unshift( $contentToks, $t );
 						return $contentToks;
 					} else {

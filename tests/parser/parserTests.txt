@@ -1673,6 +1673,16 @@ parsoid=wt2html
 !! end
 
 !! test
+Non-wikilinks with html tags in target position
+!! wikitext
+<table><td>[[</td><td>[[link]]</td><td>]]</td></table>
+!! html/php
+<table><tbody><tr><td>[[</td><td><a href="/wiki/Link" title="Link">link</a></td><td>]]</td></tr></tbody></table>
+!! html/parsoid
+<table data-parsoid='{"stx":"html"}'><tbody><tr><td data-parsoid='{"stx":"html"}'>[[</td><td data-parsoid='{"stx":"html"}'><a rel="mw:WikiLink" href="./Link" title="Link">link</a></td><td data-parsoid='{"stx":"html"}'>]]</td></tr></tbody></table>
+!! end
+
+!! test
 Wikilinks with embedded newlines are not broken
 !! wikitext
 {{1x|[[ Foo

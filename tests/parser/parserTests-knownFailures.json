@@ -115,6 +115,9 @@
 	"Nested lists 6 (both elements empty)": {
 		"wt2wt": "\n**\n"
 	},
+	"Non-wikilinks with html tags in target position": {
+		"wt2wt": "<table><td>[[</td><td>[[link]]</td><td>]]</td></tr></table>"
+	},
 	"Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
 		"wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>"
 	},
