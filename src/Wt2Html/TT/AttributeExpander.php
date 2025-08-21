@@ -131,11 +131,6 @@ class AttributeExpander extends UniversalTokenHandler {
 			}
 		}
 
-		// Clear $startMeta from $preNLBuf - setting to '' is sufficient.
-		if ( $startMeta ) {
-			$preNLBuf[$startMetaIndex] = '';
-		}
-
 		// We split the token into pieces.
 		// Since we no longer know where this token now ends tsr-wise,
 		// set tsr->end to null
@@ -143,39 +138,48 @@ class AttributeExpander extends UniversalTokenHandler {
 		$token->dataParsoid->getTemp()->attrSrc = '';
 
 		if ( $startMeta ) {
-			// Support template wrapping with the following steps:
-			// - Hoist the transclusion start-meta from the first line
-			//   to before the token.
-			// - Update the start-meta tsr to that of the token.
-			// - Record the wikitext between the token and the transclusion
-			//   as an unwrappedWT data-parsoid attribute of the start-meta.
-			$dp = $startMeta->dataParsoid;
-			$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataParsoid->tsr->start,
-				$dp->tsr->start - $token->dataParsoid->tsr->start );
+			if ( count( $preNLBuf ) === 1 ) {
+				// Nothing to do since all real content (except the meta token)
+				// is after the newline.
+				return [ 'metaTokens' => [], 'preNLBuf' => [], 'postNLBuf' => $tokens ];
+			} else {
+				// Clear $startMeta from $preNLBuf - setting to '' is sufficient.
+				$preNLBuf[$startMetaIndex] = '';
 
-			// unwrappedWT will be added to the data-mw.parts array which makes
-			// this a multi-template-content-block.
-			// Record the first wikitext node of this block (required by html->wt serialization)
+				// Support template wrapping with the following steps:
+				// - Hoist the transclusion start-meta from the first line
+				//   to before the token.
+				// - Update the start-meta tsr to that of the token.
+				// - Record the wikitext between the token and the transclusion
+				//   as an unwrappedWT data-parsoid attribute of the start-meta.
+				$dp = $startMeta->dataParsoid;
+				$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataParsoid->tsr->start,
+					$dp->tsr->start - $token->dataParsoid->tsr->start );
 
-			// FIXME spec-compliant values would be upper-case, this is just a workaround
-			// for current PHP DOM implementation and could be removed in the future
-			$tokenName = mb_strtoupper( $token->getName() );
+				// unwrappedWT will be added to the data-mw.parts array which makes
+				// this a multi-template-content-block.
+				// Record the first wikitext node of this block (required by html->wt serialization)
 
-			$dp->firstWikitextNode = isset( $token->dataParsoid->stx ) ?
-				$tokenName . '_' . $token->dataParsoid->stx : $tokenName;
+				// FIXME spec-compliant values would be upper-case, this is just a workaround
+				// for current PHP DOM implementation and could be removed in the future
+				$tokenName = mb_strtoupper( $token->getName() );
 
-			// Update tsr->start only. Unless the end-meta token is moved as well,
-			// updating tsr->end can introduce bugs in cases like:
-			//
-			//   {|
-			//   |{{singlechart|Australia|93|artist=Madonna|album=Girls Gone Wild}}|x
-			//   |}
-			//
-			// which can then cause dirty diffs (the "|" before the x gets dropped).
-			$dp->tsr->start = $token->dataParsoid->tsr->start;
-			$metaTokens = [ $startMeta ];
+				$dp->firstWikitextNode = isset( $token->dataParsoid->stx ) ?
+					$tokenName . '_' . $token->dataParsoid->stx : $tokenName;
 
-			return [ 'metaTokens' => $metaTokens, 'preNLBuf' => $preNLBuf, 'postNLBuf' => $postNLBuf ];
+				// Update tsr->start only. Unless the end-meta token is moved as well,
+				// updating tsr->end can introduce bugs in cases like:
+				//
+				//   {|
+				//   |{{singlechart|Australia|93|artist=Madonna|album=Girls Gone Wild}}|x
+				//   |}
+				//
+				// which can then cause dirty diffs (the "|" before the x gets dropped).
+				$dp->tsr->start = $token->dataParsoid->tsr->start;
+				$metaTokens = [ $startMeta ];
+
+				return [ 'metaTokens' => $metaTokens, 'preNLBuf' => $preNLBuf, 'postNLBuf' => $postNLBuf ];
+			}
 		} else {
 			return [ 'metaTokens' => [], 'preNLBuf' => $tokens, 'postNLBuf' => [] ];
 		}

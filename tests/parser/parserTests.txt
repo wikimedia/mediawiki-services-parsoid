@@ -5651,7 +5651,7 @@ Orphaned table row wikitext with templated table for an attribute should not dup
 <td>foo
 </td></tr></tbody></table>
 !! html/parsoid
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"firstWikitextNode":"TR"}' data-mw='{"parts":["|-",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'>|-</p><span about="#mwt1">
+<p>|-</p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'>
 </span><table about="#mwt1">
 <tbody><tr><td>foo</td></tr>
 </tbody></table><span about="#mwt1">
