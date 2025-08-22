@@ -298,6 +298,7 @@ class Consts {
 			"tr" => [ null, 0 ],
 			"td" => [ null, 0 ],
 			"th" => [ null, 0 ],
+			"caption" => [ null, 0 ],
 			"b" => [ 3, 3 ],
 			"i" => [ 2, 2 ],
 			"br" => [ 0, 0 ],
