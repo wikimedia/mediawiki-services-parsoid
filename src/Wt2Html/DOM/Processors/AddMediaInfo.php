@@ -424,7 +424,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$errs = array_merge( $dataMw->errors, $errs );
 		}
 		$dataMw->errors = $errs;
-		if ( $alt !== null ) {
+		// Looks like $alt is "" for scenarios where the only
+		// content there is rendering-transparent
+		if ( $alt !== null && $alt !== "" ) {
 			DOMCompat::replaceChildren( $span, $span->ownerDocument->createTextNode( $alt ) );
 		}
 	}

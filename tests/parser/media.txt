@@ -2172,6 +2172,20 @@ Broken image links with HTML captions (T41700)
 !! end
 
 !! test
+Broken image links with empty alt
+!! wikitext
+[[File:Nonexistent|alt=|foo]]
+[[File:Nonexistent|alt=  <!--x-->  |foo]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent"><span class="mw-file-element mw-broken-media">File:Nonexistent</span></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Nonexistent" class="new" title="File:Nonexistent"><span class="mw-file-element mw-broken-media">File:Nonexistent</span></a></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:File" data-parsoid='{"optList":[{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"foo"}]}' data-mw='{"attribs":[["alt",{"txt":""}]],"caption":"foo","errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent" data-parsoid="{}"><span class="mw-file-element mw-broken-media" resource="./File:Nonexistent" data-parsoid='{"a":{"resource":"./File:Nonexistent"},"sa":{"resource":"File:Nonexistent"}}'>File:Nonexistent</span></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:File mw:ExpandedAttrs" about="#mwt1" data-parsoid='{"optList":[{"ck":"alt","ak":"alt=  &lt;!--x-->  "},{"ck":"caption","ak":"foo"}]}' data-mw='{"attribs":[["alt",{"html":"alt=  &lt;!--x-->  ","txt":""}]],"caption":"foo","errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent" data-parsoid="{}"><span class="mw-file-element mw-broken-media" resource="./File:Nonexistent" data-parsoid='{"a":{"resource":"./File:Nonexistent"},"sa":{"resource":"File:Nonexistent"}}'>File:Nonexistent</span></a></span></p>
+!! end
+
+!! test
 Media in wikilink
 !! wikitext
 [[Test|[[File:Foobar.jpg]]]]
