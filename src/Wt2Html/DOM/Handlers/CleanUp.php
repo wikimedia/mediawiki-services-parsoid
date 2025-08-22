@@ -283,8 +283,11 @@ class CleanUp {
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
-		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-			isset( Consts::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] )
+		if (
+			!empty( $dp->autoInsertedEnd ) &&
+			!WTUtils::hasLiteralHTMLMarker( $dp ) &&
+			isset( Consts::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] ) &&
+			!WTUtils::serializeChildTableTagAsHTML( $node )
 		) {
 			unset( $dp->autoInsertedEnd );
 		}

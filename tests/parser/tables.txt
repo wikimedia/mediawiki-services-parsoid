@@ -2060,3 +2060,19 @@ y}}|
 y}}|
 }}</p>
 !! end
+
+!! test
+Autoinserted tr in html table
+!! wikitext
+<table>
+<td>a</td>
+</table>
+!! html/php
+<table>
+<tbody><tr><td>a</td>
+</tr></tbody></table>
+!! html/parsoid
+<table data-parsoid='{"stx":"html"}'>
+<tbody><tr data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><td data-parsoid='{"stx":"html"}'>a</td></tr>
+</tbody></table>
+!! end

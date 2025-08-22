@@ -381,6 +381,13 @@ class WTUtils {
 		return false;
 	}
 
+	public static function serializeChildTableTagAsHTML( Element $elt ): bool {
+		$name = DOMCompat::nodeName( $elt );
+		return isset( Consts::$HTML['ChildTableTags'][$name] ) &&
+			!isset( Consts::$ZeroWidthWikitextTags[$name] ) &&
+			self::inHTMLTableTag( $elt );
+	}
+
 	/**
 	 * Is $node the first wrapper element of encapsulated content?
 	 */

@@ -688,23 +688,6 @@
     "Non-empty attributes in th-cells": {
         "html2wt": "{|\n!Foo\n! style=\"color: red\" |Bar\n|}"
     },
-    "Non-wikilinks with html tags in target position": {
-        "wt2wt": "<table><td>[[</td><td>[[link]]</td><td>]]</td></tr></table>",
-        "html2wt": "<table><tr><td>[[</td><td>[[link]]</td><td>]]</td></tr></table>",
-        "selser [2]": "yaf5m7<table><td>[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [1]": "<table data-foobar=\"dfchlf\"><td>[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [[[[1,[[3]],4]]]]": "<table><td data-foobar=\"16rmr99\">[[</td><td></td><td>eyi4kb</td></table>",
-        "selser [[1]]": "<table><td>[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [[[[1,0,0]]]]": "<table><td data-foobar=\"1fmc5cf\">[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [[[2]]]": "<table><!--1y52o7f--><td>[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [[[[[3],0,4]]]]": "<table><td></td><td>[[link]]</td><td>1q92w5q</td></table>",
-        "selser [[[[3,[2],[4]]]]]": "<table><td>9swdt9[[link]]</td><td>rgwrtw</td></table>",
-        "selser [[2]]": "<table><!--1q7m2xa--><td>[[</td><td>[[link]]</td><td>]]</td></table>",
-        "selser [[[[3,[4],[4]]]]]": "<table><td>1rbekts</td><td>6q1fz7</td></table>",
-        "selser [[[[3,[3],3]]]]": "<table><td></td></table>",
-        "selser [[[[2,[[2]],0]]]]": "<table><td>pcto86</td><td>[[</td><td>[[link|eybzcjlink]]</td><td>]]</td></table>",
-        "selser [[[[0,[3],4]]]]": "<table><td>[[</td><td></td><td>s6k9ia</td></table>"
-    },
     "Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
         "wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>",
         "html2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>\n",
@@ -1096,7 +1079,7 @@
         "html2wt": "<blockquote>\nFoo\n\nBar\n\n</blockquote>"
     },
     "T73074: More fostering fun": {
-        "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->",
+        "wt2wt": "[[Category:Two]]\n<table><td></td>{{1x|<tr>}}<!--c-->",
         "html2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->",
         "selser [0,4]": "\nlomg0q",
         "selser [0,1]": "<table data-foobar=\"9cf581\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
@@ -1107,11 +1090,9 @@
         "selser [1,[2]]": "[[Category:Two]]<table><!--r9jimg--><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
         "selser [0,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->",
         "selser [0,2]": "\n11oow1i<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [3,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->",
         "selser [0,3]": "",
         "selser [2,1]": "1mv3j75\n<table data-foobar=\"xgfqp4\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
         "selser [0,[[[4],0,0]]]": "<table><td>1yx3do</td>{{1x|<tr>}}<!--c-->",
-        "selser [3,[[[2],0,0]]]": "<table><td>bu3ntq</td><td></td>{{1x|<tr>}}<!--c-->",
         "selser [0,[[[3],0,0]]]": "<table>{{1x|<tr>}}<!--c-->"
     },
     "T7678: Double-parsed template argument": {

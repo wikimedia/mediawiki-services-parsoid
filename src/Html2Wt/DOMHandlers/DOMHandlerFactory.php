@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
-use Wikimedia\Parsoid\Wikitext\Consts;
 
 /**
  * Factory for picking the right DOMHandler for a DOM element.
@@ -139,10 +138,7 @@ class DOMHandlerFactory {
 
 		// If in a HTML table tag, serialize table tags in the table
 		// using HTML tags, instead of native wikitext tags.
-		if ( isset( Consts::$HTML['ChildTableTags'][DOMCompat::nodeName( $node )] )
-			 && !isset( Consts::$ZeroWidthWikitextTags[DOMCompat::nodeName( $node )] )
-			 && WTUtils::inHTMLTableTag( $node )
-		) {
+		if ( WTUtils::serializeChildTableTagAsHTML( $node ) ) {
 			return new FallbackHTMLHandler();
 		}
 
