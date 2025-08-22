@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 
@@ -102,5 +103,20 @@ class I18nInfo implements JsonCodecable {
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ) {
 		return new I18nInfo( $json['lang'], $json['key'], $json['params'] ?? null );
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyName ) {
+		if ( $keyName === 'params' ) {
+			// Consistent w/ serialization of MessageValue in core, even
+			// though we don't have direct access to this class type in
+			// Parsoid.
+			// @phan-suppress-next-line PhanUndeclaredClassReference
+			return Hint::build(
+				'\\Wikimedia\\Message\\MessageParam', Hint::INHERITED,
+				Hint::LIST, Hint::USE_SQUARE, Hint::ONLY_FOR_DECODE
+			);
+		}
+		return null;
 	}
 }
