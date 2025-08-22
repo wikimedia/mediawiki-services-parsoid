@@ -114,7 +114,7 @@ class I18nInfo implements JsonCodecable {
 			// @phan-suppress-next-line PhanUndeclaredClassReference
 			return Hint::build(
 				'\\Wikimedia\\Message\\MessageParam', Hint::INHERITED,
-				Hint::LIST, Hint::USE_SQUARE, Hint::ONLY_FOR_DECODE
+				Hint::LIST, Hint::USE_SQUARE
 			);
 		}
 		return null;
