@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
@@ -411,8 +410,7 @@ class PipelineUtils {
 						$env, $domFragment,
 						static function ( DomSourceRange $dsr ) use ( $offset ) {
 							return $dsr->offset( $offset );
-						},
-						new ParsoidExtensionAPI( $env )
+						}
 					);
 				}
 			}
