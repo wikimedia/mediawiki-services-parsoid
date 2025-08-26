@@ -1586,7 +1586,9 @@ abstract class SiteConfig {
 			"Every extension module must have a name."
 		);
 
-		if ( $this->shouldValidateExtConfig() ) {
+		static $previouslyValidated = [];
+		if ( $this->shouldValidateExtConfig() && !isset( $previouslyValidated[$name] ) ) {
+			$previouslyValidated[$name] = true;
 			$validator = new Validator;
 			$validator->validate(
 				$extConfig,
@@ -1595,9 +1597,8 @@ abstract class SiteConfig {
 			);
 			Assert::invariant(
 				$validator->isValid(),
-				"Found errors when validating " .
-					$extConfig['name'] . " ExtensionModule config: " .
-					json_encode( $validator->getErrors(), JSON_PRETTY_PRINT )
+				"Found errors when validating $name ExtensionModule config: " .
+				json_encode( $validator->getErrors(), JSON_PRETTY_PRINT )
 			);
 		}
 
