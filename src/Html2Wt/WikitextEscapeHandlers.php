@@ -1004,10 +1004,26 @@ class WikitextEscapeHandlers {
 			return;
 		}
 
+		// Count how many reasons for nowiki
+		$needNowikiCount = 0;
+		$neededSubstitution = null;
+
+		// Protect against unmatched pairs of braces and brackets, as they
+		// should never appear in template arguments.
+		// FIXME: What about tplargs?
+		$bracketPairStrippedStr = preg_replace(
+			'/\[\[([^\[\]]*)\]\]|\{\{([^\{\}]*)\}\}|-\{([^\{\}]*)\}-/',
+			'',
+			$str
+		);
+
 		// '=' is not allowed in positional parameters.  We can either
 		// nowiki escape it or convert the named parameter into a
 		// positional param to avoid the escaping.
-		if ( $isTemplate && !$serializeAsNamed && str_contains( $str, '=' ) ) {
+		if (
+			$isTemplate && !$serializeAsNamed &&
+			str_contains( $bracketPairStrippedStr, '=' )
+		) {
 			// In certain situations, it is better to add a nowiki escape
 			// rather than convert this to a named param.
 			//
@@ -1031,32 +1047,23 @@ class WikitextEscapeHandlers {
 				$opts['numPositionalArgs'] === $opts['argPositionalIndex']
 			) {
 				$serializeAsNamed = true;
+			} else {
+				$needNowikiCount++;
 			}
 		}
 
-		// Count how many reasons for nowiki
-		$needNowikiCount = 0;
-		$neededSubstitution = null;
-		// Protect against unmatched pairs of braces and brackets, as they
-		// should never appear in template arguments.
-		$bracketPairStrippedStr = preg_replace(
-			'/\[\[([^\[\]]*)\]\]|\{\{([^\{\}]*)\}\}|-\{([^\{\}]*)\}-/',
-			'_$1_',
-			$str
-		);
 		if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
 			$needNowikiCount++;
 		}
-		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && str_contains( $str, '=' ) ) {
-			$needNowikiCount++;
-		}
+		// FIXME: Ideally, $bracketPairStrippedStr should be used but the last char
+		// might not be the last char
 		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && str_ends_with( $str, '}' ) ) {
 			// If this is the last part of the last argument, we need to protect
 			// against an ending }, as it would get confused with the template ending }}.
 			$needNowikiCount++;
 			$neededSubstitution = [ '/(\})$/D', '<nowiki>}</nowiki>' ];
 		}
-		if ( str_contains( $str, '|' ) ) {
+		if ( str_contains( $bracketPairStrippedStr, '|' ) ) {
 			// If there's an unprotected |, guard it so it doesn't get confused
 			// with the beginning of a different parameter.
 			$needNowikiCount++;
