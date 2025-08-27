@@ -90,6 +90,7 @@ describe('Parsoid API', function() {
 		this.timeout(30000);
 
 		const alice = await action.alice();
+		const admin = await action.mindy();
 
 		// Create pages
 		const oldEdit = await alice.edit(page, { text: 'First Revision Content' });
@@ -100,7 +101,7 @@ describe('Parsoid API', function() {
 		edit.result.should.equal('Success');
 		revid = edit.newrevid;
 
-		edit = await alice.edit('JSON Page', {
+		edit = await admin.edit('JSON Page', {
 			text: '[1]', contentmodel: 'json'
 		});
 		edit.result.should.equal('Success');
