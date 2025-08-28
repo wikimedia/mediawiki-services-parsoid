@@ -13,6 +13,7 @@ use MediaWiki\Parser\ParserOptions;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title as MWTitle;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
@@ -631,10 +632,15 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$parsoidOpts['useFragmentBank'] = true;
 			$parsoidOpts['body_only'] = false;
 		}
+
+		foreach ( [ 'htmlVariantLanguage', 'wtVariantLanguage' ] as $opt ) {
+			if ( $this->hasOption( $opt ) ) {
+				$parsoidOpts[$opt] = new Bcp47CodeValue( $this->getOption( $opt ) );
+			}
+		}
+
 		foreach ( [
-			'offsetType', 'outputContentVersion',
-			'wtVariantLanguage', 'htmlVariantLanguage',
-			'contentmodel'
+			'offsetType', 'outputContentVersion', 'contentmodel'
 		] as $opt ) {
 			if ( $this->hasOption( $opt ) ) {
 				$parsoidOpts[$opt] = $this->getOption( $opt );
