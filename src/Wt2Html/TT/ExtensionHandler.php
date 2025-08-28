@@ -132,6 +132,9 @@ class ExtensionHandler extends XMLTagBasedHandler {
 				$domFragment = WTUtils::createInterfaceI18nFragment(
 					$env->getTopLevelDoc(), $e->err->key, $e->err->params ?: null
 				);
+				$i18nFrag = $domFragment->firstChild;
+				'@phan-var Element $i18nFrag'; // @var Element $firstNode
+				$i18nFrag->setAttribute( 'class', 'error' );
 				$errors = [ $e->err ];
 				// FIXME: Should we include any errors collected
 				// from $extApi->getErrors() here?  Also, what's the correct $dataMw
