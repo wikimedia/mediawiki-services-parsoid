@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\DOM\DOMException;
 use Wikimedia\Parsoid\DOM\DOMImplementation;
+use Wikimedia\Parsoid\DOM\HTMLDocument;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
 
@@ -13,6 +14,8 @@ use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
  */
 class ParsoidDOMBuilder extends RemexDOMBuilder {
 	public function __construct() {
+		// Ensure that Parsoid DOM aliases are loaded.
+		class_exists( HTMLDocument::class );
 		parent::__construct( DOMCompat::isStandardsMode() ? [
 			'suppressIdAttribute' => DOMCompat::isUsingDodo(),
 			'domExceptionClass' => DOMException::class,
