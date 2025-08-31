@@ -330,11 +330,15 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 */
 	public function onAnyInternal( $token ): ?array {
 		if ( $this->trReparseBuf !== null ) {
-			if ( $token instanceof SelfclosingTagTk && TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
-				if ( !isset( $this->trReparseBuf['endMeta'] ) ) {
-					$this->trReparseBuf['endMeta'] = $token;
+			if ( $token instanceof SelfclosingTagTk ) {
+				if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
+					if ( !isset( $this->trReparseBuf['endMeta'] ) ) {
+						$this->trReparseBuf['endMeta'] = $token;
+					}
+					$this->tplInfo = null;
+				} elseif ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
+					$this->tplInfo = [ 'startMeta' => $token, 'atStart' => true ];
 				}
-				$this->tplInfo = null;
 			}
 			// Buffer and return. The buffer will be reprocessed
 			// when a NlTk is encountered.
