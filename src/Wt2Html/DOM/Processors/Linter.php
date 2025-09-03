@@ -39,6 +39,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 	/** @var ?array<string,true> */
 	private ?array $tagsWithChangedMisnestingBehavior = null;
 
+	/** @var bool Enables lint for templates inside external links */
+	public static $enableTemplateInsideLink = false;
+
 	/**
 	 * We are trying to find HTML5 tags that have different behavior compared to HTML4
 	 * in some misnesting scenarios around wikitext paragraphs.
@@ -1333,6 +1336,35 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$env->recordLint( 'duplicate-ids', $lintObj );
 	}
 
+	private function lintTemplateInsideLink(
+		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
+	): void {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+			return;
+		}
+
+		$linkContainsTemplate = $dp->getTemp()->linkContainsTemplate ?? null;
+		if ( $linkContainsTemplate === true ) {
+			$env->getSiteConfig()->incrementCounter(
+				'extlink_contains_template_total',
+				[ 'wiki' => $env->getSiteConfig()->iwp() ]
+			);
+
+			if ( self::$enableTemplateInsideLink ) {
+				$tplLintInfo = self::findEnclosingTemplateName( $env, $tplInfo );
+				$lintObj = [
+					'dsr' => self::findLintDSR(
+						$tplLintInfo,
+						$tplInfo,
+						$dp->dsr ?? null
+					),
+					'templateInfo' => $tplLintInfo
+				];
+				$env->recordLint( 'extlink-contains-template', $lintObj );
+			}
+		}
+	}
+
 	/**
 	 * Log wikitext fixups
 	 */
@@ -1353,6 +1385,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
 		$this->lintIds( $env, $node, $dp, $tplInfo );
+		$this->lintTemplateInsideLink( $env, $node, $dp, $tplInfo );
 	}
 
 	/**

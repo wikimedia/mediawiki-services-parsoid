@@ -652,6 +652,15 @@ class AttributeExpander extends UniversalTokenHandler {
 			$token->attribs
 		);
 
+		// detection for linting (
+		if ( $token->getName() === 'urllink' || $token->getName() === 'extlink' ) {
+			/** @var null|array<Token> $hrefAttr */
+			$hrefAttr = $token->getAttributeV( "href" );
+			if ( TokenUtils::hasTemplateToken( $hrefAttr ) ) {
+				$token->dataParsoid->getTemp()->linkContainsTemplate = true;
+			}
+		}
+
 		// null signifies unmodified token
 		return $expandedAttrs ? $this->buildExpandedAttrs( $token, $expandedAttrs ) : null;
 	}

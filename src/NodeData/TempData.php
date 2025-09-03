@@ -37,6 +37,10 @@ use Wikimedia\Parsoid\Utils\Utils;
  * For td/th tokens, wikitext source for attributes
  * This is needed to reparse this as content when tokenization is incorrect
  * @property string|null $attrSrc
+ *
+ * Used for detection of template usage inside external links.
+ * This is needed by linter and metrics to detect links with templates inside href part.
+ * @property bool|null $linkContainsTemplate
  */
 #[\AllowDynamicProperties]
 class TempData {

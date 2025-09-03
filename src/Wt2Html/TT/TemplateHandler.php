@@ -706,21 +706,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 	}
 
 	/**
-	 * @param array<string|Token> $tokens
-	 * @return bool
-	 */
-	private static function hasTemplateToken( $tokens ): bool {
-		if ( is_array( $tokens ) ) {
-			foreach ( $tokens as $t ) {
-				if ( TokenUtils::isTemplateToken( $t ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/**
 	 * Process the special magic word as specified by $resolvedTgt['magicWordType'].
 	 * ```
 	 * magicWordType === '!' => {{!}} is the magic word
@@ -770,7 +755,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		// if the template name is templated, use our copy of AttributeExpander
 		// to process the first attribute to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
-		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
+		if ( $expandTemplates && TokenUtils::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->expandFirstAttribute( $token );
 			Assert::invariant( $ret === [ $token ],
 				"Expected only the input token as the return value." );

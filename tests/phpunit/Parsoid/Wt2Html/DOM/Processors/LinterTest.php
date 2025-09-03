@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
 
 /**
  * Test cases for the linter
@@ -37,6 +38,11 @@ class LinterTest extends TestCase {
 		);
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );
+	}
+
+	protected function setUp(): void {
+		parent::setUp();
+		Linter::$enableTemplateInsideLink = true;
 	}
 
 	private function filterLints( array $result, string $cat ): array {
@@ -1831,6 +1837,42 @@ class LinterTest extends TestCase {
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 8, 41, null, null ], $result[0]['dsr'], $desc );
+	}
+
+	public function testLintLinksContainsTemplate(): void {
+		$desc = "should not lint link contains template (autolink)";
+		$result = $this->wtToLint(
+			"http://wikimedia.org https://wikimedia.org {{1x|test.com"
+			. "}}smtp://wikimedia.org/test/;{{1x|https://wikipedia.org}}"
+		);
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = "should not lint link contains template (extlink)";
+		$result = $this->wtToLint(
+			"[http://wikimedia.org] [wikimedia.org/test description] [https://wikimedia.org {{1x|wikimedia.org}}]"
+		);
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = "should lint link contains template (extlink)";
+		$result = $this->wtToLint(
+			"text[https://wikimedia.org/wiki/{{1x|Mathematics}}][https://wikimedia.org{{1x|/test}} link]"
+		);
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'extlink-contains-template', $result[0]['type'], $desc );
+		$this->assertEquals( [ 4, 51, 46, 1 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'extlink-contains-template', $result[1]['type'], $desc );
+		$this->assertEquals( [ 51, 91, 35, 1 ], $result[1]['dsr'], $desc );
+
+		$desc = "should lint link contains template (autolink)";
+		$result = $this->wtToLint(
+			"text https://wikimedia.org/wiki/{{1x|Mathematics}} https://wikimedia.org{{1x|/test}}"
+			. "https://wikimedia.org {{1x|/test}}"
+		);
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'extlink-contains-template', $result[0]['type'], $desc );
+		$this->assertEquals( [ 5, 50, 0, 0 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'extlink-contains-template', $result[1]['type'], $desc );
+		$this->assertEquals( [ 51, 105, 0, 0 ], $result[1]['dsr'], $desc );
 	}
 
 }

@@ -764,4 +764,20 @@ class TokenUtils {
 		return $tokens;
 	}
 
+	/**
+	 * Detect, if array (or any iterable container) contains template token
+	 * @param null|array<string|Token> $tokens
+	 * @return bool
+	 */
+	public static function hasTemplateToken( $tokens ): bool {
+		if ( is_array( $tokens ) ) {
+			foreach ( $tokens as $t ) {
+				if ( self::isTemplateToken( $t ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 }
