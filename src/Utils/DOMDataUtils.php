@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Composer\Semver\Semver;
 use InvalidArgumentException;
+use LogicException;
 use stdClass;
 use TypeError;
 use UnexpectedValueException;
@@ -672,9 +673,15 @@ class DOMDataUtils {
 			$dp = self::getDataParsoid( $node );
 		} else {
 			$newDP = false;
-			$dp = $codec->newFromJsonString(
-				$dataParsoidAttr, self::getCodecHints()['data-parsoid']
-			);
+			try {
+				$dp = $codec->newFromJsonString(
+					$dataParsoidAttr, self::getCodecHints()['data-parsoid']
+				);
+				Assert::invariant( $dp instanceof DataParsoid, "Unexpected data-parsoid" );
+			} catch ( TypeError | LogicException $e ) {
+				// improve debuggability: T403208
+				throw new UnexpectedValueException( "Unable to decode data-parsoid [$dataParsoidAttr]", 0, $e );
+			}
 		}
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->setTempFlag( TempData::IS_NEW, $newDP );
@@ -690,9 +697,10 @@ class DOMDataUtils {
 				$dmw = $codec->newFromJsonString(
 					$dataMwAttr, self::getCodecHints()['data-mw']
 				);
-			} catch ( TypeError $e ) {
-				// improve debuggability
-				throw new UnexpectedValueException( "Unable to decode JsonString [$dataMwAttr]", 0, $e );
+				Assert::invariant( $dmw instanceof DataMw, "Unexpected data-mw" );
+			} catch ( TypeError | LogicException $e ) {
+				// improve debuggability: T388160
+				throw new UnexpectedValueException( "Unable to decode data-mw [$dataMwAttr]", 0, $e );
 			}
 			self::setDataMw( $node, $dmw );
 			$node->removeAttribute( 'data-mw' );
