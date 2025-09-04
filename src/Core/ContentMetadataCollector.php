@@ -121,18 +121,6 @@ interface ContentMetadataCollector {
 	 */
 
 	/**
-	 * Merge strategy to use for ContentMetadataCollector
-	 * accumulators: "union" means that values are strings, stored as
-	 * a set, and exposed as a PHP associative array mapping from
-	 * values to `true`.
-	 *
-	 * This constant should be treated as @internal until we expose
-	 * alternative merge strategies for external use.
-	 * @internal
-	 */
-	public const MERGE_STRATEGY_UNION = 'union';
-
-	/**
 	 * Add a category, with the given sort key.
 	 *
 	 * @param LinkTarget $c Category name
@@ -386,15 +374,14 @@ interface ContentMetadataCollector {
 	 * @param string $key The key for accessing the data. Extensions should take care to avoid
 	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
 	 *
-	 * @param int|string $value The value to append to the list.
-	 * @param string $strategy Merge strategy:
-	 *  only MW_MERGE_STRATEGY_UNION is currently supported and external callers
-	 *  should treat this parameter as @internal at this time and omit it.
+	 * @param string|int $value The value to append to the list.
+	 * @param MergeStrategy $strategy Merge strategy; defaults to
+	 *  MergeStrategy::UNION.
 	 */
 	public function appendExtensionData(
 		string $key,
-		$value,
-		string $strategy = self::MERGE_STRATEGY_UNION
+		string|int $value,
+		MergeStrategy $strategy = MergeStrategy::UNION
 	): void;
 
 	/**
@@ -427,15 +414,14 @@ interface ContentMetadataCollector {
 	 * will get `[0=>true]` out.
 	 *
 	 * @param string $key Key to use under mw.config
-	 * @param string $value Value to append to the configuration variable.
-	 * @param string $strategy Merge strategy:
-	 *  only MW_MERGE_STRATEGY_UNION is currently supported and external callers
-	 *  should treat this parameter as @internal at this time and omit it.
+	 * @param string|int $value Value to append to the configuration variable.
+	 * @param MergeStrategy $strategy Merge strategy; defaults to
+	 *  MergeStrategy::UNION.
 	 */
 	public function appendJsConfigVar(
 		string $key,
-		string $value,
-		string $strategy = self::MERGE_STRATEGY_UNION
+		string|int $value,
+		MergeStrategy $strategy = MergeStrategy::UNION
 	): void;
 
 	/**

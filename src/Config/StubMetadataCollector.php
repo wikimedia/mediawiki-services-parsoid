@@ -148,7 +148,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	/** @inheritDoc */
 	public function appendJsConfigVar(
 		string $key,
-		string $value,
+		string|int $value,
 		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void {
 		$this->collect( 'jsconfigvars', $key, $value, $strategy );
