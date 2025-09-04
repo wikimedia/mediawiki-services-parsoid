@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorCompat;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Core\MergeStrategy;
 use Wikimedia\Parsoid\Core\TOCData;
 use Wikimedia\Parsoid\Utils\TitleValue;
 
@@ -139,7 +140,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	public function appendExtensionData(
 		string $key,
 		$value,
-		string $strategy = self::MERGE_STRATEGY_UNION
+		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void {
 		$this->collect( 'extensiondata', $key, $value, $strategy );
 	}
@@ -148,7 +149,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	public function appendJsConfigVar(
 		string $key,
 		string $value,
-		string $strategy = self::MERGE_STRATEGY_UNION
+		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void {
 		$this->collect( 'jsconfigvars', $key, $value, $strategy );
 	}
@@ -294,18 +295,22 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * @param string $which Internal string identifying the type of metadata.
 	 * @param string $key Key for storage (or '' if this is not relevant)
 	 * @param mixed $value Value to store
-	 * @param string $strategy "union" or "write-once"
+	 * @param string|MergeStrategy $strategy "union" or "write-once"
 	 */
 	private function collect(
 		string $which, string $key, $value,
-		string $strategy = self::MERGE_STRATEGY_UNION
+		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void {
+		if ( $strategy instanceof MergeStrategy ) {
+			$strategy = $strategy->value;
+		}
 		if ( !array_key_exists( $which, $this->storage ) ) {
 			$this->storage[$which] = [];
 		}
 		if ( !array_key_exists( $key, $this->storage[$which] ) ) {
 			$this->storage[$which][$key] = [ self::MERGE_STRATEGY_KEY => $strategy ];
-			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ) {
+			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ||
+				 $strategy === MergeStrategy::COUNTER->value ) {
 				$this->storage[$which][$key]['value'] = $value;
 				return;
 			}
@@ -317,7 +322,6 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			);
 			// Destructive update for compatibility; this is deprecated!
 			unset( $this->storage[$which][$key] );
-			// @phan-suppress-next-line PhanPossiblyInfiniteRecursionSameParams
 			$this->collect( $which, $key, $value, $strategy );
 			return;
 		}
@@ -331,14 +335,19 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			);
 			// Destructive update for compatibility; this is deprecated!
 			unset( $this->storage[$which][$key] );
-			// @phan-suppress-next-line PhanPossiblyInfiniteRecursionSameParams
 			$this->collect( $which, $key, $value, $strategy );
 			return;
-		} elseif ( $strategy === self::MERGE_STRATEGY_UNION ) {
+		} elseif ( $strategy === MergeStrategy::UNION->value ) {
 			if ( !( is_string( $value ) || is_int( $value ) ) ) {
 				throw new \InvalidArgumentException( "Bad value type for $key: " . get_debug_type( $value ) );
 			}
 			$this->storage[$which][$key][$value] = true;
+			return;
+		} elseif ( $strategy === MergeStrategy::COUNTER->value ) {
+			if ( !is_int( $value ) ) {
+				throw new \InvalidArgumentException( "Bad value type for $key: " . get_debug_type( $value ) );
+			}
+			$this->storage[$which][$key]['value'] += $value;
 			return;
 		} else {
 			throw new \InvalidArgumentException( "Unknown strategy: $strategy" );
@@ -349,17 +358,26 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * Retrieve values from the collector.
 	 * @param string $which Internal string identifying the type of metadata.
 	 * @param string|null $key Key for storage (or '' if this is not relevant)
-	 * @param string $defaultStrategy Determines whether to return an empty
+	 * @param string|MergeStrategy $defaultStrategy Determines whether to return an empty
 	 *  array or null for a missing $key
 	 * @return mixed
 	 */
-	private function get( string $which, ?string $key = null, string $defaultStrategy = self::MERGE_STRATEGY_UNION ) {
+	private function get(
+		string $which,
+		?string $key = null,
+		string|MergeStrategy $defaultStrategy = MergeStrategy::UNION
+	) {
+		if ( $defaultStrategy instanceof MergeStrategy ) {
+			$defaultStrategy = $defaultStrategy->value;
+		}
 		if ( $key !== null ) {
 			$result = ( $this->storage[$which] ?? [] )[$key] ?? [];
 			$strategy = $result[self::MERGE_STRATEGY_KEY] ?? $defaultStrategy;
 			unset( $result[self::MERGE_STRATEGY_KEY] );
 			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ) {
 				return $result['value'] ?? null;
+			} elseif ( $strategy === MergeStrategy::COUNTER->value ) {
+				return $result['value'] ?? 0;
 			} else {
 				return array_keys( $result );
 			}
@@ -391,7 +409,8 @@ class StubMetadataCollector implements ContentMetadataCollector {
 		foreach ( $result as $key => &$value ) {
 			$strategy = $value[self::MERGE_STRATEGY_KEY] ?? null;
 			unset( $value[self::MERGE_STRATEGY_KEY] );
-			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ) {
+			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ||
+				 $strategy === MergeStrategy::COUNTER->value ) {
 				$value = array_keys( $value )[0];
 			}
 		}
