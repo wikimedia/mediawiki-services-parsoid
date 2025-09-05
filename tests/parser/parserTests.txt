@@ -4604,8 +4604,6 @@ Template redirect
 !! html/php
 <p>(test)
 </p>
-!! html/parsoid+standalone
-<link rel="mw:PageProp/redirect" href="./Template:Templatesimple" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"templateredirect","href":"./Template:Templateredirect"},"params":{},"i":0}}]}'/>
 !! html/parsoid+integrated
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"templateredirect","href":"./Template:Templateredirect"},"params":{},"i":0}}]}'>(test)</span></p>
 !! end

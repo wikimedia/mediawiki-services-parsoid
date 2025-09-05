@@ -78,7 +78,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 			$this->frame->getSource();
 		$this->pipelineOpts = $tokenizer->getOptions();
 		// FIXME: inTemplate option may not always be set in
-		// standalone tokenizers user by some pipelines handlers.
+		// standalone tokenizers used by some pipelines handlers.
 		$this->pipelineOffset = $this->options['pipelineOffset'] ?? 0;
 		$this->extTags = $this->siteConfig->getExtensionTagNameMap();
 		$this->annotationsEnabledOnWiki = count( $this->siteConfig->getAnnotationTags() ) > 0;
@@ -307,8 +307,8 @@ tlb "tlb" =
 	}
 
 /*
- * Redirects can only occur as the first thing in a document.  See
- * WikitextContent::getRedirectTarget()
+ * Redirects can only occur as the first thing in a document.
+ * See WikitextContent::getRedirectTarget()
  */
 redirect =
 	rw:redirect_word
@@ -356,10 +356,12 @@ redirect_word =
  */
 block =
 /* Redirect has to be the first alternative; otherwise it gets parsed as a <ol>
- *  In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
- *  the redirect from the source so it never sees it.
+ * In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
+ * the redirect from the source so it never sees it. So, redirects should be
+ * ignored if they come from a template.
  */
-	&sof r:redirect cil:sol_transparent* bl:block_line? {
+	&sof &{ return empty( $this->pipelineOpts['inTemplate'] ); }
+	r:redirect cil:sol_transparent* bl:block_line? {
 		$this->hasSOLTransparentAtStart = true;
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
