@@ -32,7 +32,7 @@ if [[ \$(git diff --stat) != '' ]]; then
 fi
 git checkout $testid
 git log --oneline -n 1
-sudo systemctl restart php8.1-fpm.service
+sudo systemctl restart php8.3-fpm.service
 EOF
 
 echo "---- Starting test run $testid on testreduce1002 ----"
