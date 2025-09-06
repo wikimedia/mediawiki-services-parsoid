@@ -19,8 +19,8 @@ enum MergeStrategy: string {
 	case UNION = 'union';
 
 	/**
-	 * "Counter" merge strategy means that values are integers and
+	 * "Sum" merge strategy means that values are integers and
 	 * are summed to make the final ParserOutput.
 	 */
-	case COUNTER = 'counter';
+	case SUM = 'sum';
 }

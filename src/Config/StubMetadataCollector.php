@@ -310,7 +310,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 		if ( !array_key_exists( $key, $this->storage[$which] ) ) {
 			$this->storage[$which][$key] = [ self::MERGE_STRATEGY_KEY => $strategy ];
 			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ||
-				 $strategy === MergeStrategy::COUNTER->value ) {
+				 $strategy === MergeStrategy::SUM->value ) {
 				$this->storage[$which][$key]['value'] = $value;
 				return;
 			}
@@ -343,7 +343,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			}
 			$this->storage[$which][$key][$value] = true;
 			return;
-		} elseif ( $strategy === MergeStrategy::COUNTER->value ) {
+		} elseif ( $strategy === MergeStrategy::SUM->value ) {
 			if ( !is_int( $value ) ) {
 				throw new \InvalidArgumentException( "Bad value type for $key: " . get_debug_type( $value ) );
 			}
@@ -376,7 +376,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			unset( $result[self::MERGE_STRATEGY_KEY] );
 			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ) {
 				return $result['value'] ?? null;
-			} elseif ( $strategy === MergeStrategy::COUNTER->value ) {
+			} elseif ( $strategy === MergeStrategy::SUM->value ) {
 				return $result['value'] ?? 0;
 			} else {
 				return array_keys( $result );
@@ -410,7 +410,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			$strategy = $value[self::MERGE_STRATEGY_KEY] ?? null;
 			unset( $value[self::MERGE_STRATEGY_KEY] );
 			if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ||
-				 $strategy === MergeStrategy::COUNTER->value ) {
+				 $strategy === MergeStrategy::SUM->value ) {
 				$value = array_keys( $value )[0];
 			}
 		}
