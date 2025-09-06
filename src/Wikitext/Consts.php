@@ -264,7 +264,7 @@ class Consts {
 
 		self::$Output = [
 			'FlaggedEmptyElts' => PHPUtils::makeSet( [
-				'li', 'tr', 'p',
+				'li', 'tbody', 'tr', 'p',
 			] ),
 		];
 

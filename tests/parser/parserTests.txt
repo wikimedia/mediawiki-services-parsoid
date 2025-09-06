@@ -5473,7 +5473,7 @@ parsoid={
 </p>
 !!end
 
-!!test
+!! test
 4. includeonly in table attributes
 !! wikitext
 {|
@@ -5494,7 +5494,7 @@ parsoid={
 <td>a
 </td></tr>
 </tbody></table>
-!!end
+!! end
 
 ###
 ### Token Stream Patcher tests
@@ -13880,7 +13880,7 @@ RT-ed inter-element separators should be valid separators
 </table>
 !! html/parsoid
 <table>
-<tbody><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""}}'></tr>
+<tbody class='mw-empty-elt'><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""}}'></tr>
 </tbody></table>
 !!end
 
@@ -14048,7 +14048,7 @@ Empty TR followed by mixed-ws-comment line should RT correctly
 </table>
 !! html/parsoid
 <table>
-<tbody>
+<tbody class='mw-empty-elt'>
 <tr class='mw-empty-elt'></tr>
  <!--c-->
 <tr class="mw-empty-elt">

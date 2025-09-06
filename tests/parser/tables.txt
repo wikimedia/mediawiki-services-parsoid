@@ -1275,7 +1275,7 @@ a
 <p data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>
 a</p>
 <table>
-<tbody><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'></tr></tbody></table>
+<tbody class="mw-empty-elt"><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'></tr></tbody></table>
 !! end
 
 # selser tests are needed below as a regression test for T233815
@@ -1298,7 +1298,7 @@ parsoid={ "modes": ["wt2html","selser"], "suppressErrors": true }
 </table>
 !! html/parsoid
 <ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li><li>b</li></ul><table>
-<tbody><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'>
+<tbody class="mw-empty-elt"><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'>
 
 </tr></tbody></table>
 !! end
@@ -1622,7 +1622,7 @@ parsoid=wt2html
 </table>
 !! html/parsoid
 <table>
-<tbody>
+<tbody class="mw-empty-elt">
 <tr class='mw-empty-elt'></tr>
 <tr class='mw-empty-elt'></tr>
 </tbody></table>

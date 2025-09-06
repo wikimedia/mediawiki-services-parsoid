@@ -90,6 +90,13 @@ class CleanUp {
 				}
 				continue;
 			} elseif ( $n instanceof Element ) {
+				if ( isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $n )] ) ) {
+					if ( self::isEmptyNode( $n, $hasRTNodes ) ) {
+						continue;
+					} else {
+						return false;
+					}
+				}
 				if ( WTUtils::isRenderingTransparentNode( $n ) ) {
 					$hasRTNodes = true;
 					continue;
