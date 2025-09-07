@@ -16,8 +16,6 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-/**
- */
 class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 	private Env $env;
 

@@ -8,8 +8,6 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffMarkers;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils as DU;
 
-/**
- */
 class DiffUtils {
 
 	/**

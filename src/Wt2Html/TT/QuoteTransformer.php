@@ -53,7 +53,6 @@ class QuoteTransformer extends LineBasedHandler {
 
 	/**
 	 * Reset the buffering of chunks
-	 *
 	 */
 	private function reset(): void {
 		// Chunks alternate between quote tokens and sequences of non-quote
@@ -71,7 +70,6 @@ class QuoteTransformer extends LineBasedHandler {
 
 	/**
 	 * Make a copy of the token context
-	 *
 	 */
 	private function startNewChunk(): void {
 		$this->chunks[] = $this->currentChunk;

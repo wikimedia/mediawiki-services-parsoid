@@ -58,7 +58,6 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  * - add a generic 'can this HTML node be serialized to wikitext in this
  *   context' detection method and use that to adaptively switch between
  *   wikitext and HTML serialization.
- *
  */
 class WikitextSerializer {
 
