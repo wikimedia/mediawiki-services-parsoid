@@ -1550,6 +1550,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 		}
 
+		// Start off as broken media since we don't know if the file exists.
+		// In the AddMediaInfo pass, we'll replace the node after calling getFileInfo
 		$span = new TagTk( 'span', [ new KV( 'class', 'mw-file-element mw-broken-media' ) ] );
 
 		// "resource" and "lang" are allowed attributes on spans
@@ -1569,6 +1571,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 		$anchor = new TagTk( 'a' );
 		$anchor->setAttribute( 'href', $this->specialFilePath( $target->title ) );
+		$anchor->setAttribute( 'class', 'new' );
+		$anchor->setAttribute( 'title', $target->title->getPrefixedText() );
 
 		$tokens = [
 			$container,

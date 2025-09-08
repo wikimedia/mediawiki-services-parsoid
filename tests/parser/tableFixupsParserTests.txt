@@ -209,7 +209,7 @@ Table cell attribute merging edge cases
 |-
 |{{td_attrs_and_content|1=[[Category:No Merging Here]] class="foo"}} baz
 |-
-|{{td_attrs_and_content|1=[[File:Foo.jpg]] class="foo"}} baz
+|{{td_attrs_and_content|1=[[File:Foobar.jpg]] class="foo"}} baz
 |}
 !! html/php
 <table>
@@ -229,7 +229,7 @@ Table cell attribute merging edge cases
 <td> class="foo" | foobar baz
 </td></tr>
 <tr>
-<td><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg"><span class="mw-file-element mw-broken-media">File:Foo.jpg</span></a></span> class="foo" | foobar baz
+<td><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a></span> class="foo" | foobar baz
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
@@ -243,7 +243,7 @@ Table cell attribute merging edge cases
 <tr data-parsoid='{"startTagSrc":"|-"}'>
 <td><link rel="mw:PageProp/Category" href="./Category:No_Merging_Here" about="#mwt5" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[Category:No Merging Here]] class=\"foo\""}},"i":0}}]}'/><span about="#mwt5"> class="foo" | foobar</span> baz</td></tr>
 <tr data-parsoid='{"startTagSrc":"|-"}'>
-<td><span class="mw-default-size" typeof="mw:Transclusion mw:Error mw:File" about="#mwt3" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}],"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foo.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./Special:FilePath/Foo.jpg"><span class="mw-file-element mw-broken-media" resource="./File:Foo.jpg">File:Foo.jpg</span></a></span><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
+<td><span class="mw-default-size" typeof="mw:Transclusion mw:File" about="#mwt6" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foobar.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span><span about="#mwt6"> class="foo" | foobar</span> baz</td></tr>
 </tbody></table>
 !! end
 

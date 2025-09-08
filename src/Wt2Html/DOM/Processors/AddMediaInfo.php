@@ -443,14 +443,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	}
 
 	private static function replaceAnchor(
-		Env $env, PegTokenizer $urlParser, Element $container,
+		Env $env, PegTokenizer $urlParser, array $errs,
 		Element $oldAnchor, array $attrs, DataMw $dataMw, bool $isImage,
 		?string $captionText, int $page, string $lang
 	): Element {
 		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
 
-		if ( $isImage ) {
+		if ( $isImage || $errs ) {
 			$anchor = $doc->createElement( 'a' );
 			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ): void {
 				$href = $env->makeLink( $title );
@@ -468,7 +468,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$anchor->setAttribute( 'class', 'mw-file-description' );
 			};
 			if ( $attr !== null ) {
-				$discard = true;
+				$discard = !$errs;
 				$val = $attr->value['txt'];
 				if ( $val === '' ) {
 					// No href if link= was specified
@@ -712,8 +712,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$hasThumb = $hasThumb || DOMUtils::hasTypeOf( $container, 'mw:File/Thumb' );
 
+			$broken = false;
 			$info = $files[$c['infoKey']];
 			if ( !$info ) {
+				$broken = true;
 				$env->getDataAccess()->addTrackingCategory(
 					$env->getPageConfig(),
 					$env->getMetadata(),
@@ -724,8 +726,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
 			}
 
-			// FIXME: Should we fallback to $info if there are errors with $manualinfo?
-			// What does the legacy parser do?
 			if ( $c['manualKey'] !== null ) {
 				$manualinfo = $files[$c['manualKey']];
 				if ( !$manualinfo ) {
@@ -802,26 +802,30 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// Add mw:Error to the RDFa type.
 			if ( $errs ) {
 				self::handleErrors( $container, $span, $errs, $dataMw, $alt );
+				$elt = $span;
+			} else {
+				$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
+				DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
+			}
+
+			if ( $broken ) {
 				continue;
 			}
 
-			$needsTMHModules = $needsTMHModules || !$isImage;
+			$anchor = self::replaceAnchor(
+				$env, $urlParser, $errs, $anchor, $attrs, $dataMw, $isImage, $captionText,
+				(int)( $attrs['dims']['page'] ?? 0 ),
+				$attrs['dims']['lang'] ?? ''
+			);
+			$anchor->appendChild( $elt );
+
+			$needsTMHModules = $needsTMHModules || ( !$isImage && !$errs );
 
 			$env->getMetadata()->addImage(
 				$attrs['title'],
 				$info['timestamp'] ?? null,
 				$info['sha1'] ?? null,
 			);
-
-			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
-			DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
-
-			$anchor = self::replaceAnchor(
-				$env, $urlParser, $container, $anchor, $attrs, $dataMw, $isImage, $captionText,
-				(int)( $attrs['dims']['page'] ?? 0 ),
-				$attrs['dims']['lang'] ?? ''
-			);
-			$anchor->appendChild( $elt );
 
 			if ( isset( $dataMw->attribs ) && count( $dataMw->attribs ) === 0 ) {
 				unset( $dataMw->attribs );
