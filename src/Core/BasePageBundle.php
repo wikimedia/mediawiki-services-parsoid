@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 
 /**
  * A page bundle stores metadata and separated data-parsoid and
@@ -50,6 +52,58 @@ class BasePageBundle implements JsonCodecable {
 		/** @var ?string */
 		public ?string $contentmodel = null,
 	) {
+	}
+
+	/**
+	 * Build an HtmlPageBundle by adding HTML string contents to this
+	 * base page bundle.
+	 * @param string $html The main document HTML
+	 * @param array<string,string> $fragments Additional named HTML fragments
+	 * @return HtmlPageBundle
+	 */
+	public function withHtml( string $html, array $fragments = [] ): HtmlPageBundle {
+		return new HtmlPageBundle(
+			html: $html,
+			fragments: $fragments,
+			parsoid: $this->parsoid,
+			mw: $this->mw,
+			version: $this->version,
+			headers: $this->headers,
+			contentmodel: $this->contentmodel,
+		);
+	}
+
+	/**
+	 * Build an DomPageBundle by adding DOM contents to this
+	 * base page bundle.
+	 * @param Document $doc The owner Document
+	 * @param array<string,DocumentFragment> $fragments Additional named
+	 *   DocumentFragments
+	 * @return DomPageBundle
+	 */
+	public function withDocument( Document $doc, array $fragments = [] ): DomPageBundle {
+		return new DomPageBundle(
+			doc: $doc,
+			fragments: $fragments,
+			parsoid: $this->parsoid,
+			mw: $this->mw,
+			version: $this->version,
+			headers: $this->headers,
+			contentmodel: $this->contentmodel,
+		);
+	}
+
+	/**
+	 * Build a BasePageBundle with just the metadata from another page bundle.
+	 */
+	public function toBasePageBundle(): BasePageBundle {
+		return new BasePageBundle(
+			parsoid: $this->parsoid,
+			mw: $this->mw,
+			version: $this->version,
+			headers: $this->headers,
+			contentmodel: $this->contentmodel,
+		);
 	}
 
 	// JsonCodecable -------------
