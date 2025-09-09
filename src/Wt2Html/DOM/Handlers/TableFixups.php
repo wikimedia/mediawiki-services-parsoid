@@ -34,7 +34,7 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 class TableFixups {
 
 	private static function isSimpleTemplatedSpan( Node $node ): bool {
-		return DOMCompat::nodeName( $node ) === 'span' &&
+		return DOMUtils::nodeName( $node ) === 'span' &&
 			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
 			DOMUtils::allChildrenAreTextOrComments( $node );
 	}
@@ -141,7 +141,7 @@ class TableFixups {
 
 		while ( $child ) {
 			if (
-				DOMCompat::nodeName( $child ) === 'span' &&
+				DOMUtils::nodeName( $child ) === 'span' &&
 				DOMCompat::getAttribute( $child, 'about' ) === $aboutId
 			) {
 				// Remove the encapsulation attributes. If there are no more attributes left,
@@ -416,7 +416,7 @@ class TableFixups {
 			array_unshift( $dataMW->parts, $src );
 		}
 
-		$rowSyntaxChar = DOMCompat::nodeName( $to ) === 'td' ? '|' : '!';
+		$rowSyntaxChar = DOMUtils::nodeName( $to ) === 'td' ? '|' : '!';
 		$fromDp = DOMDataUtils::getDataParsoid( $from );
 		if ( $rowSyntaxChar === '|' ) {
 			unset( $fromDp->startTagSrc );
@@ -456,7 +456,7 @@ class TableFixups {
 		// Update data-mw, DSR if $to is an encapsulation wrapper
 		self::transferSourceBetweenCells( $fromSrc, $from, $to, false );
 
-		$identicalCellTypes = DOMCompat::nodeName( $from ) === DOMCompat::nodeName( $to );
+		$identicalCellTypes = DOMUtils::nodeName( $from ) === DOMUtils::nodeName( $to );
 		[ $src, $tgt ] = $identicalCellTypes ? [ $from, $to ] : [ $to, $from ];
 		// For non-identical cell types, $from is the authoritative cell but
 		// $to has transclusion attributes. So, we need to migrate data-mw,
@@ -500,7 +500,7 @@ class TableFixups {
 		}
 
 		// Process attribute wikitext as HTML
-		$leadingPipeChar = DOMCompat::nodeName( $cell ) === 'td' ? '|' : '!';
+		$leadingPipeChar = DOMUtils::nodeName( $cell ) === 'td' ? '|' : '!';
 		// FIXME: Encapsulated doesn't necessarily mean templated
 		$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
 		if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
@@ -599,11 +599,11 @@ class TableFixups {
 		$prev = $cell->previousSibling;
 		'@phan-var Element $prev'; // @var Element $prev
 
-		$prevIsTd = DOMCompat::nodeName( $prev ) === 'td';
+		$prevIsTd = DOMUtils::nodeName( $prev ) === 'td';
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
 		$prevHasAttrs = !$prevDp->getTempFlag( TempData::NO_ATTRS );
 
-		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
+		$cellIsTd = DOMUtils::nodeName( $cell ) === 'td';
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		$cellHasAttrs = !$cellDp->getTempFlag( TempData::NO_ATTRS );
 
@@ -838,7 +838,7 @@ class TableFixups {
 		// can be nested (ie. template in extension content) so the check is insufficient
 		$inTplContent = $dtState->tplInfo !== null &&
 			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
-		$testRE = DOMCompat::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
+		$testRE = DOMUtils::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
 		$status = self::pipeStatusInContent( $cell, $testRE, $inTplContent );
 		return $status === 1 ? self::OTHER_REPARSE : self::NO_REPARSING;
 	}
@@ -877,7 +877,7 @@ class TableFixups {
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th> when not the first child
-		if ( DOMCompat::nodeName( $cell ) === 'th' &&
+		if ( DOMUtils::nodeName( $cell ) === 'th' &&
 			DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) &&
 			// This is checking that previous sibling is not "\n" which would
 			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
@@ -927,7 +927,7 @@ class TableFixups {
 		// if any addition attribute fixup or splits are required,
 		// they will get done.
 		$newCell = null;
-		$isTd = DOMCompat::nodeName( $cell ) === 'td';
+		$isTd = DOMUtils::nodeName( $cell ) === 'td';
 		$ownerDoc = $cell->ownerDocument;
 		$child = $cell->firstChild;
 		while ( $child ) {
@@ -937,7 +937,7 @@ class TableFixups {
 				$newCell->appendChild( $child );
 			} elseif ( $child instanceof Text || self::isSimpleTemplatedSpan( $child ) ) {
 				// FIXME: This skips over scenarios like <div>foo||bar</div>.
-				$cellName = DOMCompat::nodeName( $cell );
+				$cellName = DOMUtils::nodeName( $cell );
 				$hasSpanWrapper = !( $child instanceof Text );
 				$match1 = $match2 = null;
 

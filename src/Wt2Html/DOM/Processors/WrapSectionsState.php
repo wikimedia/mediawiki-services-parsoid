@@ -327,7 +327,7 @@ class WrapSectionsState {
 					// we are done! We cannot expand the section boundary any further.
 					if ( !WTUtils::isRenderingTransparentNode( $node ) &&
 						!(
-							DOMCompat::nodeName( $node ) === 'span' &&
+							DOMUtils::nodeName( $node ) === 'span' &&
 							!WTUtils::isLiteralHTMLNode( $node ) &&
 							$this->isEmptySpan( $node )
 						)
@@ -355,7 +355,7 @@ class WrapSectionsState {
 
 			if ( DOMUtils::isHeading( $node ) ) {
 				'@phan-var Element $node'; // @var Element $node // headings are elements
-				$level = (int)DOMCompat::nodeName( $node )[1];
+				$level = (int)DOMUtils::nodeName( $node )[1];
 
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( WTUtils::isLiteralHTMLNode( $node ) ) {
@@ -457,7 +457,7 @@ class WrapSectionsState {
 	 * @return bool
 	 */
 	private static function isParsoidSection( Element $n ): bool {
-		return DOMCompat::nodeName( $n ) === 'section' && $n->hasAttribute( 'data-mw-section-id' );
+		return DOMUtils::nodeName( $n ) === 'section' && $n->hasAttribute( 'data-mw-section-id' );
 	}
 
 	/**
@@ -712,7 +712,7 @@ class WrapSectionsState {
 			for ( $n = $range['start']; $n !== $range['end']->nextSibling; $n = $n->nextSibling ) {
 				Assert::invariant( self::isParsoidSection( $n ),
 					"Encountered non-Parsoid-section node (" .
-					DOMCompat::nodeName( $n ) .
+					DOMUtils::nodeName( $n ) .
 					") while updating template wrappers" );
 				$n->setAttribute( 'about', $about );
 			}
@@ -859,7 +859,7 @@ class WrapSectionsState {
 					$insertionPoint = self::findSectionAncestor( $tocIP );
 
 					$insertionContainer = $insertionPoint->previousSibling;
-					if ( !$insertionContainer || DOMCompat::nodeName( $insertionContainer ) !== 'section' ) {
+					if ( !$insertionContainer || DOMUtils::nodeName( $insertionContainer ) !== 'section' ) {
 						$insertionContainer = $this->insertSyntheticSection(
 							$syntheticTocMeta, $insertionPoint
 						);

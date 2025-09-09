@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
@@ -28,7 +27,7 @@ class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
 		// DOMCompat::getElementById, in order to test T232390
 		$el = $doc->getElementById( 'mw-pagebundle' );
 		$this->assertNotNull( $el );
-		$this->assertEquals( 'script', DOMCompat::nodeName( $el ) );
+		$this->assertEquals( 'script', DOMUtils::nodeName( $el ) );
 	}
 
 	/**

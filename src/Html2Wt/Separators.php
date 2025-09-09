@@ -61,8 +61,8 @@ class Separators {
 			$c['constraintInfo'] = [
 				'onSOL' => $constraintInfo['onSOL'] ?? false,
 				'sepType' => $constraintInfo['sepType'] ?? null,
-				'nodeA' => DOMCompat::nodeName( $constraintInfo['nodeA'] ),
-				'nodeB' => DOMCompat::nodeName( $constraintInfo['nodeB'] ),
+				'nodeA' => DOMUtils::nodeName( $constraintInfo['nodeA'] ),
+				'nodeB' => DOMUtils::nodeName( $constraintInfo['nodeB'] ),
 			];
 		}
 		return $c;
@@ -130,8 +130,8 @@ class Separators {
 				$env->log(
 					'info/html2wt',
 					'Incompatible constraints 1:',
-					DOMCompat::nodeName( $nodeA ),
-					DOMCompat::nodeName( $nodeB ),
+					DOMUtils::nodeName( $nodeA ),
+					DOMUtils::nodeName( $nodeB ),
 					self::loggableConstraints( $nlConstraints )
 				);
 				$nlConstraints['min'] = $bCons['min'];
@@ -147,8 +147,8 @@ class Separators {
 				$env->log(
 					'info/html2wt',
 					'Incompatible constraints 2:',
-					DOMCompat::nodeName( $nodeA ),
-					DOMCompat::nodeName( $nodeB ),
+					DOMUtils::nodeName( $nodeA ),
+					DOMUtils::nodeName( $nodeB ),
 					self::loggableConstraints( $nlConstraints )
 				);
 				$nlConstraints['min'] = $bCons['max'];
@@ -241,7 +241,7 @@ class Separators {
 				$sepType === 'parent-child' &&
 				!DiffDOMUtils::isContentNode( DiffDOMUtils::firstNonDeletedChild( $nodeA ) ) &&
 				!(
-					isset( Consts::$HTML['ChildTableTags'][DOMCompat::nodeName( $nodeB )] ) &&
+					isset( Consts::$HTML['ChildTableTags'][DOMUtils::nodeName( $nodeB )] ) &&
 					!WTUtils::isLiteralHTMLNode( $nodeB )
 				)
 			) {
@@ -403,7 +403,7 @@ class Separators {
 			function () use ( $sepType, $nodeA, $nodeB, $state ) {
 				return 'constraint' . ' | ' .
 					$sepType . ' | ' .
-					'<' . DOMCompat::nodeName( $nodeA ) . ',' . DOMCompat::nodeName( $nodeB ) .
+					'<' . DOMUtils::nodeName( $nodeA ) . ',' . DOMUtils::nodeName( $nodeB ) .
 					'>' . ' | ' . PHPUtils::jsonEncode( $state->sep->constraints ) . ' | ' .
 					self::debugOut( $nodeA ) . ' | ' . self::debugOut( $nodeB );
 			}
@@ -510,13 +510,13 @@ class Separators {
 				// First scope wins
 				while ( !$isIndentPreSafe && !DOMUtils::atTheTop( $parentB ) ) {
 					if (
-						TokenUtils::tagOpensBlockScope( DOMCompat::nodeName( $parentB ) ) &&
+						TokenUtils::tagOpensBlockScope( DOMUtils::nodeName( $parentB ) ) &&
 						// Only html p-tag is indent pre suppressing
-						( DOMCompat::nodeName( $parentB ) !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) )
+						( DOMUtils::nodeName( $parentB ) !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) )
 					) {
 						$isIndentPreSafe = true;
 						break;
-					} elseif ( TokenUtils::tagClosesBlockScope( DOMCompat::nodeName( $parentB ) ) ) {
+					} elseif ( TokenUtils::tagClosesBlockScope( DOMUtils::nodeName( $parentB ) ) ) {
 						break;
 					}
 					$parentB = $parentB->parentNode;
@@ -525,7 +525,7 @@ class Separators {
 
 			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
 				$nodeB && !WTUtils::isLiteralHTMLNode( $nodeB ) &&
-				isset( Consts::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $nodeB )] );
+				isset( Consts::$HTMLTagsRequiringSOLContext[DOMUtils::nodeName( $nodeB )] );
 			if ( !$isIndentPreSafe || $stripLeadingSpace ) {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
@@ -613,7 +613,7 @@ class Separators {
 		}
 
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
+		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMUtils::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
@@ -693,7 +693,7 @@ class Separators {
 		}
 
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
+		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMUtils::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
@@ -1009,8 +1009,8 @@ class Separators {
 			'debug/wts/sep',
 			static function () use ( $prevNode, $origNode, $sep, $state ) {
 				return 'maybe-sep  | ' .
-					'prev:' . ( $prevNode ? DOMCompat::nodeName( $prevNode ) : '--none--' ) .
-					', node:' . DOMCompat::nodeName( $origNode ) .
+					'prev:' . ( $prevNode ? DOMUtils::nodeName( $prevNode ) : '--none--' ) .
+					', node:' . DOMUtils::nodeName( $origNode ) .
 					', sep: ' . PHPUtils::jsonEncode( $sep ) .
 					', state.sep.src: ' . PHPUtils::jsonEncode( $state->sep->src ?? null );
 			}
@@ -1038,7 +1038,7 @@ class Separators {
 	private function needNewSep( Node $node ): bool {
 		// If an "empty start tag" tr node is modified to add attributes to it, we cannot re-use the existing ""
 		// separator, and we need to force its re-generation
-		if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'tr'
+		if ( $node instanceof Element && DOMUtils::nodeName( $node ) === 'tr'
 			&& empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			return DiffUtils::hasDiffMark( $node, DiffMarkers::MODIFIED_WRAPPER );

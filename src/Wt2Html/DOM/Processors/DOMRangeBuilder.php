@@ -243,7 +243,7 @@ class DOMRangeBuilder {
 			// As long as $newStart is a tr/tbody or we don't have whitespace
 			// migrate $nodesToMigrate into $newStart. Pushing whitespace into
 			// th/td/caption can change display semantics.
-			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[DOMCompat::nodeName( $newStart )] ) ) ) {
+			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[DOMUtils::nodeName( $newStart )] ) ) ) {
 				/**
 				 * The point of the above loop is to ensure we're working
 				 * with a Element if there is a $newStart.
@@ -325,7 +325,7 @@ class DOMRangeBuilder {
 	 * @return Node
 	 */
 	protected function getStartConsideringFosteredContent( Node $node ): Node {
-		if ( DOMCompat::nodeName( $node ) === 'table' ) {
+		if ( DOMUtils::nodeName( $node ) === 'table' ) {
 			// If we have any fostered content, include it as well.
 			for ( $previousSibling = $node->previousSibling;
 				$previousSibling instanceof Element &&
@@ -339,7 +339,7 @@ class DOMRangeBuilder {
 	}
 
 	private static function stripStartMeta( Element $meta ): void {
-		if ( DOMCompat::nodeName( $meta ) === 'meta' ) {
+		if ( DOMUtils::nodeName( $meta ) === 'meta' ) {
 			$meta->parentNode->removeChild( $meta );
 		} else {
 			// Remove mw:* from the typeof.
@@ -719,14 +719,14 @@ class DOMRangeBuilder {
 		// newline constraint requirements. So, for now, I am skipping that
 		// can of worms to prevent confusing the serializer with an overloaded
 		// tag name.
-		if ( DOMCompat::nodeName( $firstNode ) === 'meta' ) {
+		if ( DOMUtils::nodeName( $firstNode ) === 'meta' ) {
 			return null;
 		}
 
 		// FIXME spec-compliant values would be upper-case, this is just a workaround
 		// for current PHP DOM implementation and could be removed in the future
 		// See discussion in the method comment above.
-		$nodeName = mb_strtoupper( DOMCompat::nodeName( $firstNode ), "UTF-8" );
+		$nodeName = mb_strtoupper( DOMUtils::nodeName( $firstNode ), "UTF-8" );
 
 		return !empty( $dp->stx ) ? $nodeName . '_' . $dp->stx : $nodeName;
 	}
@@ -905,7 +905,7 @@ class DOMRangeBuilder {
 
 					// Case 2. above
 					$endDsr = $dp2DSR->start;
-					if ( DOMCompat::nodeName( $range->end ) === 'table' &&
+					if ( DOMUtils::nodeName( $range->end ) === 'table' &&
 						$endDsr !== null &&
 						( $endDsr < $dp1DSR->start || !empty( $dp1->fostered ) )
 					) {
@@ -1217,7 +1217,7 @@ class DOMRangeBuilder {
 
 							$dp = !DOMUtils::atTheTop( $sm->parentNode ) ?
 								DOMDataUtils::getDataParsoid( $sm->parentNode ) : null;
-							if ( $tbl && DOMCompat::nodeName( $tbl ) === 'table' && !empty( $dp->fostered ) ) {
+							if ( $tbl && DOMUtils::nodeName( $tbl ) === 'table' && !empty( $dp->fostered ) ) {
 								'@phan-var Element $tbl';  /** @var Element $tbl */
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
 								if ( isset( $dp->tsr ) && $dp->tsr->start !== null && $dp->tsr->start !== null &&

@@ -44,7 +44,7 @@ class Headings {
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
-				$cName = DOMCompat::nodeName( $c );
+				$cName = DOMUtils::nodeName( $c );
 				if ( DOMUtils::hasTypeOf( $c, 'mw:LanguageVariant' ) ) {
 					// Special case for -{...}-
 					$dp = DOMDataUtils::getDataParsoid( $c );

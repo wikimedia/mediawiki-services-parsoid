@@ -157,34 +157,34 @@ class DOMUtils {
 
 	public static function isRemexBlockNode( ?Node $node ): bool {
 		return $node instanceof Element &&
-			!isset( Consts::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
+			!isset( Consts::$HTML['OnlyInlineElements'][self::nodeName( $node )] ) &&
 			// This is a superset of \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
 			!self::isMetaDataTag( $node );
 	}
 
 	public static function isWikitextBlockNode( ?Node $node ): bool {
-		return $node && TokenUtils::isWikitextBlockTag( DOMCompat::nodeName( $node ) );
+		return $node && TokenUtils::isWikitextBlockTag( self::nodeName( $node ) );
 	}
 
 	/**
 	 * Determine whether this is a formatting DOM element.
 	 */
 	public static function isFormattingElt( ?Node $node ): bool {
-		return $node && isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $node )] );
+		return $node && isset( Consts::$HTML['FormattingTags'][self::nodeName( $node )] );
 	}
 
 	/**
 	 * Determine whether this is a quote DOM element.
 	 */
 	public static function isQuoteElt( ?Node $node ): bool {
-		return $node && isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $node )] );
+		return $node && isset( Consts::$WTQuoteTags[self::nodeName( $node )] );
 	}
 
 	/**
 	 * Determine whether this is the <body> DOM element.
 	 */
 	public static function isBody( ?Node $node ): bool {
-		return $node && DOMCompat::nodeName( $node ) === 'body';
+		return $node && self::nodeName( $node ) === 'body';
 	}
 
 	/**
@@ -275,7 +275,7 @@ class DOMUtils {
 	 */
 	public static function findAncestorOfName( Node $node, string $name ): ?Element {
 		$node = $node->parentNode;
-		while ( $node && DOMCompat::nodeName( $node ) !== $name ) {
+		while ( $node && self::nodeName( $node ) !== $name ) {
 			$node = $node->parentNode;
 		}
 		'@phan-var Element $node'; // @var Element $node
@@ -286,7 +286,7 @@ class DOMUtils {
 	 * Check whether $node has $name or has an ancestor named $name.
 	 */
 	public static function hasNameOrHasAncestorOfName( Node $node, string $name ): bool {
-		return DOMCompat::nodeName( $node ) === $name || self::findAncestorOfName( $node, $name ) !== null;
+		return self::nodeName( $node ) === $name || self::findAncestorOfName( $node, $name ) !== null;
 	}
 
 	/**
@@ -301,7 +301,7 @@ class DOMUtils {
 	 *   no match.
 	 */
 	public static function matchNameAndTypeOf( Node $n, string $name, string $typeRe ): ?string {
-		return DOMCompat::nodeName( $n ) === $name ? self::matchTypeOf( $n, $typeRe ) : null;
+		return self::nodeName( $n ) === $name ? self::matchTypeOf( $n, $typeRe ) : null;
 	}
 
 	/**
@@ -523,28 +523,28 @@ class DOMUtils {
 	 * Check whether `node` is in a fosterable position.
 	 */
 	public static function isFosterablePosition( ?Node $n ): bool {
-		return $n && isset( Consts::$HTML['FosterablePosition'][DOMCompat::nodeName( $n->parentNode )] );
+		return $n && isset( Consts::$HTML['FosterablePosition'][self::nodeName( $n->parentNode )] );
 	}
 
 	/**
 	 * Check whether `node` is a heading.
 	 */
 	public static function isHeading( ?Node $n ): bool {
-		return $n && preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $n ) );
+		return $n && preg_match( '/^h[1-6]$/D', self::nodeName( $n ) );
 	}
 
 	/**
 	 * Check whether `node` is a list.
 	 */
 	public static function isList( ?Node $n ): bool {
-		return $n && isset( Consts::$HTML['ListTags'][DOMCompat::nodeName( $n )] );
+		return $n && isset( Consts::$HTML['ListTags'][self::nodeName( $n )] );
 	}
 
 	/**
 	 * Check whether `node` is a list item.
 	 */
 	public static function isListItem( ?Node $n ): bool {
-		return $n && isset( Consts::$HTML['ListItemTags'][DOMCompat::nodeName( $n )] );
+		return $n && isset( Consts::$HTML['ListItemTags'][self::nodeName( $n )] );
 	}
 
 	/**
@@ -655,7 +655,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function treeHasElement( Node $node, string $tagName, bool $checkRoot = false ): bool {
-		if ( $checkRoot && DOMCompat::nodeName( $node ) === $tagName ) {
+		if ( $checkRoot && self::nodeName( $node ) === $tagName ) {
 			return true;
 		}
 
@@ -675,7 +675,7 @@ class DOMUtils {
 	 * Is node a table tag (table, tbody, td, tr, etc.)?
 	 */
 	public static function isTableTag( Node $node ): bool {
-		return isset( Consts::$HTML['TableTags'][DOMCompat::nodeName( $node )] );
+		return isset( Consts::$HTML['TableTags'][self::nodeName( $node )] );
 	}
 
 	/**
@@ -805,7 +805,7 @@ class DOMUtils {
 	}
 
 	public static function isRawTextElement( Node $node ): bool {
-		return isset( Consts::$HTML['RawTextElements'][DOMCompat::nodeName( $node )] );
+		return isset( Consts::$HTML['RawTextElements'][self::nodeName( $node )] );
 	}
 
 	/**
@@ -835,7 +835,7 @@ class DOMUtils {
 	}
 
 	public static function isMetaDataTag( Element $node ): bool {
-		return isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
+		return isset( Consts::$HTML['MetaDataTags'][self::nodeName( $node )] );
 	}
 
 	/**
@@ -843,5 +843,17 @@ class DOMUtils {
 	 */
 	public static function stripPWrapper( string $ret ): string {
 		return preg_replace( '#(^<p>)|(\n</p>(' . Utils::COMMENT_REGEXP_FRAGMENT . '|\s)*$)#D', '', $ret );
+	}
+
+	/**
+	 * Return the lower-case version of the node name.
+	 * FIXME: HTML says this should be capitalized, but we are tailoring
+	 * this to the PHP7.x DOM libraries that return lower-case names.
+	 * @see DOMCompat::nodeName()
+	 */
+	public static function nodeName( Node $node ): string {
+		// We will transition to DOMCompat::nodeName() once we move to
+		// PHP 8.4 in production, which uses uppercase node names.
+		return $node instanceof \DOMNode ? $node->nodeName : strtolower( $node->nodeName );
 	}
 }

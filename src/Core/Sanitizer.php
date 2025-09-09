@@ -1074,7 +1074,7 @@ class Sanitizer {
 	public static function applySanitizedArgs(
 		SiteConfig $siteConfig, Element $wrapper, array $attrs
 	): void {
-		$nodeName = DOMCompat::nodeName( $wrapper );
+		$nodeName = DOMUtils::nodeName( $wrapper );
 		$sanitizedAttrs = self::sanitizeTagAttrs( $siteConfig, $nodeName, null, $attrs );
 		foreach ( $sanitizedAttrs as $k => $v ) {
 			if ( isset( $v[0] ) ) {

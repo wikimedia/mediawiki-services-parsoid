@@ -66,7 +66,7 @@ class XHtmlSerializer {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				'@phan-var Element $node'; // @var Element $node
-				$nodeName = DOMCompat::nodeName( $node );
+				$nodeName = DOMUtils::nodeName( $node );
 				$child = $nodeName === 'template' ?
 					DOMCompat::getTemplateElementContent( $node )->firstChild :
 					$node->firstChild;
@@ -162,7 +162,7 @@ class XHtmlSerializer {
 				return;
 
 			default:
-				$accum( '??' . DOMCompat::nodeName( $node ), $node );
+				$accum( '??' . DOMUtils::nodeName( $node ), $node );
 		}
 	}
 
@@ -283,7 +283,7 @@ class XHtmlSerializer {
 			self::serializeToString( $node, $options, $accum );
 		}
 		// Ensure there's a doctype for documents.
-		if ( !$options['innerXML'] && DOMCompat::nodeName( $node ) === 'html' && $options['addDoctype'] ) {
+		if ( !$options['innerXML'] && DOMUtils::nodeName( $node ) === 'html' && $options['addDoctype'] ) {
 			$out['html'] = "<!DOCTYPE html>\n" . $out['html'];
 		}
 		// Drop the bookkeeping

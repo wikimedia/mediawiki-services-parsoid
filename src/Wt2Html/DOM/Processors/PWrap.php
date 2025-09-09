@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -270,7 +269,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
-				if ( DOMCompat::nodeName( $c ) === $tagName ) {
+				if ( DOMUtils::nodeName( $c ) === $tagName ) {
 					$this->pWrapDOM( $env, $c );
 				} else {
 					$this->pWrapInsideTag( $env, $c, $tagName );

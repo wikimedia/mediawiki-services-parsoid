@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
  * Implements the php parser's `indicator` hook natively.
@@ -68,7 +67,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 		// Strip an outer paragraph if it is the sole paragraph without additional attributes
 		$content = DiffDOMUtils::firstNonSepChild( $domFragment );
 		if ( $content &&
-			DOMCompat::nodeName( $content ) === 'p' &&
+			DOMUtils::nodeName( $content ) === 'p' &&
 			DiffDOMUtils::nextNonSepSibling( $content ) === null &&
 			$content instanceof Element && // Needed to mollify Phan
 			DOMDataUtils::noAttrs( $content )

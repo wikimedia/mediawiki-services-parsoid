@@ -145,4 +145,14 @@ class DOMUtils {
 	public static function findAncestorOfName( Node $node, string $name ): ?Element {
 		return DU::findAncestorOfName( $node, $name );
 	}
+
+	/**
+	 * Return the lower-case version of the node name.
+	 * FIXME: HTML says this should be capitalized, but we are tailoring
+	 * this to the PHP7.x DOM libraries that return lower-case names.
+	 * @see DOMCompat::nodeName()
+	 */
+	public static function nodeName( Node $node ): string {
+		return DU::nodeName( $node );
+	}
 }

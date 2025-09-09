@@ -186,7 +186,7 @@ class RegressionSpecsTest extends TestCase {
 		$description = "Regression Specs: should not wrap templatestyles style tags in p-wrappers";
 		$wt = "<templatestyles src='Template:Quote/styles.css'/><div>foo</div>";
 		$docBody = $this->parseWT( $wt );
-		$node = DOMCompat::nodeName( $docBody->firstChild );
+		$node = DOMUtils::nodeName( $docBody->firstChild );
 
 		$this->assertEquals( "style", $node, $description );
 	}
@@ -202,10 +202,10 @@ class RegressionSpecsTest extends TestCase {
 			'[[File:Thumb.png|thumb|250px]]';
 		$docBody = $this->parseWT( $wt );
 
-		$node = DOMCompat::nodeName( $docBody->firstChild );
+		$node = DOMUtils::nodeName( $docBody->firstChild );
 		$this->assertEquals( "p", $node, $description );
 
-		$node = DOMCompat::nodeName( DiffDOMUtils::nextNonSepSibling( $docBody->firstChild ) );
+		$node = DOMUtils::nodeName( DiffDOMUtils::nextNonSepSibling( $docBody->firstChild ) );
 		$this->assertEquals( "figure", $node, $description );
 	}
 
@@ -223,10 +223,10 @@ class RegressionSpecsTest extends TestCase {
 		$docBody = $this->parseWT( $wt );
 
 		$firstStyle = $docBody->firstChild->firstChild;
-		$this->assertEquals( "style", DOMCompat::nodeName( $firstStyle ), $description );
+		$this->assertEquals( "style", DOMUtils::nodeName( $firstStyle ), $description );
 
 		$secondStyle = $firstStyle->nextSibling->nextSibling->nextSibling;
-		$this->assertEquals( "link", DOMCompat::nodeName( $secondStyle ), $description );
+		$this->assertEquals( "link", DOMUtils::nodeName( $secondStyle ), $description );
 
 		$this->assertEquals( "mw-deduplicated-inline-style",
 			DOMCompat::getAttribute( $secondStyle, 'rel' ), $description );
@@ -339,7 +339,7 @@ EOT;
 
 		$syntheticSection = $syntheticMeta->parentNode;
 		$this->assertSame( '-2', DOMCompat::getAttribute( $syntheticSection, 'data-mw-section-id' ) );
-		$this->assertSame( 'div', DOMCompat::nodeName( $syntheticSection->parentNode ) );
+		$this->assertSame( 'div', DOMUtils::nodeName( $syntheticSection->parentNode ) );
 		$this->assertNull( DOMCompat::getAttribute( $syntheticSection, 'about' ) );
 	}
 

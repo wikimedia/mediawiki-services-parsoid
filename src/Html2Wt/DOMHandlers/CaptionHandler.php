@@ -6,8 +6,8 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class CaptionHandler extends DOMHandler {
 
@@ -32,7 +32,7 @@ class CaptionHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		return ( DOMCompat::nodeName( $otherNode ) !== 'table' )
+		return ( DOMUtils::nodeName( $otherNode ) !== 'table' )
 			? [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ]
 			: [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}

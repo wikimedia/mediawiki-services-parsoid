@@ -222,7 +222,7 @@ class DiffUtils {
 		if ( $mark !== null ) {
 			return DOMUtils::isMarkerMeta( $node, "mw:DiffMarker/{$mark->value}" );
 		} else {
-			return DOMCompat::nodeName( $node ) === 'meta' &&
+			return DOMUtils::nodeName( $node ) === 'meta' &&
 				DOMUtils::matchTypeOf( $node, '#^mw:DiffMarker/#' );
 		}
 	}

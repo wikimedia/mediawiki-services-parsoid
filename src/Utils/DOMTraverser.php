@@ -74,7 +74,7 @@ class DOMTraverser {
 	 * @return bool|mixed
 	 */
 	private function callHandlers( Node $node, ?SiteConfig $siteConfig, ?DTState $state ) {
-		$name = DOMCompat::nodeName( $node );
+		$name = DOMUtils::nodeName( $node );
 
 		// Process embedded HTML first since the handlers below might
 		// return a different node which aborts processing. By processing

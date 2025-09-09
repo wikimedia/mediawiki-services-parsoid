@@ -276,12 +276,12 @@ class Test extends Item {
 		// a good way to get at the text and comment nodes
 		$jquery = [
 			'after' => static function ( Node $node, string $html ): void {
-				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
+				if ( DOMUtils::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
 					DOMUtils::migrateChildren( $tbl->firstChild, $node->parentNode, $node->nextSibling );
-				} elseif ( DOMCompat::nodeName( $node->parentNode ) === 'tr' ) {
+				} elseif ( DOMUtils::nodeName( $node->parentNode ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, '<tbody><tr></tr></tbody>' );
 					$tr = $tbl->firstChild->firstChild;
@@ -296,7 +296,7 @@ class Test extends Item {
 				}
 			},
 			'append' => static function ( Node $node, string $html ): void {
-				if ( DOMCompat::nodeName( $node ) === 'tr' ) {
+				if ( DOMUtils::nodeName( $node ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
@@ -312,12 +312,12 @@ class Test extends Item {
 				$node->setAttribute( $name, $val );
 			},
 			'before' => static function ( Node $node, string $html ): void {
-				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
+				if ( DOMUtils::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
 					DOMUtils::migrateChildren( $tbl->firstChild, $node->parentNode, $node );
-				} elseif ( DOMCompat::nodeName( $node->parentNode ) === 'tr' ) {
+				} elseif ( DOMUtils::nodeName( $node->parentNode ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, '<tbody><tr></tr></tbody>' );
 					$tr = $tbl->firstChild->firstChild;
@@ -460,7 +460,7 @@ class Test extends Item {
 
 			// For these container nodes, it would be buggy
 			// to insert text nodes as children
-			switch ( DOMCompat::nodeName( $n->parentNode ) ) {
+			switch ( DOMUtils::nodeName( $n->parentNode ) ) {
 				case 'ol':
 				case 'ul':
 					$wrapperName = 'li';
@@ -472,12 +472,12 @@ class Test extends Item {
 					$prev = DOMCompat::getPreviousElementSibling( $n );
 					if ( $prev ) {
 						// TH or TD
-						$wrapperName = DOMCompat::nodeName( $prev );
+						$wrapperName = DOMUtils::nodeName( $prev );
 					} else {
 						$next = DOMCompat::getNextElementSibling( $n );
 						if ( $next ) {
 							// TH or TD
-							$wrapperName = DOMCompat::nodeName( $next );
+							$wrapperName = DOMUtils::nodeName( $next );
 						} else {
 							$wrapperName = 'td';
 						}
@@ -496,7 +496,7 @@ class Test extends Item {
 					break;
 			}
 
-			if ( DOMUtils::isFosterablePosition( $n ) && DOMCompat::nodeName( $n->parentNode ) !== 'tr' ) {
+			if ( DOMUtils::isFosterablePosition( $n ) && DOMUtils::nodeName( $n->parentNode ) !== 'tr' ) {
 				$newNode = $ownerDoc->createComment( $str );
 			} elseif ( $wrapperName ) {
 				$newNode = $ownerDoc->createElement( $wrapperName );
@@ -664,9 +664,9 @@ class Test extends Item {
 			// - ExtendedAnnRange is an "unknown" type in the spec, and hence uneditable
 			return DOMUtils::matchTypeOf( $node,
 					'#^mw:(File|Entity|Placeholder|DisplaySpace|ExtendedAnnRange)(/|$)#' ) || (
-				DOMCompat::nodeName( $node ) !== 'figcaption' &&
+				DOMUtils::nodeName( $node ) !== 'figcaption' &&
 				$node->parentNode &&
-				DOMCompat::nodeName( $node->parentNode ) !== 'body' &&
+				DOMUtils::nodeName( $node->parentNode ) !== 'body' &&
 				$nodeIsUneditable( $node->parentNode )
 			);
 		};

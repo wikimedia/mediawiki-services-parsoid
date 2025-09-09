@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Ensure that no more uses of $node -> nodeName creep into our repository...
-# we should be using DOMCompat::nodeName( $node )
+# we should be using DOMCompat::nodeName($node) or DOMUtils::nodeName( $node )
 # See I7579cbd07df7650f4c7105cc9dbdc87ea294bded
 
 BIN=$(dirname $0)

@@ -147,7 +147,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			// options and we don't want to deal with rendering differences
 			true
 		);
-		if ( !$thumb || DOMCompat::nodeName( $thumb ) !== 'figure' ) {
+		if ( !$thumb || DOMUtils::nodeName( $thumb ) !== 'figure' ) {
 			return null;
 		}
 
@@ -264,7 +264,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					'@phan-var Element $child'; // @var Element $child
 					// Ignore if it isn't a "gallerybox"
 					if (
-						DOMCompat::nodeName( $child ) !== 'li' ||
+						DOMUtils::nodeName( $child ) !== 'li' ||
 						!DOMUtils::hasClass( $child, 'gallerybox' )
 					) {
 						break;

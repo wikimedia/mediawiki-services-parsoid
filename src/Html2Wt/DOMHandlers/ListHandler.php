@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -41,7 +40,7 @@ class ListHandler extends DOMHandler {
 			$firstChildElt = DiffDOMUtils::firstNonSepChild( $firstChildElt );
 		}
 
-		if ( !$firstChildElt || !in_array( DOMCompat::nodeName( $firstChildElt ), $this->firstChildNames, true )
+		if ( !$firstChildElt || !in_array( DOMUtils::nodeName( $firstChildElt ), $this->firstChildNames, true )
 			|| WTUtils::isLiteralHTMLNode( $firstChildElt )
 		) {
 			$state->emitChunk( $this->getListBullets( $state, $node ), $node );

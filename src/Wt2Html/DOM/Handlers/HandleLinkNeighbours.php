@@ -67,7 +67,7 @@ class HandleLinkNeighbours {
 			$nextSibling = $goForward ? $node->nextSibling : $node->previousSibling;
 			$fromTpl = WTUtils::isEncapsulatedDOMForestRoot( $node );
 			$unwrappedSpan = null;
-			if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'span' &&
+			if ( $node instanceof Element && DOMUtils::nodeName( $node ) === 'span' &&
 				!WTUtils::isLiteralHTMLNode( $node ) &&
 				// <span> comes from the same template we are in
 				$fromTpl && $baseAbout !== null && DOMCompat::getAttribute( $node, 'about' ) === $baseAbout &&

@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -65,7 +66,7 @@ class MediaStructure {
 		$this->mediaElt = $mediaElt;
 		$this->linkElt = $linkElt;
 		$this->containerElt = $containerElt;
-		if ( $containerElt && DOMCompat::nodeName( $containerElt ) === 'figure' ) {
+		if ( $containerElt && DOMUtils::nodeName( $containerElt ) === 'figure' ) {
 			// FIXME: Support last child, which is not the linkElt, as the caption?
 			$this->captionElt = DOMCompat::querySelector( $containerElt, 'figcaption' );
 		}
@@ -78,7 +79,7 @@ class MediaStructure {
 	 * @return bool
 	 */
 	public function isRedLink(): bool {
-		return ( DOMCompat::nodeName( $this->mediaElt ) === 'span' );
+		return ( DOMUtils::nodeName( $this->mediaElt ) === 'span' );
 	}
 
 	/**
@@ -112,7 +113,7 @@ class MediaStructure {
 		if (
 			// Be a bit more liberal than WTUtils::isGeneratedFigure to support
 			// serializing arbitrary HTML and old Flow boards
-			DOMCompat::nodeName( $node ) !== 'figure' &&
+			DOMUtils::nodeName( $node ) !== 'figure' &&
 			!WTUtils::isInlineMedia( $node )
 		) {
 			return null;
@@ -124,12 +125,12 @@ class MediaStructure {
 			// parsing and an active formatting element was reopened in the wrapper
 			$linkElt = DiffDOMUtils::firstNonSepChild( $linkElt );
 		} while (
-			$linkElt instanceof Element && DOMCompat::nodeName( $linkElt ) !== 'a' &&
-			isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $linkElt )] )
+			$linkElt instanceof Element && DOMUtils::nodeName( $linkElt ) !== 'a' &&
+			isset( Consts::$HTML['FormattingTags'][DOMUtils::nodeName( $linkElt )] )
 		);
 		if (
 			!( $linkElt instanceof Element &&
-				in_array( DOMCompat::nodeName( $linkElt ), [ 'a', 'span' ], true ) )
+				in_array( DOMUtils::nodeName( $linkElt ), [ 'a', 'span' ], true ) )
 		) {
 			if ( $linkElt instanceof Element ) {
 				// Try being lenient, maybe this is the media element and we don't
@@ -144,7 +145,7 @@ class MediaStructure {
 		}
 		if (
 			!( $mediaElt instanceof Element &&
-				in_array( DOMCompat::nodeName( $mediaElt ), [ 'audio', 'img', 'span', 'video' ], true ) )
+				in_array( DOMUtils::nodeName( $mediaElt ), [ 'audio', 'img', 'span', 'video' ], true ) )
 		) {
 			return null;
 		}

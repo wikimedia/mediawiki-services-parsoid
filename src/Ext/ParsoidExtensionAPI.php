@@ -1103,7 +1103,7 @@ class ParsoidExtensionAPI {
 		if ( !$forceBlock ) {
 			$validWrappers[] = 'span';
 		}
-		if ( !in_array( DOMCompat::nodeName( $thumb ), $validWrappers, true ) ) {
+		if ( !in_array( DOMUtils::nodeName( $thumb ), $validWrappers, true ) ) {
 			$error = "{$extTagName}_invalid_image";
 			return null;
 		}

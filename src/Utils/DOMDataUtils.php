@@ -482,7 +482,7 @@ class DOMDataUtils {
 			return $decoded;
 		} else {
 			error_log( 'ERROR: Could not decode attribute-val ' . $attVal .
-				' for ' . $name . ' on node ' . DOMCompat::nodeName( $node ) );
+				' for ' . $name . ' on node ' . DOMUtils::nodeName( $node ) );
 			return $defaultVal;
 		}
 	}

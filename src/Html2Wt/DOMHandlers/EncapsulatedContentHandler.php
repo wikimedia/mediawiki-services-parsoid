@@ -107,7 +107,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		// newline constraints.
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		if ( isset( $dp->firstWikitextNode ) ) {
-			// Note: this should match the case returned by DOMCompat::nodeName
+			// Note: this should match the case returned by DOMUtils::nodeName
 			// so that this is effectively a case-insensitive comparison here.
 			// (ie, data-parsoid could have either uppercase tag names or
 			// lowercase tag names and this code should still work.)
@@ -151,7 +151,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			&& $this->isTplListWithoutSharedPrefix( $node )
 			// Nothing to do for definition list rows,
 			// since we're emitting for the parent node.
-			 && !( DOMCompat::nodeName( $node ) === 'dd'
+			 && !( DOMUtils::nodeName( $node ) === 'dd'
 				   && ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row' )
 		) {
 			// phan fails to infer that the parent of a Element is always a Element
@@ -230,8 +230,8 @@ class EncapsulatedContentHandler extends DOMHandler {
 				$parentNode = $parentNode->parentNode;
 			}
 			return !in_array(
-				DOMCompat::nodeName( $parentNode ),
-				$this->parentMap[DOMCompat::nodeName( $node )],
+				DOMUtils::nodeName( $parentNode ),
+				$this->parentMap[DOMUtils::nodeName( $node )],
 				true
 			);
 		}

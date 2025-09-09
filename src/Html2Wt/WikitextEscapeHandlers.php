@@ -54,7 +54,7 @@ class WikitextEscapeHandlers {
 	 * @return bool
 	 */
 	private static function startsOnANewLine( Node $node ): bool {
-		$name = DOMCompat::nodeName( $node );
+		$name = DOMUtils::nodeName( $node );
 		return TokenUtils::tagOpensBlockScope( $name ) &&
 			!WTUtils::isLiteralHTMLNode( $node );
 	}
@@ -224,7 +224,7 @@ class WikitextEscapeHandlers {
 
 		// For <dt> nodes, ":" trigger nowiki outside of elements
 		// For first nodes of <li>'s, bullets in sol posn trigger escaping
-		if ( DOMCompat::nodeName( $liNode ) === 'dt' && str_contains( $text, ':' ) ) {
+		if ( DOMUtils::nodeName( $liNode ) === 'dt' && str_contains( $text, ':' ) ) {
 			return true;
 		} elseif ( preg_match( '/^[#*:;]*$/D', $state->currLine->text ) &&
 			$this->isFirstContentNode( $node )
@@ -425,7 +425,7 @@ class WikitextEscapeHandlers {
 						}
 					}
 
-					if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'a' &&
+					if ( $node instanceof Element && DOMUtils::nodeName( $node ) === 'a' &&
 						$node->textContent === DOMCompat::getAttribute( $node, 'href' )
 					) {
 						// The template expands to an url link => needs nowiking
@@ -957,7 +957,7 @@ class WikitextEscapeHandlers {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child
-			preg_match( '/^h(\d)/', DOMCompat::nodeName( $state->currLine->firstNode ), $headingMatch );
+			preg_match( '/^h(\d)/', DOMUtils::nodeName( $state->currLine->firstNode ), $headingMatch );
 			if ( $headingMatch ) {
 				$n = intval( $headingMatch[1] );
 				if ( ( $state->currLine->text . $text )[$n] === '=' ) {

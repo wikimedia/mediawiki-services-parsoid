@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -723,7 +722,7 @@ class SerializerState {
 				// same line as the block tag) => we can save some effort by eliminating
 				// scenarios where 'this.prevNodeUnmodified' is true.
 				 && !$this->prevNodeUnmodified
-				&& DOMCompat::nodeName( $node ) === 'p' && !WTUtils::isLiteralHTMLNode( $node )
+				&& DOMUtils::nodeName( $node ) === 'p' && !WTUtils::isLiteralHTMLNode( $node )
 			) {
 				$pChild = DiffDOMUtils::firstNonSepChild( $node );
 				// If a text node, we have to make sure that the text doesn't

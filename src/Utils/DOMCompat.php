@@ -124,14 +124,13 @@ class DOMCompat {
 
 	/**
 	 * Return the lower-case version of the node name.
-	 * FIXME: HTML says this should be capitalized, but we are tailoring
-	 * this to the DOM libraries that Parsoid uses that return lower-case names.
+	 *
+	 * @deprecated since 0.22; does not return the standards-compliant
+	 *   value, which would be uppercase.  The return value will
+	 *   change in the future to be standards-compliant.
 	 */
 	public static function nodeName( Node $node ): string {
-		// If we change DOM libraries that defaults to upper-case per HTML spec,
-		// we will probably flip this condition and change rest of Parsoid to
-		// compare against upper-case strings.
-		return $node instanceof \DOMNode ? $node->nodeName : strtolower( $node->nodeName );
+		return DOMUtils::nodeName( $node );
 	}
 
 	/**
@@ -156,7 +155,7 @@ class DOMCompat {
 		}
 		foreach ( DOMUtils::childNodes( $document->documentElement ) as $element ) {
 			/** @var Element $element */
-			$nodeName = self::nodeName( $element );
+			$nodeName = DOMUtils::nodeName( $element );
 			if ( $nodeName === 'body' || $nodeName === 'frameset' ) {
 				// Caching!
 				$document->body = $element;
@@ -189,7 +188,7 @@ class DOMCompat {
 		}
 		foreach ( DOMUtils::childNodes( $document->documentElement ) as $element ) {
 			/** @var Element $element */
-			if ( self::nodeName( $element ) === 'head' ) {
+			if ( DOMUtils::nodeName( $element ) === 'head' ) {
 				$document->head = $element; // Caching!
 				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
@@ -513,7 +512,8 @@ class DOMCompat {
 
 		$tokenizer->execute( [
 			'fragmentNamespace' => HTMLData::NS_HTML,
-			'fragmentName' => self::nodeName( $element ),
+			// Note that fragmentName *should* be lowercase.
+			'fragmentName' => DOMUtils::nodeName( $element ),
 		] );
 
 		// Empty the element

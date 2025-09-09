@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -24,7 +23,7 @@ class TableHandler extends DOMHandler {
 	): ?Node {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$wt = $dp->startTagSrc ?? '{|';
-		$indentTable = DOMCompat::nodeName( $node->parentNode ) === 'dd'
+		$indentTable = DOMUtils::nodeName( $node->parentNode ) === 'dd'
 			&& DiffDOMUtils::previousNonSepSibling( $node ) === null;
 		if ( $indentTable ) {
 			$state->singleLineContext->disable();
@@ -58,7 +57,7 @@ class TableHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		// Handle special table indentation case!
-		if ( $node->parentNode === $otherNode && DOMCompat::nodeName( $otherNode ) === 'dd' ) {
+		if ( $node->parentNode === $otherNode && DOMUtils::nodeName( $otherNode ) === 'dd' ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} else {
 			return [ 'min' => 1, 'max' => 2 ];

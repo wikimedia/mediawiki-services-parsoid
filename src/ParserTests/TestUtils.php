@@ -199,7 +199,7 @@ class TestUtils {
 
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
-			if ( $child instanceof Element && DOMCompat::nodeName( $child ) === 'span' &&
+			if ( $child instanceof Element && DOMUtils::nodeName( $child ) === 'span' &&
 				preg_match( $stripSpanTypeof, DOMCompat::getAttribute( $child, 'typeof' ) ?? '' )
 			) {
 				self::unwrapSpan( $node, $child, $stripSpanTypeof );
@@ -220,14 +220,14 @@ class TestUtils {
 	private static function newlineAround( ?Node $node ): bool {
 		return $node && preg_match(
 			'/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D',
-			DOMCompat::nodeName( $node )
+			DOMUtils::nodeName( $node )
 		);
 	}
 
 	private static function normalizeIEWVisitor(
 		Node $node, array $opts
 	): Node {
-		if ( DOMCompat::nodeName( $node ) === 'pre' ) {
+		if ( DOMUtils::nodeName( $node ) === 'pre' ) {
 			// Preserve newlines in <pre> tags
 			$opts['inPRE'] = true;
 		}
@@ -258,12 +258,12 @@ class TestUtils {
 			DOMCompat::normalize( $node );
 		}
 		// now recurse.
-		if ( DOMCompat::nodeName( $node ) === 'pre' ) {
+		if ( DOMUtils::nodeName( $node ) === 'pre' ) {
 			// hack, since PHP adds a newline before </pre>
 			$opts['stripLeadingWS'] = false;
 			$opts['stripTrailingWS'] = true;
 		} elseif (
-			DOMCompat::nodeName( $node ) === 'span' &&
+			DOMUtils::nodeName( $node ) === 'span' &&
 			DOMUtils::matchTypeOf( $node, '/^mw:/' )
 		) {
 			// SPAN is transparent; pass the strip parameters down to kids

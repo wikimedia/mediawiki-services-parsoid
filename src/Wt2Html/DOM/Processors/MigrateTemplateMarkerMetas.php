@@ -121,7 +121,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( $firstChild && $this->migrateFirstChild( $firstChild ) ) {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
-			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
+			$tagWidth = Consts::$WtTagWidths[DOMUtils::nodeName( $node )] ?? null;
 			if ( ( $tagWidth && $tagWidth[0] === 0 && !WTUtils::isLiteralHTMLNode( $node ) ) ||
 				!empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
 			) {
@@ -144,7 +144,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( $lastChild && $this->migrateLastChild( $lastChild ) ) {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.
-			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
+			$tagWidth = Consts::$WtTagWidths[DOMUtils::nodeName( $node )] ?? null;
 			'@phan-var Element $node'; // @var Element $node
 			if ( ( $tagWidth && $tagWidth[1] === 0 &&
 				!WTUtils::isLiteralHTMLNode( $node ) ) ||
@@ -152,7 +152,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 				// Except, don't migrate out of a table since the end meta
 				// marker may have been fostered and this is more likely to
 				// result in a flipped range that isn't enclosed.
-				DOMCompat::nodeName( $node ) !== 'table' )
+				DOMUtils::nodeName( $node ) !== 'table' )
 			) {
 				$sentinel = $lastChild;
 				do {

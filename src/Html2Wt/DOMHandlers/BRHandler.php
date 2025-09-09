@@ -7,8 +7,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class BRHandler extends DOMHandler {
 
@@ -22,7 +22,7 @@ class BRHandler extends DOMHandler {
 	): ?Node {
 		if ( $state->singleLineContext->enforced()
 			 || ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'html'
-			 || DOMCompat::nodeName( $node->parentNode ) !== 'p'
+			 || DOMUtils::nodeName( $node->parentNode ) !== 'p'
 		) {
 			// <br/> has special newline-based semantics in
 			// parser-generated <p><br/>.. HTML
@@ -91,7 +91,7 @@ class BRHandler extends DOMHandler {
 
 	private function isPbr( Element $br ): bool {
 		return ( DOMDataUtils::getDataParsoid( $br )->stx ?? null ) !== 'html'
-			&& DOMCompat::nodeName( $br->parentNode ) === 'p'
+			&& DOMUtils::nodeName( $br->parentNode ) === 'p'
 			&& DiffDOMUtils::firstNonSepChild( $br->parentNode ) === $br;
 	}
 

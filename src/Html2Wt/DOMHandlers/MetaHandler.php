@@ -227,7 +227,7 @@ class MetaHandler extends DOMHandler {
 			DOMCompat::getAttribute( $node, 'property' );
 		if ( $type && str_contains( $type, 'mw:PageProp/categorydefaultsort' ) ) {
 			if ( $otherNode instanceof Element
-				&& DOMCompat::nodeName( $otherNode ) === 'p'
+				&& DOMUtils::nodeName( $otherNode ) === 'p'
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
 			) {
 				// Since defaultsort is outside the p-tag, we need 2 newlines

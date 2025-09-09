@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -30,23 +29,23 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 		self::$nodesToMigrateFrom ??= PHPUtils::makeSet( [
 			'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
 		] );
-		return isset( self::$nodesToMigrateFrom[DOMCompat::nodeName( $node )] ) &&
+		return isset( self::$nodesToMigrateFrom[DOMUtils::nodeName( $node )] ) &&
 			!WTUtils::hasLiteralHTMLMarker( $dp );
 	}
 
 	private function getTableParent( Node $node ): ?Node {
-		$nodeName = DOMCompat::nodeName( $node );
+		$nodeName = DOMUtils::nodeName( $node );
 		if ( in_array( $nodeName, [ 'td', 'th' ], true ) ) {
 			$node = $node->parentNode;
-			$nodeName = DOMCompat::nodeName( $node );
+			$nodeName = DOMUtils::nodeName( $node );
 		}
 		if ( $nodeName === 'tr' ) {
 			$node = $node->parentNode;
-			$nodeName = DOMCompat::nodeName( $node );
+			$nodeName = DOMUtils::nodeName( $node );
 		}
 		if ( in_array( $nodeName, [ 'tbody', 'thead', 'tfoot', 'caption' ], true ) ) {
 			$node = $node->parentNode;
-			$nodeName = DOMCompat::nodeName( $node );
+			$nodeName = DOMUtils::nodeName( $node );
 		}
 		return ( $nodeName === 'table' ) ? $node : null;
 	}
@@ -62,7 +61,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private function canMigrateNLOutOfNode( Node $node ): bool {
-		if ( DOMCompat::nodeName( $node ) === 'table' || DOMUtils::atTheTop( $node ) ) {
+		if ( DOMUtils::nodeName( $node ) === 'table' || DOMUtils::atTheTop( $node ) ) {
 			return false;
 		}
 
@@ -148,7 +147,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 				$n = $n->previousSibling;
 			}
 
-			$isTdTh = DOMCompat::nodeName( $elt ) === 'td' || DOMCompat::nodeName( $elt ) === 'th';
+			$isTdTh = DOMUtils::nodeName( $elt ) === 'td' || DOMUtils::nodeName( $elt ) === 'th';
 
 			// Find nodes that need to be migrated out:
 			// - a sequence of comment and newline nodes that is preceded by

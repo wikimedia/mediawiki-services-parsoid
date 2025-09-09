@@ -151,11 +151,11 @@ class DOMHandler {
 		if ( ( $nextSibling === $otherNode && ( $dp->stx ?? null ) === 'html' ) || isset( $dp->src ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( $nextSibling === $otherNode && DOMUtils::isListOrListItem( $otherNode ) ) {
-			if ( DOMUtils::isList( $node ) && DOMCompat::nodeName( $otherNode ) === DOMCompat::nodeName( $node ) ) {
+			if ( DOMUtils::isList( $node ) && DOMUtils::nodeName( $otherNode ) === DOMUtils::nodeName( $node ) ) {
 				// Adjacent lists of same type need extra newline
 				return [ 'min' => 2, 'max' => 2 ];
 			} elseif ( DOMUtils::isListItem( $node )
-				|| in_array( DOMCompat::nodeName( $node->parentNode ), [ 'li', 'dd' ], true )
+				|| in_array( DOMUtils::nodeName( $node->parentNode ), [ 'li', 'dd' ], true )
 			) {
 				// Top-level list
 				return [ 'min' => 1, 'max' => 1 ];
@@ -213,17 +213,17 @@ class DOMHandler {
 		$res = '';
 		while ( !DOMUtils::atTheTop( $node ) ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
-			$nodeName = DOMCompat::nodeName( $node );
+			$nodeName = DOMUtils::nodeName( $node );
 			if ( isset( $listTypes[$nodeName] ) ) {
 				if ( $nodeName === 'li' ) {
 					$parentNode = $node->parentNode;
-					while ( $parentNode && !( isset( $parentTypes[DOMCompat::nodeName( $parentNode )] ) ) ) {
+					while ( $parentNode && !( isset( $parentTypes[DOMUtils::nodeName( $parentNode )] ) ) ) {
 						$parentNode = $parentNode->parentNode;
 					}
 
 					if ( $parentNode ) {
 						if ( !WTUtils::isLiteralHTMLNode( $parentNode ) ) {
-							$res = $parentTypes[DOMCompat::nodeName( $parentNode )] . $res;
+							$res = $parentTypes[DOMUtils::nodeName( $parentNode )] . $res;
 						}
 					} else {
 						$state->getEnv()->log( 'error/html2wt', 'Input DOM is not well-formed.',
@@ -321,7 +321,7 @@ class DOMHandler {
 
 		// If we have an identical previous sibling, nothing to worry about
 		$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
-		return $prev !== null && DOMCompat::nodeName( $prev ) === DOMCompat::nodeName( $node );
+		return $prev !== null && DOMUtils::nodeName( $prev ) === DOMUtils::nodeName( $node );
 	}
 
 	/**

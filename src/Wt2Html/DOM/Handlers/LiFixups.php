@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\DTState;
@@ -27,7 +26,7 @@ class LiFixups {
 			$prev = $tplRoot->previousSibling;
 			while ( $c !== $prev ) {
 				if ( !WTUtils::isSolTransparentLink( $c ) &&
-					!( DOMCompat::nodeName( $c ) === 'span' && preg_match( '/^\s*$/D', $c->textContent ) )
+					!( DOMUtils::nodeName( $c ) === 'span' && preg_match( '/^\s*$/D', $c->textContent ) )
 				) {
 					return [ 'tplRoot' => $tplRoot, 'migratable' => false ];
 				}

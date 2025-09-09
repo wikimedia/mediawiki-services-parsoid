@@ -61,8 +61,8 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 				// Pull out only the transclusion marked portion of $frag & strip p-wrapper
 				$newContent = $frag->firstChild;
 				if (
-					DOMCompat::nodeName( $tplNode ) !== 'p' &&
-					DOMCompat::nodeName( $newContent ) === 'p'
+					DOMUtils::nodeName( $tplNode ) !== 'p' &&
+					DOMUtils::nodeName( $newContent ) === 'p'
 				) {
 					$newContent = $newContent->firstChild;
 				}

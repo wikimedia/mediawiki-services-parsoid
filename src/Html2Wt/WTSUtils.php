@@ -162,7 +162,7 @@ class WTSUtils {
 			// at the beginning of it has been stripped out already, and
 			// we cannot use it to test it for indent-pre safety
 			return (bool)preg_match( '/^[ \t]*\n/', $node->nodeValue );
-		} elseif ( DOMCompat::nodeName( $node ) === 'br' ) {
+		} elseif ( DOMUtils::nodeName( $node ) === 'br' ) {
 			return true;
 		} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 			'@phan-var Element $node'; // @var Element $node
@@ -176,13 +176,13 @@ class WTSUtils {
 	public static function traceNodeName( Node $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				return ( DiffUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMCompat::nodeName( $node );
+				return ( DiffUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMUtils::nodeName( $node );
 			case XML_TEXT_NODE:
 				return 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue );
 			case XML_COMMENT_NODE:
 				return 'CMT : ' . PHPUtils::jsonEncode( self::commentWT( $node->nodeValue ) );
 			default:
-				return DOMCompat::nodeName( $node );
+				return DOMUtils::nodeName( $node );
 		}
 	}
 
@@ -199,7 +199,7 @@ class WTSUtils {
 			return DOMUtils::atTheTop( $node->parentNode ) && !$node->previousSibling;
 		} elseif ( self::dsrContainsOpenExtendedRangeAnnotationTag( $node, $state ) ) {
 			return false;
-		} elseif ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
+		} elseif ( DOMUtils::nodeName( $node ) === 'th' || DOMUtils::nodeName( $node ) === 'td' ) {
 			'@phan-var Element $node'; // @var Element $node
 			// The wikitext representation for them is dependent
 			// on cell position (first cell is always single char).
@@ -230,7 +230,7 @@ class WTSUtils {
 			// to worry about.
 			return ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'row';
 		} elseif (
-			$node instanceof Element && DOMCompat::nodeName( $node ) === 'tr' &&
+			$node instanceof Element && DOMUtils::nodeName( $node ) === 'tr' &&
 			!isset( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			// If this <tr> didn't have a startTagSrc, it would have been

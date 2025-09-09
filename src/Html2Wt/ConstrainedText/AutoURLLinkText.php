@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * An autolink to an external resource, like `http://example.com`.
@@ -56,8 +56,8 @@ class AutoURLLinkText extends RegExpConstrainedText {
 		$stx = $dataParsoid->stx ?? null;
 		$type = $dataParsoid->type ?? null;
 		if (
-			( DOMCompat::nodeName( $node ) === 'a' && $stx === 'url' ) ||
-			( DOMCompat::nodeName( $node ) === 'img' && $type === 'extlink' )
+			( DOMUtils::nodeName( $node ) === 'a' && $stx === 'url' ) ||
+			( DOMUtils::nodeName( $node ) === 'img' && $type === 'extlink' )
 		) {
 			return new AutoURLLinkText( $text, $node );
 		}

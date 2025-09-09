@@ -86,7 +86,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 			if ( $child instanceof Element ) {
 				if ( DiffUtils::isDiffMarker( $child ) ) {
 					/* ignore */
-				} elseif ( DOMCompat::nodeName( $child ) === 'span' &&
+				} elseif ( DOMUtils::nodeName( $child ) === 'span' &&
 					DOMUtils::hasTypeOf( $child, 'mw:Entity' ) &&
 					DiffDOMUtils::hasNChildren( $child, 1 )
 				) {
@@ -103,7 +103,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 				// need to deal with the possibility of its presence
 				// FIXME(T254501): Should avoid the need for this
 				} elseif (
-					DOMCompat::nodeName( $child ) === 'span' &&
+					DOMUtils::nodeName( $child ) === 'span' &&
 					DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) &&
 					DiffDOMUtils::hasNChildren( $child, 1 )
 				) {

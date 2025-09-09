@@ -70,7 +70,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
 		//   constructs: placeholders, lang variants)
-		$name = DOMCompat::nodeName( $n );
+		$name = DOMUtils::nodeName( $n );
 		return !(
 			isset( self::WT_TAGS_WITH_LIMITED_TSR[$name] ) ||
 			DOMUtils::matchTypeOf(
@@ -244,7 +244,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$stWidth = 2; // -{
 			$etWidth = 2; // }-
 		} else {
-			$nodeName = DOMCompat::nodeName( $node );
+			$nodeName = DOMUtils::nodeName( $node );
 			// 'tr' tags not in the original source have zero width
 			if ( $nodeName === 'tr' && !isset( $dp->startTagSrc ) ) {
 				$stWidth = 0;
@@ -310,7 +310,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$e = $s;
 		}
 
-		$env->trace( "dsr", "BEG: ", DOMCompat::nodeName( $node ), "with [s, e]=", [ $s, $e ] );
+		$env->trace( "dsr", "BEG: ", DOMUtils::nodeName( $node ), "with [s, e]=", [ $s, $e ] );
 
 		/** @var int|null $ce Child end */
 		$ce = $e;
@@ -358,7 +358,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					!DOMUtils::isNestedInListItem( $next )
 				) {
 					if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
-						isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $child )] ) ) {
+						isset( Consts::$WTQuoteTags[DOMUtils::nodeName( $child )] ) ) {
 						$correction = strlen( $ndp->src );
 						$ce += $correction;
 						$dsrCorrection = $correction;
@@ -382,12 +382,12 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 					$i++;
 				}
-				return "     CHILD: <" . DOMCompat::nodeName( $child->parentNode ) . ":" . $i .
+				return "     CHILD: <" . DOMUtils::nodeName( $child->parentNode ) . ":" . $i .
 					">=" .
 					( $child instanceof Element ? '' : ( $child instanceof Text ? '#' : '!' ) ) .
 					( ( $child instanceof Element ) ?
-						( DOMCompat::nodeName( $child ) === 'meta' ?
-							DOMCompat::getOuterHTML( $child ) : DOMCompat::nodeName( $child ) ) :
+						( DOMUtils::nodeName( $child ) === 'meta' ?
+							DOMCompat::getOuterHTML( $child ) : DOMUtils::nodeName( $child ) ) :
 							PHPUtils::jsonEncode( $child->nodeValue ) ) .
 					" with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
 			} );
@@ -427,14 +427,14 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				if ( $ce !== null && !empty( $dp->autoInsertedEnd ) &&
 					DOMUtils::isQuoteElt( $child )
 				) {
-					$correction = 3 + strlen( DOMCompat::nodeName( $child ) );
+					$correction = 3 + strlen( DOMUtils::nodeName( $child ) );
 					if ( $correction === $dsrCorrection ) {
 						$ce -= $correction;
 						$dsrCorrection = 0;
 					}
 				}
 
-				if ( DOMCompat::nodeName( $child ) === "meta" ) {
+				if ( DOMUtils::nodeName( $child ) === "meta" ) {
 					if ( $tsr ) {
 						if ( WTUtils::isTplMarkerMeta( $child ) ) {
 							// If this is a meta-marker tag (for templates, extensions),
@@ -579,7 +579,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					if ( $ce < 0 ) {
 						if ( !$fosteredNode ) {
 							$env->trace( "dsr/negative",
-								"Negative DSR for node: " . DOMCompat::nodeName( $node ) . "; resetting to zero" );
+								"Negative DSR for node: " . DOMUtils::nodeName( $node ) . "; resetting to zero" );
 						}
 						$ce = 0;
 					}
@@ -597,7 +597,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 
 					$env->trace( "dsr", static function () use ( $child, $cs, $ce ) {
-						return "     UPDATING " . DOMCompat::nodeName( $child ) .
+						return "     UPDATING " . DOMUtils::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( DOMCompat::getAttribute( $child, "typeof" ) ?? '' );
 					} );
@@ -638,7 +638,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 							// Update and move right
 							$env->trace( "dsr", static function () use ( $newCE, $sibling, $siblingDP ) {
-								return "     CHANGING ce.start of " . DOMCompat::nodeName( $sibling ) .
+								return "     CHANGING ce.start of " . DOMUtils::nodeName( $sibling ) .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 							} );
 
@@ -686,10 +686,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// Detect errors
 		if ( $s !== null && $cs !== $s && !$this->acceptableInconsistency( $opts, $node, $cs, $s ) ) {
 			$env->trace( "dsr/inconsistent", "DSR inconsistency: cs/s mismatch for node:",
-				DOMCompat::nodeName( $node ), "s:", $s, "; cs:", $cs );
+				DOMUtils::nodeName( $node ), "s:", $s, "; cs:", $cs );
 		}
 
-		$env->trace( "dsr", "END: ", DOMCompat::nodeName( $node ), "returning: ", $cs, ", ", $e );
+		$env->trace( "dsr", "END: ", DOMUtils::nodeName( $node ), "returning: ", $cs, ", ", $e );
 
 		return [ $cs, $e ];
 	}

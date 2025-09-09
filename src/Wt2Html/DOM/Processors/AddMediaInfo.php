@@ -555,7 +555,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				// during treebuiling.  Try to be a little lenient about that
 				// instead of bailing out
 				$anchor = $anchor->firstChild;
-				$anchorNodeName = DOMCompat::nodeName( $anchor );
+				$anchorNodeName = DOMUtils::nodeName( $anchor );
 				if ( $anchorNodeName !== 'a' ) {
 					$reopenedAFE[] = $anchor;
 				}
@@ -568,13 +568,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 			$span = $anchor->firstChild;
-			if ( !( $span instanceof Element && DOMCompat::nodeName( $span ) === 'span' ) ) {
+			if ( !( $span instanceof Element && DOMUtils::nodeName( $span ) === 'span' ) ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}
 			$caption = $anchor->nextSibling;
 			$isInlineMedia = WTUtils::isInlineMedia( $container );
-			if ( !$isInlineMedia && DOMCompat::nodeName( $caption ) !== 'figcaption' ) {
+			if ( !$isInlineMedia && DOMUtils::nodeName( $caption ) !== 'figcaption' ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}

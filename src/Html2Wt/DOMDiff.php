@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -146,7 +145,7 @@ class DOMDiff {
 				// Compare node name and attribute length
 				if (
 					!( $nodeB instanceof Element ) ||
-					DOMCompat::nodeName( $nodeA ) !== DOMCompat::nodeName( $nodeB ) ||
+					DOMUtils::nodeName( $nodeA ) !== DOMUtils::nodeName( $nodeB ) ||
 					!DiffUtils::attribsEquals(
 						$nodeA,
 						$nodeB,
@@ -288,7 +287,7 @@ class DOMDiff {
 							WTUtils::isBlockNodeWithVisibleWT( $baseNode )
 						);
 					} elseif ( $baseNode instanceof Element &&
-						DOMCompat::nodeName( $savedNewNode ) === DOMCompat::nodeName( $baseNode ) &&
+						DOMUtils::nodeName( $savedNewNode ) === DOMUtils::nodeName( $baseNode ) &&
 						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
 						( DOMDataUtils::getDataParsoid( $baseNode )->stx ?? null )
 					) {

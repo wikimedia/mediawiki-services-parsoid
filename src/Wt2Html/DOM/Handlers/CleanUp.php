@@ -90,7 +90,7 @@ class CleanUp {
 				}
 				continue;
 			} elseif ( $n instanceof Element ) {
-				if ( isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $n )] ) ) {
+				if ( isset( Consts::$Output['FlaggedEmptyElts'][DOMUtils::nodeName( $n )] ) ) {
 					if ( self::isEmptyNode( $n, $hasRTNodes ) ) {
 						continue;
 					} else {
@@ -137,7 +137,7 @@ class CleanUp {
 		$hasRTNodes = false;
 
 		if ( !( $node instanceof Element ) ||
-			!isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
+			!isset( Consts::$Output['FlaggedEmptyElts'][DOMUtils::nodeName( $node )] ) ||
 			!self::isEmptyNode( $node, $hasRTNodes )
 		) {
 			return true;
@@ -147,7 +147,7 @@ class CleanUp {
 		// mark these nodes as empty elements if they don't have any
 		// attributes, Parser::handleTables will drop empty wikitext syntax
 		// trs, regardless of attributes.
-		if ( DOMCompat::nodeName( $node ) !== 'tr' || WTUtils::isLiteralHTMLNode( $node ) ) {
+		if ( DOMUtils::nodeName( $node ) !== 'tr' || WTUtils::isLiteralHTMLNode( $node ) ) {
 			foreach ( DOMCompat::attributes( $node ) as $name => $_value ) {
 				// Skip the Parsoid-added data attribute and template-wrapping attributes
 				if ( $name === DOMDataUtils::DATA_OBJECT_ATTR_NAME ||
@@ -293,7 +293,7 @@ class CleanUp {
 		if (
 			!empty( $dp->autoInsertedEnd ) &&
 			!WTUtils::hasLiteralHTMLMarker( $dp ) &&
-			isset( Consts::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] ) &&
+			isset( Consts::$WTTagsWithNoClosingTags[DOMUtils::nodeName( $node )] ) &&
 			!WTUtils::serializeChildTableTagAsHTML( $node )
 		) {
 			unset( $dp->autoInsertedEnd );
@@ -313,7 +313,7 @@ class CleanUp {
 		// handle the HTML markup.
 		$validDSR = Utils::isValidDSR( $dp->dsr ?? null ) &&
 			!DOMDataUtils::getDataMw( $node )->isEmpty();
-		$isPageProp = DOMCompat::nodeName( $node ) === 'meta' &&
+		$isPageProp = DOMUtils::nodeName( $node ) === 'meta' &&
 			str_starts_with( DOMCompat::getAttribute( $node, 'property' ) ?? '', 'mw:PageProp/' );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
@@ -367,7 +367,7 @@ class CleanUp {
 		// Trim whitespace from some wikitext markup
 		// not involving explicit HTML tags (T157481)
 		if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-			isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
+			isset( Consts::$WikitextTagsWithTrimmableWS[DOMUtils::nodeName( $node )] )
 		) {
 			self::trimWhiteSpace( $node, $dp->dsr ?? null );
 		}

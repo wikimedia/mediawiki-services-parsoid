@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -198,7 +197,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				$fosteredElements = [];
 				// mark as fostered until we hit the table
 				while ( $sibling &&
-					( !( $sibling instanceof Element ) || DOMCompat::nodeName( $sibling ) !== 'table' )
+					( !( $sibling instanceof Element ) || DOMUtils::nodeName( $sibling ) !== 'table' )
 				) {
 					$fosteredElements[] = $sibling;
 					$next = $sibling->nextSibling;
@@ -237,7 +236,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 
 				// we should be able to reach the table from the fosterbox
 				Assert::invariant(
-					$table instanceof Element && DOMCompat::nodeName( $table ) === 'table',
+					$table instanceof Element && DOMUtils::nodeName( $table ) === 'table',
 					"Table isn't a sibling. Something's amiss!"
 				);
 

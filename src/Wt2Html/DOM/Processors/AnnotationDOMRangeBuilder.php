@@ -173,7 +173,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$startMeta = $range->startElem;
 		$startDataParsoid = DOMDataUtils::getDataParsoid( $startMeta );
 		if ( $node instanceof Element ) {
-			if ( DOMCompat::nodeName( $node ) === "p" && $node->firstChild === $startMeta ) {
+			if ( DOMUtils::nodeName( $node ) === "p" && $node->firstChild === $startMeta ) {
 				// If the first child of "p" is the meta, and it gets moved, then it got mistakenly
 				// pulled inside the paragraph, and the paragraph dsr that gets computed includes
 				// it - which may lead to the tag getting duplicated on roundtrip. Hence, we
@@ -216,7 +216,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				$endMeta->setAttribute( "about", $about );
 			}
 
-			if ( ( DOMCompat::nodeName( $node ) === "p" ) && $endMetaWasLastChild ) {
+			if ( ( DOMUtils::nodeName( $node ) === "p" ) && $endMetaWasLastChild ) {
 				// If the last child of "p" is the meta, and it gets moved, then it got mistakenly
 				// pulled inside the paragraph, and the paragraph dsr that gets computed includes
 				// it - which may lead to the tag getting duplicated on roundtrip. Hence, we

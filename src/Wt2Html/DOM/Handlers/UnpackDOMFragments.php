@@ -45,7 +45,7 @@ class UnpackDOMFragments {
 		// If ext-X generates an A-tag and ext-Y also generates an A-tag, then
 		// when we unpack ext-Y's dom fragment, the simple check below would
 		// miss the misnesting.
-		return DOMCompat::nodeName( $targetNode ) === 'a' &&
+		return DOMUtils::nodeName( $targetNode ) === 'a' &&
 			DOMUtils::treeHasElement( $fragment, 'a' );
 	}
 
@@ -242,7 +242,7 @@ class UnpackDOMFragments {
 		$nextNode = $placeholder->nextSibling;
 
 		if ( self::hasBadNesting( $placeholderParent, $fragmentDOM ) ) {
-			$nodeName = DOMCompat::nodeName( $placeholderParent );
+			$nodeName = DOMUtils::nodeName( $placeholderParent );
 			Assert::invariant( $nodeName === 'a', "Unsupported Bad Nesting scenario for $nodeName" );
 			/* -----------------------------------------------------------------------
 			 * If placeholderParent is an A element and fragmentDOM contains another

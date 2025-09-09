@@ -79,7 +79,7 @@ class DOMNormalizer {
 	}
 
 	private static function similar( Node $a, Node $b ): bool {
-		if ( DOMCompat::nodeName( $a ) === 'a' ) {
+		if ( DOMUtils::nodeName( $a ) === 'a' ) {
 			// FIXME: Similar to 1ce6a98, DiffDOMUtils::nextNonDeletedSibling is being
 			// used in this file where maybe DiffDOMUtils::nextNonSepSibling belongs.
 			return $a instanceof Element && $b instanceof Element &&
@@ -109,7 +109,7 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private static function mergable( Node $a, Node $b ): bool {
-		return DOMCompat::nodeName( $a ) === DOMCompat::nodeName( $b ) && self::similar( $a, $b );
+		return DOMUtils::nodeName( $a ) === DOMUtils::nodeName( $b ) && self::similar( $a, $b );
 	}
 
 	/**
@@ -144,7 +144,7 @@ class DOMNormalizer {
 	}
 
 	private function rewriteablePair( Node $a, Node $b ): bool {
-		if ( isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $a )] ) ) {
+		if ( isset( Consts::$WTQuoteTags[DOMUtils::nodeName( $a )] ) ) {
 			// For <i>/<b> pair, we need not check whether the node being transformed
 			// are new / edited, etc. since these minimization scenarios can
 			// never show up in HTML that came from parsed wikitext.
@@ -159,11 +159,11 @@ class DOMNormalizer {
 			// didn't originate from wikitext OR the HTML has been subsequently edited.
 			// In both cases, we want to transform the DOM.
 
-			return isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $b )] );
-		} elseif ( DOMCompat::nodeName( $a ) === 'a' ) {
+			return isset( Consts::$WTQuoteTags[DOMUtils::nodeName( $b )] );
+		} elseif ( DOMUtils::nodeName( $a ) === 'a' ) {
 			// For <a> tags, we require at least one of the two tags
 			// to be a newly created element.
-			return DOMCompat::nodeName( $b ) === 'a' && ( WTUtils::isNewElt( $a ) || WTUtils::isNewElt( $b ) );
+			return DOMUtils::nodeName( $b ) === 'a' && ( WTUtils::isNewElt( $a ) || WTUtils::isNewElt( $b ) );
 		}
 		return false;
 	}
@@ -368,7 +368,7 @@ class DOMNormalizer {
 		$child = $node->firstChild;
 		while ( $child ) {
 			$next = $child->nextSibling;
-			if ( DOMCompat::nodeName( $child ) === 'br' ) {
+			if ( DOMUtils::nodeName( $child ) === 'br' ) {
 				// replace <br/> with a single space
 				$node->removeChild( $child );
 				$node->insertBefore( $node->ownerDocument->createTextNode( ' ' ), $next );
@@ -432,7 +432,7 @@ class DOMNormalizer {
 	 * The link href and text must match for this normalization to take effect
 	 */
 	public function moveFormatTagOutsideATag( Element $node ): Element {
-		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+		if ( DOMUtils::nodeName( $node ) !== 'a' ) {
 			return $node;
 		}
 		$sibling = DiffDOMUtils::nextNonDeletedSibling( $node );
@@ -501,7 +501,7 @@ class DOMNormalizer {
 	 * @return Node|null the normalized node
 	 */
 	public function normalizeNode( Node $node ): ?Node {
-		$nodeName = DOMCompat::nodeName( $node );
+		$nodeName = DOMUtils::nodeName( $node );
 
 		if ( $this->state->getEnv()->getSiteConfig()->scrubBidiChars() ) {
 			// Strip bidirectional chars around categories
@@ -618,7 +618,7 @@ class DOMNormalizer {
 				// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
 				// they serialize to as many newlines as the count of <p></p> nodes.
 				// Also handles <p><meta/></p> case for annotations.
-				if ( $next && DOMCompat::nodeName( $next ) === 'p' &&
+				if ( $next && DOMUtils::nodeName( $next ) === 'p' &&
 					!WTUtils::isLiteralHTMLNode( $next ) ) {
 					// Replace 'node' (<p></p>) with a <br/> and make it the
 					// first child of 'next' (<p>..</p>). If 'next' was actually

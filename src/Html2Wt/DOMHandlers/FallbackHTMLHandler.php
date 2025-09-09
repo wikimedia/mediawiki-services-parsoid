@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
@@ -29,10 +29,10 @@ class FallbackHTMLHandler extends DOMHandler {
 		if ( $node->hasChildNodes() ) {
 			$inPHPBlock = $state->inPHPBlock;
 			if (
-				TokenUtils::tagOpensBlockScope( DOMCompat::nodeName( $node ) ) ||
+				TokenUtils::tagOpensBlockScope( DOMUtils::nodeName( $node ) ) ||
 				// Blockquote is special in that it doesn't suppress paragraphs
 				// but does suppress pre wrapping
-				DOMCompat::nodeName( $node ) === 'blockquote'
+				DOMUtils::nodeName( $node ) === 'blockquote'
 			) {
 				$state->inPHPBlock = true;
 			}

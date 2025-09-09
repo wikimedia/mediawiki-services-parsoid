@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -113,7 +112,7 @@ class DisplaySpace {
 	 */
 	public static function textHandler( Node $node ) {
 		// Go to next sibling if we encounter pre or raw text elements
-		if ( DOMCompat::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
+		if ( DOMUtils::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
 			return $node->nextSibling;
 		}
 
