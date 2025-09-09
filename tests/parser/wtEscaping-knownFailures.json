@@ -1,5 +1,1 @@
-{
-	"T400080: Numbered args of pfs with tags with attributes should not be serialized as named": {
-		"wt2html": "<div about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"pi\":[[{\"k\":\"&lt;span class\",\"named\":true}]],\"dsr\":[0,37,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#tag:div\",\"function\":\"tag\"},\"params\":{\"&lt;span class\":{\"wt\":\"\\\"c\\\">a&lt;/span>\"}},\"i\":0}}]}'><span class=\"c\">a</span></div>"
-	}
-}
+{}

@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Tokens\KVSourceRange;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -107,6 +108,72 @@ class TemplateEncapsulator {
 		$ret = new TemplateInfo;
 		$src = $this->frame->getSrcText();
 		$params = $this->token->attribs;
+
+		$tgtSrcOffsets = $params[0]->srcOffsets;
+		if ( $tgtSrcOffsets ) {
+			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
+			$ret->targetWt = $tplTgtWT;
+		}
+
+		// Add in tpl-target/pf-name info
+		// Only one of these will be set.
+		if ( $this->variableName !== null ) {
+			$ret->func = $this->variableName;
+		} elseif ( $this->parserFunctionName !== null ) {
+			$ret->func = $this->parserFunctionName;
+			if ( $this->isV3ParserFunction ) {
+				$ret->type = 'v3parserfunction';
+			}
+		} elseif ( $this->resolvedTemplateTarget !== null ) {
+			$ret->href = $this->resolvedTemplateTarget;
+		}
+
+		// Parser functions in the legacy parser do not support named
+		// parameters, see T204307.  However, our new V3 parser function will
+		$onlyNumericParams = $ret->func && !$this->isV3ParserFunction;
+
+		$ret->paramInfos = $onlyNumericParams ?
+			$this->preparePfParamInfos( $src, $params ) :
+			$this->prepareTplParamInfos( $src, $params );
+
+		return $ret;
+	}
+
+	private function preparePfParamInfos( string $src, array $params ): array {
+		$paramInfos = [];
+		$argIndex = 1;
+
+		// Ignore params[0] -- that is a colon separated combination of the pf
+		// name and the first argument
+		for ( $i = 1, $n = count( $params );  $i < $n;  $i++ ) {
+			$param = $params[$i];
+
+			$srcOffsets = $param->srcOffsets;
+			if ( $srcOffsets !== null ) {
+				$srcOffsets = new KVSourceRange(
+					$srcOffsets->key->start,
+					$srcOffsets->key->start,
+					$srcOffsets->key->start,
+					$srcOffsets->value->end
+				);
+				$vSrc = $srcOffsets->value->substr( $src );
+			} else {
+				$vSrc = ( $param->k ? $param->k . '=' : '' ) . $param->v;
+			}
+
+			$k = (string)$argIndex;
+			$argIndex++;
+
+			$paramInfo = new ParamInfo( $k, $srcOffsets );
+			$paramInfo->valueWt = $vSrc;
+
+			$paramInfos[$k] = $paramInfo;
+		}
+
+		return $paramInfos;
+	}
+
+	private function prepareTplParamInfos( string $src, array $params ): array {
 		$paramInfos = [];
 		$argIndex = 1;
 
@@ -200,28 +267,7 @@ class TemplateEncapsulator {
 			$paramInfos[$k] = $paramInfo;
 		}
 
-		$ret->paramInfos = $paramInfos;
-
-		$tgtSrcOffsets = $params[0]->srcOffsets;
-		if ( $tgtSrcOffsets ) {
-			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
-			$ret->targetWt = $tplTgtWT;
-		}
-
-		// Add in tpl-target/pf-name info
-		// Only one of these will be set.
-		if ( $this->variableName !== null ) {
-			$ret->func = $this->variableName;
-		} elseif ( $this->parserFunctionName !== null ) {
-			$ret->func = $this->parserFunctionName;
-			if ( $this->isV3ParserFunction ) {
-				$ret->type = 'v3parserfunction';
-			}
-		} elseif ( $this->resolvedTemplateTarget !== null ) {
-			$ret->href = $this->resolvedTemplateTarget;
-		}
-
-		return $ret;
+		return $paramInfos;
 	}
 
 	/**
