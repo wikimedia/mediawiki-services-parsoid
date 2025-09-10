@@ -71,12 +71,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	}
 
 	private $prevOffset = 0;
-	private $headingIndex = 0;
 	private $hasSOLTransparentAtStart = false;
 
 	public function resetState() {
 		$this->prevOffset = 0;
-		$this->headingIndex = 0;
 		$this->hasSOLTransparentAtStart = false;
 	}
 
@@ -181,6 +179,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
  * ******************************************************** */
 
 start "start" =
+	/* Initialize the headingIndex to 0 at the top of the parse */
+	start_with_headingIndex<&headingIndex=0>
+
+start_with_headingIndex =
 	t:tlb* n:newlineToken* {
 		if ( count( $t ) ) {
 			$ret = TokenizerUtils::flattenIfArray( $t );
@@ -477,6 +479,7 @@ heading =
 		endTPos:POSITION
 		spc:( space / sol_transparent )*
 		&eolf
+		headingIndex:<&headingIndex>
 		{
 			$c = null;
 			$e = null;
@@ -536,8 +539,8 @@ heading =
 			// will however parse as headings in the legacy parser's second pass,
 			// once sol transparent tokens have been stripped.
 			if ( !$this->hasSOLTransparentAtStart && !$hasSOLTransparentAtEnd ) {
-				$this->headingIndex++;
-				$tagDP->getTemp()->headingIndex = $this->headingIndex;
+				$headingIndex++;
+				$tagDP->getTemp()->headingIndex = $headingIndex;
 			}
 
 			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];

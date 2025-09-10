@@ -17004,6 +17004,32 @@ wgFragmentMode=[ "html5" ]
 !! html/parsoid
 <p><span id="[foo]" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"id":"[foo]"},"sa":{"id":"{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[10,32,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'></span><a typeof="mw:ExpandedAttrs" about="#mwt4" rel="mw:WikiLink" href="./Parser_test#[foo]" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#[foo]"},"sa":{"href":"#{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"href"},{"html":"#&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt3\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[44,66,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt3\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt3\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'>#[foo]</a></p>
 !! end
+
+
+
+!! test
+T222419: Section numbering after unclosed template/parser function
+!! options
+notoc
+parsoid={
+  "modes": ["wt2html"],
+  "wrapSections": true
+}
+!! wikitext
+== Foo ==
+{{subst: a surname
+== Bar ==
+!! html/php
+<div class="mw-heading mw-heading2"><h2 id="Foo">Foo</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Foo">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<p>{{subst: a surname
+</p>
+<div class="mw-heading mw-heading2"><h2 id="Bar">Bar</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: Bar">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="Foo">Foo</h2>
+<p>{{subst: a surname</p>
+</section><section data-mw-section-id="2"><h2 id="Bar">Bar</h2></section>
+!! end
+
 ##########################################################################
 # Tests demonstrating white-space insensitivity in input wikitext
 # for wikitext headings, wikitext list items, and wikitext table captions,
