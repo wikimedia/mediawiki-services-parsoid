@@ -2669,7 +2669,7 @@ POSITION [cache=false] = "" { return $this->endOffset(); }
 // we always emit a valid HTML5 comment.  See the encodeComment helper
 // for further details.
 comment =
-	'<!--' c:$(!"-->" .)* cEnd:$('-->' / eof) {
+	'<!--' c:$([^-]+ / !"-->" .)* cEnd:$('-->' / eof) {
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();

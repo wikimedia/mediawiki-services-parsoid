@@ -223,117 +223,118 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 28 => ["type" => "class", "value" => "[0-9A-Fa-f:.]", "description" => "[0-9A-Fa-f:.]"],
 29 => ["type" => "literal", "value" => "]", "description" => "\"]\""],
 30 => ["type" => "literal", "value" => "<!--", "description" => "\"<!--\""],
-31 => ["type" => "literal", "value" => "-->", "description" => "\"-->\""],
-32 => ["type" => "other", "description" => "template"],
-33 => ["type" => "other", "description" => "broken_template"],
-34 => ["type" => "literal", "value" => "{", "description" => "\"{\""],
-35 => ["type" => "other", "description" => "tplarg"],
-36 => ["type" => "other", "description" => "raw_htmlentity"],
-37 => ["type" => "other", "description" => "inline_element"],
-38 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
-39 => ["type" => "literal", "value" => ";", "description" => "\";\""],
-40 => ["type" => "other", "description" => "redirect"],
-41 => ["type" => "other", "description" => "sol_transparent"],
-42 => ["type" => "other", "description" => "block_line"],
-43 => ["type" => "other", "description" => "block_lines"],
-44 => ["type" => "literal", "value" => "\x0a", "description" => "\"\\n\""],
-45 => ["type" => "literal", "value" => "\x0d\x0a", "description" => "\"\\r\\n\""],
-46 => ["type" => "other", "description" => "empty_lines_with_comments"],
-47 => ["type" => "other", "description" => "template_preproc"],
-48 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
-49 => ["type" => "other", "description" => "tplarg_preproc"],
-50 => ["type" => "class", "value" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]", "description" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]"],
-51 => ["type" => "other", "description" => "autolink"],
-52 => ["type" => "other", "description" => "behavior_switch"],
-53 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
-54 => ["type" => "other", "description" => "angle_bracket_markup"],
-55 => ["type" => "other", "description" => "lang_variant_or_tpl"],
-56 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
-57 => ["type" => "other", "description" => "wikilink"],
-58 => ["type" => "other", "description" => "quote"],
-59 => ["type" => "other", "description" => "redirect_word"],
-60 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
-61 => ["type" => "other", "description" => "include_limits"],
-62 => ["type" => "other", "description" => "annotation_tag"],
-63 => ["type" => "other", "description" => "heading"],
-64 => ["type" => "other", "description" => "list_item"],
-65 => ["type" => "other", "description" => "hr"],
-66 => ["type" => "other", "description" => "table_line"],
-67 => ["type" => "other", "description" => "parsoid_fragment_marker"],
-68 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
-69 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
-70 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
-71 => ["type" => "other", "description" => "wellformed_extension_tag"],
-72 => ["type" => "other", "description" => "autourl"],
-73 => ["type" => "other", "description" => "autoref"],
-74 => ["type" => "other", "description" => "isbn"],
-75 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
-76 => ["type" => "other", "description" => "behavior_text"],
-77 => ["type" => "other", "description" => "maybe_extension_tag"],
-78 => ["type" => "other", "description" => "html_tag"],
-79 => ["type" => "other", "description" => "lang_variant"],
-80 => ["type" => "other", "description" => "wikilink_preproc"],
-81 => ["type" => "other", "description" => "broken_wikilink"],
-82 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
-83 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
-84 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
-85 => ["type" => "class", "value" => "[^ \\t\\n\\r\\x0c:\\[]", "description" => "[^ \\t\\n\\r\\x0c:\\[]"],
-86 => ["type" => "other", "description" => "xmlish_tag"],
-87 => ["type" => "other", "description" => "tvar_old_syntax_closing_HACK"],
-88 => ["type" => "literal", "value" => "=", "description" => "\"=\""],
-89 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
-90 => ["type" => "other", "description" => "table_content_line"],
-91 => ["type" => "other", "description" => "table_end_tag"],
-92 => ["type" => "literal", "value" => "#parsoid\x00fragment:", "description" => "\"#parsoid\\u0000fragment:\""],
-93 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
-94 => ["type" => "other", "description" => "RFC"],
-95 => ["type" => "other", "description" => "PMID"],
-96 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
-97 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
-98 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
-99 => ["type" => "other", "description" => "lang_variant_preproc"],
-100 => ["type" => "other", "description" => "broken_lang_variant"],
-101 => ["type" => "other", "description" => "wikilink_preproc_internal"],
-102 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
-103 => ["type" => "other", "description" => "xmlish_start"],
-104 => ["type" => "other", "description" => "space_or_newline_or_solidus"],
-105 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
-106 => ["type" => "literal", "value" => ">", "description" => "\">\""],
-107 => ["type" => "literal", "value" => "</>", "description" => "\"</>\""],
-108 => ["type" => "other", "description" => "table_heading_tags"],
-109 => ["type" => "other", "description" => "table_row_tag"],
-110 => ["type" => "other", "description" => "table_data_tags"],
-111 => ["type" => "other", "description" => "table_caption_tag"],
-112 => ["type" => "literal", "value" => "}", "description" => "\"}\""],
-113 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
-114 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
-115 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
-116 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
-117 => ["type" => "other", "description" => "wikilink_preprocessor_text"],
-118 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
-119 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
-120 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
-121 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
-122 => ["type" => "other", "description" => "row_syntax_table_args"],
-123 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
-124 => ["type" => "other", "description" => "directive"],
-125 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
-126 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
-127 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
-128 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
-129 => ["type" => "other", "description" => "lang_variant_flag"],
-130 => ["type" => "other", "description" => "lang_variant_name"],
-131 => ["type" => "other", "description" => "lang_variant_nowiki"],
-132 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
-133 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
-134 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-135 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
-136 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-137 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
-138 => ["type" => "other", "description" => "nowiki_text"],
-139 => ["type" => "other", "description" => "full_table_in_link_caption"],
-140 => ["type" => "other", "description" => "nowiki"],
-141 => ["type" => "other", "description" => "embedded_full_table"],
+31 => ["type" => "class", "value" => "[^-]", "description" => "[^-]"],
+32 => ["type" => "literal", "value" => "-->", "description" => "\"-->\""],
+33 => ["type" => "other", "description" => "template"],
+34 => ["type" => "other", "description" => "broken_template"],
+35 => ["type" => "literal", "value" => "{", "description" => "\"{\""],
+36 => ["type" => "other", "description" => "tplarg"],
+37 => ["type" => "other", "description" => "raw_htmlentity"],
+38 => ["type" => "other", "description" => "inline_element"],
+39 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
+40 => ["type" => "literal", "value" => ";", "description" => "\";\""],
+41 => ["type" => "other", "description" => "redirect"],
+42 => ["type" => "other", "description" => "sol_transparent"],
+43 => ["type" => "other", "description" => "block_line"],
+44 => ["type" => "other", "description" => "block_lines"],
+45 => ["type" => "literal", "value" => "\x0a", "description" => "\"\\n\""],
+46 => ["type" => "literal", "value" => "\x0d\x0a", "description" => "\"\\r\\n\""],
+47 => ["type" => "other", "description" => "empty_lines_with_comments"],
+48 => ["type" => "other", "description" => "template_preproc"],
+49 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
+50 => ["type" => "other", "description" => "tplarg_preproc"],
+51 => ["type" => "class", "value" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]", "description" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]"],
+52 => ["type" => "other", "description" => "autolink"],
+53 => ["type" => "other", "description" => "behavior_switch"],
+54 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
+55 => ["type" => "other", "description" => "angle_bracket_markup"],
+56 => ["type" => "other", "description" => "lang_variant_or_tpl"],
+57 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
+58 => ["type" => "other", "description" => "wikilink"],
+59 => ["type" => "other", "description" => "quote"],
+60 => ["type" => "other", "description" => "redirect_word"],
+61 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
+62 => ["type" => "other", "description" => "include_limits"],
+63 => ["type" => "other", "description" => "annotation_tag"],
+64 => ["type" => "other", "description" => "heading"],
+65 => ["type" => "other", "description" => "list_item"],
+66 => ["type" => "other", "description" => "hr"],
+67 => ["type" => "other", "description" => "table_line"],
+68 => ["type" => "other", "description" => "parsoid_fragment_marker"],
+69 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
+70 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
+71 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
+72 => ["type" => "other", "description" => "wellformed_extension_tag"],
+73 => ["type" => "other", "description" => "autourl"],
+74 => ["type" => "other", "description" => "autoref"],
+75 => ["type" => "other", "description" => "isbn"],
+76 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
+77 => ["type" => "other", "description" => "behavior_text"],
+78 => ["type" => "other", "description" => "maybe_extension_tag"],
+79 => ["type" => "other", "description" => "html_tag"],
+80 => ["type" => "other", "description" => "lang_variant"],
+81 => ["type" => "other", "description" => "wikilink_preproc"],
+82 => ["type" => "other", "description" => "broken_wikilink"],
+83 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
+84 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
+85 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
+86 => ["type" => "class", "value" => "[^ \\t\\n\\r\\x0c:\\[]", "description" => "[^ \\t\\n\\r\\x0c:\\[]"],
+87 => ["type" => "other", "description" => "xmlish_tag"],
+88 => ["type" => "other", "description" => "tvar_old_syntax_closing_HACK"],
+89 => ["type" => "literal", "value" => "=", "description" => "\"=\""],
+90 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
+91 => ["type" => "other", "description" => "table_content_line"],
+92 => ["type" => "other", "description" => "table_end_tag"],
+93 => ["type" => "literal", "value" => "#parsoid\x00fragment:", "description" => "\"#parsoid\\u0000fragment:\""],
+94 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
+95 => ["type" => "other", "description" => "RFC"],
+96 => ["type" => "other", "description" => "PMID"],
+97 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
+98 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
+99 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
+100 => ["type" => "other", "description" => "lang_variant_preproc"],
+101 => ["type" => "other", "description" => "broken_lang_variant"],
+102 => ["type" => "other", "description" => "wikilink_preproc_internal"],
+103 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
+104 => ["type" => "other", "description" => "xmlish_start"],
+105 => ["type" => "other", "description" => "space_or_newline_or_solidus"],
+106 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
+107 => ["type" => "literal", "value" => ">", "description" => "\">\""],
+108 => ["type" => "literal", "value" => "</>", "description" => "\"</>\""],
+109 => ["type" => "other", "description" => "table_heading_tags"],
+110 => ["type" => "other", "description" => "table_row_tag"],
+111 => ["type" => "other", "description" => "table_data_tags"],
+112 => ["type" => "other", "description" => "table_caption_tag"],
+113 => ["type" => "literal", "value" => "}", "description" => "\"}\""],
+114 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
+115 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
+116 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
+117 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
+118 => ["type" => "other", "description" => "wikilink_preprocessor_text"],
+119 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
+120 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
+121 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
+122 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
+123 => ["type" => "other", "description" => "row_syntax_table_args"],
+124 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
+125 => ["type" => "other", "description" => "directive"],
+126 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
+127 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
+128 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
+129 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
+130 => ["type" => "other", "description" => "lang_variant_flag"],
+131 => ["type" => "other", "description" => "lang_variant_name"],
+132 => ["type" => "other", "description" => "lang_variant_nowiki"],
+133 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
+134 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
+135 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
+136 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
+137 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
+138 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
+139 => ["type" => "other", "description" => "nowiki_text"],
+140 => ["type" => "other", "description" => "full_table_in_link_caption"],
+141 => ["type" => "other", "description" => "nowiki"],
+142 => ["type" => "other", "description" => "embedded_full_table"],
 	];
 
 	// actions
@@ -3883,6 +3884,15 @@ private function parsecomment($silence) {
   }
   $p5 = $this->currPos;
   for (;;) {
+    // start choice_1
+    $r6 = strcspn($this->input, "-", $this->currPos);
+    if ($r6 > 0) {
+      $this->currPos += $r6;
+      goto choice_1;
+    } else {
+      $r6 = self::$FAILED;
+      if (!$silence) { $this->fail(31); }
+    }
     // start seq_2
     $p7 = $this->currPos;
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
@@ -3910,11 +3920,12 @@ private function parsecomment($silence) {
     }
     $r6 = true;
     seq_2:
+    // free $r8,$r9
+    // free $p7
+    choice_1:
     if ($r6===self::$FAILED) {
       break;
     }
-    // free $r8,$r9
-    // free $p7
   }
   // free $r6
   $r4 = true;
@@ -3926,13 +3937,13 @@ private function parsecomment($silence) {
   }
   // free $p5
   $p5 = $this->currPos;
-  // start choice_1
+  // start choice_2
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
     $r6 = true;
     $this->currPos += 3;
-    goto choice_1;
+    goto choice_2;
   } else {
-    if (!$silence) { $this->fail(31); }
+    if (!$silence) { $this->fail(32); }
     $r6 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
@@ -3942,7 +3953,7 @@ private function parsecomment($silence) {
   } else {
     $r6 = self::$FAILED;
   }
-  choice_1:
+  choice_2:
   // cEnd <- $r6
   if ($r6!==self::$FAILED) {
     $r6 = substr($this->input, $p5, $this->currPos - $p5);
@@ -4140,7 +4151,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r13;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(32); }
+    if (!$silence) { $this->fail(33); }
     $r5 = self::$FAILED;
     goto seq_6;
   }
@@ -4172,7 +4183,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r18;
   } else {
     $r19 = self::$FAILED;
-    if (!$silence) { $this->fail(33); }
+    if (!$silence) { $this->fail(34); }
     $r5 = self::$FAILED;
     goto seq_7;
   }
@@ -4213,7 +4224,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $r12 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(34); }
+    if (!$silence) { $this->fail(35); }
     $r12 = self::$FAILED;
     $r19 = self::$FAILED;
     goto seq_9;
@@ -4304,7 +4315,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r13;
   } else {
     $r17 = self::$FAILED;
-    if (!$silence) { $this->fail(35); }
+    if (!$silence) { $this->fail(36); }
     $r18 = self::$FAILED;
     goto seq_11;
   }
@@ -4345,7 +4356,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $r18 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(34); }
+    if (!$silence) { $this->fail(35); }
     $r18 = self::$FAILED;
     $r17 = self::$FAILED;
     goto seq_13;
@@ -4428,7 +4439,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r15;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(32); }
+    if (!$silence) { $this->fail(33); }
     $r19 = self::$FAILED;
     goto seq_15;
   }
@@ -4472,7 +4483,7 @@ private function parsetplarg_or_template($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r8;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(33); }
+    if (!$silence) { $this->fail(34); }
     $r5 = self::$FAILED;
     goto seq_16;
   }
@@ -4524,7 +4535,7 @@ private function parsehtmlentity($silence) {
     $this->currPos = $p1;
   } else {
     $r4 = self::$FAILED;
-    if (!$silence) { $this->fail(36); }
+    if (!$silence) { $this->fail(37); }
     $r3 = self::$FAILED;
     goto seq_1;
   }
@@ -4999,7 +5010,7 @@ private function parseinlineline($silence, $boolParams, $param_tagType, &$param_
       $param_headingIndex = $r16;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(37); }
+      if (!$silence) { $this->fail(38); }
       $r7 = self::$FAILED;
       goto seq_2;
     }
@@ -5174,7 +5185,7 @@ private function parsedtdd($silence, $boolParams, $param_tagType, &$param_prepro
       $this->currPos++;
     } else {
       $r7 = self::$FAILED;
-      if (!$silence) { $this->fail(38); }
+      if (!$silence) { $this->fail(39); }
       $this->currPos = $p8;
       $param_preproc = $r9;
       $param_th = $r10;
@@ -5197,7 +5208,7 @@ private function parsedtdd($silence, $boolParams, $param_tagType, &$param_prepro
     $r12 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(39); }
+    if (!$silence) { $this->fail(40); }
     $r12 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -5468,7 +5479,7 @@ private function parseli($silence, $boolParams, $param_tagType, &$param_preproc,
     $r6 = str_split($r6);
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(38); }
+    if (!$silence) { $this->fail(39); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -5588,7 +5599,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $param_preproc = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(40); }
+    if (!$silence) { $this->fail(41); }
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -5628,7 +5639,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
       $param_preproc = $r14;
     } else {
       $r15 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r10 = self::$FAILED;
       goto seq_3;
     }
@@ -5666,7 +5677,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $param_preproc = $r13;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(42); }
+    if (!$silence) { $this->fail(43); }
     $r15 = self::$FAILED;
     goto seq_4;
   }
@@ -5703,7 +5714,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $param_preproc = $r4;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(43); }
+    if (!$silence) { $this->fail(44); }
     $r5 = self::$FAILED;
     goto seq_5;
   }
@@ -5771,14 +5782,14 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $this->currPos++;
     goto choice_4;
   } else {
-    if (!$silence) { $this->fail(44); }
+    if (!$silence) { $this->fail(45); }
     $r17 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
     $r17 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(45); }
+    if (!$silence) { $this->fail(46); }
     $r17 = self::$FAILED;
   }
   choice_4:
@@ -5823,7 +5834,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $param_preproc = $r22;
   } else {
     $r23 = self::$FAILED;
-    if (!$silence) { $this->fail(46); }
+    if (!$silence) { $this->fail(47); }
     $r19 = self::$FAILED;
     goto seq_8;
   }
@@ -5858,7 +5869,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
       $param_preproc = $r25;
     } else {
       $r26 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r21 = self::$FAILED;
       goto seq_9;
     }
@@ -6023,7 +6034,7 @@ private function parsetemplate($silence, $boolParams, $param_tagType, &$param_th
     $param_headingIndex = $r3;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(47); }
+    if (!$silence) { $this->fail(48); }
     $r4 = self::$FAILED;
     goto seq_1;
   }
@@ -6062,7 +6073,7 @@ private function parsebroken_template($silence, &$param_preproc) {
     $r4 = "{{";
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(48); }
+    if (!$silence) { $this->fail(49); }
     $r4 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -6106,7 +6117,7 @@ private function parsetplarg($silence, $boolParams, $param_tagType, &$param_th, 
     $param_headingIndex = $r3;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(49); }
+    if (!$silence) { $this->fail(50); }
     $r4 = self::$FAILED;
     goto seq_1;
   }
@@ -6155,7 +6166,7 @@ private function parseraw_htmlentity($silence) {
     $r6 = true;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(50); }
+    if (!$silence) { $this->fail(51); }
     $this->currPos = $p1;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -6164,7 +6175,7 @@ private function parseraw_htmlentity($silence) {
     $r7 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(39); }
+    if (!$silence) { $this->fail(40); }
     $r7 = self::$FAILED;
     $this->currPos = $p1;
     $r3 = self::$FAILED;
@@ -7575,7 +7586,7 @@ private function parseurltext($silence, $boolParams, $param_tagType, &$param_pre
       $param_headingIndex = $r15;
     } else {
       $r16 = self::$FAILED;
-      if (!$silence) { $this->fail(51); }
+      if (!$silence) { $this->fail(52); }
       $r6 = self::$FAILED;
       goto seq_3;
     }
@@ -7695,7 +7706,7 @@ private function parseurltext($silence, $boolParams, $param_tagType, &$param_pre
       $param_headingIndex = $r15;
     } else {
       $r18 = self::$FAILED;
-      if (!$silence) { $this->fail(52); }
+      if (!$silence) { $this->fail(53); }
       $r6 = self::$FAILED;
       goto seq_7;
     }
@@ -7728,7 +7739,7 @@ private function parseurltext($silence, $boolParams, $param_tagType, &$param_pre
       $r6 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r6 = self::$FAILED;
-      if (!$silence) { $this->fail(53); }
+      if (!$silence) { $this->fail(54); }
     }
     choice_1:
     if ($r6!==self::$FAILED) {
@@ -7793,7 +7804,7 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r10;
   } else {
     $r11 = self::$FAILED;
-    if (!$silence) { $this->fail(54); }
+    if (!$silence) { $this->fail(55); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -7903,7 +7914,7 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r10;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(55); }
+    if (!$silence) { $this->fail(56); }
     $r5 = self::$FAILED;
     goto seq_6;
   }
@@ -7943,7 +7954,7 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
       $r15 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(56); }
+      if (!$silence) { $this->fail(57); }
       $r15 = self::$FAILED;
       $r13 = self::$FAILED;
       goto seq_7;
@@ -8015,7 +8026,7 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r10;
   } else {
     $r16 = self::$FAILED;
-    if (!$silence) { $this->fail(57); }
+    if (!$silence) { $this->fail(58); }
     $r5 = self::$FAILED;
     goto seq_9;
   }
@@ -8103,7 +8114,7 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r9;
   } else {
     $r10 = self::$FAILED;
-    if (!$silence) { $this->fail(58); }
+    if (!$silence) { $this->fail(59); }
     $r5 = self::$FAILED;
     goto seq_12;
   }
@@ -8227,7 +8238,7 @@ private function parseredirect($silence, $boolParams, $param_tagType, &$param_th
     $param_preproc = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(59); }
+    if (!$silence) { $this->fail(60); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -8293,7 +8304,7 @@ private function parseredirect($silence, $boolParams, $param_tagType, &$param_th
     $param_preproc = $r16;
   } else {
     $r15 = self::$FAILED;
-    if (!$silence) { $this->fail(57); }
+    if (!$silence) { $this->fail(58); }
     $r14 = self::$FAILED;
     goto seq_4;
   }
@@ -8399,7 +8410,7 @@ private function parsesol_transparent($silence, $boolParams, $param_tagType, &$p
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(61); }
+    if (!$silence) { $this->fail(62); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -8426,7 +8437,7 @@ private function parsesol_transparent($silence, $boolParams, $param_tagType, &$p
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(62); }
+    if (!$silence) { $this->fail(63); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -8453,7 +8464,7 @@ private function parsesol_transparent($silence, $boolParams, $param_tagType, &$p
     $param_headingIndex = $r4;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(52); }
+    if (!$silence) { $this->fail(53); }
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -8503,7 +8514,7 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(63); }
+    if (!$silence) { $this->fail(64); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -8530,7 +8541,7 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(64); }
+    if (!$silence) { $this->fail(65); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -8557,7 +8568,7 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(65); }
+    if (!$silence) { $this->fail(66); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -8601,7 +8612,7 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r13;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(66); }
+    if (!$silence) { $this->fail(67); }
     $r5 = self::$FAILED;
     goto seq_5;
   }
@@ -8670,14 +8681,14 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $this->currPos++;
     goto choice_2;
   } else {
-    if (!$silence) { $this->fail(44); }
+    if (!$silence) { $this->fail(45); }
     $r8 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
     $r8 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(45); }
+    if (!$silence) { $this->fail(46); }
     $r8 = self::$FAILED;
   }
   choice_2:
@@ -8722,7 +8733,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r13;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(46); }
+    if (!$silence) { $this->fail(47); }
     $r10 = self::$FAILED;
     goto seq_3;
   }
@@ -8757,7 +8768,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
       $param_headingIndex = $r16;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r12 = self::$FAILED;
       goto seq_4;
     }
@@ -8831,14 +8842,14 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $this->currPos++;
     goto choice_4;
   } else {
-    if (!$silence) { $this->fail(44); }
+    if (!$silence) { $this->fail(45); }
     $r25 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
     $r25 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(45); }
+    if (!$silence) { $this->fail(46); }
     $r25 = self::$FAILED;
   }
   choice_4:
@@ -8883,7 +8894,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r30;
   } else {
     $r31 = self::$FAILED;
-    if (!$silence) { $this->fail(46); }
+    if (!$silence) { $this->fail(47); }
     $r27 = self::$FAILED;
     goto seq_7;
   }
@@ -8918,7 +8929,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
       $param_headingIndex = $r33;
     } else {
       $r34 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r29 = self::$FAILED;
       goto seq_8;
     }
@@ -8984,7 +8995,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r23;
   } else {
     $r22 = self::$FAILED;
-    if (!$silence) { $this->fail(42); }
+    if (!$silence) { $this->fail(43); }
     $r12 = self::$FAILED;
     goto seq_9;
   }
@@ -9116,14 +9127,14 @@ private function parseempty_lines_with_comments($silence) {
       $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r13 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r13 = "\x0d\x0a";
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r13 = self::$FAILED;
     }
     choice_2:
@@ -9635,7 +9646,7 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $r6 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(48); }
+    if (!$silence) { $this->fail(49); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -9649,14 +9660,14 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
       $this->currPos++;
       goto choice_3;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r8 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r8 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r8 = self::$FAILED;
     }
     choice_3:
@@ -9733,7 +9744,7 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $param_headingIndex = $r12;
   } else {
     $r11 = self::$FAILED;
-    if (!$silence) { $this->fail(67); }
+    if (!$silence) { $this->fail(68); }
     $r7 = self::$FAILED;
     goto seq_3;
   }
@@ -9774,14 +9785,14 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
         $this->currPos++;
         goto choice_7;
       } else {
-        if (!$silence) { $this->fail(44); }
+        if (!$silence) { $this->fail(45); }
         $r16 = self::$FAILED;
       }
       if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
         $r16 = true;
         $this->currPos += 2;
       } else {
-        if (!$silence) { $this->fail(45); }
+        if (!$silence) { $this->fail(46); }
         $r16 = self::$FAILED;
       }
       choice_7:
@@ -9871,14 +9882,14 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
         $this->currPos++;
         goto choice_11;
       } else {
-        if (!$silence) { $this->fail(44); }
+        if (!$silence) { $this->fail(45); }
         $r23 = self::$FAILED;
       }
       if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
         $r23 = true;
         $this->currPos += 2;
       } else {
-        if (!$silence) { $this->fail(45); }
+        if (!$silence) { $this->fail(46); }
         $r23 = self::$FAILED;
       }
       choice_11:
@@ -10011,14 +10022,14 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
       $this->currPos++;
       goto choice_15;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r8 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r8 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r8 = self::$FAILED;
     }
     choice_15:
@@ -10089,7 +10100,7 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $r20 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(68); }
+    if (!$silence) { $this->fail(69); }
     $r20 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -10112,7 +10123,7 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $r20 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(48); }
+    if (!$silence) { $this->fail(49); }
     $r20 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_9;
@@ -10123,7 +10134,7 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $r11 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(68); }
+    if (!$silence) { $this->fail(69); }
     $r11 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -10171,7 +10182,7 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
     $r6 = true;
     $this->currPos += 3;
   } else {
-    if (!$silence) { $this->fail(69); }
+    if (!$silence) { $this->fail(70); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -10185,14 +10196,14 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
       $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r8 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r8 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r8 = self::$FAILED;
     }
     choice_2:
@@ -10273,14 +10284,14 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
         $this->currPos++;
         goto choice_5;
       } else {
-        if (!$silence) { $this->fail(44); }
+        if (!$silence) { $this->fail(45); }
         $r16 = self::$FAILED;
       }
       if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
         $r16 = true;
         $this->currPos += 2;
       } else {
-        if (!$silence) { $this->fail(45); }
+        if (!$silence) { $this->fail(46); }
         $r16 = self::$FAILED;
       }
       choice_5:
@@ -10370,14 +10381,14 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
         $this->currPos++;
         goto choice_9;
       } else {
-        if (!$silence) { $this->fail(44); }
+        if (!$silence) { $this->fail(45); }
         $r23 = self::$FAILED;
       }
       if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
         $r23 = true;
         $this->currPos += 2;
       } else {
-        if (!$silence) { $this->fail(45); }
+        if (!$silence) { $this->fail(46); }
         $r23 = self::$FAILED;
       }
       choice_9:
@@ -10510,14 +10521,14 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
       $this->currPos++;
       goto choice_13;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r12 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r12 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r12 = self::$FAILED;
     }
     choice_13:
@@ -10588,7 +10599,7 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
     $r20 = true;
     $this->currPos += 3;
   } else {
-    if (!$silence) { $this->fail(70); }
+    if (!$silence) { $this->fail(71); }
     $r20 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -11259,7 +11270,7 @@ private function parsedirective($silence, $boolParams, $param_tagType, &$param_p
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(62); }
+    if (!$silence) { $this->fail(63); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -11286,7 +11297,7 @@ private function parsedirective($silence, $boolParams, $param_tagType, &$param_p
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(71); }
+    if (!$silence) { $this->fail(72); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -11357,7 +11368,7 @@ private function parsedirective($silence, $boolParams, $param_tagType, &$param_p
     $param_headingIndex = $r14;
   } else {
     $r15 = self::$FAILED;
-    if (!$silence) { $this->fail(55); }
+    if (!$silence) { $this->fail(56); }
     $r5 = self::$FAILED;
     goto seq_6;
   }
@@ -11450,7 +11461,7 @@ private function parsedirective($silence, $boolParams, $param_tagType, &$param_p
     $param_headingIndex = $r4;
   } else {
     $r16 = self::$FAILED;
-    if (!$silence) { $this->fail(61); }
+    if (!$silence) { $this->fail(62); }
     $r5 = self::$FAILED;
     goto seq_9;
   }
@@ -12090,7 +12101,7 @@ private function parseautolink($silence, $boolParams, $param_tagType, &$param_pr
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(72); }
+    if (!$silence) { $this->fail(73); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -12122,7 +12133,7 @@ private function parseautolink($silence, $boolParams, $param_tagType, &$param_pr
     $param_headingIndex = $r9;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(73); }
+    if (!$silence) { $this->fail(74); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -12154,7 +12165,7 @@ private function parseautolink($silence, $boolParams, $param_tagType, &$param_pr
     $param_headingIndex = $r11;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(74); }
+    if (!$silence) { $this->fail(75); }
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -12205,7 +12216,7 @@ private function parsebehavior_switch($silence) {
     $r5 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(75); }
+    if (!$silence) { $this->fail(76); }
     $r5 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -12218,7 +12229,7 @@ private function parsebehavior_switch($silence) {
     $this->currPos = $p7;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(76); }
+    if (!$silence) { $this->fail(77); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -12239,7 +12250,7 @@ private function parsebehavior_switch($silence) {
     $r9 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(75); }
+    if (!$silence) { $this->fail(76); }
     $r9 = self::$FAILED;
     $this->currPos = $p1;
     $r3 = self::$FAILED;
@@ -12295,7 +12306,7 @@ private function parseangle_bracket_markup($silence, $boolParams, $param_tagType
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(62); }
+    if (!$silence) { $this->fail(63); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -12322,7 +12333,7 @@ private function parseangle_bracket_markup($silence, $boolParams, $param_tagType
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(77); }
+    if (!$silence) { $this->fail(78); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -12349,7 +12360,7 @@ private function parseangle_bracket_markup($silence, $boolParams, $param_tagType
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(61); }
+    if (!$silence) { $this->fail(62); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -12376,7 +12387,7 @@ private function parseangle_bracket_markup($silence, $boolParams, $param_tagType
     $param_headingIndex = $r4;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(78); }
+    if (!$silence) { $this->fail(79); }
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -12580,7 +12591,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r8;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(79); }
+    if (!$silence) { $this->fail(80); }
     $r5 = self::$FAILED;
     goto seq_5;
   }
@@ -12709,7 +12720,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r14;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(35); }
+    if (!$silence) { $this->fail(36); }
     $r12 = self::$FAILED;
     goto seq_9;
   }
@@ -12843,7 +12854,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r10;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(32); }
+    if (!$silence) { $this->fail(33); }
     $r7 = self::$FAILED;
     goto seq_13;
   }
@@ -12899,7 +12910,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r10;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(79); }
+    if (!$silence) { $this->fail(80); }
     $r5 = self::$FAILED;
     goto seq_15;
   }
@@ -12960,7 +12971,7 @@ private function parsewikilink($silence, $boolParams, $param_tagType, &$param_th
     $param_preproc = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(80); }
+    if (!$silence) { $this->fail(81); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -12987,7 +12998,7 @@ private function parsewikilink($silence, $boolParams, $param_tagType, &$param_th
     $param_preproc = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(81); }
+    if (!$silence) { $this->fail(82); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -13027,7 +13038,7 @@ private function parsequote($silence) {
     $r5 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(82); }
+    if (!$silence) { $this->fail(83); }
     $r5 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -13037,7 +13048,7 @@ private function parsequote($silence) {
       $r7 = true;
       $this->currPos++;
     } else {
-      if (!$silence) { $this->fail(83); }
+      if (!$silence) { $this->fail(84); }
       $r7 = self::$FAILED;
       break;
     }
@@ -13116,7 +13127,7 @@ private function parseredirect_word($silence) {
     $r5 = substr($this->input, $p6, $this->currPos - $p6);
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(85); }
+    if (!$silence) { $this->fail(86); }
     $r5 = self::$FAILED;
     $this->currPos = $p1;
     $r3 = self::$FAILED;
@@ -13214,7 +13225,7 @@ private function parseinclude_limits($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r12;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(86); }
+    if (!$silence) { $this->fail(87); }
     $r8 = self::$FAILED;
     goto seq_3;
   }
@@ -13294,7 +13305,7 @@ private function parseannotation_tag($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(87); }
+    if (!$silence) { $this->fail(88); }
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -13365,7 +13376,7 @@ private function parseannotation_tag($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r20;
   } else {
     $r21 = self::$FAILED;
-    if (!$silence) { $this->fail(86); }
+    if (!$silence) { $this->fail(87); }
     $r16 = self::$FAILED;
     goto seq_5;
   }
@@ -13466,7 +13477,7 @@ private function parseheading($silence, $boolParams, $param_tagType, &$param_pre
       $this->currPos++;
       $r12 = true;
     } else {
-      if (!$silence) { $this->fail(88); }
+      if (!$silence) { $this->fail(89); }
       $r14 = self::$FAILED;
       break;
     }
@@ -13502,7 +13513,7 @@ private function parseheading($silence, $boolParams, $param_tagType, &$param_pre
       $this->currPos++;
       $r21 = true;
     } else {
-      if (!$silence) { $this->fail(88); }
+      if (!$silence) { $this->fail(89); }
       $r22 = self::$FAILED;
       break;
     }
@@ -13568,7 +13579,7 @@ private function parseheading($silence, $boolParams, $param_tagType, &$param_pre
       $param_headingIndex = $r23;
     } else {
       $r24 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r21 = self::$FAILED;
       goto seq_4;
     }
@@ -13683,7 +13694,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
     $r6 = true;
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(89); }
+    if (!$silence) { $this->fail(90); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -14022,7 +14033,7 @@ private function parsetable_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r11;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(90); }
+    if (!$silence) { $this->fail(91); }
     $r10 = self::$FAILED;
     goto seq_4;
   }
@@ -14054,7 +14065,7 @@ private function parsetable_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r9;
   } else {
     $r15 = self::$FAILED;
-    if (!$silence) { $this->fail(91); }
+    if (!$silence) { $this->fail(92); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -14116,6 +14127,14 @@ private function discardcomment() {
   }
   $p5 = $this->currPos;
   for (;;) {
+    // start choice_1
+    $r6 = strcspn($this->input, "-", $this->currPos);
+    if ($r6 > 0) {
+      $this->currPos += $r6;
+      goto choice_1;
+    } else {
+      $r6 = self::$FAILED;
+    }
     // start seq_2
     $p7 = $this->currPos;
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
@@ -14142,11 +14161,12 @@ private function discardcomment() {
     }
     $r6 = true;
     seq_2:
+    // free $r8,$r9
+    // free $p7
+    choice_1:
     if ($r6===self::$FAILED) {
       break;
     }
-    // free $r8,$r9
-    // free $p7
   }
   // free $r6
   $r4 = true;
@@ -14158,11 +14178,11 @@ private function discardcomment() {
   }
   // free $p5
   $p5 = $this->currPos;
-  // start choice_1
+  // start choice_2
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
     $r6 = true;
     $this->currPos += 3;
-    goto choice_1;
+    goto choice_2;
   } else {
     $r6 = self::$FAILED;
   }
@@ -14173,7 +14193,7 @@ private function discardcomment() {
   } else {
     $r6 = self::$FAILED;
   }
-  choice_1:
+  choice_2:
   // cEnd <- $r6
   if ($r6!==self::$FAILED) {
     $r6 = substr($this->input, $p5, $this->currPos - $p5);
@@ -14229,14 +14249,14 @@ private function parseinlineline_in_tpls($silence, $boolParams, $param_tagType, 
       $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r7 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r7 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r7 = self::$FAILED;
     }
     choice_2:
@@ -14318,7 +14338,7 @@ private function parseparsoid_fragment_marker($silence) {
     $r4 = true;
     $this->currPos += 18;
   } else {
-    if (!$silence) { $this->fail(92); }
+    if (!$silence) { $this->fail(93); }
     $r4 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -14328,7 +14348,7 @@ private function parseparsoid_fragment_marker($silence) {
     $this->currPos += $r5;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(93); }
+    if (!$silence) { $this->fail(94); }
     $this->currPos = $p1;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -14386,7 +14406,7 @@ private function parsetemplate_param($silence, $boolParams, $param_tagType, &$pa
     $r14 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(88); }
+    if (!$silence) { $this->fail(89); }
     $r14 = self::$FAILED;
     $this->currPos = $p9;
     $param_preproc = $r10;
@@ -14555,7 +14575,7 @@ private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_t
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(86); }
+    if (!$silence) { $this->fail(87); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -14604,7 +14624,7 @@ private function parsewellformed_extension_tag($silence, $boolParams, $param_tag
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(77); }
+    if (!$silence) { $this->fail(78); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -14890,7 +14910,7 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
       $r31 = true;
       $this->currPos++;
     } else {
-      if (!$silence) { $this->fail(83); }
+      if (!$silence) { $this->fail(84); }
       $r31 = self::$FAILED;
       $r18 = self::$FAILED;
       goto seq_8;
@@ -14936,7 +14956,7 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
       $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(34); }
+      if (!$silence) { $this->fail(35); }
       $r18 = self::$FAILED;
     }
     // start seq_9
@@ -15166,7 +15186,7 @@ private function parseautoref($silence) {
     $this->currPos = $p1;
   } else {
     $r4 = self::$FAILED;
-    if (!$silence) { $this->fail(94); }
+    if (!$silence) { $this->fail(95); }
     $r3 = self::$FAILED;
     goto seq_2;
   }
@@ -15187,7 +15207,7 @@ private function parseautoref($silence) {
     $this->currPos = $p1;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(95); }
+    if (!$silence) { $this->fail(96); }
     $r3 = self::$FAILED;
     goto seq_3;
   }
@@ -15221,7 +15241,7 @@ private function parseautoref($silence) {
       goto choice_2;
     } else {
       $r7 = self::$FAILED;
-      if (!$silence) { $this->fail(96); }
+      if (!$silence) { $this->fail(97); }
     }
     $p8 = $this->currPos;
     // start seq_4
@@ -15305,7 +15325,7 @@ private function parseautoref($silence) {
     $r7 = substr($this->input, $p8, $this->currPos - $p8);
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(93); }
+    if (!$silence) { $this->fail(94); }
     $r7 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -15379,7 +15399,7 @@ private function parseisbn($silence) {
     $r4 = true;
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(97); }
+    if (!$silence) { $this->fail(98); }
     $r4 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -15402,7 +15422,7 @@ private function parseisbn($silence) {
       goto choice_1;
     } else {
       $r6 = self::$FAILED;
-      if (!$silence) { $this->fail(96); }
+      if (!$silence) { $this->fail(97); }
     }
     $p7 = $this->currPos;
     // start seq_2
@@ -15485,7 +15505,7 @@ private function parseisbn($silence) {
     $this->currPos++;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(93); }
+    if (!$silence) { $this->fail(94); }
     $r6 = self::$FAILED;
     goto seq_4;
   }
@@ -15510,7 +15530,7 @@ private function parseisbn($silence) {
       goto choice_4;
     } else {
       $r14 = self::$FAILED;
-      if (!$silence) { $this->fail(96); }
+      if (!$silence) { $this->fail(97); }
     }
     // start seq_6
     if (($this->input[$this->currPos] ?? null) === "&") {
@@ -15587,7 +15607,7 @@ private function parseisbn($silence) {
       $this->currPos++;
     } else {
       $r18 = self::$FAILED;
-      if (!$silence) { $this->fail(93); }
+      if (!$silence) { $this->fail(94); }
       $this->currPos = $p8;
       $r9 = self::$FAILED;
       goto seq_5;
@@ -15631,7 +15651,7 @@ private function parseisbn($silence) {
     goto choice_8;
   } else {
     $r18 = self::$FAILED;
-    if (!$silence) { $this->fail(96); }
+    if (!$silence) { $this->fail(97); }
   }
   // start seq_9
   if (($this->input[$this->currPos] ?? null) === "&") {
@@ -15708,7 +15728,7 @@ private function parseisbn($silence) {
     $this->currPos++;
   } else {
     $r19 = self::$FAILED;
-    if (!$silence) { $this->fail(98); }
+    if (!$silence) { $this->fail(99); }
     $this->currPos = $p8;
     $r9 = self::$FAILED;
     goto seq_8;
@@ -15910,7 +15930,7 @@ private function parsemaybe_extension_tag($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r12;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(86); }
+    if (!$silence) { $this->fail(87); }
     $r8 = self::$FAILED;
     goto seq_3;
   }
@@ -15976,7 +15996,7 @@ private function parselang_variant($silence, $boolParams, $param_tagType, &$para
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(99); }
+    if (!$silence) { $this->fail(100); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -16003,7 +16023,7 @@ private function parselang_variant($silence, $boolParams, $param_tagType, &$para
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(100); }
+    if (!$silence) { $this->fail(101); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -16053,7 +16073,7 @@ private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(101); }
+    if (!$silence) { $this->fail(102); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -16075,7 +16095,7 @@ private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$
     $r7 = "[[";
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(56); }
+    if (!$silence) { $this->fail(57); }
     $r7 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_2;
@@ -16093,7 +16113,7 @@ private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$
     $r9 = "]]";
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(102); }
+    if (!$silence) { $this->fail(103); }
     $r9 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -16341,7 +16361,7 @@ private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r10;
   } else {
     $r11 = self::$FAILED;
-    if (!$silence) { $this->fail(103); }
+    if (!$silence) { $this->fail(104); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -16395,7 +16415,7 @@ private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_
       $param_headingIndex = $r15;
     } else {
       $r16 = self::$FAILED;
-      if (!$silence) { $this->fail(104); }
+      if (!$silence) { $this->fail(105); }
       $r12 = self::$FAILED;
       goto seq_3;
     }
@@ -16422,7 +16442,7 @@ private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_
     $r8 = "/";
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(105); }
+    if (!$silence) { $this->fail(106); }
     $r8 = self::$FAILED;
     $r8 = null;
   }
@@ -16433,7 +16453,7 @@ private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_
     $r12 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(106); }
+    if (!$silence) { $this->fail(107); }
     $r12 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -16483,7 +16503,7 @@ private function parsetvar_old_syntax_closing_HACK($silence, $param_tagType) {
     $r4 = true;
     $this->currPos += 3;
   } else {
-    if (!$silence) { $this->fail(107); }
+    if (!$silence) { $this->fail(108); }
     $r4 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -16609,7 +16629,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(108); }
+    if (!$silence) { $this->fail(109); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -16636,7 +16656,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(109); }
+    if (!$silence) { $this->fail(110); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -16663,7 +16683,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(110); }
+    if (!$silence) { $this->fail(111); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -16690,7 +16710,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r4;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(111); }
+    if (!$silence) { $this->fail(112); }
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -16752,7 +16772,7 @@ private function parsetable_end_tag($silence) {
     $r4 = "}";
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(112); }
+    if (!$silence) { $this->fail(113); }
     $r4 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -16849,14 +16869,14 @@ private function parsetemplate_param_text($silence, $boolParams, $param_tagType,
       $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r7 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r7 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r7 = self::$FAILED;
     }
     choice_2:
@@ -17175,7 +17195,7 @@ private function parseRFC($silence) {
     $r2 = "RFC";
     $this->currPos += 3;
   } else {
-    if (!$silence) { $this->fail(113); }
+    if (!$silence) { $this->fail(114); }
     $r2 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -17215,7 +17235,7 @@ private function parsePMID($silence) {
     $r2 = "PMID";
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(114); }
+    if (!$silence) { $this->fail(115); }
     $r2 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -17317,7 +17337,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
     $this->savedPos = $p1;
     $r6 = $this->a134();
   } else {
-    if (!$silence) { $this->fail(115); }
+    if (!$silence) { $this->fail(116); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -17457,7 +17477,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
     $r19 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(116); }
+    if (!$silence) { $this->fail(117); }
     $r19 = self::$FAILED;
     $r12 = self::$FAILED;
     goto seq_6;
@@ -17507,7 +17527,7 @@ private function parsebroken_lang_variant($silence, &$param_preproc) {
     $r4 = "-{";
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(115); }
+    if (!$silence) { $this->fail(116); }
     $r4 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -17547,7 +17567,7 @@ private function parsewikilink_preproc_internal($silence, $boolParams, $param_ta
     $r6 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(56); }
+    if (!$silence) { $this->fail(57); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -17568,7 +17588,7 @@ private function parsewikilink_preproc_internal($silence, $boolParams, $param_ta
     $param_headingIndex = $r12;
   } else {
     $r13 = self::$FAILED;
-    if (!$silence) { $this->fail(117); }
+    if (!$silence) { $this->fail(118); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -17604,7 +17624,7 @@ private function parsewikilink_preproc_internal($silence, $boolParams, $param_ta
     $r14 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(102); }
+    if (!$silence) { $this->fail(103); }
     $r14 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -17644,7 +17664,7 @@ private function parsexmlish_start($silence) {
     $r3 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(118); }
+    if (!$silence) { $this->fail(119); }
     $r3 = self::$FAILED;
     $r2 = self::$FAILED;
     goto seq_1;
@@ -17653,7 +17673,7 @@ private function parsexmlish_start($silence) {
     $r4 = "/";
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(105); }
+    if (!$silence) { $this->fail(106); }
     $r4 = self::$FAILED;
     $r4 = null;
   }
@@ -17664,7 +17684,7 @@ private function parsexmlish_start($silence) {
     $r6 = substr($this->input, $p5, $this->currPos - $p5);
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(119); }
+    if (!$silence) { $this->fail(120); }
     $r6 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -17705,7 +17725,7 @@ private function parsetable_heading_tags($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r3;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(120); }
+    if (!$silence) { $this->fail(121); }
     $r4 = self::$FAILED;
     goto seq_1;
   }
@@ -17881,7 +17901,7 @@ private function parsetable_caption_tag($silence, $boolParams, $param_tagType, &
     $r8 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(121); }
+    if (!$silence) { $this->fail(122); }
     $r8 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -17904,7 +17924,7 @@ private function parsetable_caption_tag($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r13;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(122); }
+    if (!$silence) { $this->fail(123); }
     $r9 = self::$FAILED;
     goto seq_2;
   }
@@ -18381,7 +18401,7 @@ private function parselang_variant_option_list($silence, $boolParams, $param_tag
       $r13 = true;
       $this->currPos++;
     } else {
-      if (!$silence) { $this->fail(39); }
+      if (!$silence) { $this->fail(40); }
       $r13 = self::$FAILED;
       $r8 = self::$FAILED;
       goto seq_2;
@@ -18417,7 +18437,7 @@ private function parselang_variant_option_list($silence, $boolParams, $param_tag
       $r14 = ";";
       $this->currPos++;
     } else {
-      if (!$silence) { $this->fail(39); }
+      if (!$silence) { $this->fail(40); }
       $r14 = self::$FAILED;
       $r8 = self::$FAILED;
       goto seq_3;
@@ -18490,7 +18510,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       $r8 = substr($this->input, $p9, $this->currPos - $p9);
     } else {
       $r8 = self::$FAILED;
-      if (!$silence) { $this->fail(123); }
+      if (!$silence) { $this->fail(124); }
       $r8 = self::$FAILED;
     }
     // free $p9
@@ -18563,7 +18583,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       $param_headingIndex = $r16;
     } else {
       $r19 = self::$FAILED;
-      if (!$silence) { $this->fail(124); }
+      if (!$silence) { $this->fail(125); }
       $r7 = self::$FAILED;
       goto seq_2;
     }
@@ -18608,7 +18628,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r22 = self::$FAILED;
-      if (!$silence) { $this->fail(125); }
+      if (!$silence) { $this->fail(126); }
       $this->currPos = $p20;
       $param_preproc = $r16;
       $param_th = $r17;
@@ -18758,7 +18778,7 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, $p
     $r6 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(126); }
+    if (!$silence) { $this->fail(127); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -18829,7 +18849,7 @@ private function parsetable_data_tag($silence, $boolParams, $param_tagType, &$pa
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(122); }
+    if (!$silence) { $this->fail(123); }
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -18906,14 +18926,14 @@ private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(127); }
+      if (!$silence) { $this->fail(128); }
       $r12 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
       $r12 = "{{!}}{{!}}";
       $this->currPos += 10;
     } else {
-      if (!$silence) { $this->fail(128); }
+      if (!$silence) { $this->fail(129); }
       $r12 = self::$FAILED;
     }
     choice_1:
@@ -19397,7 +19417,7 @@ private function parselang_variant_flags($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(129); }
+    if (!$silence) { $this->fail(130); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -19436,7 +19456,7 @@ private function parselang_variant_flags($silence, $boolParams, $param_tagType, 
     $r15 = ";";
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(39); }
+    if (!$silence) { $this->fail(40); }
     $r15 = self::$FAILED;
     $r10 = self::$FAILED;
     goto seq_3;
@@ -19517,7 +19537,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(130); }
+    if (!$silence) { $this->fail(131); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -19581,7 +19601,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r16;
   } else {
     $r17 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(132); }
     $r13 = self::$FAILED;
     goto seq_3;
   }
@@ -19632,7 +19652,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r15;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(132); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -19657,7 +19677,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $r15 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(132); }
+    if (!$silence) { $this->fail(133); }
     $r15 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -19686,7 +19706,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r20;
   } else {
     $r21 = self::$FAILED;
-    if (!$silence) { $this->fail(130); }
+    if (!$silence) { $this->fail(131); }
     $r12 = self::$FAILED;
     goto seq_6;
   }
@@ -19750,7 +19770,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r25;
   } else {
     $r26 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(132); }
     $r22 = self::$FAILED;
     goto seq_7;
   }
@@ -19867,7 +19887,7 @@ private function parsetable_heading_tag($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(122); }
+    if (!$silence) { $this->fail(123); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -19963,7 +19983,7 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(133); }
+      if (!$silence) { $this->fail(134); }
       $r12 = self::$FAILED;
     }
     // start choice_2
@@ -19972,14 +19992,14 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
       $this->currPos += 2;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(127); }
+      if (!$silence) { $this->fail(128); }
       $r12 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
       $r12 = "{{!}}{{!}}";
       $this->currPos += 10;
     } else {
-      if (!$silence) { $this->fail(128); }
+      if (!$silence) { $this->fail(129); }
       $r12 = self::$FAILED;
     }
     choice_2:
@@ -20035,7 +20055,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(134); }
+    if (!$silence) { $this->fail(135); }
   }
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
@@ -20053,7 +20073,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(130); }
+    if (!$silence) { $this->fail(131); }
     $r7 = self::$FAILED;
     goto seq_1;
   }
@@ -20147,7 +20167,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r20 = self::$FAILED;
-      if (!$silence) { $this->fail(135); }
+      if (!$silence) { $this->fail(136); }
       $this->currPos = $p11;
       $param_preproc = $r12;
       $param_th = $r13;
@@ -20211,7 +20231,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(136); }
+    if (!$silence) { $this->fail(137); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -20221,7 +20241,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $r8 = true;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(138); }
     $this->currPos = $p1;
     $param_preproc = $r2;
     $param_th = $r3;
@@ -20249,7 +20269,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(139); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -20299,7 +20319,7 @@ private function parselang_variant_nowiki($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(139); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -20480,14 +20500,14 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $this->currPos++;
       goto choice_3;
     } else {
-      if (!$silence) { $this->fail(44); }
+      if (!$silence) { $this->fail(45); }
       $r14 = self::$FAILED;
     }
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
       $r14 = true;
       $this->currPos += 2;
     } else {
-      if (!$silence) { $this->fail(45); }
+      if (!$silence) { $this->fail(46); }
       $r14 = self::$FAILED;
     }
     choice_3:
@@ -20532,7 +20552,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r19;
     } else {
       $r20 = self::$FAILED;
-      if (!$silence) { $this->fail(46); }
+      if (!$silence) { $this->fail(47); }
       $r16 = self::$FAILED;
       goto seq_3;
     }
@@ -20567,7 +20587,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
         $param_headingIndex = $r22;
       } else {
         $r23 = self::$FAILED;
-        if (!$silence) { $this->fail(41); }
+        if (!$silence) { $this->fail(42); }
         $r18 = self::$FAILED;
         goto seq_4;
       }
@@ -20616,7 +20636,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r18;
     } else {
       $r22 = self::$FAILED;
-      if (!$silence) { $this->fail(63); }
+      if (!$silence) { $this->fail(64); }
       $r20 = self::$FAILED;
       goto seq_5;
     }
@@ -20648,7 +20668,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r13;
     } else {
       $r21 = self::$FAILED;
-      if (!$silence) { $this->fail(65); }
+      if (!$silence) { $this->fail(66); }
       $r20 = self::$FAILED;
       goto seq_6;
     }
@@ -20680,7 +20700,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r18;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(139); }
+      if (!$silence) { $this->fail(140); }
       $r20 = self::$FAILED;
       goto seq_7;
     }
@@ -20747,7 +20767,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r20;
     } else {
       $r12 = self::$FAILED;
-      if (!$silence) { $this->fail(37); }
+      if (!$silence) { $this->fail(38); }
       $r7 = self::$FAILED;
       goto seq_9;
     }
@@ -20786,7 +20806,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $r23 = mb_str_split($r23, 1, "utf-8");
     } else {
       $r23 = self::$FAILED;
-      if (!$silence) { $this->fail(53); }
+      if (!$silence) { $this->fail(54); }
       $this->currPos = $p15;
       $param_preproc = $r20;
       $param_th = $r22;
@@ -21024,7 +21044,7 @@ private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(140); }
+    if (!$silence) { $this->fail(141); }
     $r6 = self::$FAILED;
     goto seq_1;
   }
@@ -21096,7 +21116,7 @@ private function parsefull_table_in_link_caption($silence, $boolParams, $param_t
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(141); }
+    if (!$silence) { $this->fail(142); }
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -21335,7 +21355,7 @@ private function parsenowiki($silence, $boolParams, $param_tagType, &$param_prep
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(71); }
+    if (!$silence) { $this->fail(72); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -21517,7 +21537,7 @@ private function parseembedded_full_table($silence, $boolParams, $param_tagType,
         $param_headingIndex = $r26;
       } else {
         $r27 = self::$FAILED;
-        if (!$silence) { $this->fail(90); }
+        if (!$silence) { $this->fail(91); }
         $r22 = self::$FAILED;
         goto seq_6;
       }
@@ -21619,7 +21639,7 @@ private function parseembedded_full_table($silence, $boolParams, $param_tagType,
       $param_headingIndex = $r28;
     } else {
       $r27 = self::$FAILED;
-      if (!$silence) { $this->fail(91); }
+      if (!$silence) { $this->fail(92); }
       $r20 = self::$FAILED;
       goto seq_8;
     }
@@ -21710,14 +21730,14 @@ private function parseembedded_full_table_line_prefix($silence, $boolParams, $pa
     $this->currPos++;
     goto choice_2;
   } else {
-    if (!$silence) { $this->fail(44); }
+    if (!$silence) { $this->fail(45); }
     $r8 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
     $r8 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(45); }
+    if (!$silence) { $this->fail(46); }
     $r8 = self::$FAILED;
   }
   choice_2:
@@ -21762,7 +21782,7 @@ private function parseembedded_full_table_line_prefix($silence, $boolParams, $pa
     $param_headingIndex = $r13;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(46); }
+    if (!$silence) { $this->fail(47); }
     $r10 = self::$FAILED;
     goto seq_3;
   }
@@ -21797,7 +21817,7 @@ private function parseembedded_full_table_line_prefix($silence, $boolParams, $pa
       $param_headingIndex = $r16;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(41); }
+      if (!$silence) { $this->fail(42); }
       $r12 = self::$FAILED;
       goto seq_4;
     }
