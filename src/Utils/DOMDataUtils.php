@@ -96,6 +96,19 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Remove the association of extra data with a document.
+	 * @param Document $doc
+	 * @param string $key
+	 * @see ::setExtensionData
+	 */
+	private static function removeExtensionData( Document $doc, string $key ): void {
+		if ( !isset( self::$docMap[$key] ) ) {
+			throw new \Error( "$key not found" );
+		}
+		self::$docMap[$key]->offsetUnset( $doc );
+	}
+
+	/**
 	 * Return the dynamic "bag" property of a Document.
 	 * @param Document $doc
 	 * @return DataBag
@@ -890,6 +903,13 @@ class DOMDataUtils {
 	 * Clones a node and its data bag.
 	 */
 	public static function cloneNode( Node $elt, bool $deep ): Node {
+		if ( self::hasExtensionData( $elt->ownerDocument, "cloneTarget" ) ) {
+			// Special case for "clone into a brand new document", which
+			// is the exception rather than the rule since Parsoid tries
+			// to maintain a single ownerDocument context.
+			$cloneTarget = self::getExtensionData( $elt->ownerDocument, "cloneTarget" );
+			return $cloneTarget->importNode( $elt, $deep );
+		}
 		$clone = $elt->cloneNode( $deep );
 		'@phan-var Element $clone'; // @var Element $clone
 		// We do not need to worry about $deep because a shallow clone does not have child nodes,
@@ -916,6 +936,24 @@ class DOMDataUtils {
 	public static function cloneDocumentFragment( DocumentFragment $df ): DocumentFragment {
 		$clone = self::cloneNode( $df, true );
 		'@phan-var DocumentFragment $clone'; // @var DocumentFragment $clone
+		return $clone;
+	}
+
+	/**
+	 * Deep clone a Document and its associated data bags
+	 */
+	public static function cloneDocument( Document $doc ): Document {
+		// Standard PHP clone works fine for the Document
+		$clone = clone $doc;
+		// But now we need to duplicate the extension data.
+		if ( self::isPrepared( $doc ) ) {
+			self::prepareDoc( $clone );
+			// Overwrite the empty Bag with a clone, after setting up
+			// to importNode rich data
+			self::setExtensionData( $doc, "cloneTarget", $clone );
+			self::setExtensionData( $clone, "bag", clone self::getBag( $doc ) );
+			self::removeExtensionData( $doc, "cloneTarget" );
+		}
 		return $clone;
 	}
 

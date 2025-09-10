@@ -82,4 +82,11 @@ class DataBag {
 			}
 		}
 	}
+
+	public function __clone() {
+		// The only thing which needs to be deep cloned is $dataObject
+		foreach ( $this->dataObject as $id => &$nodeData ) {
+			$nodeData = clone $nodeData;
+		}
+	}
 }

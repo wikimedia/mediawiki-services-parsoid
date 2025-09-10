@@ -492,4 +492,51 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		yield 'fragment bank serialization' => [ true ];
 		yield 'compatible serialization' => [ false ];
 	}
+
+	/**
+	 * @covers ::cloneDocument
+	 */
+	public function testCloneDocument() {
+		// Create a document with some data-parsoid and rich attributes
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>", [ 'markNew' => false, ]
+		);
+		$p = DOMCompat::querySelector( $doc, 'p' );
+		$p_dp = DOMDataUtils::getDataParsoid( $p );
+		$p_dp->src = "test1";
+		$df = DOMDataUtils::getAttributeDomDefault( $p, 'title' );
+		$this->assertSame( $doc, $df->ownerDocument );
+		DOMUtils::setFragmentInnerHTML( $df, '<b>be bold</b>' );
+		$b = DOMCompat::querySelector( $df, 'b' );
+		$b_dp = DOMDataUtils::getDataParsoid( $b );
+		$b_dp->src = "test2";
+		// Now give our rich attribute its own rich attribute
+		$dff = DOMDataUtils::getAttributeDomDefault( $b, 'title' );
+		$this->assertSame( $doc, $dff->ownerDocument );
+		DOMUtils::setFragmentInnerHTML( $dff, '<i>nice!</i>' );
+
+		// Now clone the document!
+		$doc2 = DOMDataUtils::cloneDocument( $doc );
+
+		// And verify that the info is the same, but not reference-equal
+		$this->assertNotSame( $doc, $doc2 );
+		$p2 = DOMCompat::querySelector( $doc2, 'p' );
+		$this->assertNotSame( $p, $p2 );
+		$p2_dp = DOMDataUtils::getDataParsoid( $p2 );
+		$this->assertNotSame( $p_dp, $p2_dp );
+		$this->assertSame( 'test1', $p2_dp->src );
+		$df2 = DOMDataUtils::getAttributeDom( $p2, 'title' );
+		$this->assertSame( $doc2, $df2->ownerDocument );
+		$this->assertNotSame( $df, $df2 );
+		$this->assertStringEndsWith( '>be bold</b>', DOMUtils::getFragmentInnerHTML( $df2 ) );
+		$b2 = DOMCompat::querySelector( $df2, 'b' );
+		$this->assertNotSame( $b, $b2 );
+		$b2_dp = DOMDataUtils::getDataParsoid( $b2 );
+		$this->assertNotSame( $b_dp, $b2_dp );
+		$this->assertSame( 'test2', $b2_dp->src );
+		$dff2 = DOMDataUtils::getAttributeDom( $b2, 'title' );
+		$this->assertSame( $doc2, $dff2->ownerDocument );
+		$this->assertNotSame( $dff, $dff2 );
+		$this->assertSame( '<i>nice!</i>', DOMUtils::getFragmentInnerHTML( $dff2 ) );
+	}
 }
