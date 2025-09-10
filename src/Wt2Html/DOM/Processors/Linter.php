@@ -1365,6 +1365,29 @@ class Linter implements Wt2HtmlDOMProcessor {
 		}
 	}
 
+	private function lintTemplateArgInExtensionTag(
+		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
+	): void {
+		if ( !WTUtils::isExtensionOutputtingCoreMwDomSpec( $node, $env ) ) {
+			return;
+		}
+
+		$matches = [];
+		$wikitext = preg_replace( '#<nowiki>(?:(?!</nowiki>).)*</nowiki>#', '', $dp->src );
+		if ( preg_match_all( '#{{{(?:(?!}}}).)*}}}#', $wikitext, $matches ) > 0 ) {
+			$tplLintInfo = self::findEnclosingTemplateName( $env, $tplInfo );
+			$lintObj = [
+				'dsr' => self::findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
+				'templateInfo' => $tplLintInfo,
+				'params' => [
+					'ext-name' => WTUtils::getExtTagName( $node ),
+					'details' => $matches[0],
+				]
+			];
+			$env->recordLint( 'template-arg-in-extension-tag', $lintObj );
+		}
+	}
+
 	/**
 	 * Log wikitext fixups
 	 */
@@ -1386,6 +1409,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
 		$this->lintIds( $env, $node, $dp, $tplInfo );
 		$this->lintTemplateInsideLink( $env, $node, $dp, $tplInfo );
+		$this->lintTemplateArgInExtensionTag( $env, $node, $dp, $tplInfo );
 	}
 
 	/**

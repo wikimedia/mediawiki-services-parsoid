@@ -619,6 +619,8 @@ class MockDataAccess extends DataAccess {
 				Title::newFromText( 'Category:Mangle', $this->siteConfig ),
 				'ho'
 			);
+		} elseif ( $wikitext === '{{template with ext tag}}' ) {
+			$ret = '<gallery>File:{{{1|some}}}-{{{2|name}}}.jpg</gallery>';
 		} elseif ( $wikitext === '{{loop}}' ) {
 			$lit = LiteralStringPFragment::newFromLiteral( 'meh', null );
 			$wt = '{{loop}}';
