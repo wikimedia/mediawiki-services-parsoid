@@ -3168,7 +3168,7 @@ return $this->traceCall(function($silence, &$param_th, &$param_preproc, &$param_
     }
     // free $p8,$r9,$r10,$r11
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }
@@ -4025,7 +4025,7 @@ return $this->traceCall(function($silence) {
       goto seq_2;
     }
     if ($this->currPos < $this->inputLength) {
-      self::advanceChar($this->input, $this->currPos);;
+      self::advanceChar($this->input, $this->currPos);
       $r9 = true;
     } else {
       $r9 = self::$FAILED;
@@ -5224,7 +5224,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       goto seq_3;
     }
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }
@@ -14686,7 +14686,7 @@ return $this->traceCall(function() {
       goto seq_2;
     }
     if ($this->currPos < $this->inputLength) {
-      self::advanceChar($this->input, $this->currPos);;
+      self::advanceChar($this->input, $this->currPos);
       $r9 = true;
     } else {
       $r9 = self::$FAILED;
@@ -18911,7 +18911,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
       goto seq_3;
     }
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       $this->currPos = $p13;
@@ -21819,7 +21819,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     // free $r18,$r23,$r13,$r27
     // free $p15,$r20,$r22,$r21
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }

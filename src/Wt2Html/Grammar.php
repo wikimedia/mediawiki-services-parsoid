@@ -3118,7 +3118,7 @@ private function parsetplarg_or_template_or_bust($silence, &$param_th, &$param_p
     }
     // free $p8,$r9,$r10,$r11
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }
@@ -3916,7 +3916,7 @@ private function parsecomment($silence) {
       goto seq_2;
     }
     if ($this->currPos < $this->inputLength) {
-      self::advanceChar($this->input, $this->currPos);;
+      self::advanceChar($this->input, $this->currPos);
       $r9 = true;
     } else {
       $r9 = self::$FAILED;
@@ -5094,7 +5094,7 @@ private function parseinlineline($silence, $boolParams, $param_tagType, &$param_
       goto seq_3;
     }
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }
@@ -14218,7 +14218,7 @@ private function discardcomment() {
       goto seq_2;
     }
     if ($this->currPos < $this->inputLength) {
-      self::advanceChar($this->input, $this->currPos);;
+      self::advanceChar($this->input, $this->currPos);
       $r9 = true;
     } else {
       $r9 = self::$FAILED;
@@ -18237,7 +18237,7 @@ private function discardinlineline($boolParams, $param_tagType, &$param_preproc,
       goto seq_3;
     }
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       $this->currPos = $p13;
@@ -20976,7 +20976,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
     // free $r18,$r23,$r13,$r25
     // free $p15,$r20,$r22,$r21
     if ($this->currPos < $this->inputLength) {
-      $r7 = self::consumeChar($this->input, $this->currPos);;
+      $r7 = self::consumeChar($this->input, $this->currPos);
     } else {
       $r7 = self::$FAILED;
       if (!$silence) { $this->fail(17); }
