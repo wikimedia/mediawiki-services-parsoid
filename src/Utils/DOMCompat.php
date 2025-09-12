@@ -130,6 +130,7 @@ class DOMCompat {
 	 *   change in the future to be standards-compliant.
 	 */
 	public static function nodeName( Node $node ): string {
+		PHPUtils::deprecated( __METHOD__, "0.22" );
 		return DOMUtils::nodeName( $node );
 	}
 
