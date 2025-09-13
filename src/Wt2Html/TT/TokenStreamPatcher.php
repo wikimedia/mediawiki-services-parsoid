@@ -32,7 +32,11 @@ use Wikimedia\WikiPEG\SyntaxError;
 class TokenStreamPatcher extends LineBasedHandler {
 	private ?int $srcOffset;
 	private bool $sol;
-	private array $tokenBuf;
+	/**
+	 * This buffers whitespace, nls, and rendering-transparent tokens
+	 * like category link tags.
+	 */
+	private array $nlWsMetaTokenBuf;
 	private int $wikiTableNesting;
 	/** True only for top-level & attribute value pipelines */
 	private bool $inIndependentParse;
@@ -62,10 +66,19 @@ class TokenStreamPatcher extends LineBasedHandler {
 	private function reset(): void {
 		$this->srcOffset = 0;
 		$this->sol = true;
-		$this->tokenBuf = [];
+		$this->nlWsMetaTokenBuf = [];
 		$this->wikiTableNesting = 0;
 		$this->tplInfo = null;
 		$this->trReparseBuf = null;
+	}
+
+	private function getResultTokens( array $ret ): array {
+		// Emit buffered newlines (and a transclusion meta-token, if any)
+		if ( count( $this->nlWsMetaTokenBuf ) > 0 ) {
+			$ret = array_merge( $this->nlWsMetaTokenBuf, $ret );
+			$this->nlWsMetaTokenBuf = [];
+		}
+		return $ret;
 	}
 
 	/**
@@ -80,15 +93,18 @@ class TokenStreamPatcher extends LineBasedHandler {
 			}
 		);
 		if ( $this->trReparseBuf ) {
-			$this->processTrReparseBuf( $token );
+			$ret = $this->processTrReparseBuf( $token );
 			$this->trReparseBuf = null;
+		} else {
+			$ret = [];
 		}
 		// These need to be after reprocessing to ensure
 		// we always end up in the correct state after.
 		$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
 		$this->sol = true;
-		$this->tokenBuf[] = $token;
-		return [];
+		$this->nlWsMetaTokenBuf[] = $token;
+		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $ret );
+		return $ret;
 	}
 
 	/**
@@ -96,13 +112,15 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 */
 	public function onEnd( EOFTk $token ): ?array {
 		if ( $this->trReparseBuf ) {
-			$this->processTrReparseBuf();
+			$ret = $this->processTrReparseBuf();
 			$this->trReparseBuf = null;
+		} else {
+			$ret = [];
 		}
-		$res = $this->onAny( $token );
+		PHPUtils::pushArray( $ret, $this->onAny( $token ) );
 		$this->reset();
-		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $res );
-		return $res;
+		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $ret );
+		return $ret;
 	}
 
 	/**
@@ -143,13 +161,15 @@ class TokenStreamPatcher extends LineBasedHandler {
 		return $toks;
 	}
 
-	private function reprocessTrReparseBufViaOnAny(): void {
+	private function reprocessTrReparseBufViaOnAny(): array {
 		// Reset state for reprocessing
 		$this->tplInfo = $this->trReparseBuf['trTplInfo'];
 		$this->clearSOL();
 		// Pop tr & reset trReparseBuf -- we don't want to repopulate trReparseBuf!
 		$tokens = $this->trReparseBuf['tokens'];
-		$this->tokenBuf[] = array_shift( $tokens );
+		$ret = $this->nlWsMetaTokenBuf;
+		$ret[] = array_shift( $tokens );
+		$this->nlWsMetaTokenBuf = [];
 		$this->trReparseBuf = null;
 
 		// Reprocess the rest
@@ -158,16 +178,17 @@ class TokenStreamPatcher extends LineBasedHandler {
 		foreach ( $tokens as $tok ) {
 			$res = $this->onAnyInternal( $tok );
 			if ( $res ) {
-				PHPUtils::pushArray( $this->tokenBuf, $res );
+				PHPUtils::pushArray( $ret, $res );
 			}
 		}
 		$this->env->trace( 'tsp', $this->pipelineId, "*** END REPROCESSING BUFFER ***" );
+		return $ret;
 	}
 
 	/**
 	 * If $nlTk is null, this is EOF scenario
 	 */
-	private function processTrReparseBuf( ?NlTk $nlTk = null ): void {
+	private function processTrReparseBuf( ?NlTk $nlTk = null ): array {
 		if ( isset( $this->trReparseBuf['endMeta'] ) ) {
 			// We have to parse these buffered tokens as attribute of the <tr>
 			if ( $this->tplInfo !== null ) {
@@ -176,8 +197,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 				// the <tr>'s attributes that came from a different template.
 				//
 				// So, bail and let things be as is.
-				$this->reprocessTrReparseBufViaOnAny();
-				return;
+				return $this->reprocessTrReparseBufViaOnAny();
 			}
 
 			$frameSrc = $this->manager->getFrame()->getSrcText();
@@ -192,8 +212,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 			// Stitch new wikitext to include content found after template-end-meta
 			$extraAttrSrc = substr( $frameSrc, $metaEndTSR, $lineEndTSR - $metaEndTSR );
 			if ( !$extraAttrSrc ) {
-				$this->reprocessTrReparseBufViaOnAny();
-				return;
+				return $this->reprocessTrReparseBufViaOnAny();
 			}
 
 			$toks = $this->trReparseBuf['tokens'];
@@ -222,19 +241,19 @@ class TokenStreamPatcher extends LineBasedHandler {
 			// Drop the original TR from the buffered tokens
 			array_shift( $this->trReparseBuf['tokens'] );
 
-			// Add the new TR tokens to the token buf
-			PHPUtils::pushArray( $this->tokenBuf, $newTRTokens );
-
 			// * Tokens between tr & endMeta have to be trailing comments or WS
 			//   because anything else would have been tokenized by the grammar
 			//   as the tr's attributes.
 			// * All tokens after this have been absorbed into $tr's attributes
-			$this->tokenBuf[] = $endMeta;
+			$newTRTokens[] = $endMeta;
 
 			// Update endMeta TSR since it now wraps the entire line
 			$endMeta->dataParsoid->tsr->end = $lineEndTSR;
+			return $this->getResultTokens( $newTRTokens );
 		} elseif ( isset( $this->trReparseBuf['tokens'] ) ) {
-			$this->reprocessTrReparseBufViaOnAny();
+			return $this->reprocessTrReparseBufViaOnAny();
+		} else {
+			return [];
 		}
 	}
 
@@ -330,20 +349,32 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 */
 	public function onAnyInternal( $token ): ?array {
 		if ( $this->trReparseBuf !== null ) {
-			if ( $token instanceof SelfclosingTagTk ) {
-				if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
-					if ( !isset( $this->trReparseBuf['endMeta'] ) ) {
-						$this->trReparseBuf['endMeta'] = $token;
+			if ( $token instanceof XMLTagTk &&
+				in_array( $token->getName(), [ 'td', 'th', 'tr', 'caption', 'table' ], true )
+			) {
+				// Abort token gluing if we encounter a table tag. This effectively
+				// implies that we are missing a newline in the token stream.
+				// This can happen because we lost a newline during preprocessing.
+				// Ex: {{1x|1=\nx\n}} strips the newlines.
+				$tokens = $this->reprocessTrReparseBufViaOnAny();
+			} else {
+				if ( $token instanceof SelfclosingTagTk ) {
+					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
+						if ( !isset( $this->trReparseBuf['endMeta'] ) ) {
+							$this->trReparseBuf['endMeta'] = $token;
+						}
+						$this->tplInfo = null;
+					} elseif ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
+						$this->tplInfo = [ 'startMeta' => $token, 'atStart' => true ];
 					}
-					$this->tplInfo = null;
-				} elseif ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
-					$this->tplInfo = [ 'startMeta' => $token, 'atStart' => true ];
 				}
+				// Buffer and return.
+				// The buffer will be reprocessed when a NlTk is encountered.
+				$this->trReparseBuf['tokens'][] = $token;
+				return [];
 			}
-			// Buffer and return. The buffer will be reprocessed
-			// when a NlTk is encountered.
-			$this->trReparseBuf['tokens'][] = $token;
-			return [];
+		} else {
+			$tokens = [];
 		}
 
 		$this->env->trace( 'tsp', $this->pipelineId,
@@ -354,14 +385,14 @@ class TokenStreamPatcher extends LineBasedHandler {
 			}
 		);
 
-		$tokens = [ $token ];
+		$tokens[] = $token;
 		switch ( true ) {
 			case is_string( $token ):
 				// While we are buffering newlines to suppress them
 				// in case we see a category, buffer all intervening
 				// white-space as well.
-				if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/D', $token ) ) {
-					$this->tokenBuf[] = $token;
+				if ( count( $this->nlWsMetaTokenBuf ) > 0 && preg_match( '/^\s*$/D', $token ) ) {
+					$this->nlWsMetaTokenBuf[] = $token;
 					return [];
 				}
 
@@ -382,7 +413,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 					// only occurs if we weren't already at the start of
 					// the line (see discussion in ::onNewline() above).
 					if ( !$this->sol ) {
-						$this->tokenBuf[] = new NlTk( null );
+						$this->nlWsMetaTokenBuf[] = new NlTk( null );
 						$this->sol = true;
 					}
 				}
@@ -434,10 +465,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 					$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
 						$this->tplInfo = [ 'startMeta' => $token, 'atStart' => true ];
-						if ( count( $this->tokenBuf ) > 0 ) {
+						if ( count( $this->nlWsMetaTokenBuf ) > 0 ) {
 							// If we have buffered newlines, we might very well encounter
 							// a category link, so continue buffering.
-							$this->tokenBuf[] = $token;
+							$this->nlWsMetaTokenBuf[] = $token;
 							return [];
 						}
 					} elseif ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
@@ -448,26 +479,26 @@ class TokenStreamPatcher extends LineBasedHandler {
 					// This tunnels them through the rest of the transformations
 					// without affecting them. During HTML building, they are expanded
 					// back to newlines / whitespace.
-					$n = count( $this->tokenBuf );
+					$n = count( $this->nlWsMetaTokenBuf );
 					if ( $n > 0 ) {
 						$i = 0;
 						while ( $i < $n &&
-							!( $this->tokenBuf[$i] instanceof SelfclosingTagTk )
+							!( $this->nlWsMetaTokenBuf[$i] instanceof SelfclosingTagTk )
 						) {
 							$i++;
 						}
 
 						$toks = [
-							new EmptyLineTk( array_slice( $this->tokenBuf, 0, $i ) )
+							new EmptyLineTk( array_slice( $this->nlWsMetaTokenBuf, 0, $i ) )
 						];
 						if ( $i < $n ) {
-							$toks[] = $this->tokenBuf[$i];
+							$toks[] = $this->nlWsMetaTokenBuf[$i];
 							if ( $i + 1 < $n ) {
-								$toks[] = new EmptyLineTk( array_slice( $this->tokenBuf, $i + 1 ) );
+								$toks[] = new EmptyLineTk( array_slice( $this->nlWsMetaTokenBuf, $i + 1 ) );
 							}
 						}
 						$tokens = array_merge( $toks, $tokens );
-						$this->tokenBuf = [];
+						$this->nlWsMetaTokenBuf = [];
 					}
 					$this->clearSOL();
 				} else {
@@ -519,12 +550,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 				break;
 		}
 
-		// Emit buffered newlines (and a transclusion meta-token, if any)
-		if ( count( $this->tokenBuf ) > 0 ) {
-			$tokens = array_merge( $this->tokenBuf, $tokens );
-			$this->tokenBuf = [];
-		}
-
+		$tokens = $this->getResultTokens( $tokens );
 		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $tokens );
 		return $tokens;
 	}

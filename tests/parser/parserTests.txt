@@ -5806,6 +5806,26 @@ parsoid=wt2html,wt2wt
 </tbody></table>
 !! end
 
+!! test
+5. Non-token gluing scenario across multiple lines and templates
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}-
+}}{{1x|{{!}}} }}
+[[Category:Foo]]
+!! html/php
+<table>
+</table>
+!! html/parsoid+integrated
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}-"}},"i":0}},{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}} "}},"i":1}}]}'>
+</table><span about="#mwt1"> </span>
+<link rel="mw:PageProp/Category" href="./Category:Foo"/>
+!! end
+
+
 ###
 ### Testing parsing of templates where a template arg
 ### has the same name as the template itself.
