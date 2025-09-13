@@ -892,6 +892,7 @@ ipv6urladdr =
  * and close as we find them.
  */
 tplarg_or_template =
+	&'{{#' t:template3 { return $t; }  /
 	&'{{'
 	@(
 		&('{{' &(triple_brace+ not_a_brace) tplarg) @(template/broken_template)
@@ -901,6 +902,18 @@ tplarg_or_template =
 		/ @$('{' &('{{' not_a_brace))? @template
 		/ broken_template
 	)
+
+template3 =
+	&"{{" p:preproc_piece<&preproc_sol=false>
+	&{ return $p instanceof PreprocTk && $p->type === PreprocType::BRACE && $p->count == 2; }
+{
+	// $p is cachable, so clone its dataParsoid to ensure we don't mutate it
+	$dp = clone $p->dataParsoid;
+	$dp->src = $this->text();
+	return new SelfclosingTagTk(
+	  'template3', $p->getBarredArgs(), $dp
+	);
+}
 
 tplarg_or_template_or_bust =
 	r:(tplarg_or_template / .)+ { return TokenizerUtils::flattenIfArray( $r ); }

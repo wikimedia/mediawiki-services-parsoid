@@ -74,8 +74,8 @@ interface Arguments {
 	 *  provided as they exist in the source: unexpanded and
 	 *  untrimmed.  In addition to passing a boolean, an array of
 	 *  booleans can be passed, which specifies the desired value of
-	 *  $expandAndTrim for each ordered argument; missing entries
-	 *  default to `true`.
+	 *  $expandAndTrim for each ordered argument (starting at 0); missing
+	 *  entries default to `true`.
 	 * @return list<PFragment> The ordered argument list.  The first
 	 *  argument is at index 0, as is conventional for PHP arrays.
 	 */

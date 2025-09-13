@@ -22,3 +22,13 @@ a {{#if:foo|bar|baz}} b
 !! html/parsoid
 <p>a <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#if:foo","function":"if"},"params":{"1":{"wt":"bar"},"2":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
 !! end
+
+!! test
+Handle comments around the function name for v3 parser functions
+!! config
+wgParsoidExperimentalParserFunctionOutput=true
+!! wikitext
+a {{#<!-- oh -->if<!-- no -->:f<!-- in arg -->oo|bar|baz}} b
+!! html/parsoid
+<p data-parsoid='{"dsr":[0,23,0,0]}'>a <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/if" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]],"dsr":[2,21,null,null]}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#&lt;!-- oh -->if&lt;!-- no -->","key":"if"},"params":{"1":{"wt":"f&lt;!-- in arg -->oo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
+!! end

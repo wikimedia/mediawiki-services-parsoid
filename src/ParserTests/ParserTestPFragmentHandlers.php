@@ -42,7 +42,10 @@ class ParserTestPFragmentHandlers {
 			// and as cases in ::getHandler() below.
 			'f1_wt', 'f2_if', 'f3_uc',
 			'f4_return_html', 'f5_from_nowiki',
-			'f7_kv', 'f8_countargs', 'f9_comment'
+			'f7_kv', 'f8_countargs', 'f9_comment',
+			// Numbering these leads to patch conflicts; use 'pfh_' as the
+			// prefix from now on:
+			"pfh_countnamedargs"
 		];
 		$handlerFactory = self::class . '::getHandler';
 		$pFragmentConfig = array_map( static fn ( $key ) => [
@@ -312,6 +315,23 @@ class ParserTestPFragmentHandlers {
 					) {
 						return HtmlPFragment::newFromHtmlString(
 							'<!-- WARNING: template omitted, post-expand include size too large -->',
+							null
+						);
+					}
+				};
+
+			case 'pfh_countnamedargs':
+				// This is a test function which simply reports the number
+				// of named arguments.
+				return new class extends PFragmentHandler {
+					/** @inheritDoc */
+					public function sourceToFragment(
+						ParsoidExtensionAPI $extApi,
+						Arguments $arguments,
+						bool $tagSyntax
+					) {
+						return LiteralStringPFragment::newFromLiteral(
+							strval( count( $arguments->getNamedArgs( $extApi ) ) ),
 							null
 						);
 					}

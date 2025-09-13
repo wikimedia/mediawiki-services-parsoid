@@ -148,6 +148,7 @@ $cfg['suppress_issue_types'][] = 'PhanTypePossiblyInvalidDimOffset';
 $cfg['suppress_issue_types'][] = 'PhanUnusedPrivateMethodParameter';
 $cfg['suppress_issue_types'][] = 'PhanThrowTypeAbsent';
 $cfg['suppress_issue_types'][] = 'PhanCompatibleTrailingCommaParameterList';
+$cfg['suppress_issue_types'][] = 'PhanInvalidFQSENInCallable';
 
 // This is too spammy for now. TODO enable
 $cfg['null_casts_as_any_type'] = true;

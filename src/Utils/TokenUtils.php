@@ -70,7 +70,7 @@ class TokenUtils {
 	 */
 	public static function isTemplateToken( $token ): bool {
 		return $token instanceof SelfclosingTagTk &&
-			in_array( $token->getName(), [ 'template', 'templatearg' ], true );
+			in_array( $token->getName(), [ 'template', 'template3', 'templatearg' ], true );
 	}
 
 	/**

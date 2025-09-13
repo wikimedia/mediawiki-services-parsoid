@@ -84,13 +84,13 @@ parsoid=wt2html,wt2wt
 !! html/parsoid+standalone
 <p>0 args: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span> (no output)</p>
 
-<p>1 arg: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
+<p>1 arg: <span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 
-<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#f1_wt_nohash:foo","function":"f1_wt_nohash"},"params":{},"i":0}}]}'>Parser function implementation for pf_f1_wt_nohash missing in Parsoid.</span></p>
+<p><span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#f1_wt_nohash:foo","function":"f1_wt_nohash"},"params":{},"i":0}}]}'>Parser function implementation for pf_f1_wt_nohash missing in Parsoid.</span></p>
 !! html/parsoid+integrated
 <p>0 args: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span> (no output)</p>
 
-<p>1 arg: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
+<p>1 arg: <span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#f1_wt_nohash:foo","function":"f1_wt_nohash"},"params":{},"i":0}}]}'>{{#f1_wt_nohash:foo}}</span></p>
 !! end
@@ -146,9 +146,9 @@ cat
 parsoid=wt2html,wt2wt
 !! wikitext
 {{#f2_if:1|{{1x|[[Category:Foo]]}}|{{1x|[[Category:Bar]]}}}}
-!! metadata/parsoid
+!! metadata/parsoid+integrated
 cat=Foo sort=
-!! html/parsoid
+!! html/parsoid+integrated
 <link rel="mw:PageProp/Category" href="./Category:Foo" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"1"},"2":{"wt":"{{1x|[[Category:Foo]]}}"},"3":{"wt":"{{1x|[[Category:Bar]]}}"}},"i":0}}]}'/>
 !! end
 
@@ -258,19 +258,19 @@ parsoid=wt2html
 !! wikitext
 {{#f7_kv:foo=bar|bat=baz}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"1":{"wt":"foo=bar"},"2":{"wt":"bat=baz"}},"i":0}}]}'>(arguments)</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"foo":{"wt":"bar","order":1},"bat":{"wt":"baz","order":2}},"i":0}}]}'>(arguments)</span></p>
 !! end
 
-# TODO T390344: named arguments (add back wt2wt mode once fixed)
-# TODO T390347: argument interpolation
+# T390345: core doesn't know how to invoke the PFragmentHandler for {{#f7_kv}}
 !! test
 f7_kv: ordered argument chaining
 !! options
 parsoid=wt2html
+disabled
 !! wikitext
-{{#f1_wt:A|{{#f7_kv:B|C}}|D}}
+{{#f1_wt:A|...={{#f7_kv:B|C}}|D}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>A B C D</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"1":{"wt":"A"},"...":{"wt":"{{#f7_kv:B|C}}","order":2},"2":{"wt":"D","order":3}},"i":0}}]}'>A B C D</span></p>
 !! end
 
 !! test
@@ -291,15 +291,40 @@ parsoid=wt2html
 </ul>
 !! end
 
-# Disabled because named arguments aren't yet supported
 !! test
 f8_countargs: verify numeric argument name handling
 !! options
-parsoid=wt2html
-disabled
+parsoid=wt2html,html2wt
 !! wikitext
 * Two: {{#f8_countargs:1=1|2=2}}
 !! html/parsoid+integrated
+<ul>
+<li>Two: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"1","eq":true},"2":{"wt":"2","eq":true}},"i":0}}]}'>2</span></li>
+</ul>
+!! end
+
+!! test
+f8_countargs: handling duplicate arguments (ordered)
+!! options
+parsoid=wt2html,html2wt
+!! wikitext
+* Six: {{#f8_countargs:1|4|2=2|foo=bar|3|foo=bat}}
+!! html/parsoid+integrated
+<ul>
+<li>Six: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"1"},"2":{"wt":"4"},"=2=2":{"wt":"2","eq":true,"order":3},"foo":{"wt":"bar","order":4},"3":{"wt":"3","order":5},"=5=foo":{"wt":"bat","order":6}},"i":0}}]}'>6</span></li>
+</ul>
+!! end
+
+!! test
+pfh_countnamedargs: handling duplicate arguments (named)
+!! options
+parsoid=wt2html,html2wt
+!! wikitext
+* Four: {{#pfh_countnamedargs:1|4|2=2|foo=bar|3|foo=bat}}
+!! html/parsoid+integrated
+<ul>
+<li>Four: <span typeof="mw:Transclusion mw:ParserFunction/pfh_countnamedargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#pfh_countnamedargs","key":"pfh_countnamedargs"},"params":{"1":{"wt":"1"},"2":{"wt":"4"},"=2=2":{"wt":"2","eq":true,"order":3},"foo":{"wt":"bar","order":4},"3":{"wt":"3","order":5},"=5=foo":{"wt":"bat","order":6}},"i":0}}]}'>4</span></li>
+</ul>
 !! end
 
 ## Regression test for T408958

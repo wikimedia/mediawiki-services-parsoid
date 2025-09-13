@@ -5,10 +5,13 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Wt2Html;
 
 use Wikimedia\JsonCodec\Hint;
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\Fragments\HtmlPFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\PreprocTk;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\CompatJsonCodec;
 use Wikimedia\Parsoid\Utils\DOMDataCodec;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
@@ -627,6 +630,32 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 		];
 		yield "<pre><pre><pre><pre>" => [
 			'', "<pre>", '', 40
+		];
+	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\Grammar
+	 * @covers ::tokenizeTemplate3
+	 * @dataProvider provideTokenizerTemplate3
+	 */
+	public function testTokenizerTemplate3( $input, $expected ) {
+		$env = new MockEnv( [] );
+		$pt = new PegTokenizer( $env );
+		$source = new SourceString( $input );
+		$r = $pt->tokenizeTemplate3( $input, SourceRange::fromSource( $source ) );
+		$codec = new CompatJsonCodec;
+		$hint = Token::hint();
+		if ( is_array( $r ) ) {
+			$hint = new Hint( $hint, Hint::LIST );
+		}
+		$actual = $codec->toJsonString( $r, $hint );
+		$this->assertSame( $expected, $actual );
+	}
+
+	public static function provideTokenizerTemplate3() {
+		yield "Parser function" => [
+			"{{#foo:bar|bat|baz=barmy|=rah|ext=<pre>foo</pre>|pf={{pf}}}}",
+			'{"type":"SelfclosingTagTk","name":"template3","attribs":[{"k":["#foo:bar"],"v":"","srcOffsets":[2,10,10,10]},{"k":[""],"v":["bat"],"srcOffsets":[11,11,11,14]},{"k":["baz"],"v":["barmy"],"srcOffsets":[15,18,19,24]},{"k":[""],"v":["rah"],"srcOffsets":[25,25,26,29]},{"k":["ext"],"v":[{"type":"PreprocAngleTk","open":"pre","extAttrs":"","close":"\u003C/pre\u003E","attribs":[{"k":"mw:contents","v":["foo"],"srcOffsets":[39,39,39,42]}],"dataParsoid":{"tsr":[34,48],"extTagOffsets":[34,48,5,6]}}],"srcOffsets":[30,33,34,48]},{"k":["pf"],"v":[{"type":"PreprocTk","open":"{","count":2,"attribs":[{"k":"mw:contents","v":["pf"],"srcOffsets":[54,54,54,56]}],"dataParsoid":{"tsr":[52,58]}}],"srcOffsets":[49,51,52,58]}],"dataParsoid":{"tsr":[0,60],"src":"{{#foo:bar|bat|baz=barmy|=rah|ext=\u003Cpre\u003Efoo\u003C/pre\u003E|pf={{pf}}}}"}}'
 		];
 	}
 }

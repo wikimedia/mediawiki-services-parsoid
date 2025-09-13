@@ -476,7 +476,7 @@ class TokenizerUtils {
 		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
 			$resource = match ( $token->getName() ) {
 				'listItem' => 'listItem',
-				'template' => 'transclusion',
+				'template', 'template3' => 'transclusion',
 				'td',
 				'th' => 'tableCell',
 				default => null

@@ -15,6 +15,9 @@ use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\PreprocAngleTk;
+use Wikimedia\Parsoid\Tokens\PreprocTk;
+use Wikimedia\Parsoid\Tokens\PreprocType;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -29,6 +32,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Params;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
@@ -132,6 +136,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 	 * @return list{string, ?array<Token|string>} first element is always a string
 	 */
 	private function processToString( array $tokens ): array {
+		// Handle preprocessed input: strip comments and annotations
+		$tokens = $this->processPreprocToString( $tokens );
+		// Now convert the other tokens to string form
 		$maybeTarget = TokenUtils::tokensToString( $tokens, true, [ 'retainNLs' => true ] );
 		if ( !is_array( $maybeTarget ) ) {
 			return [ $maybeTarget, null ];
@@ -235,6 +242,50 @@ class TemplateHandler extends XMLTagBasedHandler {
 		return [ $preNlContent . $buf, null ];
 	}
 
+	private function processPreprocToString( array $tokens, ?array &$result = null ): array {
+		$result ??= [];
+		foreach ( $tokens as $t ) {
+			$includeContents = false;
+			$skip = false;
+			if ( $t instanceof PreprocAngleTk ) {
+				$name = $t->name();
+				switch ( $name ) {
+					case 'onlyinclude':
+						$includeContents = true;
+						break;
+					case 'noinclude':
+						if ( $this->options['inTemplate'] ) {
+							$skip = true;
+						} else {
+							$includeContents = true;
+						}
+						break;
+					case 'includeonly':
+						if ( $this->options['inTemplate'] ) {
+							$includeContents = true;
+						} else {
+							$skip = true;
+						}
+						break;
+					default:
+						if ( WTUtils::isAnnotationTag( $this->env, $name ) ) {
+							// Ignore annotations in template targets (T295834)
+							$includeContents = true;
+						}
+						break;
+				}
+			} elseif ( $t instanceof PreprocTk && $t->type === PreprocType::COMMENT ) {
+				$skip = true;
+			}
+			if ( $includeContents ) {
+				$this->processPreprocToString( $t->getContents(), $result );
+			} elseif ( !$skip ) {
+				$result[] = $t;
+			}
+		}
+		return $result;
+	}
+
 	/**
 	 * Is the prefix "safesubst"
 	 * @param string $prefix
@@ -262,8 +313,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 			$target = $targetToks;
 		} else {
 			$toks = !is_array( $targetToks ) ? [ $targetToks ] : $targetToks;
-			$toks = $this->processToString( $toks );
-			[ $target, $additionalToks ] = $toks;
+			[ $target, $additionalToks ] = $this->processToString( $toks );
 		}
 
 		$target = trim( $target );
@@ -431,15 +481,15 @@ class TemplateHandler extends XMLTagBasedHandler {
 	/**
 	 * By default, don't attempt to expand any templates in the wikitext that will be reprocessed.
 	 *
-	 * @param Token $token
+	 * @param XMLTagTk $token
 	 * @param bool $expandTemplates
 	 * @return TemplateExpansionResult
 	 */
-	private function convertToString( Token $token, bool $expandTemplates = false ): TemplateExpansionResult {
+	private function convertToString( XMLTagTk $token, bool $expandTemplates = false ): TemplateExpansionResult {
 		$frame = $this->manager->getFrame();
 		$tsr = $token->dataParsoid->tsr;
-		$src = substr( $token->dataParsoid->src, 1, -1 );
-		$startOffset = $tsr->start + 1;
+		$src = substr( $token->dataParsoid->src, 2, -2 );
+		$startOffset = $tsr->start + 2;
 		$srcOffsets = new SourceRange( $startOffset, $startOffset + strlen( $src ), $tsr->source );
 
 		$toks = PipelineUtils::processContentInPipeline(
@@ -456,7 +506,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 			]
 		);
 		TokenUtils::stripEOFTkFromTokens( $toks );
-		return new TemplateExpansionResult( array_merge( [ '{' ], $toks, [ '}' ] ), true );
+		return new TemplateExpansionResult( array_merge( [ '{{' ], $toks, [ '}}' ] ), true );
 	}
 
 	/**
@@ -748,12 +798,16 @@ class TemplateHandler extends XMLTagBasedHandler {
 		$env = $this->env;
 		$token = $state->token;
 		$expandTemplates = $this->options['expandTemplates'];
+		$isTemplate3 = ( $token->getName() === 'template3' );
 
 		// Since AttributeExpander runs later in the pipeline than TemplateHandler,
 		// if the template name is templated, use our copy of AttributeExpander
 		// to process the first attribute to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
-		if ( $expandTemplates && TokenUtils::hasTemplateToken( $token->attribs[0]->k ) ) {
+		// FIXME: we should eventually make this work for template3 tokens,
+		// which would require tokenizing $token->attribs[0]->k and then
+		// converting the result to a string and preprocessing it.
+		if ( $expandTemplates && TokenUtils::hasTemplateToken( $token->attribs[0]->k ) && !$isTemplate3 ) {
 			$ret = $this->ae->expandFirstAttribute( $token );
 			Assert::invariant( $ret === [ $token ],
 				"Expected only the input token as the return value." );
@@ -805,18 +859,28 @@ class TemplateHandler extends XMLTagBasedHandler {
 					'parseOpts' => $this->options,
 				],
 			] );
-			$args = [];
-			// Don't pass '' as the "1st argument" if the parser function
-			// didn't have a colon delimiter.
-			if ( count( $token->attribs ) > 1 || $tgt['haveColon'] ) {
-				// Trim before colon to make first argument
-				$args[] = new KV( '', $tgt['pfArg'], $tgt['srcOffsets']->expandTsrV() );
+			if ( !$isTemplate3 ) {
+				// Retokenize!
+				$tokenizer = new PegTokenizer( $env );
+				$origToken = $token;
+				$token = $tokenizer->tokenizeTemplate3(
+					$token->dataParsoid->src, $token->dataParsoid->tsr
+				);
+				if ( $token === false ) {
+					return $this->convertToString( $origToken );
+				}
 			}
-			for ( $i = 1; $i < count( $token->attribs ); $i++ ) {
-				$args[] = $token->attribs[$i];
+			$args = $token->attribs;
+			if ( isset( $tgt['isVariable'] ) || isset( $tgt['isParserFunction'] ) ) {
+				$hasColon = false;
+				$args = TemplateEncapsulator::adjustParserFunctionArg0( $args, $hasColon );
+				if ( $hasColon ) {
+					$state->token->dataParsoid->colon = true;
+				}
 			}
-			// FIXME: this will be refactored to use the tokenizer (T390344)
-			$arguments = new TemplateHandlerArguments( $env, $frame, $args );
+			// discard the target
+			array_shift( $args );
+			$arguments = new TemplateHandlerArguments( $args );
 			$hasAsyncContent = $tgt['handlerOptions']['hasAsyncContent'] ?? false;
 			if ( $hasAsyncContent ) {
 				// The HAS_ASYNC_CONTENT flag needs to be set by the fragment
@@ -872,6 +936,14 @@ class TemplateHandler extends XMLTagBasedHandler {
 		}
 
 		if ( $env->nativeTemplateExpansionEnabled() ) {
+			if ( $isTemplate3 ) {
+				// Retokenize for compatibility
+				$tokenizer = new PegTokenizer( $env );
+				$token = $tokenizer->tokenizeTemplate(
+					$token->dataParsoid->src, $token->dataParsoid->tsr
+				);
+				Assert::invariant( $token !== false, "Failed to retokenize" );
+			}
 			// Expand argument keys
 			$newAttribs = AttributeTransformManager::process(
 				$frame,
@@ -1039,7 +1111,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 	/** @inheritDoc */
 	public function onTag( XMLTagTk $token ): ?array {
 		return match ( $token->getName() ) {
-			'template' => $this->onTemplate( $token ),
+			'template', 'template3' => $this->onTemplate( $token ),
 			'templatearg' => $this->onTemplateArg( $token ),
 			default => null
 		};

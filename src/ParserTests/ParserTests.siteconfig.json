@@ -49,6 +49,11 @@
 			"name": "f9_comment",
 			"aliases": [ "f9_comment" ],
 			"case-sensitive": true
+		},
+		{
+			"name": "pfh_countnamedargs",
+			"aliases": [ "pfh_countnamedargs" ],
+			"case-sensitive": true
 		}
 	]
 }

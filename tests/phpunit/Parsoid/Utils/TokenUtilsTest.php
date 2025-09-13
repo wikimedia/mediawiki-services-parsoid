@@ -64,6 +64,16 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 			'isTemplateToken' => true,
 		],
 		[
+			'name' => 'template3 token',
+			'token' => [
+				'type' => 'SelfclosingTagTk',
+				'name' => 'template3',
+				'attribs' => [],
+			],
+			'getTokenType' => 'SelfclosingTagTk',
+			'isTemplateToken' => true,
+		],
+		[
 			'name' => 'html tag token',
 			'token' => [
 				'type' => 'TagTk',

@@ -124,12 +124,6 @@ class TemplateEncapsulator {
 		$src = $this->frame->getSource();
 		$params = $this->token->attribs;
 
-		$tgtSrcOffsets = $params[0]->srcOffsets;
-		if ( $tgtSrcOffsets ) {
-			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
-			$ret->targetWt = $tplTgtWT;
-		}
-
 		// Add in tpl-target/pf-name info
 		// Only one of these will be set.
 		if ( $this->variableName !== null ) {
@@ -143,9 +137,25 @@ class TemplateEncapsulator {
 			$ret->href = $this->resolvedTemplateTarget;
 		}
 
+		// If this was tokenized as a 'template3' the ParamInfos are
+		// prepared from the "preprocessed" arguments.
+		if ( $this->token->getName() === 'template3' ) {
+			$ret->paramInfos =
+				$this->prepareTemplate3ParamInfos( $src, $ret, $params );
+			return $ret;
+		}
+
+		// For 'template' tokens we need to construct ParamInfo from
+		// the the tokenized arguments.
+		$tgtSrcOffsets = $params[0]->srcOffsets;
+		if ( $tgtSrcOffsets ) {
+			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
+			$ret->targetWt = $tplTgtWT;
+		}
+
 		// Parser functions in the legacy parser do not support named
-		// parameters (T204307).  Our new V3 parser function will,
-		// but it will be tokenized differently to enable that (T394834).
+		// parameters (T204307).  (Our new V3 parser functions do,
+		// but only if tokenized as a 'template3'.)
 		$onlyNumericParams = $ret->func;
 
 		$ret->paramInfos = $onlyNumericParams ?
@@ -225,6 +235,95 @@ class TemplateEncapsulator {
 		}
 
 		return $paramInfos;
+	}
+
+	/**
+	 * Prepare TemplateInfo/ParamInfo information for a transclusion
+	 * tokenized as `template3`.
+	 *
+	 * @param Source $src
+	 * @param TemplateInfo $ti Used to update $ti->targetWt when the
+	 *   first argument is delimited by a colon.
+	 * @param array<KV> $params
+	 * @return list<ParamInfo>
+	 */
+	private function prepareTemplate3ParamInfos(
+		Source $src, TemplateInfo $ti, array $params
+	): array {
+		// For parser functions, split first argument at colon
+		$hasColon = false;
+		if ( $ti->func ) {
+			$params = self::adjustParserFunctionArg0( $params, $hasColon );
+		}
+		$arg0 = array_shift( $params );
+		$ti->targetWt = PreprocTk::printContents(
+			PreprocTk::newContentsKV( $arg0->k, null ), false
+		);
+		// Create argument ParamInfo
+		$stringify = static fn ( $contents ) => PreprocTk::printContents(
+			PreprocTk::newContentsKV( $contents, null ), false
+		);
+		$unnamedIdx = 1;
+		$paramInfos = array_map( function ( $param ) use ( $stringify, &$unnamedIdx ) {
+			$named = $param->srcOffsets->key->end !== $param->srcOffsets->value->start;
+			$v = $stringify( $param->v );
+			$srcOffsets = $param->srcOffsets;
+			if ( $this->isOldParserFunction && $named ) {
+				// We don't support named parameters for "old" parser functions
+				$v = $stringify( $param->k ) . '=' . $v;
+				$srcOffsets = $srcOffsets->span()->expandTsrV();
+				$named = false;
+			}
+			// Assign positional parameters
+			$key = $named ? $stringify( $param->k ) : strval( $unnamedIdx++ );
+			$p = new ParamInfo( $key, $srcOffsets );
+			$p->valueWt = $v;
+			$p->named = $named;
+			return $p;
+		}, $params );
+		return $paramInfos;
+	}
+
+	/**
+	 * Split the first colon-delimited argument from `$params[0]`.
+	 * @param list<KV> $params
+	 * @param bool &$hasColon
+	 * @return list<KV>
+	 */
+	public static function adjustParserFunctionArg0( array $params, bool &$hasColon ): array {
+		// Make a 'mw:contents' style KV from the first parameter
+		$arg0 = PreprocTk::newContentsKV(
+			$params[0]->k, $params[0]->srcOffsets?->key
+		);
+		[ $name, $colon, $rest ] = array_pad( PreprocTk::splitContentsBy(
+			':', $arg0, 1
+		), 3, null );
+		if ( $colon === null ) {
+			// Nothing needs to be done: either there's no argument or
+			// this uses "modern" `|` separators for the first argument.
+			$hasColon = false;
+			return $params;
+		}
+		$hasColon = true;
+		// Convert $name back from 'mw:contents' style
+		$name = new KV(
+			$name->v, '',
+			$name->srcOffsets?->value->expandTsrK()
+		);
+		// Split the new $arg0 on colon, maybe this is a named param.
+		[ $key, $eq, $value ] = array_pad( PreprocTk::splitContentsBy(
+			'=', $rest, 1
+		), -3, null );
+		if ( $key === null ) {
+			$rest->k = [ '' ];
+		} else {
+			$rest = new KV(
+				$key->v, $value->v,
+				$key->srcOffsets?->value->join( $value->srcOffsets->value )
+			);
+		}
+		array_splice( $params, 0, 1, [ $name, $rest ] );
+		return $params;
 	}
 
 	/**
@@ -345,6 +444,9 @@ class TemplateEncapsulator {
 		$dp = new DataParsoid;
 		$dp->tsr = clone $this->token->dataParsoid->tsr;
 		$dp->src = $this->token->dataParsoid->src;
+		if ( isset( $this->token->dataParsoid->colon ) ) {
+			$dp->colon = true;
+		}
 
 		$meta = [ new SelfclosingTagTk( 'meta', $attrs, $dp ) ];
 		$chunk = $chunk ? array_merge( $meta, $chunk ) : $meta;
