@@ -36,6 +36,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 {
 	private Env $env;
 	private SiteConfig $siteConfig;
+	private Frame $frame;
 	private array $pipelineOpts;
 	private int $pipelineOffset;
 	private array $extTags;
@@ -51,6 +52,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 		$this->siteConfig = $this->env->getSiteConfig();
 
 		$tokenizer = $this->options['pegTokenizer'];
+		$this->frame = $tokenizer->getFrame();
 		$this->pipelineOpts = $tokenizer->getOptions();
 		// FIXME: inTemplate option may not always be set in
 		// standalone tokenizers user by some pipelines handlers.
@@ -825,6 +827,7 @@ ipv6urladdr =
  * and close as we find them.
  */
 tplarg_or_template =
+	parsoid_fragment_marker /
 	&'{{'
 	@(
 		&('{{' &('{{{'+ !'{') tplarg) @(template/broken_template)
@@ -879,7 +882,7 @@ broken_template =
 
 template_preproc =
 	"{{" nl_comment_space*
-	target:(inlineline_in_tpls / parsoid_fragment_marker )
+	target:inlineline_in_tpls
 	params:(
 		nl_comment_space* "|"
 		@(
@@ -911,7 +914,11 @@ template_preproc =
 	/ $('{{' space_or_newline* '}}')
 
 // Keep this in sync with PipelineUtils::pfragmentToParsoidFragmentMarkers()
-parsoid_fragment_marker = $( "#parsoid\0fragment:" [0-9]+ )
+parsoid_fragment_marker = marker:$("{{#parsoid\0fragment:" [0-9]+ "}}") {
+	return TokenizerUtils::parsoidFragmentMarkerToTokens(
+	  $this->env, $this->frame, $marker, $this->tsrOffsets()
+	);
+}
 
 tplarg =
 	tplarg_preproc<&preproc="}}">

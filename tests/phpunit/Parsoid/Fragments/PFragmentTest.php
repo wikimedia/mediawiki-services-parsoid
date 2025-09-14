@@ -28,7 +28,7 @@ class PFragmentTest extends PFragmentTestCase {
 			HtmlPFragment::newFromHtmlString( '<span>!', null )
 		);
 		$html = $pf->asHtmlString( $ext );
-		$this->assertSame( '<p data-parsoid=\'{"dsr":[0,18,0,0]}\'>Hello, <b data-parsoid=\'{"tsr":[7,10],"dsr":[7,18,3,3]}\'>World</b><span data-parsoid="{}">!</span></p>', $html );
+		$this->assertSame( '<p data-parsoid=\'{"dsr":[0,41,0,0]}\'>Hello, <b data-parsoid=\'{"tsr":[7,10],"dsr":[7,18,3,3]}\'>World</b><span data-parsoid="{}">!</span></p>', $html );
 	}
 
 	/** @covers ::markerSkipCallback */
@@ -43,7 +43,7 @@ class PFragmentTest extends PFragmentTestCase {
 		$result = $pf->markerSkipCallback(
 			static fn ( string $s ): string => strtr( $s, 'o', 'x' )
 		);
-		$this->assertSame( '<p data-parsoid=\'{"dsr":[0,36,0,0]}\'>Hellx, <b data-parsoid=\'{"tsr":[7,10],"dsr":[7,18,3,3]}\'>Wxrld</b><span data-parsoid="{}">!o!</span> and Gxxd-bye!</p>', $result->asHtmlString( $ext ) );
+		$this->assertSame( '<p data-parsoid=\'{"dsr":[0,55,0,0]}\'>Hellx, <b data-parsoid=\'{"tsr":[7,10],"dsr":[7,18,3,3]}\'>Wxrld</b><span data-parsoid="{}">!o!</span> and Gxxd-bye!</p>', $result->asHtmlString( $ext ) );
 	}
 
 	/** @covers ::killMarkers */

@@ -909,36 +909,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 			} else {
 				return $this->expandTemplateNatively( $state, $resolvedTgt, $newAttribs );
 			}
-		} elseif ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
-			// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
-			// This is an atomic DOM subtree/forest, and so we're going
-			// to process it all the way to DOM.  Contrast with our
-			// handling of a PFragment return value from a parser
-			// function below, which process to tokens only.
-			$pFragment = $env->getPFragment( $text );
-			$domFragment = $pFragment->asDom(
-				new ParsoidExtensionAPI(
-					$env, [
-						'wt2html' => [
-							'frame' => $this->manager->getFrame(),
-							'parseOpts' => [
-								// This fragment comes from a template and it is important to set
-								// the 'inTemplate' parse option for it.
-								'inTemplate' => true,
-								// There might be translcusions within this fragment and we want
-								// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
-								'expandTemplates' => true
-							] + $this->options
-						]
-					]
-				)
-			);
-			$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
-			$toks = $this->processTemplateTokens( $toks );
-			// This is an internal strip marker, it should be wrapped at a
-			// higher level and we don't need to wrap it again.
-			$wrapTemplates = false;
-			return new TemplateExpansionResult( $toks, true, $wrapTemplates );
 		} elseif ( $expandTemplates ) {
 			// Use MediaWiki's preprocessor
 			//

@@ -63,6 +63,10 @@ class PegTokenizer extends PipelineStage {
 		return $this->options;
 	}
 
+	public function getFrame(): Frame {
+		return $this->frame ?? $this->env->topFrame;
+	}
+
 	/**
 	 * Set start and end offsets of the source that generated this DOM.
 	 *

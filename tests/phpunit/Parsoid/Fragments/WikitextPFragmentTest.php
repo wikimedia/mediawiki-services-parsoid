@@ -80,7 +80,7 @@ class WikitextPFragmentTest extends PFragmentTestCase {
 
 		$f = $codec->newFromJsonString( $json, $hint );
 		$ext = $this->newExtensionAPI();
-		$this->assertSame( '<p data-parsoid=\'{"dsr":[null,8,0,0]}\'>begin<b data-parsoid="{}">foo</b>end</p>', $f->asHtmlString( $ext ) );
+		$this->assertSame( '<p data-parsoid=\'{"dsr":[0,8,0,0]}\'>begin<b data-parsoid="{}">foo</b>end</p>', $f->asHtmlString( $ext ) );
 		$this->assertSame( 'beginend', $f->killMarkers() );
 	}
 }

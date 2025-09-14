@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -19,6 +20,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
 class TokenizerUtils {
@@ -510,4 +512,38 @@ class TokenizerUtils {
 		self::$inclAnnRegExp = null;
 	}
 
+	/**
+	 * Expands a parsoid fragment marker to a token array
+	 */
+	public static function parsoidFragmentMarkerToTokens(
+		Env $env, Frame $frame, string $marker, SourceRange $tsr
+	): array {
+		// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
+		// This is an atomic DOM subtree/forest, and so we're going
+		// to process it all the way to DOM.  Contrast with our
+		// handling of a PFragment return value from a parser
+		// function in TemplateHandler, which is processed to tokens only.
+		$pFragment = $env->getPFragment( $marker );
+		$domFragment = $pFragment->asDom(
+			new ParsoidExtensionAPI(
+				$env, [
+					'wt2html' => [
+						'frame' => $frame,
+						'parseOpts' => [
+							// This fragment comes from a template and it is important to set
+							// the 'inTemplate' parse option for it.
+							'inTemplate' => true,
+							// There might be transclusions within this fragment and we want
+							// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
+							'expandTemplates' => true
+						]
+					]
+				]
+			)
+		);
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$token = new SelfclosingTagTk( 'template', [], $dp );
+		return PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
+	}
 }

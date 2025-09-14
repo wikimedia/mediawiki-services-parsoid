@@ -32,7 +32,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  */
 class PipelineUtils {
 	// keep in sync with internal_strip_marker in Grammar.pegphp
-	public const PARSOID_FRAGMENT_PREFIX = '{{#parsoid\0fragment:';
+	public const PARSOID_FRAGMENT_PREFIX = "{{#parsoid\0fragment:";
 
 	/**
 	 * Returns a wikitext string with embedded parsoid fragment markers,
