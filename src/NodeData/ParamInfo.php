@@ -48,7 +48,16 @@ class ParamInfo implements JsonCodecable {
 	}
 
 	/**
-	 * Create an object from unserialized data-parsoid.pi
+	 * Returns true if this parameter uses a numeric key, like positional
+	 * arguments do.  Note that only positive integers are considered
+	 * numeric keys, since argument numbering is 1-based.
+	 */
+	public function isNumericKey(): bool {
+		return (bool)preg_match( '/^[1-9][0-9]*$/D', $this->k );
+	}
+
+	/**
+	 * Create an object from unserialized data-parsoid.pi (T404772)
 	 *
 	 * @param array $json
 	 * @return self
@@ -65,6 +74,7 @@ class ParamInfo implements JsonCodecable {
 	 * not needed across requests.
 	 *
 	 * @return array{k: string, named?: true, spc?: array<string>}
+	 * @see DOMRangeBuilder::encapsulateTemplates() and T404772
 	 */
 	public function toJsonArray(): array {
 		$ret = [ 'k' => $this->k ];

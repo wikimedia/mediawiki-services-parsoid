@@ -1085,9 +1085,12 @@ class DOMRangeBuilder {
 							$a->info->type = 'template';
 						}
 						$parts[] = $a->info;
-						// FIXME: we throw away the array keys and rebuild them
-						// again in WikitextSerializer
-						$pi[] = array_values( $a->info->paramInfos );
+						// FIXME: Except for v3 parser functions, we
+						// throw away parameter order and rebuild it
+						// again in WikitextSerializer.  We could add
+						// 'order' and 'eq' keys to everything.
+						// T404772
+						$pi[] = $a->info->paramInfos;
 					}
 				}
 

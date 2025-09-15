@@ -10,7 +10,7 @@ wgParsoidExperimentalParserFunctionOutput=true
 !! wikitext
 a {{#if:foo|bar|baz}} b
 !! html/parsoid
-<p>a <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/if" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#if","key":"if"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
+<p>a <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/if" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]]}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#if","key":"if"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
 !! end
 
 !! test
@@ -20,5 +20,5 @@ wgParsoidExperimentalParserFunctionOutput=false
 !! wikitext
 a {{#if:foo|bar|baz}} b
 !! html/parsoid
-<p>a <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#if:foo","function":"if"},"params":{"1":{"wt":"bar"},"2":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
+<p>a <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#if:foo","function":"if"},"params":{"1":{"wt":"bar"},"2":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
 !! end

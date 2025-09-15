@@ -638,6 +638,8 @@ class WikitextSerializer {
 		// Parse custom format specification, if present.
 		$defaultBlockSpc = "{{_\n| _ = _\n}}"; // "block"
 		$defaultInlineSpc = '{{_|_=_}}'; // "inline"
+		$isPF = $part->type === 'parserfunction' ||
+			$part->type === 'old-parserfunction';
 
 		$format = isset( $tplData['format'] ) ? strtolower( $tplData['format'] ) : null;
 		if ( $format === 'block' ) {
@@ -658,6 +660,11 @@ class WikitextSerializer {
 		$formatEnd = $parsedFormat[5] ?? '';
 		$formatEOL = $parsedFormat[6] ?? '';
 		$forceTrim = ( $format !== null ) || WTUtils::isNewElt( $node );
+		if ( $isPF ) {
+			// Parser functions have all positional parameters w/ significant
+			// whitespace.
+			$forceTrim = false;
+		}
 
 		// Shoehorn formatting of top-level templatearg wikitext into this code.
 		if ( $part->type === 'templatearg' ) {
@@ -696,6 +703,7 @@ class WikitextSerializer {
 		// Account for clients not setting the `i`, see T238721
 		$dpArgInfo = $part->i !== null ? ( $dp->pi[$part->i] ?? [] ) : [];
 
+		// Recombine information from data-parsoid and data-mw (T404772)
 		// Build a key -> arg info map (array<string,ParamInfo>)
 		$dpArgInfoMap = [];
 		foreach ( $dpArgInfo as $info ) {
@@ -804,6 +812,7 @@ class WikitextSerializer {
 		// "magic case": If the format string ends with a newline, an extra newline is added
 		// between the template name and the first parameter.
 
+		$first = true;
 		foreach ( $argBuf as $arg ) {
 			$name = $arg['name'];
 			$val = $arg['value'];
@@ -844,9 +853,14 @@ class WikitextSerializer {
 			if ( $trailing && str_starts_with( $formatParamName, "\n" ) ) {
 				$modFormatParamName = substr( $formatParamName, 1 );
 			}
+			// Parser functions are weird! First separator is a colon not a bar
+			if ( $first && $isPF ) {
+				$modFormatParamName = preg_replace( '/[|]/', ':', $modFormatParamName, 1 );
+			}
 
 			$buf .= $this->formatStringSubst( $modFormatParamName, $name, $forceTrim );
 			$buf .= $this->formatStringSubst( $modFormatParamValue, $val, $forceTrim );
+			$first = false;
 		}
 
 		// Don't create duplicate newlines.

@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\PreprocTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -23,6 +24,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 /**
  * A helper class for TemplateHandler that encapsulates template-like syntax
@@ -31,6 +33,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 class TemplateEncapsulator {
 	private Env $env;
 	private Frame $frame;
+	private PegTokenizer $tokenizer;
 	private string $wrapperType;
 	private string $aboutId;
 	public XMLTagTk $token;
@@ -43,6 +46,7 @@ class TemplateEncapsulator {
 	public function __construct( Env $env, Frame $frame, XMLTagTk $token, string $wrapperType ) {
 		$this->env = $env;
 		$this->frame = $frame;
+		$this->tokenizer = new PegTokenizer( $env );
 		$this->token = $token;
 		$this->wrapperType = $wrapperType;
 		$this->aboutId = $env->newAboutId();
@@ -140,22 +144,68 @@ class TemplateEncapsulator {
 		}
 
 		// Parser functions in the legacy parser do not support named
-		// parameters, see T204307.  However, our new V3 parser function will
-		$onlyNumericParams = $ret->func && $this->isOldParserFunction;
+		// parameters (T204307).  Our new V3 parser function will,
+		// but it will be tokenized differently to enable that (T394834).
+		$onlyNumericParams = $ret->func;
 
 		$ret->paramInfos = $onlyNumericParams ?
-			$this->preparePfParamInfos( $src, $params ) :
+			$this->preparePfParamInfos( $src, $ret, $params ) :
 			$this->prepareTplParamInfos( $src, $params );
 
 		return $ret;
 	}
 
-	private function preparePfParamInfos( Source $src, array $params ): array {
+	/**
+	 * Prepare TemplateInfo/ParamInfo information for a parser function
+	 * transclusion.
+	 *
+	 * @param Source $src
+	 * @param TemplateInfo $ti Used to update $ti->targetWt when the
+	 *   first argument is delimited by a colon.
+	 * @param array<KV> $params
+	 * @return list<ParamInfo>
+	 */
+	private function preparePfParamInfos( Source $src, TemplateInfo $ti, array $params ): array {
 		$paramInfos = [];
 		$argIndex = 1;
 
-		// Ignore params[0] -- that is a colon separated combination of the pf
-		// name and the first argument
+		// Use `preproc_pieces` rule to split off colon-separated first
+		// argument.
+		$targetTsr = $params[0]->srcOffsets?->key;
+		$targetContents = $this->tokenizer->tokenizeAs(
+			$ti->targetWt, "preproc_pieces", false
+		);
+		'@phan-var false|array<string|PreprocTk> $targetContents';
+		[ $name, $colon, $arg0 ] = $targetContents !== false ? array_pad(
+			// @phan-suppress-next-line PhanInvalidFQSENInCallable
+			PreprocTk::splitContentsBy(
+				':',
+				PreprocTk::newContentsKV( $targetContents, $targetTsr ),
+				1
+			), 3, null
+		) : [ null, null, null ];
+		if ( $colon ) {
+			$ti->targetWt = PreprocTk::printContents( $name, false );
+			$arg0 = PreprocTk::printContents( $arg0, false );
+			$srcOffsets = null;
+			if ( $targetTsr ) {
+				$srcOffsets = (
+					new SourceRange(
+						$targetTsr->end - strlen( $arg0 ), $targetTsr->end,
+						$targetTsr->source
+					)
+				)->expandTsrV();
+			}
+			$k = (string)$argIndex;
+			$argIndex++;
+			$paramInfo = new ParamInfo( $k, $srcOffsets );
+			$paramInfo->valueWt = $arg0;
+			$paramInfos[] = $paramInfo;
+		}
+
+		// $params[0] was the colon-separated combination of the pf name
+		// and the first argument; we've handled that already.  Start with
+		// $params[1]
 		for ( $i = 1, $n = count( $params );  $i < $n;  $i++ ) {
 			$param = $params[$i];
 
@@ -172,18 +222,26 @@ class TemplateEncapsulator {
 			$paramInfo = new ParamInfo( $k, $srcOffsets );
 			$paramInfo->valueWt = $vSrc;
 
-			$paramInfos[$k] = $paramInfo;
+			$paramInfos[] = $paramInfo;
 		}
 
 		return $paramInfos;
 	}
 
+	/**
+	 * Prepare TemplateInfo/ParamInfo information for a template
+	 * transclusion.
+	 *
+	 * @param Source $src
+	 * @param array<KV> $params
+	 * @return list<ParamInfo>
+	 */
 	private function prepareTplParamInfos( Source $src, array $params ): array {
 		$paramInfos = [];
 		$argIndex = 1;
 
 		// Use source offsets to extract arg-name and arg-value wikitext
-		// since the 'k' and 'v' values in params will be expanded tokens
+		// since the 'k' and 'v' values in params could be expanded tokens
 		//
 		// Ignore params[0] -- that is the template name
 		for ( $i = 1, $n = count( $params );  $i < $n;  $i++ ) {
@@ -225,42 +283,38 @@ class TemplateEncapsulator {
 				$v = trim( $v );
 			}
 
-			if ( !isset( $paramInfos[$k] ) ) {
-				$paramInfo = new ParamInfo( $k, $srcOffsets );
+			$paramInfo = new ParamInfo( $k, $srcOffsets );
 
-				Assert::invariant(
-					preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $kSrc, $keySpaceMatch ),
-					'Template argument whitespace match failed.'
-				);
-				$valueSpaceMatch = null;
+			Assert::invariant(
+				preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $kSrc, $keySpaceMatch ),
+				'Template argument whitespace match failed.'
+			);
+			$valueSpaceMatch = null;
 
-				if ( $isPositional ) {
-					// PHP parser does not strip whitespace around
-					// positional params and neither will we.
-					$valueSpaceMatch = [ null, '', '' ];
-				} else {
-					$paramInfo->named = true;
-					if ( $v !== '' ) {
-						Assert::invariant(
-							preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $vSrc, $valueSpaceMatch ),
-							'Template argument whitespace match failed.'
-						);
-					} else {
-						$valueSpaceMatch = [ null, '', $vSrc ];
-					}
-				}
-
-				// Preserve key and value space prefix / postfix, if any.
-				// "=" is the default spacing used by the serializer,
-				if ( $keySpaceMatch[1] || $keySpaceMatch[2] || $valueSpaceMatch[1] || $valueSpaceMatch[2] ) {
-					// Remember non-standard spacing
-					$paramInfo->spc = [
-						$keySpaceMatch[1], $keySpaceMatch[2],
-						$valueSpaceMatch[1], $valueSpaceMatch[2]
-					];
-				}
+			if ( $isPositional ) {
+				// PHP parser does not strip whitespace around
+				// positional params and neither will we.
+				$valueSpaceMatch = [ null, '', '' ];
 			} else {
-				$paramInfo = $paramInfos[$k];
+				$paramInfo->named = true;
+				if ( $v !== '' ) {
+					Assert::invariant(
+						preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $vSrc, $valueSpaceMatch ),
+						'Template argument whitespace match failed.'
+					);
+				} else {
+					$valueSpaceMatch = [ null, '', $vSrc ];
+				}
+			}
+
+			// Preserve key and value space prefix / postfix, if any.
+			// "=" is the default spacing used by the serializer,
+			if ( $keySpaceMatch[1] || $keySpaceMatch[2] || $valueSpaceMatch[1] || $valueSpaceMatch[2] ) {
+				// Remember non-standard spacing
+				$paramInfo->spc = [
+					$keySpaceMatch[1], $keySpaceMatch[2],
+					$valueSpaceMatch[1], $valueSpaceMatch[2]
+				];
 			}
 
 			$paramInfo->valueWt = $v;
@@ -269,7 +323,7 @@ class TemplateEncapsulator {
 			if ( !$isPositional && $kWt !== $k ) {
 				$paramInfo->keyWt = $kWt;
 			}
-			$paramInfos[$k] = $paramInfo;
+			$paramInfos[] = $paramInfo;
 		}
 
 		return $paramInfos;

@@ -242,6 +242,9 @@
 	"Wikilink in wikilink": {
 		"wt2wt": "[[Hi|[[Ho]]<nowiki>]]</nowiki>"
 	},
+	"anchorencode encodes like the TOC generator: (T20431)": {
+		"wt2wt": "===_ +:.3A%3A _ &&amp;]] x===\n{{anchorencode: _ +:.3A%3A _ &&amp;<nowiki>]] x</nowiki>}}\n\n__NOEDITSECTION__"
+	},
 	"div with illegal double attributes": {
 		"wt2wt": "<div id=\"b\">HTML rocks</div>"
 	},

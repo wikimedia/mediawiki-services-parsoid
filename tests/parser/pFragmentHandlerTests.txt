@@ -258,7 +258,7 @@ parsoid=wt2html
 !! wikitext
 {{#f7_kv:foo=bar|bat=baz}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>(arguments)</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"1":{"wt":"foo=bar"},"2":{"wt":"bat=baz"}},"i":0}}]}'>(arguments)</span></p>
 !! end
 
 # TODO T390344: named arguments (add back wt2wt mode once fixed)
