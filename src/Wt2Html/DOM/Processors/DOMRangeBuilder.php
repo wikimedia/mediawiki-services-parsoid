@@ -77,9 +77,6 @@ class DOMRangeBuilder {
 	/** @var array<string|CompoundTemplateInfo>[] */
 	private $compoundTpls = [];
 
-	/** Are we generating spec 3.x HTML for parser functions */
-	private bool $v3PFOutput;
-
 	/** @var string */
 	protected $traceType;
 
@@ -91,10 +88,6 @@ class DOMRangeBuilder {
 		$this->env = $frame->getEnv();
 		$this->nodeRanges = new SplObjectStorage;
 		$this->traceType = "tplwrap";
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		$this->v3PFOutput = (bool)$this->env->getSiteConfig()->getMWConfigValue(
-			'ParsoidExperimentalParserFunctionOutput'
-		);
 	}
 
 	protected function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
@@ -967,12 +960,12 @@ class DOMRangeBuilder {
 						if ( $a->isParam ) {
 							$a->info->type = 'templatearg';
 						} elseif ( $a->info->func ) {
-							// type might be initialized to v3parserfunction
-							// already
-							if ( !$a->info->type ) {
-								$a->info->type = $this->v3PFOutput ?
-									'v3parserfunction' : 'parserfunction';
-							}
+							// Type should be initialized already
+							Assert::invariant(
+								$a->info->type === 'parserfunction' ||
+								$a->info->type === 'old-parserfunction',
+								"parser function type should be initialized already"
+							);
 						} else {
 							$a->info->type = 'template';
 						}
@@ -983,7 +976,7 @@ class DOMRangeBuilder {
 					}
 				}
 
-				if ( !is_string( $parts[0] ) && $parts[0]->type === 'v3parserfunction' ) {
+				if ( !is_string( $parts[0] ) && $parts[0]->type === 'parserfunction' ) {
 					$key = $parts[0]->func;
 					DOMUtils::addTypeOf( $encapTgt, 'mw:ParserFunction/' . $key, false );
 				}

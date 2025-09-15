@@ -283,7 +283,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'metrics',
 			'Dump a log of the metrics methods that were called from a MockMetrics.'
 		);
-		$this->addOption( 'v3pf', 'Generate Experimental Parsoid HTML v3 parser function output' );
+		$this->addOption( 'v3pf', 'Generate Parsoid v3 parser function output for all parser functions' );
 		$this->addOption(
 			'record',
 			'Record HTTP requests for later replay'

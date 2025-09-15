@@ -105,7 +105,7 @@ class SiteConfig extends ISiteConfig {
 	private bool $featureDetectionDone = false;
 	private bool $hasVideoInfo = false;
 
-	/** If set, generate experimental Parsoid HTML v3 parser function output */
+	/** If set, generate Parsoid v3 parser function output for all parser functions */
 	private bool $v3pf;
 
 	/** @var string[] Base parameters for a siteinfo query */

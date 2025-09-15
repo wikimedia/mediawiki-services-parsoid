@@ -37,7 +37,8 @@ class TemplateEncapsulator {
 	public ?string $variableName = null;
 	public ?string $parserFunctionName = null;
 	public ?string $resolvedTemplateTarget = null;
-	public bool $isV3ParserFunction = false;
+	// Should we use the "legacy" parser function format?
+	public bool $isOldParserFunction = true;
 
 	public function __construct( Env $env, Frame $frame, XMLTagTk $token, string $wrapperType ) {
 		$this->env = $env;
@@ -45,6 +46,16 @@ class TemplateEncapsulator {
 		$this->token = $token;
 		$this->wrapperType = $wrapperType;
 		$this->aboutId = $env->newAboutId();
+		/*
+		 * Are we generating v3 parser function output for all parser functions
+		 * or just for the output of PFragmentHandlers?
+		 */
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		if ( (bool)$this->env->getSiteConfig()->getMWConfigValue(
+			'ParsoidExperimentalParserFunctionOutput'
+		) ) {
+			$this->isOldParserFunction = false;
+		}
 	}
 
 	/**
@@ -119,18 +130,18 @@ class TemplateEncapsulator {
 		// Only one of these will be set.
 		if ( $this->variableName !== null ) {
 			$ret->func = $this->variableName;
+			$ret->type = 'old-parserfunction';
 		} elseif ( $this->parserFunctionName !== null ) {
 			$ret->func = $this->parserFunctionName;
-			if ( $this->isV3ParserFunction ) {
-				$ret->type = 'v3parserfunction';
-			}
+			$ret->type = $this->isOldParserFunction ?
+				'old-parserfunction' : 'parserfunction';
 		} elseif ( $this->resolvedTemplateTarget !== null ) {
 			$ret->href = $this->resolvedTemplateTarget;
 		}
 
 		// Parser functions in the legacy parser do not support named
 		// parameters, see T204307.  However, our new V3 parser function will
-		$onlyNumericParams = $ret->func && !$this->isV3ParserFunction;
+		$onlyNumericParams = $ret->func && $this->isOldParserFunction;
 
 		$ret->paramInfos = $onlyNumericParams ?
 			$this->preparePfParamInfos( $src, $params ) :

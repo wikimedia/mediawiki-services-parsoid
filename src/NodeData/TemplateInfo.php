@@ -36,7 +36,8 @@ class TemplateInfo implements JsonCodecable {
 	 * The type of template (template, templatearg, parserfunction).
 	 * @note For backward-compatibility reasons, this property is
 	 * not serialized/deserialized.
-	 * @var 'template'|'templatearg'|'parserfunction'|'v3parserfunction'|null
+	 * @var 'template'|'templatearg'|'parserfunction'|'old-parserfunction'|null
+	 * @see https://www.mediawiki.org/wiki/Parsoid/MediaWiki_DOM_spec/Parser_Functions
 	 */
 	public ?string $type = null;
 
@@ -112,7 +113,7 @@ class TemplateInfo implements JsonCodecable {
 		// This is a complicated serialization, but necessary for
 		// backward compatibility with existing data-mw
 
-		$v3PF = $this->type === 'v3parserfunction';
+		$v3PF = $this->type === 'parserfunction';
 		$target = [ 'wt' => $this->targetWt ];
 		if ( $this->func !== null ) {
 			$key = $v3PF ? 'key' : 'function';

@@ -182,10 +182,8 @@ class DataMw implements JsonCodecable {
 			$result['parts'] = array_map( static function ( $p ) {
 				if ( $p instanceof TemplateInfo ) {
 					$type = $p->type ?? 'template';
-					if ( $type === 'parserfunction' ) {
+					if ( $type === 'old-parserfunction' ) {
 						$type = 'template';
-					} elseif ( $type === 'v3parserfunction' ) {
-						$type = 'parserfunction';
 					}
 					$pp = (object)[];
 					$pp->$type = $p;
@@ -218,18 +216,19 @@ class DataMw implements JsonCodecable {
 		if ( isset( $json['parts'] ) ) {
 			$json['parts'] = array_map( static function ( $p ) {
 				if ( is_object( $p ) ) {
-					$ptype = $type = 'template';
 					if ( isset( $p->templatearg ) ) {
-						$ptype = $type = 'templatearg';
+						$type = 'templatearg';
 					} elseif ( isset( $p->parserfunction ) ) {
 						$type = 'parserfunction';
-						$ptype = 'v3parserfunction';
+					} else {
+						$type = 'template';
 					}
 					$p = $p->$type;
+					/** @var TemplateInfo $p */
 					if ( isset( $p->func ) ) {
-						$ptype = 'parserfunction';
+						$type = 'old-parserfunction';
 					}
-					$p->type = $ptype;
+					$p->type = $type;
 				}
 				return $p;
 			}, $json['parts'] );

@@ -387,7 +387,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 				$ret['handlerOptions'] = $siteConfig->getPFragmentHandlerConfig(
 					$canonicalFunctionName
 				)['options'] ?? [];
-				$state->isV3ParserFunction = true;
+				$state->isOldParserFunction = false;
 			}
 			return $ret;
 		}

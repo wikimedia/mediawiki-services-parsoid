@@ -41,8 +41,15 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var LoggerInterface */
 	public $suppressLogger;
 
-	/** If set, generate experimental Parsoid HTML v3 parser function output
-	 * Individual parser tests could change this
+	/**
+	 * If set, generate Parsoid v3 parser function output for all parser
+	 * functions, not just for the output of PFragmentHandlers.
+	 *
+	 * Individual parser tests can change this using:
+	 * ```
+	 * !!config
+	 * wgParsoidExperimentalParserFunctionOutput=true
+	 * ```
 	 */
 	public bool $v3pf;
 

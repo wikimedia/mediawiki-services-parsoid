@@ -31,7 +31,7 @@ class MockSiteConfig extends SiteConfig {
 	/** @var array */
 	private $linterOverrides = [];
 
-	/** If set, generate experimental Parsoid HTML v3 parser function output */
+	/** If set, generate Parsoid v3 parser function output for all parser functions */
 	private bool $v3pf;
 
 	private const NAMESPACE_MAP = [
