@@ -381,7 +381,7 @@ interface ContentMetadataCollector {
 	public function appendExtensionData(
 		string $key,
 		string|int $value,
-		MergeStrategy $strategy = MergeStrategy::UNION
+		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void;
 
 	/**
@@ -421,7 +421,7 @@ interface ContentMetadataCollector {
 	public function appendJsConfigVar(
 		string $key,
 		string|int $value,
-		MergeStrategy $strategy = MergeStrategy::UNION
+		string|MergeStrategy $strategy = MergeStrategy::UNION
 	): void;
 
 	/**
