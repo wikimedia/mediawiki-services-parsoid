@@ -189,72 +189,70 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * If $nlTk is null, this is EOF scenario
 	 */
 	private function processTrReparseBuf( ?NlTk $nlTk = null ): array {
-		if ( isset( $this->trReparseBuf['endMeta'] ) ) {
-			// We have to parse these buffered tokens as attribute of the <tr>
-			if ( $this->tplInfo !== null ) {
-				// FIXME: Cannot reliably support this when we need to
-				// glue part of this unclosed template's content into
-				// the <tr>'s attributes that came from a different template.
-				//
-				// So, bail and let things be as is.
-				return $this->reprocessTrReparseBufViaOnAny();
-			}
-
-			$frameSrc = $this->manager->getFrame()->getSrcText();
-
-			// Both these TSR properties will exist because they come from
-			// the top-level content and the tokenizer sets TSR offsets.
-			$tr = $this->trReparseBuf['tr'];
-			$endMeta = $this->trReparseBuf['endMeta'];
-			$metaEndTSR = $endMeta->dataParsoid->tsr->end;
-			$lineEndTSR = $nlTk ? $nlTk->dataParsoid->tsr->start : strlen( $frameSrc );
-
-			// Stitch new wikitext to include content found after template-end-meta
-			$extraAttrSrc = substr( $frameSrc, $metaEndTSR, $lineEndTSR - $metaEndTSR );
-			if ( !$extraAttrSrc ) {
-				return $this->reprocessTrReparseBufViaOnAny();
-			}
-
-			$toks = $this->trReparseBuf['tokens'];
-			$this->env->trace( 'tsp', $this->pipelineId,
-				static function () use ( $toks ) {
-					return "*** REPROCESSING TR WITH TOKENS ***" .
-						PHPUtils::jsonEncode( $toks );
-				}
-			);
-
-			$freshSrc = ( $tr->dataParsoid->startTagSrc ?? '|-' ) .
-				( $tr->dataParsoid->getTemp()->attrSrc ?? '' ) .
-				$extraAttrSrc;
-
-			// This string effectively came from a template, so tag it as 'inTemplate'
-			$newTRTokens = $this->reprocessTokens(
-				null, $freshSrc, true, "table_row_tag", [ 'inTemplate' => true ]
-			);
-			// Remove mw:ExpandedAttributes info since this is already
-			// embedded inside an outer template wrapper.
-			$newTR = $newTRTokens[0];
-			$newTR->removeAttribute( 'typeof' );
-			$newTR->removeAttribute( 'about' );
-			$newTR->dataMw = null;
-
-			// Drop the original TR from the buffered tokens
-			array_shift( $this->trReparseBuf['tokens'] );
-
-			// * Tokens between tr & endMeta have to be trailing comments or WS
-			//   because anything else would have been tokenized by the grammar
-			//   as the tr's attributes.
-			// * All tokens after this have been absorbed into $tr's attributes
-			$newTRTokens[] = $endMeta;
-
-			// Update endMeta TSR since it now wraps the entire line
-			$endMeta->dataParsoid->tsr->end = $lineEndTSR;
-			return $this->getResultTokens( $newTRTokens );
-		} elseif ( isset( $this->trReparseBuf['tokens'] ) ) {
+		if ( !isset( $this->trReparseBuf['endMeta'] ) ) {
 			return $this->reprocessTrReparseBufViaOnAny();
-		} else {
-			return [];
 		}
+
+		// We have to parse these buffered tokens as attribute of the <tr>
+		if ( $this->tplInfo !== null ) {
+			// FIXME: Cannot reliably support this when we need to
+			// glue part of this unclosed template's content into
+			// the <tr>'s attributes that came from a different template.
+			//
+			// So, bail and let things be as is.
+			return $this->reprocessTrReparseBufViaOnAny();
+		}
+
+		$frameSrc = $this->manager->getFrame()->getSrcText();
+
+		// Both these TSR properties will exist because they come from
+		// the top-level content and the tokenizer sets TSR offsets.
+		$tr = $this->trReparseBuf['tr'];
+		$endMeta = $this->trReparseBuf['endMeta'];
+		$metaEndTSR = $endMeta->dataParsoid->tsr->end;
+		$lineEndTSR = $nlTk ? $nlTk->dataParsoid->tsr->start : strlen( $frameSrc );
+
+		// Stitch new wikitext to include content found after template-end-meta
+		$extraAttrSrc = substr( $frameSrc, $metaEndTSR, $lineEndTSR - $metaEndTSR );
+		if ( !$extraAttrSrc ) {
+			return $this->reprocessTrReparseBufViaOnAny();
+		}
+
+		$toks = $this->trReparseBuf['tokens'];
+		$this->env->trace( 'tsp', $this->pipelineId,
+			static function () use ( $toks ) {
+				return "*** REPROCESSING TR WITH TOKENS ***" .
+					PHPUtils::jsonEncode( $toks );
+			}
+		);
+
+		$freshSrc = ( $tr->dataParsoid->startTagSrc ?? '|-' ) .
+			( $tr->dataParsoid->getTemp()->attrSrc ?? '' ) .
+			$extraAttrSrc;
+
+		// This string effectively came from a template, so tag it as 'inTemplate'
+		$newTRTokens = $this->reprocessTokens(
+			null, $freshSrc, true, "table_row_tag", [ 'inTemplate' => true ]
+		);
+		// Remove mw:ExpandedAttributes info since this is already
+		// embedded inside an outer template wrapper.
+		$newTR = $newTRTokens[0];
+		$newTR->removeAttribute( 'typeof' );
+		$newTR->removeAttribute( 'about' );
+		$newTR->dataMw = null;
+
+		// Drop the original TR from the buffered tokens
+		array_shift( $this->trReparseBuf['tokens'] );
+
+		// * Tokens between tr & endMeta have to be trailing comments or WS
+		//   because anything else would have been tokenized by the grammar
+		//   as the tr's attributes.
+		// * All tokens after this have been absorbed into $tr's attributes
+		$newTRTokens[] = $endMeta;
+
+		// Update endMeta TSR since it now wraps the entire line
+		$endMeta->dataParsoid->tsr->end = $lineEndTSR;
+		return $this->getResultTokens( $newTRTokens );
 	}
 
 	/**
