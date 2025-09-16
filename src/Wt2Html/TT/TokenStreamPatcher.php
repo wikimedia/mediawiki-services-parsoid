@@ -523,7 +523,16 @@ class TokenStreamPatcher extends LineBasedHandler {
 								'trTplInfo' => $this->tplInfo,
 								'tokens' => [ $token ]
 							];
-							return [];
+							// If we have tokens from a previous trReparseBuf
+							// that was aborted and reprocessed above, we need
+							// to emit them now
+							if ( count( $tokens ) > 1 ) {
+								// Account for the tr we're newly buffering
+								// that gets pushed above
+								array_pop( $tokens );
+							} else {
+								return [];
+							}
 						}
 					}
 				}

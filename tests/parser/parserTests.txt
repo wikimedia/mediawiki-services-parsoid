@@ -5825,6 +5825,27 @@ parsoid=wt2html,wt2wt
 <link rel="mw:PageProp/Category" href="./Category:Foo"/>
 !! end
 
+!! article
+Template:Just tr
+!! text
+|-
+!! endarticle
+
+!! test
+6. Non-token guing scenario where a templated tr is found in templated tr attribute position
+!! wikitext
+{|
+{{just tr}}{{just tr}}
+|}
+!! html/php
+<table>
+
+</table>
+!! html/parsoid
+<table>
+<tbody about="#mwt1" typeof="mw:Transclusion" class="mw-empty-elt" data-mw='{"parts":[{"template":{"target":{"wt":"just tr","href":"./Template:Just_tr"},"params":{},"i":0}},{"template":{"target":{"wt":"just tr","href":"./Template:Just_tr"},"params":{},"i":1}},"\n"]}'>
+</tbody></table>
+!! end
 
 ###
 ### Testing parsing of templates where a template arg
