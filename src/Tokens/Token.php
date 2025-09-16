@@ -248,7 +248,7 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	 */
 	public function removeAttribute( string $name ): void {
 		foreach ( $this->attribs as $i => $kv ) {
-			if ( mb_strtolower( $kv->k ) === $name ) {
+			if ( is_string( $kv->k ) && mb_strtolower( $kv->k ) === $name ) {
 				unset( $this->attribs[$i] );
 			}
 		}
