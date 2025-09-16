@@ -17498,6 +17498,62 @@ added between the divtags:
 !! end
 
 !! test
+{{#contentmodel}} parser function
+!! wikitext
+{{#contentmodel}}
+
+{{#contentmodel:local}}
+
+{{#contentmodel:canonical}}
+!! html/php
+<p>wikitext
+</p><p>wikitext
+</p><p>wikitext
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel","function":"contentmodel"},"params":{},"i":0}}]}'>wikitext</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel:local","function":"contentmodel"},"params":{},"i":0}}]}'>wikitext</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel:canonical","function":"contentmodel"},"params":{},"i":0}}]}'>wikitext</span></p>
+!! end
+
+!! test
+{{#contentmodel}} parser function on a CSS page
+!! options
+title=MediaWiki:Common.css
+!! wikitext
+{{#contentmodel}}
+!! html/php
+<p>CSS
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel","function":"contentmodel"},"params":{},"i":0}}]}'>CSS</span></p>
+!! end
+
+!! test
+{{#contentmodel}} parser function on a CSS page (canonical)
+!! options
+title=MediaWiki:Common.css
+!! wikitext
+{{#contentmodel: canonical}}
+!! html/php
+<p>css
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel: canonical","function":"contentmodel"},"params":{},"i":0}}]}'>css</span></p>
+!! end
+
+!! test
+{{#contentmodel}} parser function for a JS page using the title argument
+!! wikitext
+{{#contentmodel: canonical | MediaWiki:Common.js}}
+!! html/php
+<p>javascript
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#contentmodel: canonical ","function":"contentmodel"},"params":{"1":{"wt":" MediaWiki:Common.js"}},"i":0}}]}'>javascript</span></p>
+!! end
+
+!! test
 1. T400845: Dom/Handlers/CleanUp.php: Added mw:DisplaySpace spaces removal
 !! options
 parsoid=wt2html
