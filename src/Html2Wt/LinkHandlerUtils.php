@@ -118,15 +118,27 @@ class LinkHandlerUtils {
 	private static function escapeLinkTarget( string $linkTarget, SerializerState $state ): stdClass {
 		// Entity-escape the content.
 		$linkTarget = Utils::escapeWtEntities( $linkTarget );
+		// Split fragment (the part after #) from target and test individually
+		[ $linkTarget, $hash ] = array_pad( preg_split( '/#/', $linkTarget, 2 ), 2, null );
+		// Is this a valid link?
+		// ('isValidLinkTarget' ignores fragments, so providing the split
+		// form is fine -- but '#foo' is also a valid link)
+		$validLink = ( $linkTarget === '' && $hash !== null ) ||
+			$state->getEnv()->isValidLinkTarget( $linkTarget );
+		if ( $validLink && $hash !== null ) {
+			// URL Encode the hash to ensure it is a valid wikilink
+			// (If this is not valid, it will be emitted as plain text,
+			// so we skip the encoding to keep it readable.)
+			$legal = $state->getEnv()->getSiteConfig()->legalTitleChars();
+			$hash = preg_replace_callback( '/[^' . $legal . ']/', static fn ( $m )=>urlencode( $m[0] ), $hash );
+		}
+		if ( $hash !== null ) {
+			$linkTarget = "{$linkTarget}#{$hash}";
+		}
 		return (object)[
 			'linkTarget' => $linkTarget,
 			// Is this an invalid link?
-			'invalidLink' => !$state->getEnv()->isValidLinkTarget( $linkTarget ) ||
-				// `isValidLinkTarget` omits fragments (the part after #) so,
-				// even though "|" is an invalid character, we still need to ensure
-				// it doesn't appear in there.  The percent encoded version is fine
-				// in the fragment, since it won't break the parse.
-				str_contains( $linkTarget, '|' ),
+			'invalidLink' => !$validLink,
 		];
 	}
 
