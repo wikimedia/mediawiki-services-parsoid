@@ -1049,7 +1049,7 @@ class DOMDataUtils {
 	 * Return the value of a rich attribute as a live (by-reference) object.
 	 * This also serves as an assertion that there are not conflicting types.
 	 *
-	 * @phan-template T
+	 * @template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
 	 * @param class-string<T>|Hint<T> $classHint
@@ -1102,7 +1102,7 @@ class DOMDataUtils {
 	 * @note The $className should have be JsonCodecable (either directly
 	 *  or via a custom JsonClassCodec).
 	 *
-	 * @phan-template T
+	 * @template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
 	 * @param class-string<T>|Hint<T> $classHint
@@ -1143,14 +1143,10 @@ class DOMDataUtils {
 	 *  semantics via `$codec->flatten()` which falls back to
 	 * `$className::flatten()`.
 	 *
-	 * @phan-template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
-	 * @phan-suppress-next-line PhanTypeMismatchDeclaredParam
-	 * @param T $value The new (object) value for the attribute
-	 * @param class-string<T>|Hint<T>|null $classHint Optional serialization hint
-	 * @phpcs:ignore MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
-	 * @phan-suppress-next-next-line PhanTemplateTypeNotUsedInFunctionReturn
+	 * @param object $value The new (object) value for the attribute
+	 * @param class-string|Hint|null $classHint Optional serialization hint
 	 */
 	public static function setAttributeObject(
 		Element $node, string $name, object $value, $classHint = null

@@ -341,7 +341,7 @@ class PHPUtils {
 	 * @see https://stackoverflow.com/questions/44587973/php-iterable-to-array-or-traversable
 	 * @see https://github.com/wmde/iterable-functions/blob/master/src/functions.php
 	 *
-	 * @phan-template T
+	 * @template T
 	 * @param iterable<T> $iterable
 	 * @return array<T>
 	 */

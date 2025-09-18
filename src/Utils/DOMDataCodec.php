@@ -97,7 +97,7 @@ class DOMDataCodec extends JsonCodec {
 
 	/**
 	 * Return an appropriate default value for objects of the given type.
-	 * @phan-template T
+	 * @template T
 	 * @param class-string<T> $className
 	 * @return T
 	 */

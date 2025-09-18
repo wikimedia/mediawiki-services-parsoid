@@ -117,7 +117,7 @@ class TokenizerUtils {
 	}
 
 	/**
-	 * @phan-template T
+	 * @template T
 	 * @param T $value
 	 * @param int $start start of TSR range
 	 * @param int $end end of TSR range
