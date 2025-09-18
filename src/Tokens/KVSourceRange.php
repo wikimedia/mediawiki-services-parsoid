@@ -59,6 +59,14 @@ class KVSourceRange implements JsonCodecable {
 	}
 
 	/**
+	 * Return a new source range spanning both the key and value of
+	 * this KVSourceRange.
+	 */
+	public function span(): SourceRange {
+		return new SourceRange( $this->key->start, $this->value->end );
+	}
+
+	/**
 	 * Create a new key-value source offset range from an array of
 	 * integers (such as created during JSON serialization).
 	 *

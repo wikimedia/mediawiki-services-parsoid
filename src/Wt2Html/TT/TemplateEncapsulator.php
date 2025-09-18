@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\KVSourceRange;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -159,14 +158,8 @@ class TemplateEncapsulator {
 		for ( $i = 1, $n = count( $params );  $i < $n;  $i++ ) {
 			$param = $params[$i];
 
-			$srcOffsets = $param->srcOffsets;
+			$srcOffsets = $param->srcOffsets?->span()->expandTsrV();
 			if ( $srcOffsets !== null ) {
-				$srcOffsets = new KVSourceRange(
-					$srcOffsets->key->start,
-					$srcOffsets->key->start,
-					$srcOffsets->key->start,
-					$srcOffsets->value->end
-				);
 				$vSrc = $srcOffsets->value->substr( $src );
 			} else {
 				$vSrc = ( $param->k ? $param->k . '=' : '' ) . $param->v;
