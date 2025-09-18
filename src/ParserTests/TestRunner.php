@@ -1120,7 +1120,7 @@ class TestRunner {
 			);
 		}
 
-		$this->siteConfig->v3pf = $test->config['wgParsoidExperimentalParserFunctionSupport'] ?? false;
+		$this->siteConfig->v3pf = $test->config['wgParsoidExperimentalParserFunctionOutput'] ?? false;
 
 		// Process test-specific options
 		if ( $testOpts ) {

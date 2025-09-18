@@ -4,9 +4,9 @@ version=2
 !! end
 
 !! test
-When ParsoidExperimentalParserFunctionSupport is enabled, Parsoid should generate v3.x HTML for parser functions
+When ParsoidExperimentalParserFunctionOutput is enabled, Parsoid should generate v3.x HTML for parser functions
 !! config
-wgParsoidExperimentalParserFunctionSupport=true
+wgParsoidExperimentalParserFunctionOutput=true
 !! wikitext
 a {{#if:foo|bar|baz}} b
 !! html/parsoid
@@ -14,9 +14,9 @@ a {{#if:foo|bar|baz}} b
 !! end
 
 !! test
-When ParsoidExperimentalParserFunctionSupport is disabled, Parsoid should generate v2.x HTML for parser functions
+When ParsoidExperimentalParserFunctionOutput is disabled, Parsoid should generate v2.x HTML for parser functions
 !! config
-wgParsoidExperimentalParserFunctionSupport=false
+wgParsoidExperimentalParserFunctionOutput=false
 !! wikitext
 a {{#if:foo|bar|baz}} b
 !! html/parsoid
