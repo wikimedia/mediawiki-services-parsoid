@@ -346,6 +346,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * @return ?array<string|Token>
 	 */
 	public function onAnyInternal( $token ): ?array {
+		$abortedTrReparse = false;
 		if ( $this->trReparseBuf !== null ) {
 			if ( $token instanceof XMLTagTk &&
 				in_array( $token->getName(), [ 'td', 'th', 'tr', 'caption', 'table' ], true )
@@ -355,6 +356,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 				// This can happen because we lost a newline during preprocessing.
 				// Ex: {{1x|1=\nx\n}} strips the newlines.
 				$tokens = $this->reprocessTrReparseBufViaOnAny();
+				$abortedTrReparse = true;
 			} else {
 				if ( $token instanceof SelfclosingTagTk ) {
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
@@ -523,12 +525,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 								'trTplInfo' => $this->tplInfo,
 								'tokens' => [ $token ]
 							];
-							// If we have tokens from a previous trReparseBuf
-							// that was aborted and reprocessed above, we need
-							// to emit them now
-							if ( count( $tokens ) > 1 ) {
-								// Account for the tr we're newly buffering
-								// that gets pushed above
+							if ( $abortedTrReparse ) {
+								// If we have tokens from a previous trReparseBuf that was
+								// aborted and reprocessed above, we need to emit them now.
+								// So, dont return []. But, pop the $tr we are buffering above.
 								array_pop( $tokens );
 							} else {
 								return [];
@@ -546,7 +546,6 @@ class TokenStreamPatcher extends LineBasedHandler {
 							$this->wikiTableNesting--;
 						}
 					} elseif ( $token->getName() === 'table' || $token->getName() === 'caption' ) {
-						// Convert this to "|}"
 						$tokens = $this->convertNonHTMLTokenToString( $token );
 					}
 				}
