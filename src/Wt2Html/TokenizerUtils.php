@@ -199,13 +199,16 @@ class TokenizerUtils {
 			$dp->getTemp()->attrSrc = '';
 		}
 
-		// We consider 1 the start because the table_data_tag and table_heading_tag
-		// rules don't include the pipe so it isn't accounted for in the tsr passed
+		// We consider 1 (or 5) the start because the table_data_tag and table_heading_tag
+		// rules don't include the pipe (or `{{!}}`) so it isn't accounted for in the tsr passed
 		// to this function.  The rules making use of those rules do some extra
 		// bookkeeping to adjust for that on the start token returned from this
 		// function.  Of course, table_caption_tag doesn't follow that same pattern
 		// but that isn't a concern here.
-		if ( $tagName !== 'caption' && $tsr->start === 1 ) {
+		$atSrcStart = preg_match(
+			'/^\s*([|!]|\{\{!\}\})$/', substr( $pegSource, 0, $tsr->start )
+		);
+		if ( $tagName !== 'caption' && $atSrcStart ) {
 			$dp->setTempFlag( TempData::AT_SRC_START );
 		}
 
