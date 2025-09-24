@@ -44,6 +44,13 @@ class MockApiHelper extends ApiHelper {
 			'bits' => 8,
 			'mime' => 'image/jpeg'
 		],
+		'File_%26_file.jpg' => [
+			'size' => 7881,
+			'width' => 1941,
+			'height' => 220,
+			'bits' => 8,
+			'mime' => 'image/jpeg'
+		],
 		'Thumb.png' => [
 			'size' => 22589,
 			'width' => 135,
@@ -420,6 +427,7 @@ class MockApiHelper extends ApiHelper {
 		'Image:Foobar.jpg' => 'Foobar.jpg',
 		'Datei:Foobar.jpg' => 'Foobar.jpg',
 		'File:Foobar.jpg' => 'Foobar.jpg',
+		'File:File_&_file.jpg' => 'File_%26_file.jpg',
 		'Archivo:Foobar.jpg' => 'Foobar.jpg',
 		'Mynd:Foobar.jpg' => 'Foobar.jpg',
 		"Датотека:Foobar.jpg" => 'Foobar.jpg',
@@ -442,6 +450,10 @@ class MockApiHelper extends ApiHelper {
 		'Image:Foobar.jpg' => 'File:Foobar.jpg',
 		'Image:Foobar.svg' => 'File:Foobar.svg',
 		'Image:Thumb.png' => 'File:Thumb.png'
+	];
+
+	private const ENAMES = [
+		'File:File_&_file.jpg' => 'File_&_file.jpg',
 	];
 
 	// FIXME: Get this info from pagelanguage of a revision for these pages
@@ -633,13 +645,14 @@ class MockApiHelper extends ApiHelper {
 	): ?array {
 		$normPageName = self::PNAMES[$filename] ?? $filename;
 		$normFileName = self::FNAMES[$filename] ?? $filename;
+		$encodedFileName = self::ENAMES[$filename] ?? $normFileName;
 		$props = self::FILE_PROPS[$normFileName] ?? null;
 		if ( $props === null ) {
 			// We don't have info for this file
 			return null;
 		}
 
-		$md5 = md5( $normFileName );
+		$md5 = md5( $encodedFileName );
 		$md5prefix = $md5[0] . '/' . $md5[0] . $md5[1] . '/';
 		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFileName;
 		$height = $props['height'];

@@ -270,6 +270,7 @@ class MockDataAccess extends DataAccess {
 		"Датотека:Foobar.jpg" => 'Foobar.jpg',
 		'Image:Foobar.svg' => 'Foobar.svg',
 		'File:Foobar.svg' => 'Foobar.svg',
+		'File:File_&_file.jpg' => 'File_&_file.jpg',
 		'Image:Thumb.png' => 'Thumb.png',
 		'File:Thumb.png' => 'Thumb.png',
 		'File:LoremIpsum.djvu' => 'LoremIpsum.djvu',
@@ -297,6 +298,15 @@ class MockDataAccess extends DataAccess {
 			'bits' => 8,
 			'mime' => 'image/jpeg',
 			'sha1' => '0000000000000000000000000000001', // Wikimedia\base_convert( '1', 16, 36, 31 )
+			'timestamp' => '20010115123500',
+		],
+		'File_&_file.jpg' => [
+			'size' => 7881,
+			'width' => 1941,
+			'height' => 220,
+			'bits' => 8,
+			'mime' => 'image/jpeg',
+			'sha1' => '0000000000000000000000000000004', // Wikimedia\base_convert( '4', 16, 36, 31 )
 			'timestamp' => '20010115123500',
 		],
 		'Thumb.png' => [
