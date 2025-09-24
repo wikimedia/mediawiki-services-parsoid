@@ -108,7 +108,7 @@ parsoid=wt2html,wt2wt
 !! html/parsoid
 <p>0 args: </p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt_hash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span>
 
-<p><a rel="mw:WikiLink" href="./Template:F1_wt_hash:foo?action=edit&amp;redlink=1" title="Template:F1 wt hash:foo" about="#mwt3" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:F1_wt_hash:foo"},"sa":{"href":"Template:F1_wt_hash:foo"},"pi":[[]],"dsr":[45,63,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"f1_wt_hash:foo","href":"./Template:F1_wt_hash:foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:F1 wt hash:foo"]}}'>Template:F1 wt hash:foo</a></p>
+<p><a rel="mw:WikiLink" href="./Template:F1_wt_hash:foo?action=edit&amp;redlink=1" title="Template:F1 wt hash:foo" about="#mwt3" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:F1_wt_hash:foo"},"sa":{"href":"Template:F1_wt_hash:foo"},"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"f1_wt_hash:foo","href":"./Template:F1_wt_hash:foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:F1 wt hash:foo"]}}'>Template:F1 wt hash:foo</a></p>
 
 <p>1 arg: <span about="#mwt4" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt_hash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 !! end

@@ -44,9 +44,9 @@ Let's have some text.
 </dummyanno>
 !! html/parsoid
 <meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
-<h2 id="Title" data-parsoid='{"dsr":[12,23,2,2,1,1]}'>Title</h2>
+<h2 id="Title" data-parsoid='{}'>Title</h2>
 
-<p data-parsoid='{"dsr":[25,46,0,0]}'>Let's have some text.</p>
+<p>Let's have some text.</p>
 <meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[45,57]}'/>
 !! end
 
@@ -153,9 +153,9 @@ annotations=1
 
 Let's have some text.</dummyanno>
 !! html/parsoid
-<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><p data-parsoid='{"dsr":[11,15,0,0]}'>plop</p>
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><p>plop</p>
 
-<p data-parsoid='{"dsr":[17,38,0,0]}'>Let's have some text.</p><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[38,50,null,null]}' data-mw='{"wtOffsets":[38,50]}'/>
+<p>Let's have some text.</p><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[38,50]}'/>
 !! end
 
 !! test
@@ -417,7 +417,7 @@ annotations=1
 !! wikitext
 *<dummyanno>List item!</dummyanno>
 !! html/parsoid
-<ul data-parsoid='{"dsr":[0,35,0,0]}'><li data-parsoid='{"dsr":[0,35,1,0,1,0]}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[1,12,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[1,12]}'/>List item!<meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[22,34,null,null]}' data-mw='{"wtOffsets":[22,34]}'/></li></ul>
+<ul><li data-parsoid='{}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[1,12]}'/>List item!<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[22,34]}'/></li></ul>
 !! end
 
 
@@ -497,7 +497,7 @@ annotations=1
 <table>
 <tbody>
 <tr data-parsoid='{"startTagSrc":"|-"}'>
-<td style="background: red; color: white;" about="#mwt1" typeof="mw:ExpandedAttrs mw:Annotation/dummyanno" data-parsoid='{"a":{"style":"background: red; color: white;"},"sa":{"style":"background: &lt;dummyanno>red&lt;/dummyanno>; color: white;"}}' data-mw='{"attribs":[[{"txt":"style"},{"html":"background: &lt;meta typeof=\"mw:Annotation/dummyanno\" data-parsoid=&apos;{\"dsr\":[27,38,null,null]}&apos; data-mw=&apos;{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[27,38]}&apos;/>red&lt;meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid=&apos;{\"dsr\":[41,53,null,null]}&apos; data-mw=&apos;{\"wtOffsets\":[41,53]}&apos;/>; color: white;"}]]}'>abc</td>
+<td style="background: red; color: white;" about="#mwt1" typeof="mw:ExpandedAttrs mw:Annotation/dummyanno" data-parsoid='{"a":{"style":"background: red; color: white;"},"sa":{"style":"background: &lt;dummyanno>red&lt;/dummyanno>; color: white;"}}' data-mw='{"attribs":[[{"txt":"style"},{"html":"background: &lt;meta typeof=\"mw:Annotation/dummyanno\" data-mw=&apos;{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[27,38]}&apos;/>red&lt;meta typeof=\"mw:Annotation/dummyanno/End\" data-mw=&apos;{\"wtOffsets\":[41,53]}&apos;/>; color: white;"}]]}'>abc</td>
 <td>jkl</td></tr>
 </tbody></table>
 !! end
@@ -895,9 +895,9 @@ annotations=1
 <ann2 {{1x|1="name=hello other=plop nowrap"}}>test</ann2>
 </dummyanno>
 !! html/parsoid
-<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
-<p data-parsoid='{"dsr":[12,69,0,0]}'><meta typeof="mw:Annotation/ann2" data-parsoid='{"dsr":[12,58,null,null]}' data-mw='{"attrs":{"{{1x|1=\"name=hello other=plop nowrap\"}}":""},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,58]}'/>test<meta typeof="mw:Annotation/ann2/End" data-parsoid='{"dsr":[62,69,null,null]}' data-mw='{"wtOffsets":[62,69]}'/></p>
-<meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[70,82,null,null]}' data-mw='{"wtOffsets":[70,82]}'/>
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
+<p><meta typeof="mw:Annotation/ann2" data-mw='{"attrs":{"{{1x|1=\"name=hello other=plop nowrap\"}}":""},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,58]}'/>test<meta typeof="mw:Annotation/ann2/End" data-mw='{"wtOffsets":[62,69]}'/></p>
+<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[70,82]}'/>
 !! end
 
 !! test
@@ -935,7 +935,7 @@ annotations=1
 !! wikitext
 <dummyanno>==plop==</dummyanno>
 !! html/parsoid
-<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><h2 id="plop" data-parsoid='{"dsr":[11,19,2,2]}'>plop</h2><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[19,31,null,null]}' data-mw='{"wtOffsets":[19,31]}'/>
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><h2 id="plop" data-parsoid='{}'>plop</h2><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[19,31]}'/>
 !! end
 
 !! test
