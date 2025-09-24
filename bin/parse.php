@@ -182,6 +182,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'Parse template parameters to HTML and add them to template data'
 		);
 		$this->addOption(
+			'nativeTemplateExpansion',
+			'Use native template expansion mode'
+		);
+		$this->addOption(
 			'domain',
 			'Which wiki to use; e.g. "en.wikipedia.org" for English wikipedia, ' .
 			'"es.wikipedia.org" for Spanish, "mediawiki.org" for mediawiki.org',
@@ -627,6 +631,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"logLinterData" => $this->hasOption( 'logLinterData' ),
 			"pageBundle" =>
 			$this->hasOption( 'pageBundle' ) || $this->hasOption( 'pboutfile' ),
+			"nativeTemplateExpansion" => $this->hasOption( 'nativeTemplateExpansion' ),
 		];
 		if ( $this->hasOption( 'fragmentbank' ) ) {
 			$parsoidOpts['useFragmentBank'] = true;

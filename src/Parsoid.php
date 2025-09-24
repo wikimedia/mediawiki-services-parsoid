@@ -181,6 +181,8 @@ class Parsoid {
 		}
 		$envOptions['skipLanguageConversionPass'] =
 			$options['skipLanguageConversionPass'] ?? false;
+		$envOptions['nativeTemplateExpansion'] =
+			$options['nativeTemplateExpansion'] ?? false;
 
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
