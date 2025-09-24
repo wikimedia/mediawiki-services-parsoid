@@ -139,7 +139,8 @@ class ScriptUtils {
 				'- Supported flags:',
 				'  * pre       : shows actions of the pre handler',
 				'  * wts       : trace actions of the regular wikitext serializer',
-				'  * selser    : trace actions of the selective serializer'
+				'  * selser    : trace actions of the selective serializer',
+				''
 			]
 		);
 	}
