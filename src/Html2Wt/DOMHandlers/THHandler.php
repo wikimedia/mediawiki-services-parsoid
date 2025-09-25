@@ -36,9 +36,10 @@ class THHandler extends DOMHandler {
 		$max = $state->sep->constraints['max'] ?? 1;
 		if ( $min > 0 || ( $max > 0 && str_contains( $state->sep->src ?? '', "\n" ) ) ) {
 			// You can use both "!!" and "||" for same-row headings (ugh!)
+			// but for single-row heading we need to use "!"
 			$startTagSrc = preg_replace( '/!!/', '!', $startTagSrc, 1 );
-			$startTagSrc = preg_replace( '/\|\|/', '!', $startTagSrc, 1 );
-			$startTagSrc = preg_replace( '/{{!}}{{!}}/', '{{!}}', $startTagSrc, 1 );
+			$startTagSrc = preg_replace( '/(\||{{!}})\|/', '!', $startTagSrc, 1 );
+			$startTagSrc = preg_replace( '/(\||{{!}}){{!}}/', '!', $startTagSrc, 1 );
 		}
 
 		$thTag = $this->serializeTableTag( $startTagSrc, $attrSepSrc, $state, $node, $wrapperUnmodified );

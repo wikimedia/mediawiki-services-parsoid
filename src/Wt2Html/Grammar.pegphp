@@ -2647,8 +2647,7 @@ table_attribute_preprocessor_text_double =
 // Special-case support for those pipe templates
 pipe [inline] = "|" / "{{!}}"
 
-// SSS FIXME: what about |{{!}} and {{!}}|
-pipe_pipe [inline] = "||" / "{{!}}{{!}}"
+pipe_pipe [inline] = $(pipe pipe)
 
 space [inline] = [ \t]
 

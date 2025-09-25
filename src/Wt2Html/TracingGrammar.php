@@ -326,21 +326,19 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 129 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
 130 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
 131 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
-132 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
-133 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
-134 => ["type" => "other", "description" => "lang_variant_flag"],
-135 => ["type" => "other", "description" => "lang_variant_name"],
-136 => ["type" => "other", "description" => "lang_variant_nowiki"],
-137 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
-138 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
-139 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-140 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
-141 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-142 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
-143 => ["type" => "other", "description" => "nowiki_text"],
-144 => ["type" => "other", "description" => "full_table_in_link_caption"],
-145 => ["type" => "other", "description" => "nowiki"],
-146 => ["type" => "other", "description" => "embedded_full_table"],
+132 => ["type" => "other", "description" => "lang_variant_flag"],
+133 => ["type" => "other", "description" => "lang_variant_name"],
+134 => ["type" => "other", "description" => "lang_variant_nowiki"],
+135 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
+136 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
+137 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
+138 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
+139 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
+140 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
+141 => ["type" => "other", "description" => "nowiki_text"],
+142 => ["type" => "other", "description" => "full_table_in_link_caption"],
+143 => ["type" => "other", "description" => "nowiki"],
+144 => ["type" => "other", "description" => "embedded_full_table"],
 	];
 
 	// actions
@@ -19707,31 +19705,69 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r9 = $param_preproc;
     $r10 = $param_th;
     $r11 = $param_headingIndex;
+    $p13 = $this->currPos;
+    // start seq_2
     // start choice_1
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "||", $this->currPos, 2, false) === 0) {
-      $r12 = "||";
-      $this->currPos += 2;
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r14 = true;
+      $this->currPos++;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(132); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(2); }
+      $r14 = self::$FAILED;
     }
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
-      $r12 = "{{!}}{{!}}";
-      $this->currPos += 10;
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r14 = true;
+      $this->currPos += 5;
     } else {
-      if (!$silence) { $this->fail(133); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(3); }
+      $r14 = self::$FAILED;
     }
     choice_1:
+    if ($r14===self::$FAILED) {
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    // start choice_2
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r15 = true;
+      $this->currPos++;
+      goto choice_2;
+    } else {
+      if (!$silence) { $this->fail(2); }
+      $r15 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r15 = true;
+      $this->currPos += 5;
+    } else {
+      if (!$silence) { $this->fail(3); }
+      $r15 = self::$FAILED;
+    }
+    choice_2:
+    if ($r15===self::$FAILED) {
+      $this->currPos = $p8;
+      $param_preproc = $r9;
+      $param_th = $r10;
+      $param_headingIndex = $r11;
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    $r12 = true;
+    seq_2:
     // pp <- $r12
-    if ($r12===self::$FAILED) {
+    if ($r12!==self::$FAILED) {
+      $r12 = substr($this->input, $p13, $this->currPos - $p13);
+    } else {
+      $r12 = self::$FAILED;
       $r6 = self::$FAILED;
       goto seq_1;
     }
-    $r13 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    // tdt <- $r13
-    if ($r13===self::$FAILED) {
+    // free $r14,$r15
+    // free $p13
+    $r15 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    // tdt <- $r15
+    if ($r15===self::$FAILED) {
       $this->currPos = $p8;
       $param_preproc = $r9;
       $param_th = $r10;
@@ -19743,7 +19779,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a155($r12, $r13);
+      $r6 = $this->a155($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -20210,7 +20246,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(134); }
+    if (!$silence) { $this->fail(132); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -20333,7 +20369,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(135); }
+    if (!$silence) { $this->fail(133); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -20397,7 +20433,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r16;
   } else {
     $r17 = self::$FAILED;
-    if (!$silence) { $this->fail(136); }
+    if (!$silence) { $this->fail(134); }
     $r13 = self::$FAILED;
     goto seq_3;
   }
@@ -20448,7 +20484,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r15;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(136); }
+    if (!$silence) { $this->fail(134); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -20473,7 +20509,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r15 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(135); }
     $r15 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -20502,7 +20538,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r20;
   } else {
     $r21 = self::$FAILED;
-    if (!$silence) { $this->fail(135); }
+    if (!$silence) { $this->fail(133); }
     $r12 = self::$FAILED;
     goto seq_6;
   }
@@ -20566,7 +20602,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r25;
   } else {
     $r26 = self::$FAILED;
-    if (!$silence) { $this->fail(136); }
+    if (!$silence) { $this->fail(134); }
     $r22 = self::$FAILED;
     goto seq_7;
   }
@@ -20791,39 +20827,79 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(138); }
+      if (!$silence) { $this->fail(136); }
       $r12 = self::$FAILED;
     }
+    $p13 = $this->currPos;
+    // start seq_2
     // start choice_2
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "||", $this->currPos, 2, false) === 0) {
-      $r12 = "||";
-      $this->currPos += 2;
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r14 = true;
+      $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(132); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(2); }
+      $r14 = self::$FAILED;
     }
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
-      $r12 = "{{!}}{{!}}";
-      $this->currPos += 10;
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r14 = true;
+      $this->currPos += 5;
     } else {
-      if (!$silence) { $this->fail(133); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(3); }
+      $r14 = self::$FAILED;
     }
     choice_2:
+    if ($r14===self::$FAILED) {
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    // start choice_3
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r15 = true;
+      $this->currPos++;
+      goto choice_3;
+    } else {
+      if (!$silence) { $this->fail(2); }
+      $r15 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r15 = true;
+      $this->currPos += 5;
+    } else {
+      if (!$silence) { $this->fail(3); }
+      $r15 = self::$FAILED;
+    }
+    choice_3:
+    if ($r15===self::$FAILED) {
+      $this->currPos = $p8;
+      $param_preproc = $r9;
+      $param_th = $r10;
+      $param_headingIndex = $r11;
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    $r12 = true;
+    seq_2:
+    if ($r12!==self::$FAILED) {
+      $r12 = substr($this->input, $p13, $this->currPos - $p13);
+    } else {
+      $r12 = self::$FAILED;
+    }
+    // free $r14,$r15
+    // free $p13
     choice_1:
     // pp <- $r12
     if ($r12===self::$FAILED) {
       $r6 = self::$FAILED;
       goto seq_1;
     }
-    $r13 = $this->parsetable_heading_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    // tht <- $r13
+    $r15 = $this->parsetable_heading_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    // tht <- $r15
     $r6 = true;
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a163($r12, $r13);
+      $r6 = $this->a163($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -20866,7 +20942,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $this->currPos++;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(139); }
+    if (!$silence) { $this->fail(137); }
   }
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
@@ -20884,7 +20960,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(135); }
+    if (!$silence) { $this->fail(133); }
     $r7 = self::$FAILED;
     goto seq_1;
   }
@@ -20978,7 +21054,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r20 = self::$FAILED;
-      if (!$silence) { $this->fail(140); }
+      if (!$silence) { $this->fail(138); }
       $this->currPos = $p11;
       $param_preproc = $r12;
       $param_th = $r13;
@@ -21045,7 +21121,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $this->currPos++;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(141); }
+    if (!$silence) { $this->fail(139); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -21055,7 +21131,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r8 = true;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(142); }
+    if (!$silence) { $this->fail(140); }
     $this->currPos = $p1;
     $param_preproc = $r2;
     $param_th = $r3;
@@ -21083,7 +21159,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(143); }
+    if (!$silence) { $this->fail(141); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -21136,7 +21212,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(143); }
+    if (!$silence) { $this->fail(141); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -21529,7 +21605,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       $param_headingIndex = $r18;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(144); }
+      if (!$silence) { $this->fail(142); }
       $r20 = self::$FAILED;
       goto seq_7;
     }
@@ -21913,7 +21989,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(145); }
+    if (!$silence) { $this->fail(143); }
     $r6 = self::$FAILED;
     goto seq_1;
   }
@@ -21988,7 +22064,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(146); }
+    if (!$silence) { $this->fail(144); }
     $r7 = self::$FAILED;
     goto seq_2;
   }

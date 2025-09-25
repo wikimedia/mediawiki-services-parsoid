@@ -322,21 +322,19 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 125 => ["type" => "other", "description" => "directive"],
 126 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
 127 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
-128 => ["type" => "literal", "value" => "||", "description" => "\"||\""],
-129 => ["type" => "literal", "value" => "{{!}}{{!}}", "description" => "\"{{!}}{{!}}\""],
-130 => ["type" => "other", "description" => "lang_variant_flag"],
-131 => ["type" => "other", "description" => "lang_variant_name"],
-132 => ["type" => "other", "description" => "lang_variant_nowiki"],
-133 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
-134 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
-135 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-136 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
-137 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-138 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
-139 => ["type" => "other", "description" => "nowiki_text"],
-140 => ["type" => "other", "description" => "full_table_in_link_caption"],
-141 => ["type" => "other", "description" => "nowiki"],
-142 => ["type" => "other", "description" => "embedded_full_table"],
+128 => ["type" => "other", "description" => "lang_variant_flag"],
+129 => ["type" => "other", "description" => "lang_variant_name"],
+130 => ["type" => "other", "description" => "lang_variant_nowiki"],
+131 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
+132 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
+133 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
+134 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
+135 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
+136 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
+137 => ["type" => "other", "description" => "nowiki_text"],
+138 => ["type" => "other", "description" => "full_table_in_link_caption"],
+139 => ["type" => "other", "description" => "nowiki"],
+140 => ["type" => "other", "description" => "embedded_full_table"],
 	];
 
 	// actions
@@ -18940,31 +18938,69 @@ private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc
     $r9 = $param_preproc;
     $r10 = $param_th;
     $r11 = $param_headingIndex;
+    $p13 = $this->currPos;
+    // start seq_2
     // start choice_1
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "||", $this->currPos, 2, false) === 0) {
-      $r12 = "||";
-      $this->currPos += 2;
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r14 = true;
+      $this->currPos++;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(128); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(2); }
+      $r14 = self::$FAILED;
     }
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
-      $r12 = "{{!}}{{!}}";
-      $this->currPos += 10;
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r14 = true;
+      $this->currPos += 5;
     } else {
-      if (!$silence) { $this->fail(129); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(3); }
+      $r14 = self::$FAILED;
     }
     choice_1:
+    if ($r14===self::$FAILED) {
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    // start choice_2
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r15 = true;
+      $this->currPos++;
+      goto choice_2;
+    } else {
+      if (!$silence) { $this->fail(2); }
+      $r15 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r15 = true;
+      $this->currPos += 5;
+    } else {
+      if (!$silence) { $this->fail(3); }
+      $r15 = self::$FAILED;
+    }
+    choice_2:
+    if ($r15===self::$FAILED) {
+      $this->currPos = $p8;
+      $param_preproc = $r9;
+      $param_th = $r10;
+      $param_headingIndex = $r11;
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    $r12 = true;
+    seq_2:
     // pp <- $r12
-    if ($r12===self::$FAILED) {
+    if ($r12!==self::$FAILED) {
+      $r12 = substr($this->input, $p13, $this->currPos - $p13);
+    } else {
+      $r12 = self::$FAILED;
       $r6 = self::$FAILED;
       goto seq_1;
     }
-    $r13 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    // tdt <- $r13
-    if ($r13===self::$FAILED) {
+    // free $r14,$r15
+    // free $p13
+    $r15 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    // tdt <- $r15
+    if ($r15===self::$FAILED) {
       $this->currPos = $p8;
       $param_preproc = $r9;
       $param_th = $r10;
@@ -18976,7 +19012,7 @@ private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a155($r12, $r13);
+      $r6 = $this->a155($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -19437,7 +19473,7 @@ private function parselang_variant_flags($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(130); }
+    if (!$silence) { $this->fail(128); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -19557,7 +19593,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(129); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -19621,7 +19657,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r16;
   } else {
     $r17 = self::$FAILED;
-    if (!$silence) { $this->fail(132); }
+    if (!$silence) { $this->fail(130); }
     $r13 = self::$FAILED;
     goto seq_3;
   }
@@ -19672,7 +19708,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r15;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(132); }
+    if (!$silence) { $this->fail(130); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -19697,7 +19733,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $r15 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(133); }
+    if (!$silence) { $this->fail(131); }
     $r15 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -19726,7 +19762,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r20;
   } else {
     $r21 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(129); }
     $r12 = self::$FAILED;
     goto seq_6;
   }
@@ -19790,7 +19826,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r25;
   } else {
     $r26 = self::$FAILED;
-    if (!$silence) { $this->fail(132); }
+    if (!$silence) { $this->fail(130); }
     $r22 = self::$FAILED;
     goto seq_7;
   }
@@ -20003,39 +20039,79 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(134); }
+      if (!$silence) { $this->fail(132); }
       $r12 = self::$FAILED;
     }
+    $p13 = $this->currPos;
+    // start seq_2
     // start choice_2
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "||", $this->currPos, 2, false) === 0) {
-      $r12 = "||";
-      $this->currPos += 2;
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r14 = true;
+      $this->currPos++;
       goto choice_2;
     } else {
-      if (!$silence) { $this->fail(128); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(2); }
+      $r14 = self::$FAILED;
     }
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}{{!}}", $this->currPos, 10, false) === 0) {
-      $r12 = "{{!}}{{!}}";
-      $this->currPos += 10;
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r14 = true;
+      $this->currPos += 5;
     } else {
-      if (!$silence) { $this->fail(129); }
-      $r12 = self::$FAILED;
+      if (!$silence) { $this->fail(3); }
+      $r14 = self::$FAILED;
     }
     choice_2:
+    if ($r14===self::$FAILED) {
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    // start choice_3
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $r15 = true;
+      $this->currPos++;
+      goto choice_3;
+    } else {
+      if (!$silence) { $this->fail(2); }
+      $r15 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+      $r15 = true;
+      $this->currPos += 5;
+    } else {
+      if (!$silence) { $this->fail(3); }
+      $r15 = self::$FAILED;
+    }
+    choice_3:
+    if ($r15===self::$FAILED) {
+      $this->currPos = $p8;
+      $param_preproc = $r9;
+      $param_th = $r10;
+      $param_headingIndex = $r11;
+      $r12 = self::$FAILED;
+      goto seq_2;
+    }
+    $r12 = true;
+    seq_2:
+    if ($r12!==self::$FAILED) {
+      $r12 = substr($this->input, $p13, $this->currPos - $p13);
+    } else {
+      $r12 = self::$FAILED;
+    }
+    // free $r14,$r15
+    // free $p13
     choice_1:
     // pp <- $r12
     if ($r12===self::$FAILED) {
       $r6 = self::$FAILED;
       goto seq_1;
     }
-    $r13 = $this->parsetable_heading_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    // tht <- $r13
+    $r15 = $this->parsetable_heading_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    // tht <- $r15
     $r6 = true;
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a163($r12, $r13);
+      $r6 = $this->a163($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -20075,7 +20151,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(135); }
+    if (!$silence) { $this->fail(133); }
   }
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
@@ -20093,7 +20169,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(129); }
     $r7 = self::$FAILED;
     goto seq_1;
   }
@@ -20187,7 +20263,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r20 = self::$FAILED;
-      if (!$silence) { $this->fail(136); }
+      if (!$silence) { $this->fail(134); }
       $this->currPos = $p11;
       $param_preproc = $r12;
       $param_th = $r13;
@@ -20251,7 +20327,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(135); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -20261,7 +20337,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $r8 = true;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(136); }
     $this->currPos = $p1;
     $param_preproc = $r2;
     $param_th = $r3;
@@ -20289,7 +20365,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(139); }
+    if (!$silence) { $this->fail(137); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -20339,7 +20415,7 @@ private function parselang_variant_nowiki($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(139); }
+    if (!$silence) { $this->fail(137); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -20720,7 +20796,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r18;
     } else {
       $r17 = self::$FAILED;
-      if (!$silence) { $this->fail(140); }
+      if (!$silence) { $this->fail(138); }
       $r20 = self::$FAILED;
       goto seq_7;
     }
@@ -21064,7 +21140,7 @@ private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(141); }
+    if (!$silence) { $this->fail(139); }
     $r6 = self::$FAILED;
     goto seq_1;
   }
@@ -21136,7 +21212,7 @@ private function parsefull_table_in_link_caption($silence, $boolParams, $param_t
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(142); }
+    if (!$silence) { $this->fail(140); }
     $r7 = self::$FAILED;
     goto seq_2;
   }

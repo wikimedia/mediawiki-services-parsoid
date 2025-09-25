@@ -104,18 +104,6 @@
     "Build table with wikilink": {
         "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data [[Main Page|linktext]]\n|second data [[Main Page|linktext]]\n|-\n|data\n|second data [[Main Page|link|text with pipe]]\n|}"
     },
-    "Build table with {{!}}": {
-        "wt2wt": "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\"{{!}}second data\n{{!}}}",
-        "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data\n| style=\"color:red;\" |second data\n|}",
-        "selser [2]": "9sfybw\n{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [1]": "{{{!}} class=\"wikitable\" data-foobar=\"11ptc6n\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[0,2]]": "{{{!}} class=\"wikitable\"\n<!--tbvse9-->!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[4,[4,0,2,0]]]": "{{{!}} class=\"wikitable\"<!--rqey6f--><!--n8dabp-->\n<!--1vi52dt-->{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[4,2]]": "{{{!}} class=\"wikitable\"<!--13mcqae--><!--1boyyw2-->\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[2,2]]": "{{{!}} class=\"wikitable\"<!--gdoe7f-->\n<!--r1b0oz-->!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[4,1]]": "{{{!}} class=\"wikitable\"<!--wilazu-->\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}",
-        "selser [[3,1]]": "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\" {{!}}second data\n{{!}}}"
-    },
     "Fostered content in tables: Lists": {
         "selser [1,2]": "*a\n*b\najwbwr\n{|\n|-\n*a\n*b\n|}",
         "selser [[0,4,0],[4,2]]": "*a\n* 1b3dqm3\n*b\n{|<!--1ctabq5--><!--q5qhbe-->\n|-\n*a\n*b\n|}",

@@ -35,8 +35,8 @@ class TDHandler extends DOMHandler {
 		$min = $state->sep->constraints['min'] ?? 0;
 		$max = $state->sep->constraints['max'] ?? 1;
 		if ( $min > 0 || ( $max > 0 && str_contains( $state->sep->src ?? '', "\n" ) ) ) {
-			$startTagSrc = preg_replace( '/\|\|/', '|', $startTagSrc, 1 );
-			$startTagSrc = preg_replace( '/{{!}}{{!}}/', '{{!}}', $startTagSrc, 1 );
+			$startTagSrc = preg_replace( '/(\||{{!}})\|/', '|', $startTagSrc, 1 );
+			$startTagSrc = preg_replace( '/(\||{{!}}){{!}}/', '{{!}}', $startTagSrc, 1 );
 		}
 
 		// If the HTML for the first td is not enclosed in a tr-tag,
@@ -45,7 +45,7 @@ class TDHandler extends DOMHandler {
 			$startTagSrc, $attrSepSrc,
 			$state, $node, $wrapperUnmodified
 		);
-		$inWideTD = (bool)preg_match( '/\|\||^{{!}}{{!}}/', $tdTag );
+		$inWideTD = (bool)preg_match( '/\|\||^{{!}}({{!}}|\|)|^(\||{{!}}){{!}}/', $tdTag );
 		$leadingSpace = $this->getLeadingSpace( $state, $node, '' );
 		$state->emitChunk( $tdTag . $leadingSpace, $node );
 		$tdHandler = static function ( $state, $text, $opts ) use ( $node, $inWideTD ) {

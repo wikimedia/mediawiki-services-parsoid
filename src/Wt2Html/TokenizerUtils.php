@@ -319,6 +319,8 @@ class TokenizerUtils {
 					|| ( $stops['table']
 						&& $pos < strlen( $input ) - 1
 						&& preg_match( '/[}|]/', $input[$pos + 1] ) )
+					|| ( $stops['table']
+						&& substr( $input, $pos, 6 ) === '|{{!}}' )
 				);
 
 			case '!':
@@ -332,7 +334,9 @@ class TokenizerUtils {
 				return ( $stops['tableCellArg']
 						&& substr( $input, $pos, 5 ) === '{{!}}' )
 					|| ( $stops['table']
-						&& substr( $input, $pos, 10 ) === '{{!}}{{!}}' );
+						&& substr( $input, $pos, 10 ) === '{{!}}{{!}}' )
+					|| ( $stops['table']
+						&& substr( $input, $pos, 6 ) === '{{!}}|' );
 
 			case '}':
 				$preproc = $stops['preproc'];
