@@ -495,7 +495,7 @@ class WTUtils {
 		// FIXME: We could probably change the null return to ''
 		// Just need to verify that code that uses this won't break
 		return Utils::isValidDSR( $dsr ) ?
-			$dsr->substr( $frame->getSrcText() ) : null;
+			$dsr->substr( $frame->getSource() ) : null;
 	}
 
 	/**

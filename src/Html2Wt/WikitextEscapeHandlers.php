@@ -357,7 +357,9 @@ class WikitextEscapeHandlers {
 		}
 
 		$str = $state->currLine->text . $text;
-		$tokens = $this->tokenizer->tokenizeSync( $str, [ 'sol' => false ] ); // sol state is irrelevant here
+		$tokens = $this->tokenizer->tokenizeAs(
+			$str, 'start', sol: false, // sol state is irrelevant here
+		);
 		$n = count( $tokens );
 		$lastToken = $tokens[$n - 1];
 
@@ -473,7 +475,7 @@ class WikitextEscapeHandlers {
 			$text = str_replace( "\n", "\n ", $text );
 		}
 
-		$tokens = $this->tokenizer->tokenizeSync( $text, [ 'sol' => $sol ] );
+		$tokens = $this->tokenizer->tokenizeAs( $text, 'start', sol: $sol );
 
 		// If the token stream has a XmlTagTk or CommentTk
 		// then this text needs escaping!
@@ -664,7 +666,7 @@ class WikitextEscapeHandlers {
 		// instead of entity enclosed text
 		$text = preg_replace( '#&lt;(/?nowiki\s*/?\s*)&gt;#i', '<$1>', $text );
 
-		$tokens = $this->tokenizer->tokenizeSync( $text, [ 'sol' => $sol ] );
+		$tokens = $this->tokenizer->tokenizeAs( $text, 'start', sol: $sol );
 
 		foreach ( $tokens as $t ) {
 			if ( is_string( $t ) ) {
@@ -1136,7 +1138,7 @@ class WikitextEscapeHandlers {
 		$openNowiki = false;
 		$isTemplate = $opts['type'] === 'template';
 
-		$tokens = $this->tokenizer->tokenizeSync( $arg, [ 'sol' => false ] );
+		$tokens = $this->tokenizer->tokenizeAs( $arg, 'start', sol: false );
 
 		for ( $i = 0, $n = count( $tokens ); $i < $n; $i++ ) {
 			$t = $tokens[$i];
@@ -1256,10 +1258,11 @@ class WikitextEscapeHandlers {
 					$tkSrc = $da->tsr->substr( $arg );
 					// Replace pipe by an entity. This is not completely safe.
 					if ( $t->getName() === 'extlink' || $t->getName() === 'urllink' ) {
-						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
-							'startRule' => 'tplarg_or_template_or_bust',
-							'sol' => true,
-						] );
+						$tkBits = $this->tokenizer->tokenizeAs(
+							$tkSrc,
+							'tplarg_or_template_or_bust',
+							sol: true,
+						);
 						foreach ( $tkBits as $bit ) {
 							if ( $bit instanceof Token ) {
 								self::appendStr(

@@ -137,7 +137,7 @@ abstract class PageConfig {
 	 * the name of this method could be updated, if necessary.
 	 *
 	 * Shortcut method to get page source
-	 * @deprecated Use $this->topFrame->getSrcText()
+	 * @deprecated Use $this->topFrame->getSource()->getSrcText()
 	 * @return string
 	 */
 	public function getPageMainContent(): string {

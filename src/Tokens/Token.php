@@ -7,12 +7,12 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
-use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * Catch-all class for all token types.
@@ -283,17 +283,16 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	/**
 	 * Get the wikitext source of a token.
 	 *
-	 * @param Frame $frame
+	 * @param Source ...$source Optional Source, for context.
 	 * @return string
 	 */
-	public function getWTSource( Frame $frame ): string {
+	public function getWTSource( Source ...$source ): string {
 		$tsr = $this->dataParsoid->tsr ?? null;
 		if ( !( $tsr instanceof SourceRange ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
-		$srcText = $frame->getSrcText();
 		Assert::invariant( $tsr->end >= $tsr->start, 'Bad TSR' );
-		return $tsr->substr( $srcText );
+		return $tsr->substr( ...$source );
 	}
 
 	/**

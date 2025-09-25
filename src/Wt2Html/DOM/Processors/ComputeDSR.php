@@ -5,11 +5,13 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -17,7 +19,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -292,7 +293,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * [s,e) -- if defined, start/end position of wikitext source that generated
 	 *          node's subtree
 	 *
-	 * @param Frame $frame
+	 * @param Env $env
+	 * @param Source $source
 	 * @param Node $node node to process
 	 * @param ?int $s start position, inclusive
 	 * @param ?int $e end position, exclusive
@@ -302,10 +304,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @return list{?int, ?int}
 	 */
 	private function computeNodeDSR(
-		Frame $frame, Node $node, ?int $s, ?int $e, int $dsrCorrection,
+		Env $env, Source $source, Node $node, ?int $s, ?int $e, int $dsrCorrection,
 		array $opts
 	): array {
-		$env = $frame->getEnv();
 		if ( $e === null && !$node->hasChildNodes() ) {
 			$e = $s;
 		}
@@ -367,7 +368,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							// since it will now get corrected to zero width
 							// since child acquires its width->
 							$ndp->getTemp()->origDSR = new DomSourceRange(
-								$ndp->dsr->start, $ndp->dsr->end, null, null );
+								$ndp->dsr->start, $ndp->dsr->end, null, null,
+								source: $ndp->dsr->source
+							);
 						}
 					}
 				}
@@ -554,7 +557,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						} );
 
 						$env->trace( "dsr", "<recursion>" );
-						$newDsr = $this->computeNodeDSR( $frame, $child, $ccs, $cce, $dsrCorrection, $opts );
+						$newDsr = $this->computeNodeDSR( $env, $source, $child, $ccs, $cce, $dsrCorrection, $opts );
 						$env->trace( "dsr", "</recursion>" );
 					}
 
@@ -591,9 +594,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						if ( $origCE < 0 ) {
 							$origCE = 0;
 						}
-						$dp->dsr = new DomSourceRange( $origCE, $origCE, null, null );
+						$dp->dsr = new DomSourceRange( $origCE, $origCE, null, null, source: $source );
 					} else {
-						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
+						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth, source: $source );
 					}
 
 					$env->trace( "dsr", static function () use ( $child, $cs, $ce ) {
@@ -621,7 +624,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
 							'@phan-var Element $sibling'; // @var Element $sibling
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
-							$siblingDP->dsr ??= new DomSourceRange( null, null, null, null );
+							$siblingDP->dsr ??= new DomSourceRange( null, null, null, null, source: $source );
 							$sdsrStart = $siblingDP->dsr->start;
 							if ( !empty( $siblingDP->fostered ) ||
 								( $sdsrStart !== null && $sdsrStart === $newCE ) ||
@@ -715,17 +718,20 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		}
 
 		$frame = $options['frame'] ?? $env->topFrame;
-		$startOffset = $options['srcOffsets']->start ?? 0;
-		$endOffset = $options['srcOffsets']->end ?? strlen( $frame->getSrcText() );
+		$srcOffsets = $options['srcOffsets'] ??
+			SourceRange::fromSource( $frame->getSource() );
+		$startOffset = $srcOffsets->start;
+		$endOffset = $srcOffsets->end;
+		$source = $srcOffsets->source ?? $frame->getSource();
 		$env->trace( "dsr", "------- tracing DSR computation -------" );
 
 		// The actual computation buried in trace/debug stmts.
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
-		$this->computeNodeDSR( $frame, $root, $startOffset, $endOffset, 0, $opts );
+		$this->computeNodeDSR( $env, $source, $root, $startOffset, $endOffset, 0, $opts );
 
 		if ( $root instanceof Element ) {
 			$dp = DOMDataUtils::getDataParsoid( $root );
-			$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
+			$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0, source: $source );
 		}
 		$env->trace( "dsr", "------- done tracing computation -------" );
 	}

@@ -262,7 +262,7 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		if ( $tSp !== null ) {
 			$das->tSp = $tSp;
 		}
-		$das->tsr = new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) );
+		$das->tsr = new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ), $tsr->source );
 
 		PHPUtils::sortArray( $dataMWV );
 		$tokens = [
@@ -274,7 +274,7 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		];
 		if ( !$isMeta ) {
 			$metaDP = new DataParsoid;
-			$metaDP->tsr = new SourceRange( $tsr->end - 2, $tsr->end );
+			$metaDP->tsr = new SourceRange( $tsr->end - 2, $tsr->end, $tsr->source );
 			$tokens[] = new EndTagTk( $isBlock ? 'div' : 'span', [], $metaDP );
 		}
 

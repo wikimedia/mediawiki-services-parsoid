@@ -93,6 +93,8 @@ class UnpackDOMFragments {
 
 	private static function markMisnested( Env $env, Element $n, ?int &$newOffset ): void {
 		$dp = DOMDataUtils::getDataParsoid( $n );
+		// XXX T405759 "top frame source" doesn't seem right in the general case
+		$source = $dp->dsr->source ?? $env->topFrame->getSource();
 		if ( $newOffset === null ) {
 			// We end up here when $placeholderParent is part of encapsulated content.
 			// Till we add logic to prevent that from happening, we need this fallback.
@@ -104,10 +106,10 @@ class UnpackDOMFragments {
 			// than page size to avoid pointing to something in source.
 			// Trying to fetch outside page source returns "".
 			if ( $newOffset === null ) {
-				$newOffset = strlen( $env->topFrame->getSrcText() ) + 1;
+				$newOffset = strlen( $source->getSrcText() ) + 1;
 			}
 		}
-		$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
+		$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null, source: $source );
 		$dp->misnested = true;
 	}
 
@@ -198,13 +200,19 @@ class UnpackDOMFragments {
 				// FIXME: An old comment from c28f137 said we just use dsr->start and
 				// dsr->end since tag-widths will be incorrect for reuse of template
 				// expansions.  The comment was removed in ca9e760.
-				$fragmentDP->dsr = new DomSourceRange( $placeholderDSR->start, $placeholderDSR->end, null, null );
+				$fragmentDP->dsr = new DomSourceRange(
+					$placeholderDSR->start, $placeholderDSR->end, null, null,
+					source: $placeholderDSR->source
+				);
 			} elseif (
 				DOMUtils::matchTypeOf( $fragmentContent, '/^mw:(Nowiki|Extension(\/\S+))$/' ) !== null
 			) {
 				$fragmentDP->dsr = $placeholderDSR;
 			} else { // non-transcluded images
-				$fragmentDP->dsr = new DomSourceRange( $placeholderDSR->start, $placeholderDSR->end, 2, 2 );
+				$fragmentDP->dsr = new DomSourceRange(
+					$placeholderDSR->start, $placeholderDSR->end, 2, 2,
+					source: $placeholderDSR->source
+				);
 			}
 		}
 

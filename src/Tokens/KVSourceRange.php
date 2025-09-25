@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Tokens;
 use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Core\Source;
 
 /**
  * Represents a source offset range for a key-value pair.
@@ -33,10 +34,15 @@ class KVSourceRange implements JsonCodecable {
 	 *   (unicode code points, inclusive)
 	 * @param int $valueEnd The end index of the value
 	 *   (unicode code points, exclusive)
+	 * @param ?Source $keySource
+	 * @param ?Source $valueSource
 	 */
-	public function __construct( int $keyStart, int $keyEnd, int $valueStart, int $valueEnd ) {
-		$this->key = new SourceRange( $keyStart, $keyEnd );
-		$this->value = new SourceRange( $valueStart, $valueEnd );
+	public function __construct(
+		int $keyStart, int $keyEnd, int $valueStart, int $valueEnd,
+			?Source $keySource = null, ?Source $valueSource = null
+	) {
+		$this->key = new SourceRange( $keyStart, $keyEnd, $keySource );
+		$this->value = new SourceRange( $valueStart, $valueEnd, $valueSource );
 	}
 
 	public function __clone() {
@@ -54,7 +60,9 @@ class KVSourceRange implements JsonCodecable {
 			$this->key->start + $amount,
 			$this->key->end + $amount,
 			$this->value->start + $amount,
-			$this->value->end + $amount
+			$this->value->end + $amount,
+			$this->key->source,
+			$this->value->source,
 		);
 	}
 
@@ -63,7 +71,8 @@ class KVSourceRange implements JsonCodecable {
 	 * this KVSourceRange.
 	 */
 	public function span(): SourceRange {
-		return new SourceRange( $this->key->start, $this->value->end );
+		Assert::invariant( $this->key->source === $this->value->source, "Key and Value come from different sources" );
+		return new SourceRange( $this->key->start, $this->value->end, $this->key->source );
 	}
 
 	/**

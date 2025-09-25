@@ -291,7 +291,7 @@ class QuoteTransformer extends LineBasedHandler {
 		$oldbold = $this->chunks[$i][0];
 		$tsr = $oldbold->dataParsoid->tsr ?? null;
 		if ( $tsr ) {
-			$tsr = new SourceRange( $tsr->start + 1, $tsr->end );
+			$tsr = new SourceRange( $tsr->start + 1, $tsr->end, $tsr->source );
 		}
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
@@ -424,10 +424,10 @@ class QuoteTransformer extends LineBasedHandler {
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
 					$tags[$i]->dataParsoid->autoInsertedStartToken = true;
 				} elseif ( $tags[$i]->getName() === 'b' ) {
-					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 3 );
+					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 3, $tsr->source );
 					$startpos = $tags[$i]->dataParsoid->tsr->end;
 				} elseif ( $tags[$i]->getName() === 'i' ) {
-					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 2 );
+					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 2, $tsr->source );
 					$startpos = $tags[$i]->dataParsoid->tsr->end;
 				}
 			}

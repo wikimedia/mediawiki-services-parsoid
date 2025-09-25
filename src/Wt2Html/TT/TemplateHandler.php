@@ -83,7 +83,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		// return" below.
 		$this->atMaxArticleSize = !$this->env->compareWt2HtmlLimit(
 			'wikitextSize',
-			strlen( $this->env->topFrame->getSrcText() )
+			strlen( $this->env->topFrame->getSource()->getSrcText() )
 		);
 	}
 
@@ -331,7 +331,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 				'pfArg' => $pfArg,
 				'srcOffsets' => new SourceRange(
 					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
-					$srcOffsets->end ),
+					$srcOffsets->end,
+					$srcOffsets->source ),
 			];
 		}
 
@@ -371,7 +372,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 				'haveColon' => $haveColon, // FIXME: T391063
 				'srcOffsets' => new SourceRange(
 					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
-					$srcOffsets->end ),
+					$srcOffsets->end,
+					$srcOffsets->source ),
 			];
 
 			// Check if we have a Parsoid PFragment handler for this parser func
@@ -439,7 +441,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		$tsr = $token->dataParsoid->tsr;
 		$src = substr( $token->dataParsoid->src, 1, -1 );
 		$startOffset = $tsr->start + 1;
-		$srcOffsets = new SourceRange( $startOffset, $startOffset + strlen( $src ) );
+		$srcOffsets = new SourceRange( $startOffset, $startOffset + strlen( $src ), $tsr->source );
 
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env, $frame, $src, [
@@ -934,10 +936,12 @@ class TemplateHandler extends XMLTagBasedHandler {
 			} else {
 				if (
 					$fragment instanceof WikitextPFragment &&
-					!$fragment->containsMarker()
+					!$fragment->containsMarker() &&
+					$fragment->getSrcOffsets() !== null
 				) {
 					// Optimize simple case
 					$wikitext = $fragment->killMarkers();
+					$srcOffsets = $fragment->getSrcOffsets();
 				} else {
 					// This is a mixed expansion which contains wikitext and
 					// atomic PFragments.  Process this to tokens.
@@ -945,6 +949,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 					// above, which represents an atomic PFragment.)
 					[
 						'wikitext' => $wikitext,
+						'srcOffsets' => $srcOffsets,
 					] = PipelineUtils::preparePFragment(
 						$env,
 						$this->manager->getFrame(),
@@ -967,6 +972,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 						// Template like content returned from the
 						// preprocessor should not be further expanded
 						'expandTemplates' => false,
+						'srcOffsets' => $srcOffsets,
 					] + $this->options
 				);
 				return new TemplateExpansionResult(

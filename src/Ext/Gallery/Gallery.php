@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
 use Wikimedia\Parsoid\NodeData\DataMwBody;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -71,12 +72,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	 * Parse a single line of the gallery.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $line
-	 * @param int $lineStartOffset
+	 * @param SourceRange $lineRange
 	 * @param Opts $opts
 	 * @return ParsedLine|null
 	 */
 	private static function pLine(
-		ParsoidExtensionAPI $extApi, string $line, int $lineStartOffset,
+		ParsoidExtensionAPI $extApi, string $line, SourceRange $lineRange,
 		Opts $opts
 	): ?ParsedLine {
 		// Regexp from php's `renderImageGallery`
@@ -129,10 +130,15 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		if ( !preg_match( '/\[\[/', $imageOptStr, $m ) ) {
 			$imageOptStr = preg_replace( '/]]$/D', '', $imageOptStr );
 		}
+		$imageOptRange = ( new SourceRange(
+			0, strlen( $imageOptStr ), $lineRange->source
+		) )->offset(
+			$lineRange->start + strlen( $oTitleStr )
+		);
 
 		$mode = Mode::byName( $opts->mode );
 		$imageOpts = [
-			[ $imageOptStr, $lineStartOffset + strlen( $oTitleStr ) ],
+			[ $imageOptStr, $imageOptRange ],
 			// T305628: Dimensions are last one wins so ensure this takes
 			// precedence over anything in $imageOptStr
 			"|{$mode->dimensions( $opts )}",
@@ -197,8 +203,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			break;
 		}
 
-		$dsr = new DomSourceRange( $lineStartOffset, $lineStartOffset + strlen( $line ), null, null );
-		return new ParsedLine( $thumb, $gallerytext, $rdfaType, $dsr );
+		return new ParsedLine( $thumb, $gallerytext, $rdfaType, DomSourceRange::fromTsr( $lineRange ) );
 	}
 
 	/** @inheritDoc */
@@ -209,6 +214,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$opts = new Opts( $extApi, $attrs );
 
 		$offset = $extApi->extTag->getOffsets()->innerStart();
+		$source = $extApi->extTag->getOffsets()->source;
 
 		// Prepare the lines for processing
 		$lines = explode( "\n", $content );
@@ -219,10 +225,10 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}, $lines );
 
 		$caption = $opts->caption ? $this->pCaption( $extApi, $args ) : null;
-		$lines = array_map( function ( $lineObj ) use ( $extApi, $opts ) {
-			return $this->pLine(
-				$extApi, $lineObj['line'], $lineObj['offset'], $opts
-			);
+		$lines = array_map( function ( $lineObj ) use ( $extApi, $opts, $source ) {
+			[ 'line' => $line, 'offset' => $offset ] = $lineObj;
+			$range = new SourceRange( $offset, $offset + strlen( $line ), $source );
+			return $this->pLine( $extApi, $line, $range, $opts );
 		}, $lines );
 
 		// Drop invalid lines like "References: 5."

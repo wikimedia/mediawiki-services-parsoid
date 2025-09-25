@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\SectionMetadata;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -484,9 +485,9 @@ class WrapSectionsState {
 	 *
 	 * @param Element $node
 	 * @param bool $start
-	 * @return ?int
+	 * @return array{0:?int,1:?Source}
 	 */
-	private function getDSR( Element $node, bool $start ): ?int {
+	private function getDSR( Element $node, bool $start ): array {
 		if ( !self::isParsoidSection( $node ) ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( !$dsr ) {
@@ -498,7 +499,7 @@ class WrapSectionsState {
 				$dsr = DOMDataUtils::getDataParsoid( $this->aboutIdMap[$about] )->dsr;
 			}
 
-			return $start ? $dsr->start : $dsr->end;
+			return [ $start ? $dsr->start : $dsr->end, $dsr->source ];
 		}
 
 		$offset = 0;
@@ -510,28 +511,29 @@ class WrapSectionsState {
 				$offset += WTUtils::decodedCommentLength( $c );
 			} else {
 				'@phan-var Element $c'; // @var Element $c
-				$ret = $this->getDSR( $c, $start );
-				return $ret === null ? null : $ret + ( $start ? -$offset : $offset );
+				[ $ret, $src ] = $this->getDSR( $c, $start );
+				return [ $ret === null ? null : $ret + ( $start ? -$offset : $offset ), $src ];
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
 		}
 
-		return -1;
+		return [ -1, null ];
 	}
 
 	/**
 	 * FIXME: Duplicated with TableFixups code.
 	 * @param list<string|TemplateInfo> &$parts
+	 * @param Source $source
 	 * @param ?int $offset1
 	 * @param ?int $offset2
 	 * @throws InternalException
 	 */
-	private function fillDSRGap( array &$parts, ?int $offset1, ?int $offset2 ): void {
+	private function fillDSRGap( array &$parts, Source $source, ?int $offset1, ?int $offset2 ): void {
 		if ( $offset1 === null || $offset2 === null ) {
 			throw new InternalException();
 		}
 		if ( $offset1 < $offset2 ) {
-			$parts[] = PHPUtils::safeSubstr( $this->frame->getSrcText(), $offset1, $offset2 - $offset1 );
+			$parts[] = PHPUtils::safeSubstr( $source->getSrcText(), $offset1, $offset2 - $offset1 );
 		}
 	}
 
@@ -559,10 +561,11 @@ class WrapSectionsState {
 				$dp = DOMDataUtils::getDataParsoid( $encapNode );
 
 				// Plug DSR gaps between encapWrappers
+				$source = $dp->dsr->source ?? $this->frame->getSource();
 				if ( !$prevDp ) {
-					$this->fillDSRGap( $parts, $wrapperDp->dsr->start, $dp->dsr->start );
+					$this->fillDSRGap( $parts, $source, $wrapperDp->dsr->start, $dp->dsr->start );
 				} else {
-					$this->fillDSRGap( $parts, $prevDp->dsr->end, $dp->dsr->start );
+					$this->fillDSRGap( $parts, $source, $prevDp->dsr->end, $dp->dsr->start );
 				}
 
 				if ( DOMUtils::hasTypeOf( $encapNode, "mw:Transclusion" ) ) {
@@ -587,7 +590,8 @@ class WrapSectionsState {
 					// "mw:Transclusion" as a generic type that covers a single template
 					// as well as a run of segments where at least one segment comes from
 					// a template but others may be from other generators (ex: extensions).
-					$this->fillDSRGap( $parts, $dp->dsr->start, $dp->dsr->end );
+					$source = $dp->dsr->source ?? $this->frame->getSource();
+					$this->fillDSRGap( $parts, $source, $dp->dsr->start, $dp->dsr->end );
 				}
 
 				$prevDp = $dp;
@@ -599,7 +603,8 @@ class WrapSectionsState {
 
 			DOMUtils::addTypeOf( $wrapper, "mw:Transclusion" );
 			$wrapperDp->pi = $pi;
-			$this->fillDSRGap( $parts, $prevDp->dsr->end, $wrapperDp->dsr->end );
+			$source = $prevDp->dsr->source ?? $this->frame->getSource();
+			$this->fillDSRGap( $parts, $source, $prevDp->dsr->end, $wrapperDp->dsr->end );
 			$dataMw = new DataMw( [] );
 			$dataMw->parts = $parts;
 			DOMDataUtils::setDataMw( $wrapper, $dataMw );
@@ -717,10 +722,10 @@ class WrapSectionsState {
 				$n->setAttribute( 'about', $about );
 			}
 
-			$dsr1 = $this->getDSR( $range['start'], true ); // Traverses non-tpl content => will succeed
-			$dsr2 = $this->getDSR( $range['end'], false );  // Traverses non-tpl content => will succeed
+			[ $dsr1, $src1 ] = $this->getDSR( $range['start'], true ); // Traverses non-tpl content => will succeed
+			[ $dsr2, $src2 ] = $this->getDSR( $range['end'], false );  // Traverses non-tpl content => will succeed
 			$dp = new DataParsoid;
-			$dp->dsr = new DomSourceRange( $dsr1, $dsr2, null, null );
+			$dp->dsr = new DomSourceRange( $dsr1, $dsr2, null, null, source: $src1 ?? $src2 );
 			DOMDataUtils::setDataParsoid( $range['start'], $dp );
 
 			$this->collapseWrappers( $range['start'], $range['encapWrappers'] );
@@ -736,7 +741,7 @@ class WrapSectionsState {
 			}
 		}
 		TokenUtils::convertOffsets(
-			$this->env->topFrame->getSrcText(),
+			$this->env->topFrame->getSource()->getSrcText(),
 			$this->env->getCurrentOffsetType(),
 			'char',
 			$offsets
@@ -871,7 +876,10 @@ class WrapSectionsState {
 					$syntheticOffset = DOMDataUtils::getDataParsoid( $tocIP )->dsr->start ?? null;
 					if ( $syntheticOffset !== null ) {
 						$dp = DOMDataUtils::getDataParsoid( $syntheticTocMeta );
-						$dp->dsr = new DomSourceRange( $syntheticOffset, $syntheticOffset, 0, 0 );
+						$dp->dsr = new DomSourceRange(
+							$syntheticOffset, $syntheticOffset, 0, 0,
+							source: DOMDataUtils::getDataParsoid( $tocIP )->dsr->source
+						);
 					}
 				}
 			}

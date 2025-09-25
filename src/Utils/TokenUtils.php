@@ -335,7 +335,8 @@ class TokenUtils {
 						// small string fragments and the complicated use cases
 						// below should not materialize.
 						// CSA: token-stream-patcher shouldn't have problems
-						// now that $frame->srcText is always accurate?
+						// now that $tsr->source/$frame->srcText is always
+						// accurate?
 
 						// content offsets for ext-links
 						if ( isset( $da->tmp->extLinkContentOffsets ) ) {

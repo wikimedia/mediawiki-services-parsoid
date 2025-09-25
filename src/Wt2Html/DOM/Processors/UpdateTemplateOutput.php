@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -44,11 +45,11 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 			$ti = $dataMw->parts[0] ?? null;
 			if ( !is_string( $ti ) && $ti->href === $tplTitle ) {
 				$dp = DOMDataUtils::getDataParsoid( $tplNode );
-				$wt = $dp->dsr->substr( $selparData->revText );
+				$dp->dsr->source ??= new SourceString( $selparData->revText );
+				$wt = $dp->dsr->substr();
 				$opts = [
 					'pipelineType' => 'selective-update-fragment-wikitext-to-dom',
 					'sol' => false, // FIXME: Not strictly correct
-					'srcText' => $selparData->revText,
 					'pipelineOpts' => [],
 					'srcOffsets' => $dp->dsr,
 				];

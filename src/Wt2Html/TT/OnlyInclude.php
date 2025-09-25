@@ -87,7 +87,7 @@ class OnlyInclude extends UniversalTokenHandler {
 			$dp = new DataParsoid;
 			$dp->tsr = $token->dataParsoid->tsr;
 			$dp->src = $dp->tsr->substr(
-				$this->manager->getFrame()->getSrcText()
+				$this->manager->getFrame()->getSource()
 			);
 
 			// FIXME: Just drop these, we're inTemplate

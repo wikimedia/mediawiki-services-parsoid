@@ -54,9 +54,10 @@ class DomSourceRange extends SourceRange {
 	public function __construct(
 		?int $start, ?int $end, ?int $openWidth, ?int $closeWidth,
 		int $leadingWS = 0,
-		int $trailingWS = 0
+		int $trailingWS = 0,
+		?Source $source = null,
 	) {
-		parent::__construct( $start, $end );
+		parent::__construct( $start, $end, $source );
 		$this->openWidth = $openWidth;
 		$this->closeWidth = $closeWidth;
 		$this->leadingWS = $leadingWS;
@@ -67,10 +68,13 @@ class DomSourceRange extends SourceRange {
 	 * Return the substring of the given string corresponding to the
 	 * inner portion of this range (that is, not including the opening
 	 * and closing tag widths).
-	 * @param string $str The source text string
+	 * @param string|Source ...$str The source text string (optional)
+	 *  The Source of this object (if non-null) is preferred over the given
+	 *  argument.
 	 * @return string
 	 */
-	public function innerSubstr( string $str ): string {
+	public function innerSubstr( string|Source ...$str ): string {
+		$str = $this->getSourceString( $str );
 		return PHPUtils::safeSubstr( $str, $this->innerStart(), $this->innerLength() );
 	}
 
@@ -102,20 +106,26 @@ class DomSourceRange extends SourceRange {
 	/**
 	 * Return the substring of the given string corresponding to the
 	 * open portion of this range.
-	 * @param string $str The source text string
+	 * @param string|Source ...$str The source text string (optional)
+	 *  The Source of this object (if non-null) is preferred over the given
+	 *  argument.
 	 * @return string
 	 */
-	public function openSubstr( string $str ): string {
+	public function openSubstr( string|Source ...$str ): string {
+		$str = $this->getSourceString( $str );
 		return PHPUtils::safeSubstr( $str, $this->start, $this->openWidth );
 	}
 
 	/**
 	 * Return the substring of the given string corresponding to the
 	 * close portion of this range.
-	 * @param string $str The source text string
+	 * @param string|Source ...$str The source text string (optional)
+	 *  The Source of this object (if non-null) is preferred over the given
+	 *  argument.
 	 * @return string
 	 */
-	public function closeSubstr( string $str ): string {
+	public function closeSubstr( string|Source ...$str ): string {
+		$str = $this->getSourceString( $str );
 		return PHPUtils::safeSubstr( $str, $this->innerEnd(), $this->closeWidth );
 	}
 
@@ -124,7 +134,7 @@ class DomSourceRange extends SourceRange {
 	 * @return SourceRange
 	 */
 	public function openRange(): SourceRange {
-		return new SourceRange( $this->start, $this->innerStart() );
+		return new SourceRange( $this->start, $this->innerStart(), $this->source );
 	}
 
 	/**
@@ -132,7 +142,7 @@ class DomSourceRange extends SourceRange {
 	 * @return SourceRange
 	 */
 	public function closeRange(): SourceRange {
-		return new SourceRange( $this->innerEnd(), $this->end );
+		return new SourceRange( $this->innerEnd(), $this->end, $this->source );
 	}
 
 	/**
@@ -140,7 +150,7 @@ class DomSourceRange extends SourceRange {
 	 * @return SourceRange
 	 */
 	public function innerRange(): SourceRange {
-		return new SourceRange( $this->innerStart(), $this->innerEnd() );
+		return new SourceRange( $this->innerStart(), $this->innerEnd(), $this->source );
 	}
 
 	/**
@@ -178,7 +188,8 @@ class DomSourceRange extends SourceRange {
 			$this->openWidth,
 			$this->closeWidth,
 			$this->leadingWS,
-			$this->trailingWS
+			$this->trailingWS,
+			$this->source
 		);
 	}
 
@@ -228,7 +239,19 @@ class DomSourceRange extends SourceRange {
 		if ( $tsr instanceof DomSourceRange ) {
 			return $tsr;
 		}
-		return new DomSourceRange( $tsr->start, $tsr->end, null, null );
+		return new DomSourceRange(
+			$tsr->start, $tsr->end, null, null, source: $tsr->source
+		);
+	}
+
+	/**
+	 * Create a DomSourceRange spanning the given Source.
+	 */
+	public static function fromSource( Source $source ): static {
+		return new DomSourceRange(
+			0, strlen( $source->getSrcText() ), null, null,
+			source: $source
+		);
 	}
 
 	/**

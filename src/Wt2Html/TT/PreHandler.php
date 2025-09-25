@@ -106,8 +106,7 @@ class PreHandler extends LineBasedHandler {
 
 	/** @var int */
 	private $state;
-	/** @var int */
-	private $preTSR;
+	private ?SourceRange $preTSR;
 	/** @var array<Token|string> */
 	private $tokens;
 	/** @var array<Token|string> */
@@ -199,7 +198,8 @@ class PreHandler extends LineBasedHandler {
 		// Initialize to zero to deal with indent-pre
 		// on the very first line where there is no
 		// preceding newline to initialize this.
-		$this->preTSR = 0;
+		// XXX: T405759 should initialize source better
+		$this->preTSR = new SourceRange( 0, 0, null );
 		$this->tokens = [];
 		$this->currLinePreToks = [];
 		$this->wsTkIndex = -1;
@@ -244,9 +244,9 @@ class PreHandler extends LineBasedHandler {
 			// Add pre wrapper around the selected tokens
 			// and embed them in a compound IndentPre token
 			$da = null;
-			if ( $this->preTSR !== -1 ) {
+			if ( $this->preTSR !== null ) {
 				$da = new DataParsoid;
-				$da->tsr = new SourceRange( $this->preTSR, $this->preTSR );
+				$da->tsr = clone $this->preTSR;
 			}
 			$indentPreTk = new IndentPreTk;
 			$indentPreTk->addToken( new TagTk( 'pre', [], $da ) );
@@ -317,14 +317,13 @@ class PreHandler extends LineBasedHandler {
 
 	/**
 	 * Initialize a pre TSR
-	 *
-	 * @param NlTk $nltk
-	 * @return int
 	 */
-	private function initPreTSR( NlTk $nltk ): int {
+	private function initPreTSR( NlTk $nltk ): ?SourceRange {
 		$da = $nltk->dataParsoid;
 		// tsr->end can never be zero, so safe to use tsr->end to check for null/undefined
-		return $da->tsr->end ?? -1;
+		return ( $da->tsr->end ?? null ) !== null ?
+			new SourceRange( $da->tsr->end, $da->tsr->end, $da->tsr->source ) :
+			null;
 	}
 
 	/**
@@ -426,20 +425,27 @@ class PreHandler extends LineBasedHandler {
 	/**
 	 * Get updated pre TSR value
 	 *
-	 * @param int $tsr
+	 * @param ?SourceRange $tsr
 	 * @param Token|string $token
-	 * @return int
+	 * @return ?SourceRange
 	 */
-	private function getUpdatedPreTSR( int $tsr, $token ): int {
+	private function getUpdatedPreTSR( ?SourceRange $tsr, $token ): ?SourceRange {
 		if ( $token instanceof CommentTk ) {
-			$tsr = isset( $token->dataParsoid->tsr ) ? $token->dataParsoid->tsr->end :
-				( ( $tsr === -1 ) ? -1 : WTUtils::decodedCommentLength( $token ) + $tsr );
+			if ( isset( $token->dataParsoid->tsr ) ) {
+				$tsr = new SourceRange(
+					$token->dataParsoid->tsr->end,
+					$token->dataParsoid->tsr->end,
+					$token->dataParsoid->tsr->source
+				);
+			} elseif ( $tsr !== null ) {
+				$tsr = $tsr->offset( WTUtils::decodedCommentLength( $token ) );
+			}
 		} elseif ( $token instanceof SelfclosingTagTk || $token instanceof EmptyLineTk ) {
 			// meta-tag (cannot compute)
-			$tsr = -1;
-		} elseif ( $tsr !== -1 ) {
+			$tsr = null;
+		} elseif ( $tsr !== null ) {
 			// string
-			$tsr += strlen( $token );
+			$tsr = $tsr->offset( strlen( $token ) );
 		}
 		return $tsr;
 	}

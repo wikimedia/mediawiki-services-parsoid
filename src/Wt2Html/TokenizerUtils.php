@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
@@ -121,10 +122,11 @@ class TokenizerUtils {
 	 * @param T $value
 	 * @param int $start start of TSR range
 	 * @param int $end end of TSR range
+	 * @param ?Source $source The Source for the TSR range
 	 * @return array{value: T, srcOffsets: SourceRange}
 	 */
-	public static function getAttrVal( $value, int $start, int $end ): array {
-		return [ 'value' => $value, 'srcOffsets' => new SourceRange( $start, $end ) ];
+	public static function getAttrVal( $value, int $start, int $end, ?Source $source ): array {
+		return [ 'value' => $value, 'srcOffsets' => new SourceRange( $start, $end, $source ) ];
 	}
 
 	/**
@@ -217,7 +219,7 @@ class TokenizerUtils {
 
 		if ( $addEndTag ) {
 			$dataParsoid = new DataParsoid;
-			$dataParsoid->tsr = new SourceRange( $endPos, $endPos );
+			$dataParsoid->tsr = new SourceRange( $endPos, $endPos, $tsr->source );
 			$tokens[] = new EndTagTk( $tagName, [], $dataParsoid );
 		} else {
 			// We rely on our tree builder to close the table cell (td/th) as needed.

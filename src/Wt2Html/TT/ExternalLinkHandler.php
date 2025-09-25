@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
@@ -114,7 +115,7 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 				// Since we messed with the text of the link, we need
 				// to preserve the original in the RT data. Or else.
 				$builtTag->addNormalizedAttribute(
-					'href', $href, $token->getWTSource( $this->manager->getFrame() )
+					'href', $href, $token->getWTSource( $this->manager->getFrame()->getSource() )
 				);
 			} else {
 				$builtTag->addAttribute( 'href', $href );
@@ -222,8 +223,9 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 				$tsr1a = $dataParsoid->tmp->extLinkContentOffsets->start -
 					strlen( $token->getAttributeV( 'spaces' ) ?? '' );
 				$length = $tsr1a - $tsr0a;
+				$source = $dataParsoid->tsr->source ?? $this->manager->getFrame()->getSource();
 				$aStart->addNormalizedAttribute( 'href', $href,
-					substr( $this->manager->getFrame()->getSrcText(), $tsr0a, $length ) );
+					PHPUtils::safeSubstr( $source->getSrcText(), $tsr0a, $length ) );
 			} else {
 				$aStart->addAttribute( 'href', $href );
 			}

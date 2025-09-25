@@ -157,7 +157,9 @@ class Headings {
 			// Set a zero-width dsr range for the fallback id
 			if ( Utils::isValidDSR( $nodeDsr ) ) {
 				$offset = $nodeDsr->innerStart();
-				DOMDataUtils::getDataParsoid( $span )->dsr = new DomSourceRange( $offset, $offset, null, null );
+				DOMDataUtils::getDataParsoid( $span )->dsr = new DomSourceRange(
+					$offset, $offset, null, null, source: $nodeDsr->source
+				);
 			}
 			$node->insertBefore( $span, $node->firstChild );
 		}

@@ -386,8 +386,9 @@ class SerializerState {
 			// can deliberately set DSR to point outside page source.
 			$sr->start <= strlen( $this->selserData->revText )
 		) {
-			// XXX should use $frame->getSrcText() like WTUtils::getWTSource
-			return $sr->substr( $this->selserData->revText );
+			// XXX T405759 We should initialize $sr->source properly.
+			$srcText = $sr->source?->getSrcText() ?? $this->selserData->revText;
+			return $sr->substr( $srcText );
 		} else {
 			return null;
 		}

@@ -400,7 +400,7 @@ class ListHandler extends LineBasedHandler {
 		$newDP = clone $sourceDP;
 		$tsr = $sourceDP->tsr ?? null;
 		if ( $tsr ) {
-			$newDP->tsr = new SourceRange( $tsr->start + $startOffset, $tsr->start + $endOffset );
+			$newDP->tsr = new SourceRange( $tsr->start + $startOffset, $tsr->start + $endOffset, $tsr->source );
 		}
 		return $newDP;
 	}

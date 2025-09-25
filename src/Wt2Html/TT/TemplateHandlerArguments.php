@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
@@ -33,12 +32,9 @@ class TemplateHandlerArguments implements Arguments {
 		// can expand (or not!).  But wikitext expansion can't break
 		// argument boundaries.
 		foreach ( $args as $arg ) {
-			$range = new SourceRange(
-				$arg->srcOffsets->key->start,
-				$arg->srcOffsets->value->end
-			);
+			$range = $arg->srcOffsets->span();
 			$this->args[] = WikitextPFragment::newFromWt(
-				$range->substr( $frame->getSrcText() ),
+				$range->substr( $frame->getSource() ),
 				DomSourceRange::fromTsr( $range )
 			);
 		}

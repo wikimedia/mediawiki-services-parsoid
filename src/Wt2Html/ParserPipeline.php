@@ -231,9 +231,13 @@ class ParserPipeline {
 		] );
 
 		$frame = $initialState['frame'];
-		if ( !$this->atTopLevel || isset( $initialState['srcText'] ) ) {
+		$newSource = $initialState['srcOffsets']->source ?? $frame->getSource();
+		// Eventually we will disentangle the Frame from the Source and
+		// we won't have to create a new Frame if the only difference is
+		// the $newSource -- but for now, lets ensure that Frame::getSrcText()
+		// matches $srcOffsets->source->getSrcText()
+		if ( !$this->atTopLevel || $newSource !== $frame->getSource() ) {
 			$tplArgs = $initialState['tplArgs'] ?? null;
-			$srcText = $initialState['srcText'] ?? $frame->getSrcText();
 			if ( isset( $tplArgs['title'] ) ) {
 				$title = $tplArgs['title'];
 				$args = $tplArgs['attribs']; // KV[]
@@ -241,12 +245,13 @@ class ParserPipeline {
 				$title = $frame->getTitle();
 				$args = $frame->getArgs()->args; // KV[]
 			}
-			$frame = $frame->newChild( $title, $args, $srcText );
+			$frame = $frame->newChild( $title, $args, $newSource );
 		}
 
 		$this->setFrame( $frame );
 		$this->setSrcOffsets(
-			$initialState['srcOffsets'] ?? new SourceRange( 0, strlen( $frame->getSrcText() ) )
+			$initialState['srcOffsets'] ??
+				SourceRange::fromSource( $frame->getSource() )
 		);
 	}
 }

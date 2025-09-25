@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -41,13 +42,13 @@ class TableFixups {
 
 	/**
 	 * @param list<string|TemplateInfo> &$parts
-	 * @param Frame $frame
+	 * @param Source $source
 	 * @param int $offset1
 	 * @param int $offset2
 	 */
-	private static function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
+	private static function fillDSRGap( array &$parts, Source $source, int $offset1, int $offset2 ): void {
 		if ( $offset1 < $offset2 ) {
-			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1, $offset2 - $offset1 );
+			$parts[] = PHPUtils::safeSubstr( $source->getSrcText(), $offset1, $offset2 - $offset1 );
 		}
 	}
 
@@ -83,9 +84,13 @@ class TableFixups {
 
 			// Plug DSR gaps between transclusions
 			if ( !$prevDp ) {
-				self::fillDSRGap( $parts, $frame, $tdDp->dsr->start, $tplDp->dsr->start );
+				self::fillDSRGap(
+					$parts, $tdDp->dsr->source ?? $frame->getSource(),
+					$tdDp->dsr->start, $tplDp->dsr->start );
 			} else {
-				self::fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tplDp->dsr->start );
+				self::fillDSRGap(
+					$parts, $prevDp->dsr->source ?? $frame->getSource(),
+					$prevDp->dsr->end, $tplDp->dsr->start );
 			}
 
 			// Assimilate $tpl's data-mw and data-parsoid pi info
@@ -117,7 +122,7 @@ class TableFixups {
 		$td->setAttribute( 'about', $aboutId );
 
 		// Add wikitext for the table cell content following $lastTpl
-		self::fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tdDp->dsr->end );
+		self::fillDSRGap( $parts, $prevDp->dsr->source ?? $frame->getSource(), $prevDp->dsr->end, $tdDp->dsr->end );
 
 		// Save the new data-mw on the td
 		$dmw = new DataMw( [] );
@@ -613,11 +618,11 @@ class TableFixups {
 		$prevDsr = clone $prevDp->dsr;
 		$prevDsr->start = $prevDp->tsr->start;
 
-		$prevCellSrc = $prevDsr->substr( $frame->getSrcText() );
+		$prevCellSrc = $prevDsr->substr( $frame->getSource() );
 
 		// $prevCellContent = substr( $prevCellSrc, $prevDp->dsr->openWidth );
 		// The following is equivalent because td/th has zero end-tag width
-		$prevCellContent = $prevDsr->innerSubstr( $frame->getSrcText() );
+		$prevCellContent = $prevDsr->innerSubstr( $frame->getSource() );
 
 		// Parsoid currently doesn't support parsing "|<--cmt-->|" as
 		// a "||" which legacy parser does. We won't support this.

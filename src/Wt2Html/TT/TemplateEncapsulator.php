@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\ParamInfo;
@@ -116,7 +117,7 @@ class TemplateEncapsulator {
 	 */
 	private function getTemplateInfo(): TemplateInfo {
 		$ret = new TemplateInfo;
-		$src = $this->frame->getSrcText();
+		$src = $this->frame->getSource();
 		$params = $this->token->attribs;
 
 		$tgtSrcOffsets = $params[0]->srcOffsets;
@@ -149,7 +150,7 @@ class TemplateEncapsulator {
 		return $ret;
 	}
 
-	private function preparePfParamInfos( string $src, array $params ): array {
+	private function preparePfParamInfos( Source $src, array $params ): array {
 		$paramInfos = [];
 		$argIndex = 1;
 
@@ -177,7 +178,7 @@ class TemplateEncapsulator {
 		return $paramInfos;
 	}
 
-	private function prepareTplParamInfos( string $src, array $params ): array {
+	private function prepareTplParamInfos( Source $src, array $params ): array {
 		$paramInfos = [];
 		$argIndex = 1;
 
@@ -300,7 +301,7 @@ class TemplateEncapsulator {
 	private function getEncapsulationInfoEndTag(): Token {
 		$tsr = $this->token->dataParsoid->tsr ?? null;
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( null, $tsr ? $tsr->end : null );
+		$dp->tsr = new SourceRange( null, $tsr?->end, $tsr?->source );
 		return new SelfclosingTagTk( 'meta',
 			[
 				new KV( 'typeof', $this->wrapperType . '/End' ),
@@ -351,7 +352,7 @@ class TemplateEncapsulator {
 					// No need to do paragraph-wrapping here
 					'inlineContext' => true
 				],
-				'srcOffsets' => new SourceRange( $srcStart, $srcEnd ),
+				'srcOffsets' => new SourceRange( $srcStart, $srcEnd, $paramInfo->srcOffsets->value->source ),
 				'sol' => true
 			]
 		);

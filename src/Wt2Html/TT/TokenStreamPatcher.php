@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -30,7 +31,7 @@ use Wikimedia\WikiPEG\SyntaxError;
  * heuristics and tricks to handle different scenarios.
  */
 class TokenStreamPatcher extends LineBasedHandler {
-	private ?int $srcOffset;
+	private ?SourceRange $srcOffset;
 	private bool $sol;
 	/**
 	 * This buffers whitespace, nls, and rendering-transparent tokens
@@ -64,7 +65,8 @@ class TokenStreamPatcher extends LineBasedHandler {
 	}
 
 	private function reset(): void {
-		$this->srcOffset = 0;
+		// XXX: T405759 should initialize source better
+		$this->srcOffset = new SourceRange( 0, 0, $this->env->topFrame->getSource() );
 		$this->sol = true;
 		$this->nlWsMetaTokenBuf = [];
 		$this->wikiTableNesting = 0;
@@ -100,7 +102,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 		}
 		// These need to be after reprocessing to ensure
 		// we always end up in the correct state after.
-		$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
+		$this->resetSrcOffset( $token->dataParsoid->tsr ?? null );
 		$this->sol = true;
 		$this->nlWsMetaTokenBuf[] = $token;
 		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $ret );
@@ -137,8 +139,15 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * TokenStreamPatcher, ie. expanded to the end of stage 2
 	 */
 	private function reprocessTokens(
-		?int $srcOffset, string $str, bool $sol, ?string $startRule = null, ?array $pipelineOpts = []
+		?SourceRange $srcOffsets, string $str, bool $sol, ?string $startRule = null, ?array $pipelineOpts = []
 	): array {
+		$missingSrcOffsets = ( $srcOffsets === null );
+		// Use 'start' and 'source' of $srcOffsets but recompute the 'end'
+		$srcOffsets = new SourceRange(
+			( $srcOffsets->start ?? 0 ),
+			( $srcOffsets->start ?? 0 ) + strlen( $str ),
+			$srcOffsets->source ?? new SourceString( $str )
+		);
 		$toks = (array)PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -147,17 +156,18 @@ class TokenStreamPatcher extends LineBasedHandler {
 				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => $pipelineOpts,
 				'sol' => $sol,
-				'startRule' => $startRule,
 				// processTrReparseBuf gets us here from a top-level content pipeline,
 				// but the content itself came from a template. In that situation, the
 				// pipeline isn't processing top-level content, and isn't at 'toplevel'.
 				'toplevel' => $this->atTopLevel && !isset( $pipelineOpts['inTemplate'] ),
-				'srcText' => $str,
-				'srcOffsets' => new SourceRange( 0, strlen( $str ) ),
-			]
+				'srcOffsets' => $srcOffsets,
+			] + ( $startRule !== null ? [ 'startRule' => $startRule ] : [] )
 		);
-		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
 		TokenUtils::stripEOFTkFromTokens( $toks );
+		if ( $missingSrcOffsets ) {
+			// Clear the TSR information from these tokens
+			TokenUtils::shiftTokenTSR( $toks, null );
+		}
 		return $toks;
 	}
 
@@ -203,18 +213,22 @@ class TokenStreamPatcher extends LineBasedHandler {
 			return $this->reprocessTrReparseBufViaOnAny();
 		}
 
-		$frameSrc = $this->manager->getFrame()->getSrcText();
+		$frameSrc = $this->manager->getFrame()->getSource();
 		$srcOffsets = $this->manager->getSrcOffsets();
 
 		// Both these TSR properties will exist because they come from
 		// the top-level content and the tokenizer sets TSR offsets.
 		$tr = $this->trReparseBuf['tr'];
 		$endMeta = $this->trReparseBuf['endMeta'];
+		$source = $endMeta->dataParsoid->tsr->source ?? $srcOffsets->source ?? $frameSrc;
 		$metaEndTSR = $endMeta->dataParsoid->tsr->end;
 		$lineEndTSR = $nlTk ? $nlTk->dataParsoid->tsr->start : $srcOffsets->end;
 
 		// Stitch new wikitext to include content found after template-end-meta
-		$extraAttrSrc = substr( $frameSrc, $metaEndTSR, $lineEndTSR - $metaEndTSR );
+		$extraAttrSrc = PHPUtils::safeSubstr(
+			$source->getSrcText(),
+			$metaEndTSR, $lineEndTSR - $metaEndTSR
+		);
 		if ( !$extraAttrSrc ) {
 			return $this->reprocessTrReparseBufViaOnAny();
 		}
@@ -265,9 +279,9 @@ class TokenStreamPatcher extends LineBasedHandler {
 
 		if ( $tsr && $tsr->end > $tsr->start ) {
 			// > will only hold if these are valid numbers
-			$str = $tsr->substr( $this->manager->getFrame()->getSrcText() );
+			$str = $tsr->substr( $this->manager->getFrame()->getSource() );
 			// sol === false ensures that the pipe will not be parsed as a <td>/listItem again
-			return $this->reprocessTokens( $tsr->start, $str, false );
+			return $this->reprocessTokens( $tsr, $str, false );
 		} elseif ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
@@ -320,7 +334,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 
 			if ( $needsRetokenization ) {
 				// sol === false ensures that the pipe will not be parsed as td/th/tr/table/caption
-				return $this->reprocessTokens( $tsr->start ?? $this->srcOffset, $buf, false );
+				$useTsr = $tsr?->start !== null;
+				return $this->reprocessTokens(
+					$useTsr ? $tsr : $this->srcOffset,
+					$buf, false );
 			} else {
 				return [ $buf ];
 			}
@@ -434,7 +451,9 @@ class TokenStreamPatcher extends LineBasedHandler {
 						// Reparse string with the 'table_start_tag' rule
 						// and fully reprocess them.
 						try {
-							$tokens = $this->reprocessTokens( $this->srcOffset, $token, true, 'table_start_tag' );
+							$tokens = $this->reprocessTokens(
+								$this->srcOffset, $token,
+								true, 'table_start_tag' );
 							$this->wikiTableNesting++;
 						} catch ( SyntaxError ) {
 							// XXX: The string begins with table start syntax,
@@ -445,7 +464,9 @@ class TokenStreamPatcher extends LineBasedHandler {
 						}
 					} elseif ( $this->inIndependentParse && $T2529hack ) { // {| has been handled above
 						try {
-							$tokens = $this->reprocessTokens( $this->srcOffset, $token, true, 'list_item' );
+							$tokens = $this->reprocessTokens(
+								$this->srcOffset, $token,
+								true, 'list_item' );
 						} catch ( SyntaxError ) {
 							$this->env->log( 'error', 'Failed to tokenize list item.' );
 							$this->clearSOL();
@@ -453,7 +474,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 					} elseif ( preg_match( '/^\s*$/D', $token ) ) {
 						// White-space doesn't change SOL state
 						// Update srcOffset
-						$this->srcOffset += strlen( $token );
+						$this->srcOffset = $this->srcOffset->offset( strlen( $token ) );
 					} else {
 						$this->clearSOL();
 					}
@@ -466,12 +487,12 @@ class TokenStreamPatcher extends LineBasedHandler {
 			case $token instanceof EmptyLineTk:
 				// Comments / EmptyLines don't change SOL state
 				// Update srcOffset
-				$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
+				$this->resetSrcOffset( $token->dataParsoid->tsr ?? null );
 				break;
 
 			case $token instanceof SelfclosingTagTk:
 				if ( $token->getName() === 'meta' && ( $token->dataParsoid->stx ?? '' ) !== 'html' ) {
-					$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
+					$this->resetSrcOffset( $token->dataParsoid->tsr ?? null );
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
 						$this->tplInfo = [ 'startMeta' => $token, 'atStart' => true ];
 						if ( count( $this->nlWsMetaTokenBuf ) > 0 ) {
@@ -568,5 +589,13 @@ class TokenStreamPatcher extends LineBasedHandler {
 		$tokens = $this->getResultTokens( $tokens );
 		$this->env->trace( 'tsp', $this->pipelineId, " ---> ", $tokens );
 		return $tokens;
+	}
+
+	private function resetSrcOffset( ?SourceRange $tsr ): void {
+		if ( $tsr?->end === null ) {
+			$this->srcOffset = null;
+		} else {
+			$this->srcOffset = new SourceRange( $tsr->end, $tsr->end, $tsr->source );
+		}
 	}
 }

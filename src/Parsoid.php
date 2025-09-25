@@ -187,8 +187,11 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
+		// XXX: T405759 Frame::getSource() is deprecated; this resource bump
+		// should probably be done elsewhere, like at the start of the parser
+		// pipeline where we have a $wikitext string.
 		if ( !$env->compareWt2HtmlLimit(
-			'wikitextSize', strlen( $env->topFrame->getSrcText() )
+			'wikitextSize', strlen( $env->topFrame->getSource()->getSrcText() )
 		) ) {
 			throw new ResourceLimitExceededException(
 				"wt2html: wikitextSize limit exceeded"

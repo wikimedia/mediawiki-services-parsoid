@@ -813,6 +813,11 @@ class Env {
 			$this->log( 'error/lint', "Missing DSR; msg=", $lintData );
 			return;
 		}
+		$source = $lintData['dsr']?->source ?? $this->topFrame->getSource();
+		if ( $source !== $this->topFrame->getSource() ) {
+			$this->log( 'error/lint', "Bad source; msg=", $lintData );
+			return;
+		}
 
 		// This will always be recorded as a native 'byte' offset
 		$lintData['dsr'] = $lintData['dsr']->toJsonArray();

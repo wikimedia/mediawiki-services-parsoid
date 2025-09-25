@@ -398,7 +398,7 @@ class TreeBuilderStage extends PipelineStage {
 			if ( !empty( $dp->tsr ) &&
 				$dp->tsr->start !== null && $dp->tsr->end !== null
 			) {
-				$origTxt = $dp->tsr->substr( $this->frame->getSrcText() );
+				$origTxt = $dp->tsr->substr( $this->frame->getSource() );
 			} else {
 				switch ( $name ) {
 					case 'td':
@@ -445,7 +445,7 @@ class TreeBuilderStage extends PipelineStage {
 
 		if ( !$src ) {
 			if ( !empty( $dp->tsr ) ) {
-				$src = $dp->tsr->substr( $this->frame->getSrcText() );
+				$src = $dp->tsr->substr( $this->frame->getSource() );
 			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
 				if ( $isStart ) {
 					$src = '<' . $name . '>';

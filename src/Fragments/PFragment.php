@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Fragments;
 
 use JsonException;
+use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
@@ -342,7 +343,11 @@ abstract class PFragment implements JsonCodecable {
 		if ( $first === null || $second === null ) {
 			return null;
 		}
-		return new DomSourceRange( $first->start, $second->end, null, null );
+		Assert::invariant( $first->source === $second->source,
+						   "DSR sources incompatible" );
+		return new DomSourceRange(
+			$first->start, $second->end, null, null, source: $first->source
+		);
 	}
 
 	// JsonCodec support

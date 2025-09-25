@@ -400,6 +400,7 @@ class ContentUtils {
 		if ( $from === $to ) {
 			return; // Hey, that was easy!
 		}
+		$source = $env->topFrame->getSource();
 		$offsetMap = [];
 		$offsets = [];
 		$collect = static function ( int $n ) use ( &$offsetMap, &$offsets ): void {
@@ -410,7 +411,16 @@ class ContentUtils {
 			}
 		};
 		// Collect DSR offsets throughout the document
-		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect ): DomSourceRange {
+		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect, $source ): DomSourceRange {
+			// Validate DSR source
+			// FIXME T405759: $dsr->source shouldn't be null but we haven't
+			// fixed all our code yet.  Also, technically we
+			// could/should collect a list of all the different $dsr
+			// sources and then run this multiple times, once for each
+			// source text.
+			if ( $dsr->source !== null && $dsr->source !== $source ) {
+				return $dsr;
+			}
 			if ( $dsr->start !== null ) {
 				$collect( $dsr->start );
 				$collect( $dsr->innerStart() );
@@ -428,10 +438,13 @@ class ContentUtils {
 		}
 		// Now convert these offsets
 		TokenUtils::convertOffsets(
-			$env->topFrame->getSrcText(), $from, $to, $offsets
+			$source->getSrcText(), $from, $to, $offsets
 		);
 		// Apply converted offsets
-		$applyDSR = static function ( DomSourceRange $dsr ) use ( $offsetMap ): DomSourceRange {
+		$applyDSR = static function ( DomSourceRange $dsr ) use ( $offsetMap, $source ): DomSourceRange {
+			if ( $dsr->source !== null && $dsr->source !== $source ) {
+				return $dsr;
+			}
 			$start = $dsr->start;
 			$openWidth = $dsr->openWidth;
 			if ( $start !== null ) {
@@ -445,7 +458,7 @@ class ContentUtils {
 				$closeWidth = $end - $offsetMap[$dsr->innerEnd()]->value;
 			}
 			return new DomSourceRange(
-				$start, $end, $openWidth, $closeWidth
+				$start, $end, $openWidth, $closeWidth, source: $source
 			);
 		};
 		self::shiftDSR( $env, $body, $applyDSR );

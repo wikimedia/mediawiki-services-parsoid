@@ -126,8 +126,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 						'./'
 					);
 					$lint['templateInfo'] = [ 'name' => $name ];
-					// TODO(arlolra): Pass tsr info to the frame
-					$lint['dsr'] = new DomSourceRange( 0, 0, null, null );
+					// TODO(arlolra): Pass tsr info to the frame (T405759)
+					$lint['dsr'] = new DomSourceRange( 0, 0, null, null, source: null );
 				}
 				$env->recordLint( 'multi-colon-escape', $lint );
 			}
@@ -242,7 +242,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			preg_match( '/^([^#]*)(#)/', $src, $srcMatch );
 			$ntokens = strlen( $srcMatch[1] ) ? [ $srcMatch[1] ] : [];
 			$hashPos = $tsr->start + strlen( $srcMatch[1] );
-			$tsr0 = new SourceRange( $hashPos, $hashPos + 1 );
+			$tsr0 = new SourceRange( $hashPos, $hashPos + 1, $tsr->source );
 			$dp = new DataParsoid;
 			$dp->tsr = $tsr0;
 			$li = new TagTk(
@@ -262,13 +262,14 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	public static function bailTokens( TokenHandlerPipeline $manager, Token $token ): array {
 		$frame = $manager->getFrame();
 		$tsr = $token->dataParsoid->tsr;
-		$frameSrc = $frame->getSrcText();
+		$frameSrc = $frame->getSource();
 		$linkSrc = $tsr->substr( $frameSrc );
 		$src = substr( $linkSrc, 1 );
 		if ( $src === '' ) {
 			$manager->getEnv()->log(
 				'error', 'Unable to determine link source.',
-				"frame: $frameSrc", 'tsr: ', $tsr,
+				"frame: ", $frameSrc->getSrcText(),
+				'tsr: ', $tsr,
 				"link: $linkSrc"
 			);
 			return [ $linkSrc ];  // Forget about trying to tokenize this
@@ -280,7 +281,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				// 'toplevel' => $atTopLevel ?? false,
 				'sol' => false,
 				'pipelineType' => 'wikitext-to-expanded-tokens',
-				'srcOffsets' => new SourceRange( $startOffset, $startOffset + strlen( $src ) ),
+				'srcOffsets' => new SourceRange( $startOffset, $startOffset + strlen( $src ), $tsr->source ),
 				'pipelineOpts' => [
 					'expandTemplates' => $manager->getOptions()['expandTemplates'],
 					'inTemplate' => $manager->getOptions()['inTemplate'],
@@ -614,8 +615,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				// content = [part 0, .. part l-1]
 				// offsets = [start(part-0), end(part l-1)]
 				$offsets = isset( $dataParsoid->tsr ) ?
-					new SourceRange( $content[0]->srcOffsets->value->start,
-						$content[$l - 1]->srcOffsets->value->end ) : null;
+					new SourceRange(
+						$content[0]->srcOffsets->value->start,
+						$content[$l - 1]->srcOffsets->value->end,
+						$dataParsoid->tsr->source ) :
+					null;
 				$content = [ PipelineUtils::getDOMFragmentToken( $out, $offsets,
 					[ 'inlineContext' => true, 'token' => $token ] ) ];
 			} else {

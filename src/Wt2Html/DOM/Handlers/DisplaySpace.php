@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -22,7 +23,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  */
 class DisplaySpace {
 
-	private static function getTextNodeDSRStart( Text $node ): ?int {
+	private static function getTextNodeDSRStart( Text $node ): ?SourceRange {
 		$parent = $node->parentNode;
 		if ( !$parent instanceof Element ) {
 			// This will be a DocumentFragment while processing embedded fragments
@@ -34,6 +35,7 @@ class DisplaySpace {
 			return null;
 		}
 		$start = $dsr->innerStart();
+		$source = $dsr->source;
 		$c = $parent->firstChild;
 		while ( $c !== $node ) {
 			if ( $c instanceof Comment ) {
@@ -47,10 +49,11 @@ class DisplaySpace {
 					return null;
 				}
 				$start = $dsr->end;
+				$source = $dsr->source;
 			}
 			$c = $c->nextSibling;
 		}
-		return $start;
+		return new SourceRange( $start, $start, $source );
 	}
 
 	private static function insertDisplaySpace(
@@ -67,12 +70,12 @@ class DisplaySpace {
 		$post = $doc->createTextNode( $suffix );
 		$node->parentNode->insertBefore( $post, $node->nextSibling );
 
-		$start = self::getTextNodeDSRStart( $node );
-		if ( $start !== null ) {
-			$start += strlen( $prefix );
-			$dsr = new DomSourceRange( $start, $start + 1, 0, 0 );
+		$startRange = self::getTextNodeDSRStart( $node );
+		if ( $startRange !== null ) {
+			$start = $startRange->start + strlen( $prefix );
+			$dsr = new DomSourceRange( $start, $start + 1, 0, 0, source: $startRange->source );
 		} else {
-			$dsr = new DomSourceRange( null, null, null, null );
+			$dsr = new DomSourceRange( null, null, null, null, source: null );
 		}
 
 		$span = $doc->createElement( 'span' );

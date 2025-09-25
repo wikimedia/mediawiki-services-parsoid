@@ -151,7 +151,9 @@ class AttributeExpander extends UniversalTokenHandler {
 				// - Record the wikitext between the token and the transclusion
 				//   as an unwrappedWT data-parsoid attribute of the start-meta.
 				$dp = $startMeta->dataParsoid;
-				$dp->unwrappedWT = substr( $frame->getSrcText(), $token->dataParsoid->tsr->start,
+				$source = $dp->tsr->source ?? $frame->getSource();
+				$dp->unwrappedWT = PHPUtils::safeSubstr(
+					$source->getSrcText(), $token->dataParsoid->tsr->start,
 					$dp->tsr->start - $token->dataParsoid->tsr->start );
 
 				// unwrappedWT will be added to the data-mw.parts array which makes

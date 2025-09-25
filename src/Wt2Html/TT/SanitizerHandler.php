@@ -63,7 +63,7 @@ class SanitizerHandler extends UniversalTokenHandler {
 			if ( !$inTemplate && !empty( $token->dataParsoid->tsr ) ) {
 				// Just get the original token source, so that we can avoid
 				// whitespace differences.
-				$token = $token->getWTSource( $frame );
+				$token = $token->getWTSource( $frame->getSource() );
 			} elseif ( !( $token instanceof EndTagTk ) ) {
 				// Handle things without a TSR: For example template or extension
 				// content. Whitespace in these is not necessarily preserved.

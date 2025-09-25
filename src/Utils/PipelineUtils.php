@@ -7,6 +7,8 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Source;
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -106,8 +108,7 @@ class PipelineUtils {
 	 *    - array  tplArgs - if set, defines parameters for the child frame
 	 *      - string tplArgs['name']
 	 *      - KV[]   tplArgs['attribs']
-	 *    - string srcText - if set, defines the source text for the expansion
-	 *    - SourceRange  srcOffsets - if set, defines the range within the
+	 *    - SourceRange  srcOffsets - if set, defines the range and
 	 *          source text that $content corresponds to
 	 *    - string startRule The start rule to use when tokenizing
 	 *    - bool   sol Whether tokens should be processed in start-of-line context.
@@ -130,15 +131,15 @@ class PipelineUtils {
 			'tplInfo' => $opts['tplInfo'] ?? null,
 			'frame' => $frame,
 			'tplArgs' => $opts['tplArgs'] ?? null,
-			'srcText' => $opts['srcText'] ?? null,
 			'srcOffsets' => $opts['srcOffsets'] ?? null,
 		] );
 
 		// Off the starting block ... ready, set, go!
 		return $pipeline->parse( $content, [
 			'sol' => $opts['sol'],
-			'startRule' => $opts['startRule'] ?? null
-		] );
+		] + ( isset( $opts['startRule'] ) ? [
+			'startRule' => $opts['startRule'],
+		] : [] ) );
 	}
 
 	/**
@@ -183,15 +184,18 @@ class PipelineUtils {
 	): array {
 		[ $wikitext, $pFragmentMap ] =
 			self::pFragmentToParsoidFragmentMarkers( $pFragment );
-		// FUTURE WORK: Fragment should probably contain a Frame pointer as
-		// well, since srcOffsets are only meaningful in relation to a specific
-		// Frame::$srcText.  When that happens, we should assign an appropriate
-		// $frame here.
+		// Note that the fragment's srcOffsets may have its own Source,
+		// which differs from the top level Source.  This is separate from
+		// the `Frame`, which would determine (for example) how `{{{1}}}`
+		// is evaluated.
 		$srcOffsets = $pFragment->getSrcOffsets() ?? $opts['srcOffsets'] ?? null;
 		if ( !empty( $opts['processInNewFrame'] ) ) {
-			$frame = $frame->newChild( $frame->getTitle(), [], $wikitext );
-			$srcOffsets = new SourceRange( 0, strlen( $wikitext ) );
+			$source = new SourceString( $wikitext );
+			$srcOffsets = SourceRange::fromSource( $source );
+			$frame = $frame->newChild( $frame->getTitle(), [], $source );
 		}
+		// $srcOffsets shouldn't really be null, but if it is...
+		$srcOffsets ??= SourceRange::fromSource( new SourceString( $wikitext ) );
 		$env->addToPFragmentMap( $pFragmentMap );
 		return [
 			'frame' => $frame,
@@ -227,11 +231,18 @@ class PipelineUtils {
 
 	public static function processTemplateSource(
 		Env $env, Frame $frame, Token $token, ?array $tplArgs,
-		string $src, array $opts = []
+		string|Source $src, array $opts = []
 	): array {
-		if ( $src === '' ) {
-			return [];
+		if ( is_string( $src ) ) {
+			if ( $src === '' ) {
+				return [];
+			}
+			// Helper: this should probably be pushed to the caller in
+			// the case where the source is a Template or substring of
+			// the original source.
+			$src = new SourceString( $src );
 		}
+		$srcOffsets = SourceRange::fromSource( $src );
 
 		// Get a nested transformation pipeline for the wikitext that takes
 		// us through stages 1-2, with the appropriate pipeline options set.
@@ -244,7 +255,7 @@ class PipelineUtils {
 		$toks = self::processContentInPipeline(
 			$env,
 			$frame,
-			$src,
+			$src->getSrcText(),
 			[
 				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => [
@@ -261,8 +272,7 @@ class PipelineUtils {
 					'expandTemplates' => $opts['expandTemplates'] ?? false,
 					'extTag' => $opts['extTag'] ?? null,
 				],
-				'srcText' => $src,
-				'srcOffsets' => new SourceRange( 0, strlen( $src ) ),
+				'srcOffsets' => $srcOffsets,
 				'tplArgs' => $tplArgs,
 				// HEADS UP: You might be wondering why we are forcing "sol" => true without
 				// using information about whether the transclusion is used in a SOL context.
@@ -408,7 +418,7 @@ class PipelineUtils {
 			$tsrStart = $vSrcOffsets->start;
 
 			if ( $tsrStart >= 0 && $vSrcOffsets->length() > 0 ) {
-				$vSrc = $vSrcOffsets->substr( $frame->getSrcText() );
+				$vSrc = $vSrcOffsets->substr( $frame->getSource() );
 				$attrCache = $env->getCache(
 					"AttributeExpansion",
 					[
@@ -829,7 +839,7 @@ class PipelineUtils {
 			// the 'hint' we'd like to provide here that this is a zero-width
 			// source range.
 			// ->end can be set to null by WikiLinkHandler::bailTokens()
-			$endTsr = new SourceRange( $tokenTsr->end, $tokenTsr->end );
+			$endTsr = new SourceRange( $tokenTsr->end, $tokenTsr->end, $tokenTsr->source );
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
 				$toks[$i]->dataParsoid->tsr = clone $endTsr;
 			}

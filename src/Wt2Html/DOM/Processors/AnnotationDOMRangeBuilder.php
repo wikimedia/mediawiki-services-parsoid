@@ -100,6 +100,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 
 		$actualRangeStart = DOMDataUtils::getDataParsoid( $startMeta )->dsr->start;
 		$actualRangeEnd = DOMDataUtils::getDataParsoid( $endMeta )->dsr->end;
+		$actualRangeSource = DOMDataUtils::getDataParsoid( $startMeta )->dsr->source;
 
 		$inline = true;
 		$node = $startMeta;
@@ -160,7 +161,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$dp = new DataParsoid();
 		$dp->autoInsertedStart = true;
 		$dp->autoInsertedEnd = true;
-		$dp->dsr = new DomSourceRange( $actualRangeStart, $actualRangeEnd, 0, 0 );
+		$dp->dsr = new DomSourceRange(
+			$actualRangeStart, $actualRangeEnd, 0, 0,
+			source: $actualRangeSource
+		);
 		DOMDataUtils::setDataParsoid( $wrap, $dp );
 	}
 

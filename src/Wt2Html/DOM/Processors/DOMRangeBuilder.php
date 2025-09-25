@@ -143,7 +143,8 @@ class DOMRangeBuilder {
 					$dsr->end + $offset,
 					$dsr->end + $offset + $len,
 					null,
-					null
+					null,
+					source: $dsr->source
 				);
 			}
 
@@ -359,8 +360,9 @@ class DOMRangeBuilder {
 			$prevTplInfo = PHPUtils::lastItem( $tplArray );
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
+				$source = $dsr->source ?? $this->frame->getSource();
 				$tplArray[] = PHPUtils::safeSubstr(
-					$this->frame->getSrcText(), $prevTplInfo->dsr->end, $width );
+					$source->getSrcText(), $prevTplInfo->dsr->end, $width );
 			}
 		}
 
@@ -989,9 +991,10 @@ class DOMRangeBuilder {
 						$encapDP->firstWikitextNode = $ftn;
 					}
 					$width = $firstTplInfo->dsr->start - $dp1DSR->start;
+					$source = $dp1DSR->source ?? $this->frame->getSource();
 					array_unshift(
 						$tplArray,
-						PHPUtils::safeSubstr( $this->frame->getSrcText(), $dp1DSR->start, $width )
+						PHPUtils::safeSubstr( $source->getSrcText(), $dp1DSR->start, $width )
 					);
 				}
 
@@ -1000,7 +1003,8 @@ class DOMRangeBuilder {
 				$lastTplInfo = PHPUtils::lastItem( $tplArray );
 				if ( $lastTplInfo->dsr->end < $dp1DSR->end ) {
 					$width = $dp1DSR->end - $lastTplInfo->dsr->end;
-					$tplArray[] = PHPUtils::safeSubstr( $this->frame->getSrcText(), $lastTplInfo->dsr->end, $width );
+					$source = $lastTplInfo->dsr->source ?? $this->frame->getSource();
+					$tplArray[] = PHPUtils::safeSubstr( $source->getSrcText(), $lastTplInfo->dsr->end, $width );
 				}
 
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
@@ -1100,7 +1104,7 @@ class DOMRangeBuilder {
 					$encapDP->dsr->end = $dp1DSR->end;
 				}
 				$encapDP->src = $encapDP->dsr->substr(
-					$this->frame->getSrcText()
+					$this->frame->getSource()
 				);
 			}
 

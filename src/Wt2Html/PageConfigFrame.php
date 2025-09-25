@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\Utils\Title;
 
 /**
@@ -29,7 +30,9 @@ class PageConfigFrame extends Frame {
 			Title::newFromLinkTarget( $pageConfig->getLinkTarget(), $siteConfig ),
 			$env,
 			[],
-			$content,
+			// T405759: in the future this Source should probably include the
+			// revision and title information.
+			new SourceString( $content ),
 			null
 		);
 	}

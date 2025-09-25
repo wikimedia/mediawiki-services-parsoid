@@ -16,6 +16,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Config\Env;
 	use Wikimedia\Parsoid\Config\SiteConfig;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
+	use Wikimedia\Parsoid\Core\Source;
 	use Wikimedia\Parsoid\NodeData\DataMw;
 	use Wikimedia\Parsoid\NodeData\DataParsoid;
 	use Wikimedia\Parsoid\NodeData\TempData;
@@ -63,6 +64,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private Env $env;
 	private SiteConfig $siteConfig;
 	private Frame $frame;
+	private Source $source;
 	private array $pipelineOpts;
 	private int $pipelineOffset;
 	private array $extTags;
@@ -79,6 +81,9 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 		$tokenizer = $this->options['pegTokenizer'];
 		$this->frame = $tokenizer->getFrame();
+		$this->source = $this->options['source'] ??
+			// XXX T405749 disentangle frame from source
+			$this->frame->getSource();
 		$this->pipelineOpts = $tokenizer->getOptions();
 		// FIXME: inTemplate option may not always be set in
 		// standalone tokenizers user by some pipelines handlers.
@@ -128,11 +133,11 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private function tsrOffsets( $flag = 'default' ): SourceRange {
 		switch ( $flag ) {
 			case 'start':
-				return new SourceRange( $this->savedPos, $this->savedPos );
+				return new SourceRange( $this->savedPos, $this->savedPos, $this->source );
 			case 'end':
-				return new SourceRange( $this->currPos, $this->currPos );
+				return new SourceRange( $this->currPos, $this->currPos, $this->source );
 			default:
-				return new SourceRange( $this->savedPos, $this->currPos );
+				return new SourceRange( $this->savedPos, $this->currPos, $this->source );
 		}
 	}
 
@@ -149,6 +154,9 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 		}
 
 		// Shift tsr of all tokens by the pipeline offset
+		// (Note this only occurs for `start` and `start_async`
+		// entry points; for other start rules the shift must happen
+		// in `PegTokenizer::tokenizeSync()`)
 		TokenUtils::shiftTokenTSR( $tokens, $this->pipelineOffset );
 		$this->env->trace( 'peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
 
@@ -370,7 +378,7 @@ private function a2($p, $dashes, $attrStartPos, $a, $tagEndPos, $s2) {
 		}
 
 		$da = new DataParsoid;
-		$da->tsr = new SourceRange( $this->startOffset(), $tagEndPos );
+		$da->tsr = new SourceRange( $this->startOffset(), $tagEndPos, $this->source );
 		$da->startTagSrc = $p . $dashes;
 		$da->getTemp()->attrSrc = substr(
 			$this->input, $attrStartPos, $tagEndPos - $attrStartPos
@@ -392,7 +400,7 @@ private function a3($b, $p, $attrStartPos, $ta, $tsEndPos, $s2) {
 		}
 
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $this->startOffset(), $tsEndPos );
+		$dp->tsr = new SourceRange( $this->startOffset(), $tsEndPos, $this->source );
 		if ( $p !== '|' ) {
 			// Variation from default
 			$dp->startTagSrc = $b . $p;
@@ -441,8 +449,8 @@ private function a9($p0, $flat) {
 }
 private function a10($p0, $flat, $p1, $sp, $p2, $content, $p3) {
 
-			$tsr1 = new SourceRange( $p0, $p1 );
-			$tsr2 = new SourceRange( $p2, $p3 );
+			$tsr1 = new SourceRange( $p0, $p1, $this->source );
+			$tsr2 = new SourceRange( $p2, $p3, $this->source );
 			$dp = new DataParsoid;
 			$dp->tsr = $this->tsrOffsets();
 			$dp->getTemp()->extLinkContentOffsets = $tsr2;
@@ -573,7 +581,7 @@ private function a23($namePos0, $name, $namePos1, $vd) {
 	if ( gettype( $name ) === 'string' ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
-	$nameSO = new SourceRange( $namePos0, $namePos1 );
+	$nameSO = new SourceRange( $namePos0, $namePos1, $this->source );
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
 		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
@@ -597,7 +605,7 @@ private function a25($namePos0, $name, $namePos1, $vd) {
 	if ( is_string( $name ) ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
-	$nameSO = new SourceRange( $namePos0, $namePos1 );
+	$nameSO = new SourceRange( $namePos0, $namePos1, $this->source );
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
 		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
@@ -639,7 +647,7 @@ private function a28($bullets, $colons, $d) {
 			// TSR: -1 for the intermediate ":"
 			$li2Bullets = $bullets;
 			$li2Bullets[] = ':';
-			$tsr2 = new SourceRange( $cpos - 1, $cpos );
+			$tsr2 = new SourceRange( $cpos - 1, $cpos, $this->source );
 			$dp2 = new DataParsoid;
 			$dp2->tsr = $tsr2;
 			$dp2->stx = 'row';
@@ -735,7 +743,7 @@ private function a42($first, $rest) {
 }
 private function a43($s, $t, $q) {
 
-		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ) );
+		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ), $this->source );
 	
 }
 private function a44($s, $t) {
@@ -743,7 +751,7 @@ private function a44($s, $t) {
 }
 private function a45($s, $t) {
 
-		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() );
+		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset(), $this->source );
 	
 }
 private function a46($r) {
@@ -848,7 +856,7 @@ private function a60($s, $s2, $bl) {
 private function a61($p, $c) {
 
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $p, $this->endOffset() );
+		$dp->tsr = new SourceRange( $p, $this->endOffset(), $this->source );
 		return [ new EmptyLineTk( TokenizerUtils::flattenIfArray( $c ), $dp ) ];
 	
 }
@@ -861,7 +869,7 @@ private function a63($p, $target, $p0) {
 private function a64($p, $target, $p0, $v, $p1) {
 
 				// empty argument
-				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1 ) ];
+				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1, $this->source ) ];
 			
 }
 private function a65($p, $target, $params) {
@@ -872,7 +880,7 @@ private function a66($p, $target, $params) {
 		$kvs = [];
 
 		if ( $target === null ) {
-			$target = [ 'tokens' => '', 'srcOffsets' => new SourceRange( $p, $p ) ];
+			$target = [ 'tokens' => '', 'srcOffsets' => new SourceRange( $p, $p, $this->source ) ];
 		}
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
@@ -900,7 +908,7 @@ private function a68($target, $p0) {
 private function a69($target, $p0, $v, $p1) {
 
 				// empty argument
-				$tsr0 = new SourceRange( $p0, $p1 );
+				$tsr0 = new SourceRange( $p0, $p1, $this->source );
 				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
 			
 }
@@ -1034,7 +1042,8 @@ private function a77($t) {
 						$endTagWidth = strlen( $content[1] );
 						$tagOffsets = new DomSourceRange(
 							$dp->tsr->start, $endOffset,
-							$dp->tsr->length(), $endTagWidth
+							$dp->tsr->length(), $endTagWidth,
+							source: $this->source
 						);
 						$this->currPos = $tagOffsets->innerEnd();
 						$justContent = $tagOffsets->stripTags( $contentSrc );
@@ -1063,7 +1072,7 @@ private function a77($t) {
 					// was never balanced to begin with
 					if ( strlen( $content[1] ) ) {
 						$eDp = new DataParsoid;
-						$eDp->tsr = new SourceRange( $dp->tsr->end, $dp->tsr->end );
+						$eDp->tsr = new SourceRange( $dp->tsr->end, $dp->tsr->end, $dp->tsr->source );
 						$eDp->src = $eDp->tsr->substr( $this->input );
 						$tokens[] = new SelfclosingTagTk( 'meta', [
 							new KV( 'typeof', 'mw:Includes/IncludeOnly/End' )
@@ -1212,7 +1221,7 @@ private function a84($s, $ce, $endTPos, $spc, &$headingIndex) {
 			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
 			PHPUtils::pushArray( $res, $c );
 			$endTagDP = new DataParsoid;
-			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos );
+			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos, $this->source );
 			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
 			PHPUtils::pushArray( $res, $spc );
 			return $res;
@@ -1305,7 +1314,8 @@ private function a98($name, $val) {
 		if ( $val !== null ) {
 			$so = new KVSourceRange(
 				$this->startOffset(), $val['kEndPos'],
-				$val['vStartPos'], $this->endOffset()
+				$val['vStartPos'], $this->endOffset(),
+				$this->source, $this->source
 			);
 			return new KV(
 				$name,
@@ -1313,19 +1323,17 @@ private function a98($name, $val) {
 				$so
 			);
 		} else {
-			$so = new SourceRange( $this->startOffset(), $this->endOffset() );
 			return new KV(
 				'',
 				TokenizerUtils::flattenIfArray( $name ),
-				$so->expandTsrV()
+				$this->tsrOffsets()->expandTsrV()
 			);
 		}
 	
 }
 private function a99() {
 
-		$so = new SourceRange( $this->startOffset(), $this->endOffset() );
-		return new KV( '', '', $so->expandTsrV() );
+		return new KV( '', '', $this->tsrOffsets()->expandTsrV() );
 	
 }
 private function a100($extToken) {
@@ -1488,7 +1496,8 @@ private function a120($t) {
 				$dp->src = $dp->tsr->substr( $this->input );
 				$dp->extTagOffsets = new DomSourceRange(
 					$dp->tsr->start, $dp->tsr->end,
-					$dp->tsr->length(), 0
+					$dp->tsr->length(), 0,
+					source: $this->source
 				);
 				break;
 
@@ -1560,7 +1569,8 @@ private function a120($t) {
 				$dp->src = $extSrc;
 				$dp->extTagOffsets = new DomSourceRange(
 					$dp->tsr->start, $extEndOffset,
-					$dp->tsr->length(), $extEndTagWidth
+					$dp->tsr->length(), $extEndTagWidth,
+					source: $dp->tsr->source
 				);
 
 				$this->currPos = $dp->extTagOffsets->end;
@@ -1658,7 +1668,7 @@ private function a129($tagType, $start) {
 private function a130($p, $b) {
 
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $this->startOffset(), $this->endOffset() );
+		$dp->tsr = $this->tsrOffsets();
 		$tblEnd = new EndTagTk( 'table', [], $dp );
 		if ( $p !== '|' ) {
 			// p+"<brace-char>" is triggering some bug in pegJS
@@ -1761,7 +1771,7 @@ private function a143($lv0, $f, $ts, $lv1) {
 		sort( $variants );
 
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $lv0, $lv1 );
+		$dp->tsr = new SourceRange( $lv0, $lv1, $this->source );
 		$dp->src = $lvsrc;
 		$dp->flags = $flags;
 		$dp->variants = $variants;
@@ -1806,7 +1816,7 @@ private function a145($spos, $target, $tpos, $lcs) {
 			$textTokens[] = ']]';
 			return $textTokens;
 		}
-		$tsr = new SourceRange( $spos, $tpos );
+		$tsr = new SourceRange( $spos, $tpos, $this->source );
 		$hrefKV = new KV(
 			'href', $target, $tsr->expandTsrV(), null,
 			$tsr->substr( $this->input )
@@ -1845,7 +1855,7 @@ private function a146($p, $td, $tds) {
 }
 private function a147($p, $args, $tagEndPos, $c) {
 
-		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
+		$tsr = new SourceRange( $this->startOffset(), $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
 			$this->input, 'caption', '|+', $args, $tsr, $this->endOffset(), $c, true
 		);
@@ -1948,7 +1958,7 @@ private function a151($lvtext) {
 }
 private function a152($p, $startPos, $lt) {
 
-			$tsr = new SourceRange( $startPos, $this->endOffset() );
+			$tsr = new SourceRange( $startPos, $this->endOffset(), $this->source );
 			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
 			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
 			return [$p, $maybeContent];
@@ -1968,7 +1978,7 @@ private function a153($thTag, $thTags) {
 private function a154($arg, $tagEndPos, $td) {
 
 		$tagStart = $this->startOffset();
-		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
 			$this->input, 'td', '|', $arg, $tsr, $this->endOffset(), $td
 		);
@@ -2047,7 +2057,7 @@ private function a161($arg, $tagEndPos, &$th, $d) {
 private function a162($arg, $tagEndPos, $c) {
 
 		$tagStart = $this->startOffset();
-		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
 			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $c
 		);

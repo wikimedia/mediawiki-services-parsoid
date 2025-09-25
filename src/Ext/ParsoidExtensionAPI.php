@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -994,7 +995,7 @@ class ParsoidExtensionAPI {
 	 *   the latter of which can signify that the value came from source.
 	 *   Where,
 	 *     [0] is the fully-constructed image option
-	 *     [1] is the full wikitext source offset for it
+	 *     [1] is the full wikitext SourceRange for it
 	 * @param ?string &$error Error string is set when the return is null.
 	 * @param ?bool $forceBlock Forces the media to be rendered in a figure as
 	 *   opposed to a span.
@@ -1038,7 +1039,7 @@ class ParsoidExtensionAPI {
 
 		$pieces[] = ']]';
 
-		$shiftOffset = static function ( int $offset ) use ( $pieces ): ?int {
+		$shiftOffset = static function ( int $offset ) use ( $pieces ): ?SourceRange {
 			foreach ( $pieces as $p ) {
 				if ( is_string( $p ) ) {
 					$offset -= strlen( $p );
@@ -1047,7 +1048,13 @@ class ParsoidExtensionAPI {
 					}
 				} else {
 					if ( $offset <= strlen( $p[0] ) && isset( $p[1] ) ) {
-						return $p[1] + $offset;
+						if ( $p[1] instanceof SourceRange ) {
+							return $p[1]->offset( $offset );
+						} else {
+							// Deprecated: source information missing.
+							return ( new SourceRange( $p[1], $p[1] ) )
+								->offset( $offset );
+						}
 					}
 					$offset -= strlen( $p[0] );
 					if ( $offset <= 0 ) {
@@ -1063,6 +1070,9 @@ class ParsoidExtensionAPI {
 			$imageWt .= ( is_string( $p ) ? $p : $p[0] );
 		}
 
+		// Create a new source, because this assembled wikitext doesn't
+		// literally appear on the page.
+		$source = new SourceString( $imageWt );
 		$domFragment = $this->wikitextToDOM(
 			$imageWt,
 			[
@@ -1071,9 +1081,7 @@ class ParsoidExtensionAPI {
 					'extTagOpts' => $extTagOpts,
 					'context' => 'inline',
 				],
-				// Create new frame, because $pieces doesn't literally appear
-				// on the page, it has been hand-crafted here
-				'processInNewFrame' => true,
+				'srcOffsets' => SourceRange::fromSource( $source ),
 				// Shift the DSRs in the DOM by startOffset, and strip DSRs
 				// for bits which aren't the caption or file, since they
 				// don't refer to actual source wikitext
@@ -1088,7 +1096,9 @@ class ParsoidExtensionAPI {
 						return null;
 					}
 					return new DomSourceRange(
-						$start, $end, $dsr->openWidth, $dsr->closeWidth
+						$start->start, $end->start,
+						$dsr->openWidth, $dsr->closeWidth,
+						source: $start->source
 					);
 				},
 			],
