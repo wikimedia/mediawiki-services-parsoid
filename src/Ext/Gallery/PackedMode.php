@@ -48,6 +48,16 @@ class PackedMode extends TraditionalMode {
 		return $width;
 	}
 
+	/** @inheritDoc */
+	protected function thumbWidth( $width ) {
+		// The legacy parser requires at least 60px wide,
+		// so that the caption is wide enough to work
+		if ( $width < 60 ) {
+			$width = 60;
+		}
+		return $width + $this->padding->thumb;
+	}
+
 	protected function useTraditionalGalleryText(): bool {
 		return true;
 	}

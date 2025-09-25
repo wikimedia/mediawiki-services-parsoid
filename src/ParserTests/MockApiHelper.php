@@ -132,6 +132,13 @@ class MockApiHelper extends ApiHelper {
 			'bits' => 8,
 			'mime' => 'image/jpeg'
 		],
+		'Tall.jpg' => [
+			'size' => 8888,
+			'width' => 400,
+			'height' => 600,
+			'bits' => 8,
+			'mime' => 'image/jpeg'
+		],
 	];
 
 	private array $articleCache = [];
@@ -444,6 +451,7 @@ class MockApiHelper extends ApiHelper {
 		'File:Audio.oga' => 'Audio.oga',
 		'File:Bad.jpg' => 'Bad.jpg',
 		'File:Hi-ho.jpg' => 'Hi-ho.jpg',
+		'File:Tall.jpg' => 'Tall.jpg',
 	];
 
 	private const PNAMES = [
