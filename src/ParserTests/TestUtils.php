@@ -34,6 +34,8 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 class TestUtils {
 	/** @var mixed */
 	private static $consoleColor;
+	/** @var 'auto'|bool Color mode. */
+	public static bool|string $colorMode = 'auto';
 
 	/**
 	 * Little helper function for encoding XML entities.
@@ -440,7 +442,11 @@ class TestUtils {
 			}
 		}
 
-		if ( self::$consoleColor && self::$consoleColor->isSupported() ) {
+		$useColor = is_bool( self::$colorMode ) ? self::$colorMode :
+			// 'auto' color mode: use color if a tty.
+			( self::$consoleColor && self::$consoleColor->isSupported() );
+		if ( self::$consoleColor && $useColor ) {
+			self::$consoleColor->setForceStyle( true );
 			return self::$consoleColor->apply( $color, $string );
 		} else {
 			return $string;

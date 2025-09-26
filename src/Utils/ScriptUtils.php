@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Wikimedia\Parsoid\ParserTests\TestUtils;
+
 class ScriptUtils {
 	/**
 	 * Split a tracing / debugging flag string into individual flags
@@ -288,19 +290,14 @@ class ScriptUtils {
 	 *  - string|boolean options.color
 	 *    Whether to use color.
 	 *    Passing 'auto' will enable color only if stdout is a TTY device.
-	 * @suppress PhanEmptyPublicMethod
+	 * @suppress PhanAccessPropertyInternal
 	 */
 	public static function setColorFlags( array $options ): void {
-		/**
-		 * PORT-FIXME:
-		 * if ( $options->color === 'auto' ) {
-		 * if ( !$process->stdout->isTTY ) {
-		 * $colors->mode = 'none';
-		 * }
-		 * } elseif ( !self::booleanOption( $options->color ) ) {
-		 * $colors->mode = 'none';
-		 * }
-		 */
+		if ( ( $options['color'] ?? 'auto' ) === 'auto' ) {
+			TestUtils::$colorMode = 'auto';
+		} else {
+			TestUtils::$colorMode = self::booleanOption( $options['color'] );
+		}
 	}
 
 	/**
@@ -378,7 +375,7 @@ class ScriptUtils {
 			],
 			// handled by `setColorFlags`
 			'color' => [
-				'description' => 'Enable color output Ex: --no-color',
+				'description' => 'Enable color output. Auto-enabled by default for a TTY device.',
 				'default' => 'auto'
 			]
 		];

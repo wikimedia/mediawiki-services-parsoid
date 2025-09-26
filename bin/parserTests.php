@@ -18,12 +18,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	/** @var array */
 	public $processedOptions;
 
-	/**
-	 * PORT-FIXME: Used to be colors::mode in all the use sites
-	 * @var string
-	 */
-	public static $colors_mode;
-
 	/** @var Differ */
 	private static $differ;
 
@@ -272,7 +266,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$options['reportStart']   = [ self::class, 'reportStartXML' ];
 			$options['reportSummary'] = [ self::class, 'reportSummaryXML' ];
 			$options['reportFailure'] = [ self::class, 'reportFailureXML' ];
-			self::$colors_mode = 'none';
+			TestUtils::$colorMode = false;
 		}
 
 		if ( !is_callable( $options['reportFailure'] ?? null ) ) {
@@ -630,7 +624,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @return string
 	 */
 	public static function getActualExpected( array $actual, array $expected, callable $getDiff ): string {
-		if ( self::$colors_mode === 'none' ) {
+		if ( TestUtils::$colorMode === false ) {
 			$mkVisible = static function ( $s ) {
 				return $s;
 			};
