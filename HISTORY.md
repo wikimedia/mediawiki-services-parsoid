@@ -1,9 +1,12 @@
-0.20.0 / 2024-10
-================
-* ContentMetadataCollector::setPageProperty() has been removed; use
-  ContentMetadataCollector::setNumericPageProperty() or
-  ContentMetadataCollector::setUnsortedPageProperty() instead.
+Parsoid/PHP development history
+===============================
+This file contains the history of Parsoid/JS, which is EOL.
 
+Parsoid/PHP releases are tracked on [Parsoid/Releases](https://www.mediawiki.org/wiki/Parsoid/Releases)
+
+Unreleased weekly development is logged on [Parsoid/Deployments](https://www.mediawiki.org/wiki/Parsoid/Deployments)
+
+For backwards incompatible changes, see [Parsoid/Stable_interface_policy](https://www.mediawiki.org/wiki/Parsoid/Stable_interface_policy)
 
 0.11.0 / 2019-12-20
 ===================
