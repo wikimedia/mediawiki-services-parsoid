@@ -868,8 +868,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		// PHP parser wraps in <div class="floatright">
 		'none',
 	];
-	private const VERTICAL_ALIGNS = [ 'baseline', 'sub', 'super', 'top', 'text-top', 'middle',
-		'bottom', 'text-bottom' ];
+	private const VERTICAL_ALIGNS = [ 'baseline', 'sub', 'super', 'top', 'text_top', 'middle',
+		'bottom', 'text_bottom' ];
 
 	/**
 	 * Get the style and class lists for an image's wrapper element.
