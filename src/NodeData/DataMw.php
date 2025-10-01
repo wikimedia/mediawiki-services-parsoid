@@ -225,7 +225,7 @@ class DataMw implements JsonCodecable {
 					}
 					$p = $p->$type;
 					/** @var TemplateInfo $p */
-					if ( isset( $p->func ) ) {
+					if ( $type === 'template' && isset( $p->func ) ) {
 						$type = 'old-parserfunction';
 					}
 					$p->type = $type;
