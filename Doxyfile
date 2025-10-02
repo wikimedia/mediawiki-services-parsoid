@@ -25,4 +25,7 @@ TEMPLATE_RELATIONS     = YES
 CALL_GRAPH             = NO
 CALLER_GRAPH           = NO
 DOT_MULTI_TARGETS      = YES
-ALIASES                = "inheritDoc=\inheritdoc"
+ALIASES                = "inheritDoc=\inheritdoc" \
+                         "phpcs=\noop" \
+                         "phan=\noop" \
+                         "suppress=\noop"

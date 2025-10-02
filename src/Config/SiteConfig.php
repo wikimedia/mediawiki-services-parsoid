@@ -127,10 +127,9 @@ abstract class SiteConfig {
 	 */
 	private int $extModuleNextId = 0;
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
 	 * Register a Parsoid extension module.
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @param string|array{name:string}|array{factory:callable}|array{class:class-string<ExtensionModule>} $configOrSpec
 	 *  Either an object factory specification for an ExtensionModule object,
 	 *  or else the configuration array which ExtensionModule::getConfig()
@@ -178,8 +177,6 @@ abstract class SiteConfig {
 		$this->extConfig = null;
 		return $extId;
 	}
-
-	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * Unregister a Parsoid extension module.  This is typically used

@@ -484,16 +484,14 @@ class ParserPipelineFactory {
 		$this->env = $env;
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
 	 * Default options processing
 	 *
 	 * @param array $options
 	 *
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return array{expandTemplates:bool, inTemplate:bool, extTag?:bool, extTagOpts?:bool, inlineContext?:bool, attrExpansion?:bool}
 	 */
-	// phpcs:enable Generic.Files.LineLength.TooLong
 	private function defaultOptions( array $options ): array {
 		// default: not in a template
 		$options['inTemplate'] ??= false;

@@ -138,9 +138,6 @@ class DOMUtils {
 		}
 	}
 
-	// phpcs doesn't like @phan-assert...
-	// phpcs:disable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
-
 	/**
 	 * Assert that this is a DOM element node.
 	 * This is primarily to help phan analyze variable types.

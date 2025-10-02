@@ -319,14 +319,13 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 		);
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
 	 * Return as associative array, in the format returned by the
 	 * action API (including the order of fields and the value types).
 	 *
 	 * This is helpful as b/c support while we transition to objects.
 	 *
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return array{toclevel: int, level: numeric-string, line: string, number: string, index: string, fromtitle: false|string, byteoffset: ?int, anchor: string, linkAnchor: string, extensionData?: array}
 	 */
 	public function toLegacy(): array {
@@ -349,8 +348,6 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 		}
 		return $ret;
 	}
-
-	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * @inheritDoc

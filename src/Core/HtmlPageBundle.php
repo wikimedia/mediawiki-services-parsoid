@@ -83,9 +83,8 @@ class HtmlPageBundle extends BasePageBundle {
 		return true;
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return array{contentmodel: string, html: array{headers: array, body: string}, data-parsoid: array{headers: array{content-type: string}, body: ?array{counter?: int, offsetType?: 'byte'|'char'|'ucs2', ids: array<string, array>}}, data-mw?: array{headers: array{content-type: string}, body: ?array{ids: array<string, array>}}}
 	 */
 	public function responseData(): array {
@@ -121,8 +120,6 @@ class HtmlPageBundle extends BasePageBundle {
 		}
 		return $responseData;
 	}
-
-	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * Convert a DomPageBundle to an HtmlPageBundle.

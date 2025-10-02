@@ -326,7 +326,6 @@ class TokenizerUtils {
 			case '{':
 				// {{!}} pipe templates..
 				// FIXME: Presumably these should mix with and match | above.
-				// phpcs:ignore Squiz.WhiteSpace.LanguageConstructSpacing.IncorrectSingle
 				return ( $stops['tableCellArg']
 						&& substr( $input, $pos, 5 ) === '{{!}}' )
 					|| ( $stops['table']

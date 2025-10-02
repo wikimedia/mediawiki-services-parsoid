@@ -19,12 +19,10 @@ use Wikimedia\Parsoid\NodeData\TemplateInfo;
  */
 class ComputeSelectiveStats {
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return array{type: string, same_wt: string, rev_diff: string, changed_sections: string, changed_template_sites: string, changed_template_names: string}
 	 */
-	// phpcs:enable Generic.Files.LineLength.TooLong
 	public static function classify(
 		Env $env,
 		?PageConfig $oldPage, ?HtmlPageBundle $oldPb,

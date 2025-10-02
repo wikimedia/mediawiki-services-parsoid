@@ -1,6 +1,5 @@
 <?php
 declare( strict_types = 1 );
-// phpcs:disable Generic.Files.LineLength.TooLong
 
 # In order to test in standalone mode, use --config-file=.phan/standalone.php
 # In integrated mode ($STANDALONE is false), you should be sure MW_INSTALL_DIR

@@ -248,16 +248,14 @@ class TemplateHandler extends XMLTagBasedHandler {
 		return (bool)preg_match( $this->safeSubstRegex, $prefix . ':' );
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
 	 * @param TemplateEncapsulator $state
 	 * @param string|Token|array $targetToks
 	 * @param SourceRange $srcOffsets
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return ?array{magicWordType: '!'|null, name: string, title: Title, isVariable?: true, pfArg?: string|list<string|Token>, srcOffsets?: SourceRange, isParserFunction?: true, localName?: string, haveColon?: bool, handler?: \Wikimedia\Parsoid\Ext\PFragmentHandler, handlerOptions?: array}
 	 */
 	private function resolveTemplateTarget(
-		// phpcs:enable Generic.Files.LineLength.TooLong
 		TemplateEncapsulator $state, $targetToks, $srcOffsets
 	): ?array {
 		$additionalToks = null;

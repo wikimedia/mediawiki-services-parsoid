@@ -1108,8 +1108,6 @@ class WikitextEscapeHandlers {
 		$buf .= $str;
 	}
 
-	// phpcs:disable Generic.Files.LineLength.TooLong
-
 	/**
 	 * General strategy:
 	 *
@@ -1127,10 +1125,10 @@ class WikitextEscapeHandlers {
 	 *    the entire DOM range they span in the end.
 	 *
 	 * @param string $arg
+	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @param array{serializeAsNamed:bool,numPositionalArgs:int,argPositionalIndex:int,type:string,numArgs:int,argIndex:int} $opts
 	 * @return array{serializeAsNamed: bool, v: string}
 	 */
-	// phpcs:enable Generic.Files.LineLength.TooLong
 	public function escapeTplArgWT( string $arg, array $opts ): array {
 		$env = $this->env;
 		$serializeAsNamed = $opts['serializeAsNamed'];

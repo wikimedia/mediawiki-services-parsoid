@@ -1,6 +1,5 @@
 <?php
 declare( strict_types = 1 );
-// phpcs:disable Generic.Files.LineLength.TooLong
 
 namespace Test\Parsoid;
 
@@ -39,6 +38,7 @@ class TestI18nInfo extends \PHPUnit\Framework\TestCase {
 		] );
 		// Verify that the 'params' list in data-mw-i18n doesn't have
 		// unnecessary _type_ information.
+		// phpcs:ignore Generic.Files.LineLength.TooLong
 		$this->assertEquals( '<span typeof="mw:I18n" data-mw-i18n=\'{"/":{"lang":"x-user","key":"testkey","params":[{"list":[{"num":1},{"num":2},{"num":3}],"type":"text"}]}}\' id="mwAA" data-parsoid="{}"></span>', $html );
 	}
 }
