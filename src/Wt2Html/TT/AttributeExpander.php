@@ -250,18 +250,27 @@ class AttributeExpander extends UniversalTokenHandler {
 	}
 
 	/**
+	 * This receives tokens from the PegTokenizer whose input itself
+	 * is preprocessed wikitext. So, templates and include directives
+	 * have all been processed and comments have been dropped.
+	 * Anything left behind (directives, template tokens, template args)
+	 * should just be converted to a plain string.
+	 *
 	 * @param mixed $a
-	 * @return mixed
 	 */
-	private static function tplToksToString( $a ) {
+	private static function tplToksToString( $a ): string {
 		if ( !is_array( $a ) ) {
 			return $a;
 		}
-		$ret = [];
+		$buf = "";
 		foreach ( $a as $t ) {
-			$ret[] = TokenUtils::isTemplateToken( $t ) ? $t->dataParsoid->src : $t;
+			if ( is_string( $t ) ) {
+				$buf .= $t;
+			} else {
+				$buf .= $t->dataParsoid->src ?? ''; /* drop it if dp->src is missing */
+			}
 		}
-		return $ret;
+		return $buf;
 	}
 
 	/**

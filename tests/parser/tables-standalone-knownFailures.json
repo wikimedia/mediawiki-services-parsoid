@@ -62,6 +62,27 @@
         "selser [[3,[[3,1,0,[4]],3,4,2,[0,4,0,0],4]]]": "{|\n|-\n| style=\"color:red;\" data-foobar=\"1ursn9e\" | +1\n|style='color:blue;'|1tgbq69<!--mjcp0y--><!--10gnjb4-->\n|-\n|12kuf2l\n| -1<!--p4ts4n-->\n|}",
         "selser [[0,[[3,2,0,0],0,[2,0,1,[2],0,0,0,2],0,[0,[4],0,0],0]]]": "{|\n|-\n|1dbxbmw\n| style=\"color:red;\" | +1\n|style='color:blue;'|-1\n|-\n|1ialk7b\n|1|| data-foobar=\"18yr9kc\" |2||fgg5mn3\n|1||+2\n|uh4o4t||-3\n|-\n| vcgszp\n| -1\n|}"
     },
+    "AttributeExpander regression test: Class attributes should be properly applied": {
+        "wt2wt": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}} style=\"font-size: 95%;\"\n|foo\n|}",
+        "html2wt": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}} style=\"font-size: 95%;\"\n|foo\n|}",
+        "selser [[0,2]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n<!--107bq4u-->|foo\n|}",
+        "selser [[3,1]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|foo\n|}",
+        "selser [[4,1]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--1cptwhg-->\n|foo\n|}",
+        "selser [[0,[[3],0]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n\n|}",
+        "selser [[3,[2,4]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--8yn83l-->\n|foo<!--4w7n6q-->\n|}",
+        "selser [[0,1]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|foo\n|}",
+        "selser [2]": "11hcoij\n{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|foo\n|}",
+        "selser [[0,4]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n<!--11mabdx-->|}",
+        "selser [[4,[[[2]],3]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--ewx5fl-->\n|1d1nq3kfoo\n|}",
+        "selser [[0,[[3],2]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n<!--1n3r6hy-->\n|}",
+        "selser [[3,[0,4]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|foo<!--1017mg4-->\n|}",
+        "selser [[2,1]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--xoyqa9-->\n|foo\n|}",
+        "selser [[4,[4,0]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--maq6t8--><!--1nh2wyk-->\n|}",
+        "selser [[0,[[[3]],4]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|<!--g07ncq-->\n|}",
+        "selser [[0,[2,4]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n<!--1k82bwt-->|foo<!--qdkasj-->\n|}",
+        "selser [[0,[[[2]],0]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}\n|g12hosfoo\n|}",
+        "selser [[2,[4,0]]]": "{| {{1x|1=class=\"foo {{{class}}} <!--x--> bar\" style=\"font-size: 95%;\"}}<!--17tv9n0-->\n<!--14bhod7-->\n|}"
+    },
     "Build table with pipe as data": {
         "wt2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>|| style=\"color:red;\" |second data with |\n|-\n||<nowiki>data with |</nowiki>|||second data with |\n|}",
         "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data\n| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>\n| style=\"color:red;\" |<nowiki>second data with |</nowiki>\n|-\n|<nowiki>data with |</nowiki>\n|<nowiki>second data with |</nowiki>\n|}",
