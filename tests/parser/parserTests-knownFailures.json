@@ -24,6 +24,9 @@
 	"4. includeonly in table attributes": {
 		"wt2html": "<table data-parsoid='{\"dsr\":[0,77,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,75,0,0]}'><tr about=\"#mwt\" typeof=\"mw:ExpandedAttrs\" class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;noinclude>\":null},\"sa\":{\"&lt;noinclude>\":\"\"},\"dsr\":[3,17,14,0]}' data-mw='{\"attribs\":[[{\"txt\":\"\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[6,17,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[18,36,2,0]}'>\n<td data-parsoid='{\"dsr\":[21,36,1,0]}'>a\n<meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid='{\"src\":\"&lt;/noinclude>\",\"dsr\":[24,36,null,null]}'/></td></tr>\n<tr about=\"#mwt\" typeof=\"mw:ExpandedAttrs\" class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":null},\"sa\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":\"\"},\"dsr\":[37,74,37,0]}' data-mw='{\"attribs\":[[{\"txt\":\"\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[40,74,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>\\\\n|-\\\\n|b\\\\n&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[74,74,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n</tbody></table>"
 	},
+	"7. Unsupported token gluing scenario when includeonly tags show up": {
+		"wt2wt": "<includeonly>\n|+foo</includeonly>\n{|\n{{1x|{{!}}-}}<includeonly>\n|+foo</includeonly>\n|bar\n|}"
+	},
 	"8. Encapsulate foster-parented transclusion content": {
 		"wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}\n"
 	},

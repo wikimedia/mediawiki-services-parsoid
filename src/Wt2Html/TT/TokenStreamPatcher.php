@@ -357,6 +357,14 @@ class TokenStreamPatcher extends LineBasedHandler {
 				// Ex: {{1x|1=\nx\n}} strips the newlines.
 				$tokens = $this->reprocessTrReparseBufViaOnAny();
 				$abortedTrReparse = true;
+			} elseif ( $token instanceof SelfclosingTagTk &&
+				TokenUtils::hasTypeOf( $token, 'mw:Includes/IncludeOnly' )
+			) {
+				// includeonly directives should be entirely skipped and
+				// make everything messy if they include "\n" internally.
+				// So, we abort tr-reprocessing support if we encounter them.
+				$tokens = $this->reprocessTrReparseBufViaOnAny();
+				$abortedTrReparse = true;
 			} else {
 				if ( $token instanceof SelfclosingTagTk ) {
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion/End' ) ) {
