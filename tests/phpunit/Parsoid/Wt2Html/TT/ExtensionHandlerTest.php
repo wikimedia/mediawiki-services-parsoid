@@ -5,7 +5,9 @@ namespace Test\Parsoid\Wt2Html\TT;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\Ext\Pre\Pre;
+use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
@@ -60,7 +62,7 @@ class ExtensionHandlerTest extends TestCase {
 							]
 						],
 						// This handler isn't actually used by this test
-						"handler" => [ "class" => Pre::class ]
+						"handler" => [ "factory" => [ self::class, 'dummyHandler' ] ]
 					]
 				]
 			]
@@ -79,6 +81,18 @@ class ExtensionHandlerTest extends TestCase {
 			new KV( 'default', 'this is handled  by default' ),
 			new KV( 'plop', 'this should not crash  and is handled by default' )
 		], $res );
+	}
+
+	public static function dummyHandler() {
+		return new class extends ExtensionTagHandler {
+			public function sourceToDom(
+				ParsoidExtensionAPI $extApi, string $content, array $args
+			) {
+				// This call has side effects on the KVs in args
+				Sanitizer::sanitizeTagAttrs( $extApi->getSiteConfig(), 'pre', null, $args );
+				return $extApi->getTopLevelDoc()->createDocumentFragment();
+			}
+		};
 	}
 
 }
