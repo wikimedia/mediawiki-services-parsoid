@@ -757,8 +757,7 @@ foo
 </section><section data-mw-section-id="-2"><div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>\n==a==\n==b==\n&lt;/div>\n"}},"i":0}}]}'>
 <section data-mw-section-id="-1"><h2 id="a">a</h2>
 </section><section data-mw-section-id="-1"><h2 id="b">b</h2>
-</section></div><span about="#mwt1">
-</span></section>
+</section></div></section>
 !! end
 
 !! test

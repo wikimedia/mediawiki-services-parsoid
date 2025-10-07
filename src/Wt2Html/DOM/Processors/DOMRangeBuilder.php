@@ -764,6 +764,100 @@ class DOMRangeBuilder {
 		return $encapTgt;
 	}
 
+	private function migrateElements(
+		Element $migrationTarget,
+		Element $first,
+		?Node $last,
+		?Node $insertPosition
+	): void {
+		$elt = $first;
+		while ( $elt !== $last ) {
+			// Remove about attribute
+			'@phan-var Element $elt';  /** @var Element $elt */
+			$next = $elt->nextSibling;
+			if ( DOMUtils::nodeName( $elt ) === 'span' ) {
+				// Drop the newline span!
+				// Alternatively, we could migrate all the newlines as follows:
+				// DOMUtils::migrateChildren( $elt, $migrationTarget, $insertPosition );
+				$elt->parentNode->removeChild( $elt );
+			} else {
+				$elt->removeAttribute( 'about' );
+				$migrationTarget->insertBefore( $elt, $insertPosition );
+			}
+			$elt = $next;
+		}
+	}
+
+	private function isNewlineWrappingSpan( Node $elt ): bool {
+		return DOMUtils::nodeName( $elt ) === 'span' && preg_match( "/^\n+$/", $elt->textContent );
+	}
+
+	/**
+	 * This code exists to handle T370751 and T378906. This support is known to not be
+	 * perfect and exists to making the vast majority of existing templates & CSS work
+	 * (primarily navbox styling).
+	 *
+	 * We can get rid of this code if editors amend their templates and/or CSS to either
+	 * make their next-sibling selectors work (by moving newlines & categories from leading
+	 * and trailing positions in templates) OR amending their CSS to account for Parsoid's
+	 * span-newline-wrapping and category link tags.
+	 */
+	private function handleRenderingTransparentEltsAtBoundary( DOMRangeInfo $range ): void {
+		// Except for 'p', other block tags are not suitable.
+		//
+		// We could include 'p' here, but the primary use case
+		// for doing this are navboxes which are always 'div' tags.
+		static $allowedMigrationTargets = [ 'div' ];
+
+		if ( $range->start === $range->end ) {
+			return;
+		}
+
+		$elt = $range->start;
+		while ( $elt !== $range->end && (
+			WTUtils::isRenderingTransparentNode( $elt ) || $this->isNewlineWrappingSpan( $elt )
+		) ) {
+			$elt = $elt->nextSibling;
+		}
+
+		if ( $elt !== $range->start &&
+			in_array( DOMUtils::nodeName( $elt ), $allowedMigrationTargets, true ) &&
+			DOMDataUtils::getNodeData( $elt )->mw === null // Conservative but safe
+		) {
+			// Migrate all nodes from $range->start till $elt into $elt
+			$rangeStart = $range->start;
+			$newRangeStart = $elt;
+
+			$typeOf = DOMCompat::getAttribute( $rangeStart, 'typeof' );
+			$rangeDmw = DOMDataUtils::getDataMw( $rangeStart );
+			$rangeDp = DOMDataUtils::getDataParsoid( $rangeStart );
+
+			$this->migrateElements( $elt, $rangeStart, $elt, $elt->firstChild );
+			$range->start = $newRangeStart;
+
+			$newRangeStart->setAttribute( 'typeof', $typeOf );
+			$newRangeDp = DOMDataUtils::getDataParsoid( $newRangeStart );
+			$newRangeDp->pi = $rangeDp->pi;
+			$newRangeDp->dsr = $rangeDp->dsr;
+			DOMDataUtils::setDataMw( $newRangeStart, $rangeDmw );
+		}
+
+		$elt = $range->end;
+		while ( $elt !== $range->start && (
+			WTUtils::isRenderingTransparentNode( $elt ) || $this->isNewlineWrappingSpan( $elt )
+		) ) {
+			$elt = $elt->previousSibling;
+		}
+
+		if ( $elt !== $range->end &&
+			in_array( DOMUtils::nodeName( $elt ), $allowedMigrationTargets, true )
+		) {
+			// Migrate all nodes from $elt->nextSibling till $range->end into $elt
+			$this->migrateElements( $elt, $elt->nextSibling, $range->end->nextSibling, null );
+			$range->end = $elt;
+		}
+	}
+
 	/**
 	 * Add markers to the DOM around the non-overlapping ranges.
 	 *
@@ -1014,10 +1108,18 @@ class DOMRangeBuilder {
 			// it is guaranteed to be a marker meta added to mark the start
 			// of the template.
 			if ( WTUtils::isTplMarkerMeta( $startElem ) ) {
+				if ( $range->start === $startElem ) {
+					$range->start = $range->start->nextSibling;
+				}
 				$startElem->parentNode->removeChild( $startElem );
 			}
 
+			if ( $range->end === $range->endElem ) {
+				$range->end = $range->end->previousSibling;
+			}
 			$range->endElem->parentNode->removeChild( $range->endElem );
+
+			$this->handleRenderingTransparentEltsAtBoundary( $range );
 		}
 	}
 

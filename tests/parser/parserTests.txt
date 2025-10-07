@@ -6013,8 +6013,7 @@ parsoid=wt2html,wt2wt
 <div>a</div><p>b
 </p><div>c</div>
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a&lt;/div>"}},"i":0}}]}'>a</div><p>b</p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>c&lt;/div>"}},"i":0}}]}'>
-</span><div about="#mwt2">c</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a&lt;/div>"}},"i":0}}]}'>a</div><p>b</p><div about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>c&lt;/div>"}},"i":0}}]}'>c</div>
 !! end
 
 !!test

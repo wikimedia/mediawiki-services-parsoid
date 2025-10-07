@@ -208,3 +208,38 @@ parsoid=wt2wt
 !! html/parsoid
 -- unused in wt2wt --
 !! end
+
+!! test
+T378906: Drop template-emitted leading/trailing newlines adjacent to <div>s produced by the same template
+!! wikitext
+{{1x|<div>foo</div>
+}}{{1x|<div>bar</div>}}
+
+{{1x|<div>foo</div>
+}}<span>bar</span>
+
+{{1x|<div>foo</div>}}{{1x|
+<div>bar</div>}}
+
+<span>foo</span>{{1x|
+<div>bar</div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+
+<div about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><p><span data-parsoid='{"stx":"html"}'>bar</span></p>
+
+<div about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>"}},"i":0}}]}'>foo</div><div about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+
+<p><span data-parsoid='{"stx":"html"}'>foo</span></p><div about="#mwt6" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+!! end
+
+!! test
+T378906: Migrate trailing category tags into preceding div
+!! wikitext
+{{1x|<div>foo</div>
+[[Category:Foo]]
+[[Category:Bar]]
+}}{{1x|<div>bar</div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n[[Category:Foo]]\n[[Category:Bar]]\n"}},"i":0}}]}'>foo<link rel="mw:PageProp/Category" href="./Category:Foo"/><link rel="mw:PageProp/Category" href="./Category:Bar"/></div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+!! end
