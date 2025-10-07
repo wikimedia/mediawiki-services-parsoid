@@ -62,23 +62,13 @@ class DOMRangeBuilder {
 		'tr' => true
 	];
 
-	/** @var Document */
-	private $document;
-
-	/** @var Frame */
-	private $frame;
-
-	/** @var Env */
-	protected $env;
-
-	/** @var SplObjectStorage */
-	protected $nodeRanges;
-
+	private Document $document;
+	private Frame $frame;
+	protected Env $env;
+	protected SplObjectStorage $nodeRanges;
 	/** @var array<string|CompoundTemplateInfo>[] */
-	private $compoundTpls = [];
-
-	/** @var string */
-	protected $traceType;
+	private array $compoundTpls = [];
+	protected string $traceType;
 
 	public function __construct(
 		Document $document, Frame $frame
@@ -111,9 +101,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Get the DSR of the end of a DOMRange
-	 *
-	 * @param DOMRangeInfo $range
-	 * @return DomSourceRange|null
 	 */
 	private static function getRangeEndDSR( DOMRangeInfo $range ): ?DomSourceRange {
 		$endNode = $range->end;
@@ -166,8 +153,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Returns the range ID of a node - in the case of templates, its "about" attribute.
-	 * @param Element $node
-	 * @return string
 	 */
 	protected function getRangeId( Element $node ): string {
 		$rangeId = DOMCompat::getAttribute( $node, "about" );
@@ -177,15 +162,10 @@ class DOMRangeBuilder {
 
 	/**
 	 * Find the common DOM ancestor of two DOM nodes.
-	 *
-	 * @param Element $startMeta
-	 * @param Element $endMeta
-	 * @param Element $endElem
-	 * @return DOMRangeInfo
 	 */
 	private function getDOMRange(
 		Element $startMeta, Element $endMeta, Element $endElem
-	) {
+	): DOMRangeInfo {
 		$range = $this->findEnclosingRange( $startMeta, $endMeta, $endElem );
 		$startsInFosterablePosn = DOMUtils::isFosterablePosition( $range->start );
 		$next = $range->start->nextSibling;
@@ -314,8 +294,6 @@ class DOMRangeBuilder {
 	/**
 	 * Returns the current node if it's not just after fostered content, the first node
 	 * of fostered content otherwise.
-	 * @param Node $node
-	 * @return Node
 	 */
 	protected function getStartConsideringFosteredContent( Node $node ): Node {
 		if ( DOMUtils::nodeName( $node ) === 'table' ) {
@@ -364,10 +342,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Add a template to $this->compoundTpls
-	 *
-	 * @param string $compoundTplId
-	 * @param DOMRangeInfo $range
-	 * @param TemplateInfo $templateInfo
 	 */
 	private function recordTemplateInfo(
 		string $compoundTplId, DOMRangeInfo $range, TemplateInfo $templateInfo
@@ -435,10 +409,6 @@ class DOMRangeBuilder {
 	 * because the algorithm in `findWrappableTemplateRanges` will put the
 	 * start/end elements for intersecting ranges on the same plane and prev/
 	 * curr are in textual order (which translates to dom order).
-	 *
-	 * @param DOMRangeInfo $prev
-	 * @param DOMRangeInfo $curr
-	 * @return bool
 	 */
 	private static function rangesOverlap( DOMRangeInfo $prev, DOMRangeInfo $curr ): bool {
 		$prevEnd = ( !$prev->flipped ) ? $prev->end : $prev->start;
@@ -452,7 +422,6 @@ class DOMRangeBuilder {
 	 *
 	 * @param Node $docRoot
 	 * @param list<DOMRangeInfo> $tplRanges The potentially overlapping ranges
-	 *
 	 * @return list<DOMRangeInfo> The non-overlapping ranges
 	 */
 	public function findTopLevelNonOverlappingRanges( Node $docRoot, array $tplRanges ): array {
@@ -727,8 +696,6 @@ class DOMRangeBuilder {
 	/**
 	 * Encapsulation requires adding about attributes on the top-level
 	 * nodes of the range. This requires them to all be Elements.
-	 *
-	 * @param DOMRangeInfo $range
 	 */
 	private function ensureElementsInRange( DOMRangeInfo $range ): void {
 		$n = $range->start;
@@ -772,9 +739,6 @@ class DOMRangeBuilder {
 	 * Find the first element to be encapsulated.
 	 * Skip past marker metas and non-elements (which will all be IEW
 	 * in fosterable positions in a table).
-	 *
-	 * @param DOMRangeInfo $range
-	 * @return Element
 	 */
 	private static function findEncapTarget( DOMRangeInfo $range ): Element {
 		$encapTgt = $range->start;
@@ -1059,9 +1023,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Attach a range to a node.
-	 *
-	 * @param Element $node
-	 * @param DOMRangeInfo $range
 	 */
 	private function addNodeRange( Element $node, DOMRangeInfo $range ): void {
 		// With the native DOM extension, normally you assume that DOMNode
@@ -1079,8 +1040,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Get the ranges attached to this node, indexed by range ID.
-	 *
-	 * @param Element $node
 	 * @return DOMRangeInfo[]|null
 	 */
 	private function getNodeRanges( Element $node ): ?array {
@@ -1090,7 +1049,6 @@ class DOMRangeBuilder {
 	/**
 	 * Recursively walk the DOM tree. Find wrappable template ranges and return them.
 	 *
-	 * @param Node $rootNode
 	 * @return list<DOMRangeInfo>
 	 */
 	protected function findWrappableMetaRanges( Node $rootNode ): array {
@@ -1273,11 +1231,6 @@ class DOMRangeBuilder {
 
 	/**
 	 * Creates a range that encloses $startMeta and $endMeta
-	 *
-	 * @param Element $startMeta
-	 * @param Element $endMeta
-	 * @param ?Element $endElem
-	 * @return DOMRangeInfo
 	 */
 	protected function findEnclosingRange(
 		Element $startMeta, Element $endMeta, ?Element $endElem = null
