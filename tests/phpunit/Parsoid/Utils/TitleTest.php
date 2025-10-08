@@ -16,7 +16,6 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		// Access non-public constructor
 		$classReflection = new \ReflectionClass( Title::class );
 		$constructor = $classReflection->getConstructor();
-		$constructor->setAccessible( true );
 		$title = $classReflection->newInstanceWithoutConstructor();
 		$constructor->invokeArgs( $title, $args );
 		return $title;
