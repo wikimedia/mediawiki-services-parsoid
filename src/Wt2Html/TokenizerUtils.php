@@ -368,7 +368,7 @@ class TokenizerUtils {
 				// It eliminates a substr on the string and eliminates
 				// a potential perf problem since "\n" and the inline_breaks
 				// test is common during tokenization.
-				if ( !$stops['table'] ) {
+				if ( !$stops['table'] || $stops['linkdesc'] ) {
 					return false;
 				}
 

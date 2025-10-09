@@ -4281,3 +4281,24 @@ Vertical alignment classes
 <span class="mw-default-size mw-valign-bottom" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span>
 <span class="mw-default-size mw-valign-text-bottom" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span></p>
 !! end
+
+## Note that we are choosing to support this in Parsoid
+## The legacy parser output is arbitrary
+!! test
+File in table pipe precedence
+!! wikitext
+{|
+|[[File:Foobar.jpg|test
+|left]]
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="test left"><img alt="test left" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a></span>
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td><figure class="mw-default-size mw-halign-left" typeof="mw:File" data-parsoid='{"optList":[{"ck":"caption","ak":"test\n"},{"ck":"left","ak":"left"}]}'><a href="./File:Foobar.jpg" class="mw-file-description" title="test"><img alt="test" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a><figcaption>test
+</figcaption></figure></td></tr>
+</tbody></table>
+!! end
