@@ -2110,3 +2110,23 @@ AttributeExpander regression test: Class attributes should be properly applied
 <tbody><tr><td>foo</td></tr>
 </tbody></table>
 !! end
+
+## Note that we are choosing to support this in Parsoid
+## The legacy parser output is arbitrary
+!! test
+Exclamation points in wikilink content in table precedence
+!! wikitext
+{|
+![[Foo|Bar!!]]
+|}
+!! html/php
+<table>
+<tbody><tr>
+<th><a href="/index.php?title=Foo&amp;action=edit&amp;redlink=1" class="new" title="Foo (page does not exist)">Bar</a></th>
+<th>
+</th></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><th><a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'>Bar!!</a></th></tr>
+</tbody></table>
+!! end

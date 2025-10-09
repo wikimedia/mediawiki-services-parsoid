@@ -326,6 +326,7 @@ class TokenizerUtils {
 			case '!':
 				return $stops['th']
 					&& $stops['preproc'] !== '}}'
+					&& !$stops['linkdesc']
 					&& $c2 === '!';
 
 			case '{':
