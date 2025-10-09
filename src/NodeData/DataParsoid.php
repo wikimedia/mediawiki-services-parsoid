@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().
@@ -243,12 +244,11 @@ class DataParsoid implements JsonCodecable {
 		// Deep clone non-primitive properties
 
 		// 1. Properties which are lists of cloneable objects
-		// None currently
-		// foreach ( [ ] as $prop ) {
-		// 	if ( isset( $this->$prop ) ) {
-		// 		$this->$prop = Utils::cloneArray( $this->$prop );
-		// 	}
-		// }
+		foreach ( [ 'pi' ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				$this->$prop = Utils::cloneArray( $this->$prop );
+			}
+		}
 
 		// 2. Properties which are cloneable objects
 		foreach ( [ 'tmp', 'linkTk', 'tsr', 'dsr', 'extTagOffsets' ] as $prop ) {
