@@ -13,6 +13,9 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Ext\AsyncResult;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Fragments\DomPFragment;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
@@ -195,6 +198,31 @@ class PipelineUtils {
 			'wikitext' => $wikitext,
 			'srcOffsets' => $srcOffsets,
 		];
+	}
+
+	public static function handleAsyncResult(
+		Env $env, ParsoidExtensionAPI $extApi, AsyncResult $fragment,
+		?DomSourceRange $srcOffsets
+	): PFragment {
+		$env->getMetadata()->setOutputFlag( 'async-not-ready' );
+		$fragment = $fragment->fallbackContent( $extApi );
+		if ( $fragment === null ) {
+			// Create localized fallback message
+			$doc = $env->getTopLevelDoc();
+			$msg = $doc->createDocumentFragment();
+			$span = $doc->createElement( 'span' );
+			$span->setAttribute( 'class', 'mw-async-not-ready' );
+			DOMCompat::append(
+				$span,
+				WTUtils::createPageContentI18nFragment(
+					$doc,
+					$env->getSiteConfig()->getAsyncFallbackMessageKey()
+				)
+			);
+			$msg->appendChild( $span );
+			$fragment = DomPFragment::newFromDocumentFragment( $msg, $srcOffsets );
+		}
+		return $fragment;
 	}
 
 	public static function processTemplateSource(
