@@ -196,7 +196,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			'domProcessors' => [
 				ParserHookProcessor::class
 			],
-			'fragmentHandlers' =>
+			'pFragmentHandlers' =>
 				ParserTestPFragmentHandlers::getPFragmentHandlersConfig(),
 		];
 	}
