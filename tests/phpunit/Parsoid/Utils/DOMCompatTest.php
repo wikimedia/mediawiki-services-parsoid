@@ -268,173 +268,173 @@ HTML;
 			'id' => [
 				'html' => $html1,
 				'selector' => '#a',
-				'context' => null,
-				'expectedDataId' => [ 'a' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'a' ],
 			],
 			'simple class' => [
 				'html' => $html1,
 				'selector' => '.a',
-				'context' => null,
-				'expectedDataId' => [ 'a' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'a' ],
 			],
 			'compound class string, start' => [
 				'html' => $html1,
 				'selector' => '.b1',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'b' ],
 			],
 			'compound class string, mid' => [
 				'html' => $html1,
 				'selector' => '.b2',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'b' ],
 			],
 			'compound class string, end' => [
 				'html' => $html1,
 				'selector' => '.b3',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'b' ],
 			],
 			'attribute' => [
 				'html' => $html1,
 				'selector' => '[rel=c]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'c' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'c' ],
 			],
 			'attribute #2' => [
 				'html' => $html1,
 				'selector' => '[rel2=x]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'c', 'span' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'c', 'span' ],
 			],
 			'attribute, case sensitive' => [
 				'html' => $html1,
 				'selector' => '[rel=C]',
-				'context' => null,
-				'expectedTagHtmls' => [],
+				'contextCallback' => null,
+				'expectedDataIds' => [],
 			],
 			/* not yet supported in css-parser
 			   'attribute, case insensitive' => [
 			   'html' => $html1,
 			   'selector' => '[rel="C"i]',
-			   'context' => null,
-			   'expectedTagHtmls' => [],
+			   'contextCallback' => null,
+			   'expectedDataIds' => [],
 			   ],
 			 */
 			'attribute word' => [
 				'html' => $html1,
 				'selector' => '[class~=b2]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'b' ],
 			],
 			'attribute word, case sensitive' => [
 				'html' => $html1,
 				'selector' => '[class~=B2]',
-				'context' => null,
-				'expectedTagHtmls' => [],
+				'contextCallback' => null,
+				'expectedDataIds' => [],
 			],
 			/* not yet supported in css-parser
 			   'attribute word, case insensitive' => [
 			   'html' => $html1,
 			   'selector' => '[class~="B2"i]',
-			   'context' => null,
-			   'expectedTagHtmls' => [ 'b' ],
+			   'contextCallback' => null,
+			   'expectedDataIds' => [ 'b' ],
 			   ],
 			 */
 			'tag' => [
 				'html' => $html1,
 				'selector' => 'span',
-				'context' => null,
-				'expectedTagHtmls' => [ 'span' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'span' ],
 			],
 			':empty' => [
 				'html' => $html1,
 				'selector' => ':empty',
-				'context' => null,
-				'expectedTagHtmls' => [ 'empty-div', 'span', 'x1', 'x2', 'x3' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'empty-div', 'span', 'x1', 'x2', 'x3' ],
 			],
 			'recursion' => [
 				'html' => $html1,
 				'selector' => '.f',
-				'context' => null,
-				'expectedTagHtmls' => [ 'f', 'x3' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'f', 'x3' ],
 			],
 
 			// simple selector sequence
 			'id + class' => [
 				'html' => $html1,
 				'selector' => '#a.a',
-				'context' => null,
-				'expectedTagHtmls' => [ 'a' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'a' ],
 			],
 			'id + class #2' => [
 				'html' => $html1,
 				'selector' => '.a#a',
-				'context' => null,
-				'expectedTagHtmls' => [ 'a' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'a' ],
 			],
 			'multiple classes' => [
 				'html' => $html1,
 				'selector' => '.b2.b3',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'b' ],
 			],
 			'element + attribute' => [
 				'html' => $html1,
 				'selector' => 'div[rel2=x]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'c' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'c' ],
 			],
 			'star + attribute' => [
 				'html' => $html1,
 				'selector' => '*[rel=c]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'c' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'c' ],
 			],
 
 			// selector
 			'child' => [
 				'html' => $html1,
 				'selector' => '.e > .xxx',
-				'context' => null,
-				'expectedTagHtmls' => [ 'x1' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'x1' ],
 			],
 			'descendant' => [
 				'html' => $html1,
 				'selector' => '.e .xxx',
-				'context' => null,
-				'expectedTagHtmls' => [ 'x1', 'x2' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'x1', 'x2' ],
 			],
 
 			'selector group' => [
 				'html' => $html1,
 				'selector' => '#a, .e .xxx',
-				'context' => null,
-				'expectedTagHtmls' => [ 'a', 'x1', 'x2' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'a', 'x1', 'x2' ],
 			],
 
 			// context
 			'context check' => [
 				'html' => $html1,
 				'selector' => '.xxx',
-				'context' => null,
-				'expectedTagHtmls' => [ 'x1', 'x2', 'x3' ],
+				'contextCallback' => null,
+				'expectedDataIds' => [ 'x1', 'x2', 'x3' ],
 			],
 			'does not select outside context' => [
 				'html' => $html1,
 				'selector' => '.xxx',
-				'context' => static function ( Document $doc ) {
+				'contextCallback' => static function ( Document $doc ) {
 					return $doc->getElementById( 'ctx1' );
 				},
-				'expectedTagHtmls' => [ 'x2' ],
+				'expectedDataIds' => [ 'x2' ],
 			],
 			'does not select context' => [
 				'html' => $html1,
 				'selector' => '.f',
-				'context' => static function ( Document $doc ) {
+				'contextCallback' => static function ( Document $doc ) {
 					return $doc->getElementById( 'ctx2' );
 				},
-				'expectedTagHtmls' => [ 'x3' ],
+				'expectedDataIds' => [ 'x3' ],
 			],
 		];
 	}
@@ -677,22 +677,22 @@ HTML;
 			[
 				"textNodeCount" => 1,
 				"interleaveSpan" => false,
-				"expected" => 0
+				"expectedNodeCount" => 0
 			],
 			[
 				"textNodeCount" => 5,
 				"interleaveSpan" => false,
-				"expected" => 0
+				"expectedNodeCount" => 0
 			],
 			[
 				"textNodeCount" => 1,
 				"interleaveSpan" => true,
-				"expected" => 1
+				"expectedNodeCount" => 1
 			],
 			[
 				"textNodeCount" => 5,
 				"interleaveSpan" => true,
-				"expected" => 5
+				"expectedNodeCount" => 5
 			],
 		];
 	}

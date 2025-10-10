@@ -4,19 +4,23 @@
 	 beStrictAboutTestsThatDoNotTestAnything="true"
 	 bootstrap="./tests/phpunit/bootstrap.php"
 	 colors="true"
-	 convertErrorsToExceptions="true"
-	 convertNoticesToExceptions="true"
-	 convertWarningsToExceptions="true"
-	 convertDeprecationsToExceptions="true"
+	 displayDetailsOnTestsThatTriggerDeprecations="true"
+	 displayDetailsOnTestsThatTriggerErrors="true"
+	 displayDetailsOnTestsThatTriggerNotices="true"
+	 displayDetailsOnTestsThatTriggerWarnings="true"
+	 displayDetailsOnPhpunitDeprecations="true"
+	 requireCoverageMetadata="true"
+	 failOnDeprecation="true"
+	 failOnPhpunitDeprecation="true"
+	 failOnNotice="true"
 	 failOnWarning="true"
-	 verbose="true"
 	 stderr="true"
-	 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage includeUncoveredFiles="true">
+	 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd">
+  <source>
     <include>
       <directory suffix=".php">./src</directory>
     </include>
-  </coverage>
+  </source>
   <testsuites>
     <testsuite name="Parsoid Tests">
       <directory>./tests</directory>

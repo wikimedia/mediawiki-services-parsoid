@@ -37,7 +37,7 @@ class PreprocTkTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, array_map( $format, $result ) );
 	}
 
-	public function provideSplitContentsBy() {
+	public static function provideSplitContentsBy() {
 		yield "Split empty string" => [
 			'{{}}',
 			'|',
