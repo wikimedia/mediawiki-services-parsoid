@@ -11,9 +11,6 @@
 	"Build table with pipe as data": {
 		"wt2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>|| style=\"color:red;\" |second data with |\n|-\n||<nowiki>data with |</nowiki>|||second data with |\n|}"
 	},
-	"Build table with {{!}}": {
-		"wt2wt": "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\"{{!}}second data\n{{!}}}"
-	},
 	"Invalid attributes in table cell (T3830)": {
 		"wt2wt": "{|\n| Cell: |broken\n|}"
 	},
