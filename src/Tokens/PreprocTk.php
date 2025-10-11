@@ -94,6 +94,52 @@ class PreprocTk extends Token {
 		return new KV( self::CONTENTS_ATTR, $contents, $tsr?->expandTsrV() );
 	}
 
+	/**
+	 * Trim whitespace from both sides of a contents KV.
+	 */
+	public static function trimContentsKV( KV $contents ): KV {
+		$start = 0;
+		$end = count( $contents->v );
+		$startTrim = 0;
+		$endTrim = 0;
+		// Trim off completely empty strings from both sizes
+		while ( $start < $end && is_string( $contents->v[$start] ) && ltrim( $contents->v[$start] ) === '' ) {
+			$startTrim += strlen( $contents->v[$start] );
+			$start += 1;
+		}
+		while ( $start < $end && is_string( $contents->v[$end - 1] ) && rtrim( $contents->v[$end - 1] ) === '' ) {
+			$endTrim += strlen( $contents->v[$end - 1] );
+			$end -= 1;
+		}
+		$pieces = array_slice( $contents->v, $start, $end - $start );
+		$end = count( $pieces );
+		// Now trim leading whitespace from first element...
+		if ( count( $pieces ) > 0 && is_string( $pieces[0] ) ) {
+			$oldSize = strlen( $pieces[0] );
+			$pieces[0] = ltrim( $pieces[0] );
+			$startTrim += ( $oldSize - strlen( $pieces[0] ) );
+		}
+		// ...and trailing whitespace from last element.
+		if ( count( $pieces ) > 0 && is_string( $pieces[$end - 1] ) ) {
+			$oldSize = strlen( $pieces[$end - 1] );
+			$pieces[$end - 1] = rtrim( $pieces[$end - 1] );
+			$endTrim += ( $oldSize - strlen( $pieces[$end - 1] ) );
+		}
+		// Adjust TSR.
+		$newTsr = $contents->srcOffsets?->value;
+		if ( $newTsr !== null && !( $startTrim === 0 && $endTrim === 0 ) ) {
+			[ $start, $end ] = [ $newTsr->start, $newTsr->end ];
+			if ( $start !== null ) {
+				$start += $startTrim;
+			}
+			if ( $end !== null ) {
+				$end -= $endTrim;
+			}
+			$newTsr = new SourceRange( $start, $end, $newTsr->source );
+		}
+		return self::newContentsKV( $pieces, $newTsr );
+	}
+
 	public function __clone() {
 		parent::__clone();
 		// No new non-primitive properties to clone.
