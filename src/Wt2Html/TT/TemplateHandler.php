@@ -834,7 +834,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 					"returning async result without declaration"
 				);
 				$fragment = PipelineUtils::handleAsyncResult(
-					$env, $extApi, $fragment,
+					$extApi, $fragment,
 					DomSourceRange::fromTsr( $token->dataParsoid->tsr )
 				);
 			}

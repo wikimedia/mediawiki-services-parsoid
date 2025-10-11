@@ -201,14 +201,14 @@ class PipelineUtils {
 	}
 
 	public static function handleAsyncResult(
-		Env $env, ParsoidExtensionAPI $extApi, AsyncResult $fragment,
+		ParsoidExtensionAPI $extApi, AsyncResult $fragment,
 		?DomSourceRange $srcOffsets
 	): PFragment {
-		$env->getMetadata()->setOutputFlag( 'async-not-ready' );
+		$extApi->getMetadata()->setOutputFlag( 'async-not-ready' );
 		$fragment = $fragment->fallbackContent( $extApi );
 		if ( $fragment === null ) {
 			// Create localized fallback message
-			$doc = $env->getTopLevelDoc();
+			$doc = $extApi->getTopLevelDoc();
 			$msg = $doc->createDocumentFragment();
 			$span = $doc->createElement( 'span' );
 			$span->setAttribute( 'class', 'mw-async-not-ready' );
@@ -216,7 +216,7 @@ class PipelineUtils {
 				$span,
 				WTUtils::createPageContentI18nFragment(
 					$doc,
-					$env->getSiteConfig()->getAsyncFallbackMessageKey()
+					$extApi->getSiteConfig()->getAsyncFallbackMessageKey()
 				)
 			);
 			$msg->appendChild( $span );
