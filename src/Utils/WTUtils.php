@@ -358,6 +358,7 @@ class WTUtils {
 				$node instanceof Element &&
 				DOMUtils::nodeName( $node ) === 'meta' &&
 				!self::isMarkerAnnotation( $node ) &&
+				!DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) &&
 				( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html'
 			) || self::isFallbackIdSpan( $node );
 	}
