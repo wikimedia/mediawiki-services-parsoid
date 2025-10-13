@@ -204,13 +204,14 @@ class TokenStreamPatcher extends LineBasedHandler {
 		}
 
 		$frameSrc = $this->manager->getFrame()->getSrcText();
+		$srcOffsets = $this->manager->getSrcOffsets();
 
 		// Both these TSR properties will exist because they come from
 		// the top-level content and the tokenizer sets TSR offsets.
 		$tr = $this->trReparseBuf['tr'];
 		$endMeta = $this->trReparseBuf['endMeta'];
 		$metaEndTSR = $endMeta->dataParsoid->tsr->end;
-		$lineEndTSR = $nlTk ? $nlTk->dataParsoid->tsr->start : strlen( $frameSrc );
+		$lineEndTSR = $nlTk ? $nlTk->dataParsoid->tsr->start : $srcOffsets->end;
 
 		// Stitch new wikitext to include content found after template-end-meta
 		$extraAttrSrc = substr( $frameSrc, $metaEndTSR, $lineEndTSR - $metaEndTSR );
