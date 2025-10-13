@@ -32,3 +32,6 @@ $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
 # Note that logs on the test server are redirected using a puppet
 # rule, not a configuration change; see T232042.
+
+// Proofreadpage extension parsoid testing
+$wgProofreadPageUseParsoid = true;
