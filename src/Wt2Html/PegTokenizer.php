@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\EOFTk;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\WikiPEG\SyntaxError;
 
@@ -19,7 +18,6 @@ use Wikimedia\WikiPEG\SyntaxError;
  */
 class PegTokenizer extends PipelineStage {
 	private array $options;
-	private array $offsets;
 	/** @var Grammar|TracingGrammar|null */
 	private $grammar = null;
 	private bool $tracing;
@@ -37,7 +35,6 @@ class PegTokenizer extends PipelineStage {
 		parent::__construct( $env );
 		$this->env = $env;
 		$this->options = $options;
-		$this->offsets = [];
 		$this->tracing = $env->hasTraceFlag( 'grammar' );
 		// Cache only on seeing the same source the second time.
 		// This minimizes cache bloat & token cloning penalties.
@@ -65,16 +62,6 @@ class PegTokenizer extends PipelineStage {
 
 	public function getFrame(): Frame {
 		return $this->frame ?? $this->env->topFrame;
-	}
-
-	/**
-	 * Set start and end offsets of the source that generated this DOM.
-	 *
-	 * @param SourceRange $so
-	 */
-	public function setSourceOffsets( SourceRange $so ): void {
-		$this->offsets['startOffset'] = $so->start;
-		$this->offsets['endOffset'] = $so->end;
 	}
 
 	/**
@@ -128,12 +115,11 @@ class PegTokenizer extends PipelineStage {
 		Assert::invariant( isset( $options['sol'] ), "Sol should be set" );
 
 		// Kick it off!
-		$pipelineOffset = $this->offsets['startOffset'] ?? 0;
 		$args = [
 			'env' => $this->env,
 			'pipelineId' => $this->getPipelineId(),
 			'pegTokenizer' => $this,
-			'pipelineOffset' => $pipelineOffset,
+			'pipelineOffset' => $this->srcOffsets->start ?? 0,
 			'sol' => $options['sol'],
 			'stream' => true,
 			'startRule' => 'start_async',
@@ -175,7 +161,7 @@ class PegTokenizer extends PipelineStage {
 		$args += [
 			'pegTokenizer' => $this,
 			'pipelineId' => $this->getPipelineId(),
-			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,
+			'pipelineOffset' => $this->srcOffsets->start ?? 0,
 			'startRule' => 'start',
 			'env' => $this->env
 		];

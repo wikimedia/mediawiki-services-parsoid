@@ -28,26 +28,16 @@ use Wikimedia\Parsoid\Wt2Html\TT\XMLTagBasedHandlerTraceProxy;
  * directly.
  */
 class TokenHandlerPipeline extends PipelineStage {
-	/** @var array */
-	private $options;
-
-	/** @var string */
-	private $traceType = "";
-
-	/** @var bool */
-	private $traceEnabled;
-
+	private array $options;
+	private string $traceType = "";
+	private bool $traceEnabled;
 	/** @var TokenHandler[] */
-	private $transformers = [];
-
+	private array $transformers = [];
 	/** @var int|float For TraceProxy */
 	public $tokenTimes = 0;
-
 	/** @var Profile|null For TraceProxy */
-	public $profile;
-
-	/** @var bool */
-	private $hasShuttleTokens = false;
+	public ?Profile $profile;
+	private bool $hasShuttleTokens = false;
 
 	public function __construct( Env $env, array $options, string $stageId ) {
 		parent::__construct( $env );

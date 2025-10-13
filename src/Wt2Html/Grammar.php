@@ -1036,7 +1036,7 @@ private function a77($t) {
 						$justContent = $tagOffsets->stripTags( $contentSrc );
 						// FIXME: What about the pipelineOpts of the current pipeline?
 						$tokenizer = new PegTokenizer( $this->env );
-						$tokenizer->setSourceOffsets( $tagOffsets->innerRange() );
+						$tokenizer->setSrcOffsets( $tagOffsets->innerRange() );
 						$contentToks = $tokenizer->tokenizeSync(
 							$justContent, [ 'sol' => true ]
 						);

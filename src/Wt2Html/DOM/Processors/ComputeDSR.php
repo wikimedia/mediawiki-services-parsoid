@@ -701,7 +701,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param Env $env The environment/context for the parse pipeline
 	 * @param Node $root The root of the tree for which DSR has to be computed
 	 * @param array $options Options governing DSR computation
-	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
+	 * - srcOffsets   : [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
 	 * - attrExpansion: Is this an attribute expansion pipeline?
 	 * @param bool $atTopLevel Are we running this on the top level?
@@ -715,8 +715,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		}
 
 		$frame = $options['frame'] ?? $env->topFrame;
-		$startOffset = $options['sourceOffsets']->start ?? 0;
-		$endOffset = $options['sourceOffsets']->end ?? strlen( $frame->getSrcText() );
+		$startOffset = $options['srcOffsets']->start ?? 0;
+		$endOffset = $options['srcOffsets']->end ?? strlen( $frame->getSrcText() );
 		$env->trace( "dsr", "------- tracing DSR computation -------" );
 
 		// The actual computation buried in trace/debug stmts.

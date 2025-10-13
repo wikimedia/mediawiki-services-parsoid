@@ -79,17 +79,17 @@ class ParserPipeline {
 	/**
 	 * Set source offsets for the source that this pipeline will process.
 	 *
-	 * This lets us use different pipelines to parse fragments of the same page
+	 * This lets us use different pipelines to parse fragments of the same page.
 	 * Ex: extension content (found on the same page) is parsed with a different
 	 * pipeline than the top-level page.
 	 *
 	 * Because of this, the source offsets are not [0, page.length) always
 	 * and needs to be explicitly initialized
 	 *
-	 * @param SourceRange $so
+	 * @param SourceRange $srcOffsets
 	 */
-	public function setSourceOffsets( SourceRange $so ): void {
-		$this->applyToStage( 'setSourceOffsets', $so );
+	public function setSrcOffsets( SourceRange $srcOffsets ): void {
+		$this->applyToStage( 'setSrcOffsets', $srcOffsets );
 	}
 
 	/**
@@ -230,9 +230,7 @@ class ParserPipeline {
 			'tplInfo' => $initialState['tplInfo'] ?? null,
 		] );
 
-		// Set frame
 		$frame = $initialState['frame'];
-
 		if ( !$this->atTopLevel || isset( $initialState['srcText'] ) ) {
 			$tplArgs = $initialState['tplArgs'] ?? null;
 			$srcText = $initialState['srcText'] ?? $frame->getSrcText();
@@ -245,12 +243,10 @@ class ParserPipeline {
 			}
 			$frame = $frame->newChild( $title, $args, $srcText );
 		}
-		$this->setFrame( $frame );
 
-		// Set source offsets for this pipeline's content
-		$srcOffsets = $initialState['srcOffsets'] ?? null;
-		if ( $srcOffsets ) {
-			$this->setSourceOffsets( $srcOffsets );
-		}
+		$this->setFrame( $frame );
+		$this->setSrcOffsets(
+			$initialState['srcOffsets'] ?? new SourceRange( 0, strlen( $frame->getSrcText() ) )
+		);
 	}
 }

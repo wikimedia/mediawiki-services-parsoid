@@ -56,8 +56,8 @@ class DOMProcessorPipeline extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function setSourceOffsets( SourceRange $so ): void {
-		$this->options['sourceOffsets'] = $so;
+	public function setSrcOffsets( SourceRange $srcOffsets ): void {
+		$this->options['srcOffsets'] = $srcOffsets;
 	}
 
 	public function doPostProcess( Node $node ): void {
