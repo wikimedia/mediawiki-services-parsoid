@@ -13,14 +13,11 @@ use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
  * This represents the abstract interface for a wt2html parsing pipeline stage
- * Currently there are 4 known pipeline stages:
- * - PEG Tokenizer
- * - Token Transform Manager
- * - HTML5 Tree Builder
- * - DOM Post Processor
- *
- * The Token Transform Manager could eventually go away and be directly replaced by
- * the very many token transformers that are represented by the abstract TokenHandler class.
+ * Currently there are four known pipeline stages:
+ * - PEGTokenizer
+ * - TokenHandlerPipeline
+ * - TreeBuilder/TreeBuilderStage ( Remex-based HTML5 Tree Builder )
+ * - DOMProcessorPipeline
  */
 abstract class PipelineStage {
 	/**
