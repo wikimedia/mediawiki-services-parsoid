@@ -40,7 +40,7 @@ class BehaviorSwitchHandler extends XMLTagBasedHandler {
 	 */
 	public function onBehaviorSwitch( Token $token ): array {
 		$env = $this->env;
-		$magicWord = $env->getSiteConfig()->getMagicWordForBehaviorSwitch( $token->attribs[0]->v );
+		$magicWord = $token->attribs[0]->v;
 		$env->setBehaviorSwitch( $magicWord, true );
 		if ( isset( self::OUTPUT_FLAG_FROM_BEHAVIOR_SWITCH[$magicWord] ) ) {
 			$env->getMetadata()->setOutputFlag(

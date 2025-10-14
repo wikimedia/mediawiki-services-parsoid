@@ -1073,7 +1073,9 @@ abstract class SiteConfig {
 					$alias = mb_strtolower( $alias );
 					$this->mwAliases[$magicword][] = $alias;
 				}
-				if ( str_starts_with( $alias, '__' ) ) {
+				if ( str_starts_with( $alias, '__' ) || str_starts_with( $alias, '＿＿' ) ) {
+					// T407290: this should use the list from
+					// MagicWordFactory::getDoubleUnderscoreArray()
 					$this->behaviorSwitches[$alias] = [ $caseSensitive, $magicword ];
 				}
 				if ( $isVariable ) {

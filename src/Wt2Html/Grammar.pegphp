@@ -85,7 +85,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 		 // magic link prefix or protocol
 		$this->reUrltextLookahead = '!(?:' .
 			'([^-\'<[{\n\r:;\]}|\!=&]*?)' .
-			'(?:__|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|' .
+			'(?:__|＿＿|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|' .
 			'(?i)' . $this->siteConfig->getProtocolsRegex( true ) .
 			')))!A';
 
@@ -607,14 +607,15 @@ heading =
 // Behavior switches. See:
 // https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch =
-	bs:$('__' behavior_text '__') {
-		if ( $this->siteConfig->isBehaviorSwitch( $bs ) ) {
+	bs:$(double_underscore behavior_text double_underscore) {
+		$mw = $this->siteConfig->getMagicWordForBehaviorSwitch( $bs );
+		if ( $mw !== null ) {
 			$dp = new DataParsoid;
 			$dp->tsr = $this->tsrOffsets();
 			$dp->src = $bs;
 			$dp->magicSrc = $bs;
 			return [
-				new SelfclosingTagTk( 'behavior-switch', [ new KV( 'word', $bs ) ], $dp )
+				new SelfclosingTagTk( 'behavior-switch', [ new KV( 'word', $mw ) ], $dp )
 			];
 		} else {
 			return [ $bs ];
@@ -625,8 +626,10 @@ behavior_switch =
 // regexp of all the language specific aliases of the behavior switches and
 // then does a match and replace. Just be as permissive as possible and let the
 // BehaviorSwitchPreprocessor back out of any overreach.
-behavior_text = $( !'__' ( text_char / "-" ) )+
+behavior_text = $( !double_underscore ( text_char / "-" ) )+
 
+// Japanese uses a U+FF3F, the "fullwidth low line", in place of underscore
+double_underscore = '__' / '＿＿'
 
 /**************************************************************
  * External (bracketed and autolinked) links
@@ -2792,6 +2795,7 @@ text_char = [^-'<[{\n\r:;\]}|!=]
  * A-Za-z autolinks (http(s), nttp(s), mailto, ISBN, PMID, RFC)
  *
  * _    behavior switches (e.g., '__NOTOC__') (XXX: not URL related)
+ * ＿   (U+FF3F) alternate behavior switch prefix
  * ! and | table cell delimiters, might be better to specialize those
  * =    headings - also specialize those!
  *
@@ -2828,7 +2832,7 @@ urltext =
 		}
 		/ & { return $this->urltextFoundAutolink; } @autolink
 		/ & "&" @htmlentity
-		/ & ('__') @behavior_switch
+		/ & double_underscore @behavior_switch
 		/ text_char
 	)+
 

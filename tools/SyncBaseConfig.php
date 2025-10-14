@@ -54,7 +54,7 @@ class SyncBaseConfig extends FetchingTool {
 		$formatVersion =
 			$this->hasOption( 'formatversion' ) ? $this->getOption( 'formatversion' ) : "2";
 
-		$apiReqParameters = $this->getApiReqParameters( $formatVersion );
+		$apiReqParameters = $this->getApiReqParameters( (int)$formatVersion );
 		$response = $apiHelper->makeRequest( $apiReqParameters );
 
 		$fileName = $this->getFileName( $response['query']['general']['wikiid'], $formatVersion );
