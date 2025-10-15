@@ -316,7 +316,10 @@ class DOMRangeBuilder {
 			$pi->srcOffsets = null;
 		}
 		$tplArray[] = new CompoundTemplateInfo(
-			$dsr, $templateInfo, DOMUtils::hasTypeOf( $range->startElem, 'mw:Param' )
+			dsr: $dsr,
+			info: $templateInfo,
+			isParam: DOMUtils::hasTypeOf( $range->startElem, 'mw:Param' ),
+			colon: $dp->colon ?? null,
 		);
 	}
 
@@ -1038,6 +1041,11 @@ class DOMRangeBuilder {
 				if ( !is_string( $parts[0] ) && $parts[0]->type === 'parserfunction' ) {
 					$key = $parts[0]->func;
 					DOMUtils::addTypeOf( $encapTgt, 'mw:ParserFunction/' . $key, false );
+				}
+				if ( ( $firstTplInfo->colon ?? ':' ) !== ':' ) {
+					// We only preserve the colon information from the
+					// first encapsulated item.
+					$encapDP->colon = $firstTplInfo->colon;
 				}
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node

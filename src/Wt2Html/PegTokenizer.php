@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -332,7 +333,7 @@ class PegTokenizer extends PipelineStage {
 	 * (Re)tokenize a template / parser function.
 	 * @param string $text
 	 * @param SourceRange $tsr The location of $text in the Source
-	 * @return Token|false A template3 token or false on error
+	 * @return SelfclosingTagTk|false A template token or false on error
 	 */
 	public function tokenizeTemplate( string $text, SourceRange $tsr ) {
 		$toks = $this->tokenizeAs( $text, 'template', false, $tsr );
@@ -349,7 +350,7 @@ class PegTokenizer extends PipelineStage {
 	 * (Re)tokenize a v3 template / parser function.
 	 * @param string $text
 	 * @param SourceRange $tsr The location of $text in the Source
-	 * @return Token|false A template3 token or false on error
+	 * @return SelfclosingTagTk|false A template3 token or false on error
 	 */
 	public function tokenizeTemplate3( string $text, SourceRange $tsr ) {
 		$toks = $this->tokenizeAs( $text, 'template3', false, $tsr );

@@ -354,3 +354,13 @@ Leaking fragment marker
 !! html/parsoid+integrated
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{&lt;nowiki/>"}},"i":0}}]}'>{</span></p>
 !! end
+
+!! test
+Japanese-style double-wide hash and colon (T415405)
+!! options
+language=ja
+!! wikitext
+a {{＃もし：foo|bar|baz}} b
+!! html/parsoid
+<p>a <span typeof="mw:Transclusion mw:ParserFunction/f2_if" data-parsoid='{"colon":"："}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"＃もし","key":"f2_if"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
+!! end

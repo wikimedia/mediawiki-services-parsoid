@@ -7,18 +7,17 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 
 class CompoundTemplateInfo {
-	/** @var DomSourceRange */
-	public $dsr;
-
-	/** @var TemplateInfo */
-	public $info;
-
-	/** @var bool */
-	public $isParam;
-
-	public function __construct( DomSourceRange $dsr, TemplateInfo $info, bool $isParam ) {
-		$this->dsr = $dsr;
-		$this->info = $info;
-		$this->isParam = $isParam;
+	public function __construct(
+		public DomSourceRange $dsr,
+		public TemplateInfo $info,
+		public bool $isParam,
+		/**
+		 * For a parser function which uses a colon to separate the first
+		 * argument, this argument gives the string value of the colon
+		 * character used (Japanese can use a double-wide colon); otherwise
+		 * this is null.
+		 */
+		public ?string $colon,
+	) {
 	}
 }

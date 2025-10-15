@@ -303,7 +303,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 	 * @param string|Token|array $targetToks
 	 * @param SourceRange $srcOffsets
 	 * @phpcs:ignore Generic.Files.LineLength.TooLong
-	 * @return ?array{magicWordType: '!'|null, name: string, title: Title, isVariable?: true, pfArg?: string|list<string|Token>, srcOffsets?: SourceRange, isParserFunction?: true, localName?: string, haveColon?: bool, handler?: \Wikimedia\Parsoid\Ext\PFragmentHandler, handlerOptions?: array}
+	 * @return ?array{magicWordType: '!'|null, name: string, title: Title, isVariable?: true, pfArg?: string|list<string|Token>, srcOffsets?: SourceRange, isParserFunction?: true, localName?: string, haveColon?: ?non-empty-string, handler?: \Wikimedia\Parsoid\Ext\PFragmentHandler, handlerOptions?: array}
 	 */
 	private function resolveTemplateTarget(
 		TemplateEncapsulator $state, $targetToks, $srcOffsets
@@ -317,19 +317,21 @@ class TemplateHandler extends XMLTagBasedHandler {
 		}
 
 		$target = trim( $target );
-		$pieces = explode( ':', $target );
+		$pieces = preg_split( '/[:：]/u', $target );
 		$untrimmedPrefix = $pieces[0];
 		$prefix = trim( $pieces[0] );
 
 		// Parser function names usually (not always) start with a hash
-		$hasHash = str_starts_with( $target, '#' );
+		$hasHash = str_starts_with( $target, '#' ) ||
+			// Japanese uses double-wide hash (T415405)
+			str_starts_with( $target, '＃' );
 		// String found after the colon will be the parser function arg
 		$haveColon = count( $pieces ) > 1;
 
 		// safesubst found in content should be treated as if no modifier were
 		// present. See https://en.wikipedia.org/wiki/Help:Substitution#The_safesubst:_modifier
 		if ( $haveColon && $this->isSafeSubst( $prefix ) ) {
-			$target = substr( $target, strlen( $untrimmedPrefix ) + 1 );
+			$target = mb_substr( $target, mb_strlen( $untrimmedPrefix ) + 1 );
 			array_shift( $pieces );
 			$untrimmedPrefix = $pieces[0];
 			$prefix = trim( $pieces[0] );
@@ -345,8 +347,10 @@ class TemplateHandler extends XMLTagBasedHandler {
 		}
 
 		$pfArg = '';
+		$colon = '';
 		if ( $haveColon ) {
-			$pfArg = substr( $target, strlen( $untrimmedPrefix ) + 1 );
+			$colon = mb_substr( $target, mb_strlen( $untrimmedPrefix ), 1 );
+			$pfArg = mb_substr( $target, mb_strlen( $untrimmedPrefix ) + 1 );
 			if ( $additionalToks ) {
 				$pfArg = [ $pfArg ];
 				PHPUtils::pushArray( $pfArg, $additionalToks );
@@ -378,8 +382,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 				// FIXME: Some made up synthetic title
 				'title' => $env->makeTitleFromURLDecodedStr( "Special:Variable/$magicWordVar" ),
 				'pfArg' => $pfArg,
+				'haveColon' => $colon,
 				'srcOffsets' => new SourceRange(
-					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
+					$srcOffsets->start + strlen( $untrimmedPrefix ) + strlen( $colon ),
 					$srcOffsets->end,
 					$srcOffsets->source ),
 			];
@@ -391,7 +396,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		if ( $canonicalFunctionName === null && $hasHash ) {
 			// If the target starts with a '#' it can't possibly be a template
 			// so this must be a "broken" parser function invocation
-			$canonicalFunctionName = substr( $prefix, 1 );
+			$canonicalFunctionName = mb_substr( $prefix, 1 );
 			$broken = true;
 			// @todo: Flag this as an author error somehow (T314524)
 		}
@@ -418,9 +423,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 				'localName' => $prefix,
 				'title' => $syntheticTitle, // FIXME: Some made up synthetic title
 				'pfArg' => $pfArg,
-				'haveColon' => $haveColon, // FIXME: T391063
+				'haveColon' => $colon, // FIXME: T391063
 				'srcOffsets' => new SourceRange(
-					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
+					$srcOffsets->start + strlen( $untrimmedPrefix ) + strlen( $colon ),
 					$srcOffsets->end,
 					$srcOffsets->source ),
 			];
@@ -869,13 +874,14 @@ class TemplateHandler extends XMLTagBasedHandler {
 				if ( $token === false ) {
 					return $this->convertToString( $origToken );
 				}
+				$state->token = $token;
 			}
 			$args = $token->attribs;
 			if ( isset( $tgt['isVariable'] ) || isset( $tgt['isParserFunction'] ) ) {
-				$hasColon = false;
+				$hasColon = null;
 				$args = TemplateEncapsulator::adjustParserFunctionArg0( $args, $hasColon );
-				if ( $hasColon ) {
-					$state->token->dataParsoid->colon = true;
+				if ( $hasColon !== null ) {
+					$token->dataParsoid->colon = $hasColon;
 				}
 			}
 			// discard the target
@@ -943,6 +949,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 					$token->dataParsoid->src, $token->dataParsoid->tsr
 				);
 				Assert::invariant( $token !== false, "Failed to retokenize" );
+				$state->token = $token;
 			}
 			// Expand argument keys
 			$newAttribs = AttributeTransformManager::process(
@@ -979,6 +986,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 			/* If $tgt is not null, target will be present. */
 			$templateName = $tgt['name'];
 			$templateTitle = $tgt['title'];
+			if ( $tgt['haveColon'] ?? false ) {
+				$token->dataParsoid->colon = $tgt['haveColon'];
+			}
 			// FIXME: This is a source of a lot of issues since templateargs
 			// get looked up from the Frame and yield these tokens which then enter
 			// the token stream. See T301948 and others from wmf.22

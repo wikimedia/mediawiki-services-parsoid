@@ -188,7 +188,9 @@ class TemplateEncapsulator {
 		'@phan-var false|array<string|PreprocTk> $targetContents';
 		[ $name, $colon, $arg0 ] = $targetContents !== false ? array_pad(
 			PreprocTk::splitContentsBy(
-				':',
+				// Japanese uses a double-wide colon to separate parser
+				// function arguments.
+				[ ':', '：' ],
 				PreprocTk::newContentsKV( $targetContents, $targetTsr ),
 				1
 			), 3, null
@@ -251,7 +253,7 @@ class TemplateEncapsulator {
 		Source $src, TemplateInfo $ti, array $params
 	): array {
 		// For parser functions, split first argument at colon
-		$hasColon = false;
+		$hasColon = null;
 		if ( $ti->func ) {
 			$params = self::adjustParserFunctionArg0( $params, $hasColon );
 		}
@@ -287,24 +289,25 @@ class TemplateEncapsulator {
 	/**
 	 * Split the first colon-delimited argument from `$params[0]`.
 	 * @param list<KV> $params
-	 * @param bool &$hasColon
+	 * @param ?string &$hasColon
 	 * @return list<KV>
 	 */
-	public static function adjustParserFunctionArg0( array $params, bool &$hasColon ): array {
+	public static function adjustParserFunctionArg0( array $params, ?string &$hasColon ): array {
 		// Make a 'mw:contents' style KV from the first parameter
 		$arg0 = PreprocTk::newContentsKV(
 			$params[0]->k, $params[0]->srcOffsets?->key
 		);
-		[ $name, $colon, $rest ] = array_pad( PreprocTk::splitContentsBy(
-			':', $arg0, 1
+		[ $name, $hasColonKV, $rest ] = array_pad( PreprocTk::splitContentsBy(
+			[ ':', '：' ], $arg0, 1
 		), 3, null );
-		if ( $colon === null ) {
+		if ( $hasColonKV === null ) {
 			// Nothing needs to be done: either there's no argument or
 			// this uses "modern" `|` separators for the first argument.
-			$hasColon = false;
+			$hasColon = null;
 			return $params;
 		}
-		$hasColon = true;
+		// Convert $colon back from 'mw:contents' style
+		$hasColon = $hasColonKV->v[0];
 		// Convert $name back from 'mw:contents' style
 		$name = new KV(
 			$name->v, '',
@@ -445,7 +448,7 @@ class TemplateEncapsulator {
 		$dp->tsr = clone $this->token->dataParsoid->tsr;
 		$dp->src = $this->token->dataParsoid->src;
 		if ( isset( $this->token->dataParsoid->colon ) ) {
-			$dp->colon = true;
+			$dp->colon = $this->token->dataParsoid->colon;
 		}
 
 		$meta = [ new SelfclosingTagTk( 'meta', $attrs, $dp ) ];

@@ -13316,7 +13316,7 @@ language=ar
 !! end
 
 !! test
-Language parser function (Japanese localization, double-wide hash)
+Language parser function (Japanese localization, double-wide hash & double-wide colon)
 !! options
 language=ja
 !! wikitext

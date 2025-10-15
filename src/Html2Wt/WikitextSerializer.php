@@ -863,7 +863,9 @@ class WikitextSerializer {
 			}
 			// Parser functions are weird! First separator is a colon not a bar
 			if ( $first && $isPF ) {
-				$modFormatParamName = preg_replace( '/[|]/', ':', $modFormatParamName, 1 );
+				# Use the same colon that original used (T415405)
+				$colon = is_string( $dp->colon ?? null ) ? $dp->colon : ':';
+				$modFormatParamName = preg_replace( '/[|]/', $colon, $modFormatParamName, 1 );
 			}
 
 			$buf .= $this->formatStringSubst( $modFormatParamName, $name, $forceTrim );

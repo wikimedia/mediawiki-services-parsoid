@@ -1677,7 +1677,15 @@ abstract class SiteConfig {
 					if ( !isset( $pFragmentHandler['options']['nohash'] ) ) {
 						$pfAlias = '#' . $pfAlias;
 					}
+					# Some legacy parser functions have the colon included
+					# as part of the magic word alias
+					$pfAlias = preg_replace( '/(:|：)$/', '', $pfAlias );
 					$this->pFragmentHandlerFuncSynonyms[$caseSensitive][$pfAlias] = $key;
+					if ( str_starts_with( $pfAlias, '#' ) ) {
+						# support Japanese double-wide hash (T415405)
+						$pfAlias = '＃' . substr( $pfAlias, 1 );
+						$this->pFragmentHandlerFuncSynonyms[$caseSensitive][$pfAlias] = $key;
+					}
 				}
 				// TODO (T390342): ['options']['extensionTag'] can also be set,
 				// and we would register this PFragment handler as a

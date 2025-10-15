@@ -12,7 +12,7 @@
 		},
 		{
 			"name": "f2_if",
-			"aliases": [ "f2_if" ],
+			"aliases": [ "f2_if", "もし" ],
 			"case-sensitive": true
 		},
 		{

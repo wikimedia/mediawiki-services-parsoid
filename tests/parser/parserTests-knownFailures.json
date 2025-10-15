@@ -103,9 +103,6 @@
 	"Inline wiki vs wiki block nesting": {
 		"wt2wt": "'''Bold paragraph'''\n\nNew wiki paragraph"
 	},
-	"Language parser function (Japanese localization, double-wide hash)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#language:ja\",\"function\":\"language\"},\"params\":{},\"i\":0}}]}'>日本語</span></p>\n\n<p data-parsoid='{\"dsr\":[18,32,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[18,32,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#言語:ja\",\"function\":\"language\"},\"params\":{},\"i\":0}}]}'>日本語</span></p>\n\n<p data-parsoid='{\"dsr\":[34,50,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[34,50,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"＃言語:ja\",\"function\":\"language\"},\"params\":{},\"i\":0}}]}'>日本語</span></p>\n\n<p data-parsoid='{\"dsr\":[52,70,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[52,70,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"＃言語：ja\",\"href\":\"./テンプレート:＃言語：ja\"},\"params\":{},\"i\":0}}]}'>日本語</span></p>"
-	},
 	"Media link redirect": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:MediaLink\" href=\"http://example.com/images/3/3a/Foobar.jpg\" resource=\"./Media:Redirect_to_foobar.jpg\" title=\"Foobar.jpg\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://example.com/images/3/3a/Foobar.jpg\",\"resource\":\"./Media:Redirect_to_foobar.jpg\"},\"sa\":{\"href\":\"Media:Redirect to foobar.jpg\",\"resource\":\"Media:Redirect to foobar.jpg\"},\"dsr\":[0,32,2,2]}'>Media:Redirect to foobar.jpg</a></p>"
 	},
