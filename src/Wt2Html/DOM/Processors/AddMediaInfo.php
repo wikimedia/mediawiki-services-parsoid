@@ -60,6 +60,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		if ( $info['mediatype'] === 'AUDIO' ) {
 			// FIXME: TMH uses 23 but VE wants 32
 			$height = /* height || */32; // Arguably, audio should respect a defined height
+			// FIXME: Default width should be scaled by the upright factor
 			$width = max( 35, $width ?: $env->getSiteConfig()->widthOption() );
 		}
 
@@ -636,6 +637,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				if ( $seek !== null ) {
 					$dims['seek'] = $seek;
 				}
+			}
+
+			// Indicate that the width that was set was as a result of default sizing
+			if (
+				$dims['width'] !== null &&
+				DOMCompat::getClassList( $container )->contains( 'mw-default-size' )
+			) {
+				$dims['isDefault'] = true;
 			}
 
 			$attrs = [
