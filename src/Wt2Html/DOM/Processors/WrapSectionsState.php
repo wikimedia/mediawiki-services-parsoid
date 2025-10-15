@@ -724,6 +724,10 @@ class WrapSectionsState {
 
 			[ $dsr1, $src1 ] = $this->getDSR( $range['start'], true ); // Traverses non-tpl content => will succeed
 			[ $dsr2, $src2 ] = $this->getDSR( $range['end'], false );  // Traverses non-tpl content => will succeed
+			Assert::invariant(
+				( $src1 ?? $src2 ) === ( $src2 ?? $src1 ),
+				"Inconsistent DSR sources"
+			);
 			$dp = new DataParsoid;
 			$dp->dsr = new DomSourceRange( $dsr1, $dsr2, null, null, source: $src1 ?? $src2 );
 			DOMDataUtils::setDataParsoid( $range['start'], $dp );

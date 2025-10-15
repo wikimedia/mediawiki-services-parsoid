@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Closure;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -392,9 +393,10 @@ class ContentUtils {
 			// could/should collect a list of all the different $dsr
 			// sources and then run this multiple times, once for each
 			// source text.
-			if ( $dsr->source !== null && $dsr->source !== $source ) {
-				return $dsr;
-			}
+			Assert::invariant(
+				$dsr->source === null || $dsr->source === $source,
+				"Bad source in ::convertOffsets"
+			);
 			if ( $dsr->start !== null ) {
 				$collect( $dsr->start );
 				$collect( $dsr->innerStart() );
