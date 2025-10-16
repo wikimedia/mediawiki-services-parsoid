@@ -472,9 +472,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 							$this->clearSOL();
 						}
 					} elseif ( preg_match( '/^\s*$/D', $token ) ) {
-						// White-space doesn't change SOL state
-						// Update srcOffset
-						$this->srcOffset = $this->srcOffset->offset( strlen( $token ) );
+						// White-space doesn't change SOL state. Update srcOffset.
+						if ( $this->srcOffset !== null ) {
+							$this->srcOffset = $this->srcOffset->offset( strlen( $token ) );
+						}
 					} else {
 						$this->clearSOL();
 					}
