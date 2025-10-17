@@ -14425,9 +14425,7 @@ parsoid=wt2html
 |}
 !! html/parsoid
 <div about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"OpenTable","href":"./Template:OpenTable"},"params":{},"i":0}},"\n&lt;div>\n"]}' data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[]]}'>
-</div><span about="#mwt1">
-</span>
-<table about="#mwt1" data-parsoid='{"autoInsertedEnd":true}'></table>
+</div><table about="#mwt1" data-parsoid='{"autoInsertedEnd":true}'></table>
 
 <table>
 </table>

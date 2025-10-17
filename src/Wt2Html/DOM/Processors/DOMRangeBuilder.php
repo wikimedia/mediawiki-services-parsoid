@@ -716,6 +716,23 @@ class DOMRangeBuilder {
 				//     to preserve this for html2wt either. Removing this
 				//     lets us preserve DOM range continuity.
 				$n->parentNode->removeChild( $n );
+			} elseif (
+				// This is narrowly targeted hacky fix for T370751.
+				// Whitespace doesn't interfere with next-sibling CSS rules.
+				// But, if we span wrap them as below, those CSS rules break.
+				// Here, we strip such newlines instead of span-wrapping them
+				// in the narrow case where they show up between block tags and
+				// the following block tag is a wikitext list or a table since
+				// the template cannot be edited to strip those newlines - they are
+				// essential for the lists / tables to be rendered as such.
+				$n instanceof Text &&
+				$n->textContent === "\n" &&
+				DOMUtils::isWikitextBlockNode( $n->previousSibling ) &&
+				// Narrow set of sol-based wikitext constructs
+				in_array( DOMUtils::nodeName( $n->nextSibling ), [ 'ul', 'ol', 'table' ], true ) &&
+				!WTUtils::isLiteralHTMLNode( $n->nextSibling )
+			) {
+				$n->parentNode->removeChild( $n );
 			} else {
 				// Add a span wrapper to let us add about-ids to represent
 				// the DOM range as a contiguous chain of DOM nodes.
