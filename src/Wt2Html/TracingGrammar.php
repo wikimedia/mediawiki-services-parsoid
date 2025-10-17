@@ -498,7 +498,19 @@ private function a9($p0, $flat) {
 			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		
 }
-private function a10($p0, $flat, $p1, $sp, $p2, $content, $p3) {
+private function a10($p0, $flat, $p1, $sp, $p2, $content, $p3, &$preproc) {
+
+			// Prevent the extlink from stealing a closing bracket
+			// from a wikilink
+			$c = $this->input[$p3 + 1] ?? '';
+			if ( $c !== ']' || $preproc !== ']]' ) {
+				return true;
+			}
+			preg_match( '/^]+/', substr( $this->input, $p3 ), $matches );
+			return strlen( $matches[0] ) % 2;
+		
+}
+private function a11($p0, $flat, $p1, $sp, $p2, $content, $p3, &$preproc) {
 
 			$tsr1 = new SourceRange( $p0, $p1, $this->source );
 			$tsr2 = new SourceRange( $p2, $p3, $this->source );
@@ -515,9 +527,10 @@ private function a10($p0, $flat, $p1, $sp, $p2, $content, $p3) {
 					],
 					$dp
 				)
-			]; 
+			];
+		
 }
-private function a11($p) {
+private function a12($p) {
 
 	// Protect the tokenizer cache by cloning p, so that any
 	// in-place mutation won't affect cached values.
@@ -527,10 +540,10 @@ private function a11($p) {
 	return $p->v;
 
 }
-private function a12() {
+private function a13() {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a13($b) {
+private function a14($b) {
 
 		// Clear the tokenizer's backtracking cache after matching each
 		// toplevelblock. There won't be any backtracking as a document is just a
@@ -552,10 +565,10 @@ private function a13($b) {
 		return $this->emitChunk( $tokens );
 	
 }
-private function a14($t) {
+private function a15($t) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a15($t, $n) {
+private function a16($t, $n) {
 
 		if ( count( $t ) ) {
 			$ret = TokenizerUtils::flattenIfArray( $t );
@@ -568,19 +581,19 @@ private function a15($t, $n) {
 		return $ret;
 	
 }
-private function a16() {
+private function a17() {
  return $this->endOffset(); 
 }
-private function a17() {
+private function a18() {
  $this->unreachable(); 
 }
-private function a18($p) {
+private function a19($p) {
  return Utils::isProtocolValid( $p, $this->env ); 
 }
-private function a19($p) {
+private function a20($p) {
  return $p; 
 }
-private function a20($tagType, $h, $extlink, &$preproc, $equal, $table, $templateArg, $tableCellArg, $semicolon, $arrow, $linkdesc, $colon, &$th) {
+private function a21($tagType, $h, $extlink, &$preproc, $equal, $table, $templateArg, $tableCellArg, $semicolon, $arrow, $linkdesc, $colon, &$th) {
 
 			return TokenizerUtils::inlineBreaks( $this->input, $this->endOffset(), [
 				'tagType' => $tagType,
@@ -599,10 +612,10 @@ private function a20($tagType, $h, $extlink, &$preproc, $equal, $table, $templat
 			], $this->env );
 		
 }
-private function a21($c) {
+private function a22($c) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a22($c, $cEnd) {
+private function a23($c, $cEnd) {
 
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
@@ -613,7 +626,7 @@ private function a22($c, $cEnd) {
 		return [ new CommentTk( $data, $dp ) ];
 	
 }
-private function a23($cc) {
+private function a24($cc) {
 
 		// if this is an invalid entity, don't tag it with 'mw:Entity'
 		// note that some entities (like &acE;) decode to 2 codepoints!
@@ -634,7 +647,7 @@ private function a23($cc) {
 		];
 	
 }
-private function a24($namePos0, $name, $namePos1, $vd) {
+private function a25($namePos0, $name, $namePos1, $vd) {
 
 	// NB: Keep in sync w/ generic_newline_attribute
 	$res = null;
@@ -655,10 +668,10 @@ private function a24($namePos0, $name, $namePos1, $vd) {
 	return $res;
 
 }
-private function a25($c) {
+private function a26($c) {
  return new KV( $c, '' ); 
 }
-private function a26($namePos0, $name, $namePos1, $vd) {
+private function a27($namePos0, $name, $namePos1, $vd) {
 
 	// NB: Keep in sync w/ table_attibute
 	$res = null;
@@ -679,15 +692,15 @@ private function a26($namePos0, $name, $namePos1, $vd) {
 	return $res;
 
 }
-private function a27($c) {
+private function a28($c) {
 
 		return TokenizerUtils::flattenStringlist( $c );
 	
 }
-private function a28($bullets, $colons, $d) {
+private function a29($bullets, $colons, $d) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a29($bullets, $colons, $d) {
+private function a30($bullets, $colons, $d) {
 
 		$bulletToks = [];
 		// Leave bullets as an array -- list handler expects this
@@ -721,7 +734,7 @@ private function a29($bullets, $colons, $d) {
 		return $bulletToks;
 	
 }
-private function a30($bullets, $sc, $tbl) {
+private function a31($bullets, $sc, $tbl) {
 
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
@@ -732,10 +745,10 @@ private function a30($bullets, $sc, $tbl) {
 	return array_merge( [ $li ], $sc, $tbl );
 
 }
-private function a31($bullets, $c) {
+private function a32($bullets, $c) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a32($bullets, $c) {
+private function a33($bullets, $c) {
 
 		// Leave bullets as an array -- list handler expects this
 		$tsr = $this->tsrOffsets( 'start' );
@@ -746,89 +759,89 @@ private function a32($bullets, $c) {
 		return array_merge( [ $li ], $c ?: [] );
 	
 }
-private function a33($pieces) {
+private function a34($pieces) {
 
 	return PreprocTk::newContentsKV( $pieces, $this->tsrOffsets() );
 
 }
-private function a34($h) {
+private function a35($h) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a35() {
+private function a36() {
  return $this->endOffset() === 0 && !$this->pipelineOffset; 
 }
-private function a36($r, $cil, $bl) {
+private function a37($r, $cil, $bl) {
 
 		$this->hasSOLTransparentAtStart = true;
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	
 }
-private function a37() {
+private function a38() {
  return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; 
 }
-private function a38() {
+private function a39() {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a39() {
+private function a40() {
 
 		// Use the sol flag only at the start of the input
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
-private function a40() {
+private function a41() {
 
 		return [];
 	
 }
-private function a41($sp, $elc, $st) {
+private function a42($sp, $elc, $st) {
 
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
-private function a42($marker) {
+private function a43($marker) {
 
 	return TokenizerUtils::parsoidFragmentMarkerToTokens(
 	  $this->env, $this->frame, $marker, $this->tsrOffsets()
 	);
 
 }
-private function a43(&$preproc, $t) {
+private function a44(&$preproc, $t) {
 
 		$preproc = null;
 		return $t;
 	
 }
-private function a44($m) {
+private function a45($m) {
 
 		return Utils::decodeWtEntities( $m );
 	
 }
-private function a45($first, $rest) {
+private function a46($first, $rest) {
 
 		array_unshift( $rest, $first );
 		return TokenizerUtils::flattenString( $rest );
 	
 }
-private function a46($s, $t, $q) {
+private function a47($s, $t, $q) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ), $this->source );
 	
 }
-private function a47($s, $t) {
+private function a48($s, $t) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a48($s, $t) {
+private function a49($s, $t) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset(), $this->source );
 	
 }
-private function a49($r) {
+private function a50($r) {
 
 		return TokenizerUtils::flattenString( $r );
 	
 }
-private function a50() {
+private function a51() {
 
 			if ( preg_match( $this->reUrltextLookahead, $this->input, $m, 0, $this->currPos ) ) {
 				$plain = $m[1];
@@ -841,30 +854,30 @@ private function a50() {
 			}
 		
 }
-private function a51() {
+private function a52() {
 
 			$this->currPos += strlen( $this->urltextPlainSegment );
 			return $this->urltextPlainSegment;
 		
 }
-private function a52() {
+private function a53() {
  return $this->urltextFoundAutolink; 
 }
-private function a53($c, $cpos) {
+private function a54($c, $cpos) {
 
 	return [ $c, $cpos ];
 
 }
-private function a54() {
+private function a55() {
  return $this->options['sol'] ?? false; 
 }
-private function a55(&$sol) {
+private function a56(&$sol) {
  $sol=true; return true; 
 }
-private function a56(&$sol) {
+private function a57(&$sol) {
  $sol=false; return false; 
 }
-private function a57($kv) {
+private function a58($kv) {
 
 	  return new PreprocTk(
 	    type: PreprocType::BRACKET,
@@ -874,7 +887,7 @@ private function a57($kv) {
 	  );
 	
 }
-private function a58($kv) {
+private function a59($kv) {
 
 	  return new PreprocTk(
 	    type: PreprocType::DASH_BRACE,
@@ -883,7 +896,7 @@ private function a58($kv) {
 	  );
 	
 }
-private function a59() {
+private function a60() {
 
 	  $type = PreprocType::COMMENT;
 	  if ( substr_compare(
@@ -907,20 +920,20 @@ private function a59() {
 	  );
 	
 }
-private function a60($t) {
+private function a61($t) {
  return $t === 'onlyinclude'; 
 }
-private function a61($t) {
+private function a62($t) {
 
 	  return null;
 	
 }
-private function a62($rw, $sp, $c, $wl) {
+private function a63($rw, $sp, $c, $wl) {
 
 		return count( $wl ) === 1 && $wl[0] instanceof Token;
 	
 }
-private function a63($rw, $sp, $c, $wl) {
+private function a64($rw, $sp, $c, $wl) {
 
 		$link = $wl[0];
 		if ( $sp ) {
@@ -942,7 +955,7 @@ private function a63($rw, $sp, $c, $wl) {
 		return $redirect;
 	
 }
-private function a64($s) {
+private function a65($s) {
 
 		if ( $s !== '' ) {
 			return [ $s ];
@@ -951,60 +964,60 @@ private function a64($s) {
 		}
 	
 }
-private function a65($s, $os) {
+private function a66($s, $os) {
  return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; 
 }
-private function a66($s, $os) {
+private function a67($s, $os) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a67($s, $os) {
+private function a68($s, $os) {
 
 		// Use the sol flag only at the start of the input
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
-private function a68($s, $os) {
+private function a69($s, $os) {
 
 		return [];
 	
 }
-private function a69($s, $os, $sp, $elc, $st) {
+private function a70($s, $os, $sp, $elc, $st) {
 
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
-private function a70($s, $os, $so) {
+private function a71($s, $os, $so) {
  return array_merge( $os, $so ); 
 }
-private function a71($s, $s2, $bl) {
+private function a72($s, $s2, $bl) {
 
 		return array_merge( $s, $s2 ?: [], $bl );
 	
 }
-private function a72($p, $c) {
+private function a73($p, $c) {
 
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset(), $this->source );
 		return [ new EmptyLineTk( TokenizerUtils::flattenIfArray( $c ), $dp ) ];
 	
 }
-private function a73($p, $target) {
+private function a74($p, $target) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a74($p, $target, $p0) {
+private function a75($p, $target, $p0) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a75($p, $target, $p0, $v, $p1) {
+private function a76($p, $target, $p0, $v, $p1) {
 
 				// empty argument
 				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1, $this->source ) ];
 			
 }
-private function a76($p, $target, $params) {
+private function a77($p, $target, $params) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a77($p, $target, $params) {
+private function a78($p, $target, $params) {
 
 		$kvs = [];
 
@@ -1028,23 +1041,23 @@ private function a77($p, $target, $params) {
 		return $obj;
 	
 }
-private function a78($target) {
+private function a79($target) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a79($target, $p0) {
+private function a80($target, $p0) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a80($target, $p0, $v, $p1) {
+private function a81($target, $p0, $v, $p1) {
 
 				// empty argument
 				$tsr0 = new SourceRange( $p0, $p1, $this->source );
 				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
 			
 }
-private function a81($target, $params) {
+private function a82($target, $params) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a82($target, $params) {
+private function a83($target, $params) {
 
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
@@ -1057,13 +1070,13 @@ private function a82($target, $params) {
 		return $obj;
 	
 }
-private function a83($x, $ill) {
+private function a84($x, $ill) {
  return array_merge( [$x], $ill ?: [] ); 
 }
-private function a84() {
+private function a85() {
  return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) ); 
 }
-private function a85($bs) {
+private function a86($bs) {
 
 		if ( $this->siteConfig->isBehaviorSwitch( $bs ) ) {
 			$dp = new DataParsoid;
@@ -1078,7 +1091,7 @@ private function a85($bs) {
 		}
 	
 }
-private function a86($quotes) {
+private function a87($quotes) {
 
 		// sequences of four or more than five quotes are assumed to start
 		// with some number of plain-text apostrophes.
@@ -1108,14 +1121,14 @@ private function a86($quotes) {
 		return $result;
 	
 }
-private function a87($open, $end) {
+private function a88($open, $end) {
 
 	  // if this is a single string of equals signs; open must
 	  // include at least 3 equals to count as a heading.
 	  return $end !== null && ( $end[1] !== null || strlen( $open ) >= 3 );
 	
 }
-private function a88($open, $end, &$h) {
+private function a89($open, $end, &$h) {
 
 	  // Increase the heading index!
 	  $headingIndex = $h++;
@@ -1155,26 +1168,16 @@ private function a88($open, $end, &$h) {
 	  );
 	
 }
-private function a89($pieces) {
+private function a90($pieces) {
 
 	  return PreprocTk::newContentsKV( $pieces, null );
 	
 }
-private function a90($marker) {
+private function a91($marker) {
 
 	  return new PreprocPFragmentTk(
 	    tsr: $this->tsrOffsets(),
 	    contents: $marker,
-	  );
-	
-}
-private function a91($kv) {
-
-	  return new PreprocTk(
-	    type: PreprocType::BRACE,
-	    tsr: $this->tsrOffsets(),
-	    contents: $kv,
-	    count: 2,
 	  );
 	
 }
@@ -1184,23 +1187,33 @@ private function a92($kv) {
 	    type: PreprocType::BRACE,
 	    tsr: $this->tsrOffsets(),
 	    contents: $kv,
+	    count: 2,
+	  );
+	
+}
+private function a93($kv) {
+
+	  return new PreprocTk(
+	    type: PreprocType::BRACE,
+	    tsr: $this->tsrOffsets(),
+	    contents: $kv,
 	    count: 3,
 	  );
 	
 }
-private function a93($slash, $t, $h) {
+private function a94($slash, $t, $h) {
  return $this->ignoredTags[$t] ?? false; 
 }
-private function a94($slash, $t, $h) {
+private function a95($slash, $t, $h) {
  return WTUtils::isAnnotationTag( $this->env, $t ); 
 }
-private function a95($slash, $t, $h) {
+private function a96($slash, $t, $h) {
  return ( !$slash ) && ( $this->ignoredElements[$t] ?? false ); 
 }
-private function a96($slash, $t, $h) {
+private function a97($slash, $t, $h) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a97($slash, $t, $h) {
+private function a98($slash, $t, $h) {
 
 	  return new PreprocIgnoreTk(
 	    tsr: $this->tsrOffsets(),
@@ -1209,13 +1222,13 @@ private function a97($slash, $t, $h) {
 	  );
 	
 }
-private function a98($p1, $t, $p2, $h, $attribs, $p3) {
+private function a99($p1, $t, $p2, $h, $attribs, $p3) {
  return str_ends_with( $attribs, "/" ); 
 }
-private function a99($p1, $t, $p2, $h, $attribs, $p3) {
+private function a100($p1, $t, $p2, $h, $attribs, $p3) {
  return [ '', null, null ]; 
 }
-private function a100($p1, $t, $p2, $h, $attribs, $p3, $contents_and_close) {
+private function a101($p1, $t, $p2, $h, $attribs, $p3, $contents_and_close) {
 
 	  [ $contents, $p4, $close ] = $contents_and_close;
 	  if ($close === null ) {
@@ -1233,7 +1246,7 @@ private function a100($p1, $t, $p2, $h, $attribs, $p3, $contents_and_close) {
 	  );
 	
 }
-private function a101($name) {
+private function a102($name) {
 
 	/* check that this is a valid extension or include tag name */
 	$lower = mb_strtolower( $name );
@@ -1242,17 +1255,17 @@ private function a101($name) {
 		WTUtils::isAnnotationTag( $this->env, $lower );
 
 }
-private function a102($name) {
+private function a103($name) {
 
 	return mb_strtolower( $name );
 
 }
-private function a103($rw) {
+private function a104($rw) {
 
 			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
 		
 }
-private function a104($t) {
+private function a105($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
 		switch ( $tagName ) {
@@ -1359,10 +1372,10 @@ private function a104($t) {
 		}
 	
 }
-private function a105() {
+private function a106() {
  return $this->annotationsEnabledOnWiki; /* short-circuit! */ 
 }
-private function a106($t) {
+private function a107($t) {
 
 			$end = ( $t instanceof EndTagTk );
 			$attribs = $t->attribs;
@@ -1400,7 +1413,7 @@ private function a106($t) {
 			return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw );
 		
 }
-private function a107($tag) {
+private function a108($tag) {
 
 		// FIXME: Suppress annotation meta tokens from template pipelines
 		// since they may not have TSR values and won't get recognized as
@@ -1413,16 +1426,16 @@ private function a107($tag) {
 		}
 	
 }
-private function a108($s, $ill) {
+private function a109($s, $ill) {
  return $ill ?: []; 
 }
-private function a109($s, $ce) {
+private function a110($s, $ce) {
  return $ce || strlen( $s ) > 2; 
 }
-private function a110($s, $ce, $endTPos, $spc) {
+private function a111($s, $ce, $endTPos, $spc) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a111($s, $ce, $endTPos, $spc, &$headingIndex) {
+private function a112($s, $ce, $endTPos, $spc, &$headingIndex) {
 
 			$c = null;
 			$e = null;
@@ -1495,36 +1508,36 @@ private function a111($s, $ce, $endTPos, $spc, &$headingIndex) {
 			return $res;
 		
 }
-private function a112($d) {
+private function a113($d) {
  return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; 
 }
-private function a113($d) {
+private function a114($d) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a114($d) {
+private function a115($d) {
 
 		// Use the sol flag only at the start of the input
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
-private function a115($d) {
+private function a116($d) {
 
 		return [];
 	
 }
-private function a116($d, $sp, $elc, $st) {
+private function a117($d, $sp, $elc, $st) {
 
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
-private function a117($d) {
+private function a118($d) {
  return null; 
 }
-private function a118($d) {
+private function a119($d) {
  return true; 
 }
-private function a119($d, $lineContent) {
+private function a120($d, $lineContent) {
 
 		$dataParsoid = new DataParsoid;
 		$dataParsoid->tsr = $this->tsrOffsets();
@@ -1537,12 +1550,12 @@ private function a119($d, $lineContent) {
 		return [new SelfclosingTagTk( 'hr', [], $dataParsoid )];
 	
 }
-private function a120($sc, $tl) {
+private function a121($sc, $tl) {
 
 		return array_merge($sc, $tl);
 	
 }
-private function a121($il) {
+private function a122($il) {
 
 		// il is guaranteed to be an array -- so, tu.flattenIfArray will
 		// always return an array
@@ -1553,12 +1566,12 @@ private function a121($il) {
 		return [ 'tokens' => $r, 'srcOffsets' => $this->tsrOffsets() ];
 	
 }
-private function a122($tpt) {
+private function a123($tpt) {
 
 		return [ 'tokens' => $tpt, 'srcOffsets' => $this->tsrOffsets() ];
 	
 }
-private function a123($name, $kEndPos, $vStartPos, $s) {
+private function a124($name, $kEndPos, $vStartPos, $s) {
 
 		if ( $s !== '' ) {
 			return [ $s ];
@@ -1567,7 +1580,7 @@ private function a123($name, $kEndPos, $vStartPos, $s) {
 		}
 	
 }
-private function a124($name, $kEndPos, $vStartPos, $optSp, $tpv) {
+private function a125($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 
 			return [
 				'kEndPos' => $kEndPos,
@@ -1577,7 +1590,7 @@ private function a124($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 			];
 		
 }
-private function a125($name, $val) {
+private function a126($name, $val) {
 
 		if ( $val !== null ) {
 			$so = new KVSourceRange(
@@ -1599,26 +1612,26 @@ private function a125($name, $val) {
 		}
 	
 }
-private function a126() {
+private function a127() {
 
 		return new KV( '', '', $this->tsrOffsets()->expandTsrV() );
 	
 }
-private function a127($extToken) {
+private function a128($extToken) {
  return $extToken->getName() === 'extension'; 
 }
-private function a128($extToken) {
+private function a129($extToken) {
  return $extToken; 
 }
-private function a129($tagType) {
+private function a130($tagType) {
 
 		return ( $tagType === 'html' || $tagType === '' );
 	
 }
-private function a130($proto, $addr, $rhe) {
+private function a131($proto, $addr, $rhe) {
  return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; 
 }
-private function a131($proto, $addr, $path) {
+private function a132($proto, $addr, $path) {
 
 			// as in Parser.php::makeFreeExternalLink, we're going to
 			// yank trailing punctuation out of this match.
@@ -1639,10 +1652,10 @@ private function a131($proto, $addr, $path) {
 			return $url;
 		
 }
-private function a132($r) {
+private function a133($r) {
  return $r !== null; 
 }
-private function a133($r) {
+private function a134($r) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1651,16 +1664,16 @@ private function a133($r) {
 		return $res;
 	
 }
-private function a134($ref, $he) {
+private function a135($ref, $he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
 }
-private function a135($ref, $he) {
+private function a136($ref, $he) {
  return $he; 
 }
-private function a136($ref, $sp, $identifier) {
+private function a137($ref, $sp, $identifier) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a137($ref, $sp, $identifier) {
+private function a138($ref, $sp, $identifier) {
 
 		$base_urls = [
 			'RFC' => 'https://datatracker.ietf.org/doc/html/rfc%s',
@@ -1686,25 +1699,25 @@ private function a137($ref, $sp, $identifier) {
 		];
 	
 }
-private function a138() {
+private function a139() {
  return $this->siteConfig->magicLinkEnabled("ISBN"); 
 }
-private function a139($he) {
- return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
-}
 private function a140($he) {
- return $he; 
-}
-private function a141($sp, $he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
+}
+private function a141($he) {
+ return $he; 
 }
 private function a142($sp, $he) {
+ return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
+}
+private function a143($sp, $he) {
  return $he; 
 }
-private function a143($sp, $isbn) {
+private function a144($sp, $isbn) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a144($sp, $isbn) {
+private function a145($sp, $isbn) {
 
 			// Convert isbn token-and-entity array to stripped string.
 			$stripped = '';
@@ -1716,14 +1729,14 @@ private function a144($sp, $isbn) {
 			return strtoupper( preg_replace( '/[^\dX]/i', '', $stripped ) );
 		
 }
-private function a145($sp, $isbn, $isbncode) {
+private function a146($sp, $isbn, $isbncode) {
 
 		// ISBNs can only be 10 or 13 digits long (with a specific format)
 		return strlen( $isbncode ) === 10
 			|| ( strlen( $isbncode ) === 13 && preg_match( '/^97[89]/', $isbncode ) );
 	
 }
-private function a146($sp, $isbn, $isbncode) {
+private function a147($sp, $isbn, $isbncode) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1745,7 +1758,7 @@ private function a146($sp, $isbn, $isbncode) {
 		];
 	
 }
-private function a147($t) {
+private function a148($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
 		$dp = $t->dataParsoid;
@@ -1859,15 +1872,15 @@ private function a147($t) {
 		], $dp );
 	
 }
-private function a148(&$preproc) {
+private function a149(&$preproc) {
  $preproc = null; return true; 
 }
-private function a149(&$preproc, $a) {
+private function a150(&$preproc, $a) {
 
 		return $a;
 	
 }
-private function a150($positions) {
+private function a151($positions) {
 
 	  // Verify that this ended with `[=]+([ \t]+|comment)*`
 	  // whitespace and comment would have been `preproc_piece`
@@ -1930,13 +1943,13 @@ private function a150($positions) {
 	  return [ $before, $m[1], $headingEnd, $after ];
 	
 }
-private function a151($start) {
+private function a152($start) {
 
 		list(,$name) = $start;
 		return WTUtils::isIncludeTag( mb_strtolower( $name ) );
 	
 }
-private function a152($tagType, $start) {
+private function a153($tagType, $start) {
 
 		// Only enforce ascii alpha first char for non-extension tags.
 		// See tag_name above for the details.
@@ -1945,7 +1958,7 @@ private function a152($tagType, $start) {
 			( preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name ) );
 	
 }
-private function a153($tagType, $start, $attribs, $selfclose) {
+private function a154($tagType, $start, $attribs, $selfclose) {
 
 		list($end, $name) = $start;
 		$lcName = mb_strtolower( $name );
@@ -1974,15 +1987,15 @@ private function a153($tagType, $start, $attribs, $selfclose) {
 		return $res;
 	
 }
-private function a154($tagType) {
+private function a155($tagType) {
 
 		return $tagType !== 'anno';
 	
 }
-private function a155($tagType) {
+private function a156($tagType) {
  return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); 
 }
-private function a156($tagType) {
+private function a157($tagType) {
 
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();
@@ -1990,13 +2003,13 @@ private function a156($tagType) {
 		return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp );
 	
 }
-private function a157($tagType, $start) {
+private function a158($tagType, $start) {
 
 		list(,$name) = $start;
 		return WTUtils::isAnnotationTag( $this->env, $name );
 	
 }
-private function a158($p, $b) {
+private function a159($p, $b) {
 
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
@@ -2009,7 +2022,7 @@ private function a158($p, $b) {
 		return [ $tblEnd ];
 	
 }
-private function a159($il) {
+private function a160($il) {
 
 		// il is guaranteed to be an array -- so, tu.flattenIfArray will
 		// always return an array
@@ -2020,13 +2033,13 @@ private function a159($il) {
 		return $r;
 	
 }
-private function a160() {
+private function a161() {
  return $this->siteConfig->magicLinkEnabled("RFC"); 
 }
-private function a161() {
+private function a162() {
  return $this->siteConfig->magicLinkEnabled("PMID"); 
 }
-private function a162($start) {
+private function a163($start) {
 
 		list(,$name) = $start;
 		return isset( $this->extTags[mb_strtolower( $name )] ) &&
@@ -2037,13 +2050,13 @@ private function a162($start) {
 			!WTUtils::isAnnotationTag( $this->env, $name );
 	
 }
-private function a163() {
+private function a164() {
  return $this->startOffset(); 
 }
-private function a164($lv0) {
+private function a165($lv0) {
  return $this->env->langConverterEnabled(); 
 }
-private function a165($lv0, $ff) {
+private function a166($lv0, $ff) {
 
 			// if flags contains 'R', then don't treat ; or : specially inside.
 			if ( isset( $ff['flags'] ) ) {
@@ -2054,25 +2067,25 @@ private function a165($lv0, $ff) {
 			return $ff;
 		
 }
-private function a166($lv0) {
+private function a167($lv0) {
  return !$this->env->langConverterEnabled(); 
 }
-private function a167($lv0) {
+private function a168($lv0) {
 
 			// if language converter not enabled, don't try to parse inside.
 			return [ 'raw' => true ];
 		
 }
-private function a168($lv0, $f) {
+private function a169($lv0, $f) {
  return $f['raw']; 
 }
-private function a169($lv0, $f, $lv) {
+private function a170($lv0, $f, $lv) {
  return [ [ 'text' => $lv ] ]; 
 }
-private function a170($lv0, $f) {
+private function a171($lv0, $f) {
  return !$f['raw']; 
 }
-private function a171($lv0, $f, $ts, $lv1) {
+private function a172($lv0, $f, $ts, $lv1) {
 
 		if ( !$this->env->langConverterEnabled() ) {
 			return [ '-{', $ts[0]['text']['tokens'], '}-' ];
@@ -2119,13 +2132,13 @@ private function a171($lv0, $f, $ts, $lv1) {
 		];
 	
 }
-private function a172($r, &$preproc) {
+private function a173($r, &$preproc) {
 
 		$preproc = null;
 		return $r;
 	
 }
-private function a173($spos, $target, $tpos, $lcs) {
+private function a174($spos, $target, $tpos, $lcs) {
 
 		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
 		if ( $target === null || $pipeTrick ) {
@@ -2170,7 +2183,7 @@ private function a173($spos, $target, $tpos, $lcs) {
 		return [ $obj ];
 	
 }
-private function a174($p, $td, $tds) {
+private function a175($p, $td, $tds) {
 
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
@@ -2184,7 +2197,7 @@ private function a174($p, $td, $tds) {
 		return array_merge( $td, $tds );
 	
 }
-private function a175($p, $args, $tagEndPos, $c) {
+private function a176($p, $args, $tagEndPos, $c) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
@@ -2192,7 +2205,7 @@ private function a175($p, $args, $tagEndPos, $c) {
 		);
 	
 }
-private function a176($f) {
+private function a177($f) {
 
 		// Collect & separate flags and variants into a hashtable (by key) and ordered list
 		$flags = [];
@@ -2262,7 +2275,7 @@ private function a176($f) {
 		}
 	
 }
-private function a177($tokens) {
+private function a178($tokens) {
 
 		return [
 			'tokens' => TokenizerUtils::flattenStringlist( $tokens ),
@@ -2270,7 +2283,7 @@ private function a177($tokens) {
 		];
 	
 }
-private function a178($o, $rest, $tr) {
+private function a179($o, $rest, $tr) {
 
 		array_unshift( $rest, $o );
 		// if the last bogus option is just spaces, keep them; otherwise
@@ -2284,10 +2297,10 @@ private function a178($o, $rest, $tr) {
 		return $rest;
 	
 }
-private function a179($lvtext) {
+private function a180($lvtext) {
  return [ [ 'text' => $lvtext ] ]; 
 }
-private function a180($p, $startPos, $lt) {
+private function a181($p, $startPos, $lt) {
 
 			$tsr = new SourceRange( $startPos, $this->endOffset(), $this->source );
 			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
@@ -2295,7 +2308,7 @@ private function a180($p, $startPos, $lt) {
 			return [$p, $maybeContent];
 		
 }
-private function a181($thTag, $thTags) {
+private function a182($thTag, $thTags) {
 
 		// Avoid modifying a cached result
 		$thTag[0] = clone $thTag[0];
@@ -2306,7 +2319,7 @@ private function a181($thTag, $thTags) {
 		return $thTags;
 	
 }
-private function a182($arg, $tagEndPos, $td) {
+private function a183($arg, $tagEndPos, $td) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
@@ -2315,7 +2328,7 @@ private function a182($arg, $tagEndPos, $td) {
 		);
 	
 }
-private function a183($pp, $tdt) {
+private function a184($pp, $tdt) {
 
 			// Avoid modifying cached dataParsoid object
 			$tdt[0] = clone $tdt[0];
@@ -2331,12 +2344,12 @@ private function a183($pp, $tdt) {
 			return $tdt;
 		
 }
-private function a184($b) {
+private function a185($b) {
 
 		return $b;
 	
 }
-private function a185($sp1, $f, $sp2, $more) {
+private function a186($sp1, $f, $sp2, $more) {
 
 		$r = ( $more && $more[1] ) ? $more[1] : [ 'sp' => [], 'flags' => [] ];
 		// Note that sp and flags are in reverse order, since we're using
@@ -2347,12 +2360,12 @@ private function a185($sp1, $f, $sp2, $more) {
 		return $r;
 	
 }
-private function a186($sp) {
+private function a187($sp) {
 
 		return [ 'sp' => [ $sp ], 'flags' => [] ];
 	
 }
-private function a187($sp1, $lang, $sp2, $sp3, $lvtext) {
+private function a188($sp1, $lang, $sp2, $sp3, $lvtext) {
 
 		return [
 			'twoway' => true,
@@ -2362,7 +2375,7 @@ private function a187($sp1, $lang, $sp2, $sp3, $lvtext) {
 		];
 	
 }
-private function a188($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
+private function a189($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 
 		return [
 			'oneway' => true,
@@ -2373,7 +2386,7 @@ private function a188($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 		];
 	
 }
-private function a189($arg, $tagEndPos, &$th, $d) {
+private function a190($arg, $tagEndPos, &$th, $d) {
 
 			// Ignore newlines found in transclusions!
 			// This is not perfect (since {{..}} may not always tokenize to transclusions).
@@ -2385,7 +2398,7 @@ private function a189($arg, $tagEndPos, &$th, $d) {
 			return $d;
 		
 }
-private function a190($arg, $tagEndPos, $c) {
+private function a191($arg, $tagEndPos, $c) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
@@ -2394,7 +2407,7 @@ private function a190($arg, $tagEndPos, $c) {
 		);
 	
 }
-private function a191($pp, $tht) {
+private function a192($pp, $tht) {
 
 			// Avoid modifying cached dataParsoid object
 			$tht[0] = clone $tht[0];
@@ -2410,16 +2423,16 @@ private function a191($pp, $tht) {
 			return $tht;
 		
 }
-private function a192($f) {
+private function a193($f) {
  return [ 'flag' => $f ]; 
 }
-private function a193($v) {
+private function a194($v) {
  return [ 'variant' => $v ]; 
 }
-private function a194($b) {
+private function a195($b) {
  return [ 'bogus' => $b ]; /* bad flag */
 }
-private function a195($n, $sp) {
+private function a196($n, $sp) {
 
 		$tsr = $this->tsrOffsets();
 		$tsr->end -= strlen( $sp );
@@ -2429,18 +2442,18 @@ private function a195($n, $sp) {
 		];
 	
 }
-private function a196($extToken) {
+private function a197($extToken) {
 
 		$txt = Utils::extractExtBody( $extToken );
 		return Utils::decodeWtEntities( $txt );
 	
 }
-private function a197($r) {
+private function a198($r) {
 
 		return $r;
 	
 }
-private function a198($start) {
+private function a199($start) {
 
 		list(,$name) = $start;
 		return ( mb_strtolower( $name ) === 'nowiki' );
@@ -3761,11 +3774,24 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r5 = self::$FAILED;
     goto seq_2;
   }
+  $this->savedPos = $this->currPos;
+  $r26 = $this->a10($r13, $r14, $r28, $r18, $r19, $r22, $r21, $param_preproc);
+  if ($r26) {
+    $r26 = false;
+  } else {
+    $r26 = self::$FAILED;
+    $this->currPos = $p8;
+    $param_preproc = $r9;
+    $param_th = $r10;
+    $param_headingIndex = $r11;
+    $r5 = self::$FAILED;
+    goto seq_2;
+  }
   $r5 = true;
   seq_2:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r5 = $this->a10($r13, $r14, $r28, $r18, $r19, $r22, $r21);
+    $r5 = $this->a11($r13, $r14, $r28, $r18, $r19, $r22, $r21, $param_preproc);
   } else {
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -3774,7 +3800,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r5 = self::$FAILED;
     goto seq_1;
   }
-  // free $r12,$r23,$r27
+  // free $r12,$r23,$r27,$r26
   // free $p8,$r9,$r10,$r11
   // free $p7
   seq_1:
@@ -3918,7 +3944,7 @@ return $this->traceCall(function($silence, &$param_headingIndex) {
   $r3 = $r4;
   if ($r3!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r3 = $this->a11($r4);
+    $r3 = $this->a12($r4);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -4017,7 +4043,7 @@ return $this->traceCall(function($silence, &$param_th, &$param_headingIndex, &$p
   $r4 = $param_preproc;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r6 = $this->a12();
+  $r6 = $this->a13();
   if ($r6) {
     $r6 = false;
   } else {
@@ -4048,7 +4074,7 @@ return $this->traceCall(function($silence, &$param_th, &$param_headingIndex, &$p
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a13($r7);
+    $r5 = $this->a14($r7);
   } else {
     if (!$silence) { $this->fail(23); }
   }
@@ -4113,7 +4139,7 @@ return $this->traceCall(function(&$param_th, &$param_headingIndex, &$param_prepr
     choice_1:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a14($r6);
+      $r8 = $this->a15($r6);
       $r7[] = $r8;
     } else {
       break;
@@ -4125,7 +4151,7 @@ return $this->traceCall(function(&$param_th, &$param_headingIndex, &$param_prepr
   $r5 = true;
   seq_1:
   $this->savedPos = $p1;
-  $r5 = $this->a15($r6, $r7);
+  $r5 = $this->a16($r6, $r7);
   // free $p1,$r2,$r3,$r4
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -4144,7 +4170,7 @@ return $this->traceCall(function($silence) {
   $p2 = $this->currPos;
   $r1 = true;
   $this->savedPos = $p2;
-  $r1 = $this->a16();
+  $r1 = $this->a17();
   // free $p2
   return $r1;
 }, "POSITION", ["\$silence"], [$silence]);
@@ -4163,7 +4189,7 @@ return $this->traceCall(function($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a17();
+  $r3 = $this->a18();
   if ($r3) {
     $r3 = false;
   } else {
@@ -4258,7 +4284,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p4
   $this->savedPos = $this->currPos;
-  $r8 = $this->a18($r3);
+  $r8 = $this->a19($r3);
   if ($r8) {
     $r8 = false;
   } else {
@@ -4271,7 +4297,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a19($r3);
+    $r2 = $this->a20($r3);
   }
   // free $r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -4372,7 +4398,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   $r8 = $param_preproc;
   $r9 = $param_th;
   $this->savedPos = $this->currPos;
-  $r10 = $this->a20($param_tagType, /*h*/($boolParams & 0x2) !== 0, /*extlink*/($boolParams & 0x4) !== 0, $param_preproc, /*equal*/($boolParams & 0x8) !== 0, /*table*/($boolParams & 0x10) !== 0, /*templateArg*/($boolParams & 0x20) !== 0, /*tableCellArg*/($boolParams & 0x40) !== 0, /*semicolon*/($boolParams & 0x80) !== 0, /*arrow*/($boolParams & 0x100) !== 0, /*linkdesc*/($boolParams & 0x200) !== 0, /*colon*/($boolParams & 0x800) !== 0, $param_th);
+  $r10 = $this->a21($param_tagType, /*h*/($boolParams & 0x2) !== 0, /*extlink*/($boolParams & 0x4) !== 0, $param_preproc, /*equal*/($boolParams & 0x8) !== 0, /*table*/($boolParams & 0x10) !== 0, /*templateArg*/($boolParams & 0x20) !== 0, /*tableCellArg*/($boolParams & 0x40) !== 0, /*semicolon*/($boolParams & 0x80) !== 0, /*arrow*/($boolParams & 0x100) !== 0, /*linkdesc*/($boolParams & 0x200) !== 0, /*colon*/($boolParams & 0x800) !== 0, $param_th);
   if ($r10) {
     $r10 = false;
   } else {
@@ -4518,7 +4544,7 @@ return $this->traceCall(function($silence) {
     $r6 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
-  $r6 = $this->a21($r4);
+  $r6 = $this->a22($r4);
   if ($r6) {
     $r6 = false;
   } else {
@@ -4539,7 +4565,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a22($r4, $r6);
+    $r2 = $this->a23($r4, $r6);
   }
   // free $r3
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -5158,7 +5184,7 @@ return $this->traceCall(function($silence) {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a23($r3);
+    $r2 = $this->a24($r3);
   }
   // free $r4
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -5294,7 +5320,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a24($r7, $r8, $r12, $r11);
+    $r5 = $this->a25($r7, $r8, $r12, $r11);
   }
   // free $r6,$r13,$r16,$r17
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -5330,7 +5356,7 @@ return $this->traceCall(function() {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a25($r3);
+    $r2 = $this->a26($r3);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -5517,7 +5543,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a26($r6, $r12, $r10, $r15);
+    $r5 = $this->a27($r6, $r12, $r10, $r15);
   }
   // free $r9,$r11,$r7,$r17
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -5726,7 +5752,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a27($r6);
+    $r5 = $this->a28($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -5930,7 +5956,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     goto choice_1;
   }
   $this->savedPos = $this->currPos;
-  $r10 = $this->a28($r6, $r7, $r11);
+  $r10 = $this->a29($r6, $r7, $r11);
   if ($r10) {
     $r10 = false;
   } else {
@@ -5956,7 +5982,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a29($r6, $r7, $r11);
+    $r5 = $this->a30($r6, $r7, $r11);
   }
   // free $r12,$r10
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -6122,7 +6148,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a30($r6, $r7, $r11);
+    $r5 = $this->a31($r6, $r7, $r11);
   }
   // free $r13,$r14
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -6228,7 +6254,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     goto choice_2;
   }
   $this->savedPos = $this->currPos;
-  $r11 = $this->a31($r6, $r7);
+  $r11 = $this->a32($r6, $r7);
   if ($r11) {
     $r11 = false;
   } else {
@@ -6259,7 +6285,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a32($r6, $r7);
+    $r5 = $this->a33($r6, $r7);
   }
   // free $r11
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -6319,7 +6345,7 @@ return $this->traceCall(function($silence, &$param_preproc_sol, &$param_headingI
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a33($r6);
+    $r4 = $this->a34($r6);
   }
   // free $r5
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -6480,7 +6506,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p9
   $this->savedPos = $this->currPos;
-  $r8 = $this->a34($r3);
+  $r8 = $this->a35($r3);
   if ($r8) {
     $r8 = false;
   } else {
@@ -6526,7 +6552,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // start choice_1
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r6 = $this->a35();
+  $r6 = $this->a36();
   if ($r6) {
     $r6 = false;
     $r6 = false;
@@ -6654,7 +6680,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a36($r7, $r11, $r15);
+    $r5 = $this->a37($r7, $r11, $r15);
     goto choice_1;
   }
   // free $r6,$r12,$r9
@@ -6720,7 +6746,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r13 = $param_headingIndex;
   $r14 = $param_preproc;
   $this->savedPos = $this->currPos;
-  $r10 = $this->a37();
+  $r10 = $this->a38();
   if ($r10) {
     $r10 = false;
   } else {
@@ -6749,17 +6775,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_4:
   if ($r17!==self::$FAILED) {
     $this->savedPos = $p18;
-    $r17 = $this->a38();
+    $r17 = $this->a39();
     goto choice_3;
   }
   // free $p18
   $p18 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r17 = $this->a39();
+  $r17 = $this->a40();
   if ($r17) {
     $r17 = false;
     $this->savedPos = $p18;
-    $r17 = $this->a40();
+    $r17 = $this->a41();
   } else {
     $r17 = self::$FAILED;
   }
@@ -6851,7 +6877,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_7:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r5 = $this->a41($r17, $r19, $r22);
+    $r5 = $this->a42($r17, $r19, $r22);
   } else {
     $this->currPos = $p1;
     $param_th = $r2;
@@ -6868,7 +6894,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r6 = $param_headingIndex;
   $r23 = $param_preproc;
   $this->savedPos = $this->currPos;
-  $r14 = $this->a35();
+  $r14 = $this->a36();
   if ($r14) {
     $r14 = false;
   } else {
@@ -6959,7 +6985,7 @@ return $this->traceCall(function($silence) {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a42($r3);
+    $r2 = $this->a43($r3);
   }
   // free $r4
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -7098,7 +7124,7 @@ return $this->traceCall(function($silence, &$param_preproc) {
   seq_1:
   if ($r3!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r3 = $this->a43($param_preproc, $r4);
+    $r3 = $this->a44($param_preproc, $r4);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -7216,7 +7242,7 @@ return $this->traceCall(function($silence) {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a44($r3);
+    $r2 = $this->a45($r3);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -7331,7 +7357,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a45($r6, $r9);
+    $r5 = $this->a46($r6, $r9);
   }
   // free $r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -7449,7 +7475,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a46($r6, $r9, $r8);
+    $r5 = $this->a47($r6, $r9, $r8);
     goto choice_1;
   }
   // start seq_3
@@ -7538,7 +7564,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_3:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a46($r13, $r11, $r12);
+    $r5 = $this->a47($r13, $r11, $r12);
     goto choice_1;
   }
   // start seq_5
@@ -7597,7 +7623,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     $r18 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
-  $r18 = $this->a47($r16, $r15);
+  $r18 = $this->a48($r16, $r15);
   if ($r18) {
     $r18 = false;
     goto choice_6;
@@ -7635,7 +7661,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_5:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a48($r16, $r15);
+    $r5 = $this->a49($r16, $r15);
   }
   // free $r19,$r18
   choice_1:
@@ -8036,7 +8062,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a45($r6, $r13);
+    $r5 = $this->a46($r6, $r13);
   }
   // free $r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -8163,7 +8189,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a46($r6, $r9, $r8);
+    $r5 = $this->a47($r6, $r9, $r8);
     goto choice_1;
   }
   // start seq_4
@@ -8261,7 +8287,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_4:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a46($r13, $r11, $r12);
+    $r5 = $this->a47($r13, $r11, $r12);
     goto choice_1;
   }
   // start seq_7
@@ -8320,7 +8346,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     $r17 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
-  $r17 = $this->a47($r16, $r14);
+  $r17 = $this->a48($r16, $r14);
   if ($r17) {
     $r17 = false;
     goto choice_4;
@@ -8369,7 +8395,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_7:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a48($r16, $r14);
+    $r5 = $this->a49($r16, $r14);
   }
   // free $r19,$r17
   choice_1:
@@ -8549,7 +8575,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a49($r6);
+    $r5 = $this->a50($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -8589,7 +8615,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r10 = $param_th;
     $r11 = $param_headingIndex;
     $this->savedPos = $this->currPos;
-    $r12 = $this->a50();
+    $r12 = $this->a51();
     if ($r12) {
       $r12 = false;
     } else {
@@ -8602,7 +8628,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a51();
+      $r6 = $this->a52();
       goto choice_1;
     }
     // free $r12
@@ -8614,7 +8640,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r10 = $param_th;
     $r9 = $param_headingIndex;
     $this->savedPos = $this->currPos;
-    $r12 = $this->a52();
+    $r12 = $this->a53();
     if ($r12) {
       $r12 = false;
     } else {
@@ -9340,7 +9366,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a53($r6, $r7);
+    $r5 = $this->a54($r6, $r7);
   }
   // free $r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -9370,7 +9396,7 @@ return $this->traceCall(function(&$param_preproc_sol) {
   // start choice_1
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r4 = $this->a54();
+  $r4 = $this->a55();
   if ($r4) {
     $r4 = false;
   } else {
@@ -9382,7 +9408,7 @@ return $this->traceCall(function(&$param_preproc_sol) {
   $r5 = false;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a55($param_preproc_sol);
+    $r5 = $this->a56($param_preproc_sol);
   } else {
     $this->currPos = $p1;
     $param_preproc_sol = $r2;
@@ -9399,7 +9425,7 @@ return $this->traceCall(function(&$param_preproc_sol) {
   $r3 = false;
   if ($r3!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r3 = $this->a56($param_preproc_sol);
+    $r3 = $this->a57($param_preproc_sol);
   }
   choice_1:
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -9552,7 +9578,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   seq_5:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a57($r11);
+    $r4 = $this->a58($r11);
     goto choice_2;
   }
   // free $r8,$r7,$r10
@@ -10040,7 +10066,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   seq_23:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a58($r19);
+    $r4 = $this->a59($r19);
     goto choice_2;
   }
   // free $r25,$r24
@@ -10262,7 +10288,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   seq_29:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a59();
+    $r4 = $this->a60();
     goto choice_2;
   }
   // start seq_30
@@ -10331,7 +10357,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   $r27 = false;
   if ($r27!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r27 = $this->a56($param_preproc_sol);
+    $r27 = $this->a57($param_preproc_sol);
   } else {
     $this->currPos = $p1;
     $param_preproc_sol = $r2;
@@ -10369,7 +10395,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   $r25 = false;
   if ($r25!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r25 = $this->a55($param_preproc_sol);
+    $r25 = $this->a56($param_preproc_sol);
   } else {
     $this->currPos = $p1;
     $param_preproc_sol = $r2;
@@ -10447,7 +10473,7 @@ return $this->traceCall(function() {
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a60($r4);
+  $r8 = $this->a61($r4);
   if ($r8) {
     $r8 = false;
   } else {
@@ -10460,7 +10486,7 @@ return $this->traceCall(function() {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a61($r4);
+    $r2 = $this->a62($r4);
   }
   // free $r3,$r6,$r7,$r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -10533,7 +10559,7 @@ return $this->traceCall(function($silence) {
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a60($r4);
+  $r8 = $this->a61($r4);
   if ($r8) {
     $r8 = false;
   } else {
@@ -10546,7 +10572,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a61($r4);
+    $r2 = $this->a62($r4);
   }
   // free $r3,$r6,$r7,$r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -10875,7 +10901,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   }
   // free $p9,$r13,$r12,$r16
   $this->savedPos = $this->currPos;
-  $r16 = $this->a62($r6, $r8, $r10, $r14);
+  $r16 = $this->a63($r6, $r8, $r10, $r14);
   if ($r16) {
     $r16 = false;
   } else {
@@ -10891,7 +10917,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a63($r6, $r8, $r10, $r14);
+    $r5 = $this->a64($r6, $r8, $r10, $r14);
   }
   // free $r7,$r15,$r16
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -11223,7 +11249,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // start seq_1
   // start seq_2
   $this->savedPos = $this->currPos;
-  $r7 = $this->a37();
+  $r7 = $this->a38();
   if ($r7) {
     $r7 = false;
   } else {
@@ -11252,17 +11278,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_2:
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a38();
+    $r8 = $this->a39();
     goto choice_1;
   }
   // free $p9
   $p9 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r8 = $this->a39();
+  $r8 = $this->a40();
   if ($r8) {
     $r8 = false;
     $this->savedPos = $p9;
-    $r8 = $this->a40();
+    $r8 = $this->a41();
   } else {
     $r8 = self::$FAILED;
   }
@@ -11355,7 +11381,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // s <- $r6
   if ($r6!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r6 = $this->a41($r8, $r10, $r13);
+    $r6 = $this->a42($r8, $r10, $r13);
   } else {
     $r5 = self::$FAILED;
     goto seq_1;
@@ -11376,7 +11402,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r16 = $r15;
   // os <- $r16
   $this->savedPos = $p18;
-  $r16 = $this->a64($r15);
+  $r16 = $this->a65($r15);
   $p19 = $this->currPos;
   // start seq_6
   $p20 = $this->currPos;
@@ -11384,7 +11410,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r22 = $param_th;
   $r23 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r24 = $this->a65($r6, $r16);
+  $r24 = $this->a66($r6, $r16);
   if ($r24) {
     $r24 = false;
   } else {
@@ -11413,17 +11439,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_4:
   if ($r25!==self::$FAILED) {
     $this->savedPos = $p26;
-    $r25 = $this->a66($r6, $r16);
+    $r25 = $this->a67($r6, $r16);
     goto choice_3;
   }
   // free $p26
   $p26 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r25 = $this->a67($r6, $r16);
+  $r25 = $this->a68($r6, $r16);
   if ($r25) {
     $r25 = false;
     $this->savedPos = $p26;
-    $r25 = $this->a68($r6, $r16);
+    $r25 = $this->a69($r6, $r16);
   } else {
     $r25 = self::$FAILED;
   }
@@ -11516,7 +11542,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // so <- $r11
   if ($r11!==self::$FAILED) {
     $this->savedPos = $p19;
-    $r11 = $this->a69($r6, $r16, $r25, $r27, $r30);
+    $r11 = $this->a70($r6, $r16, $r25, $r27, $r30);
   } else {
     $this->currPos = $p18;
     $param_preproc = $r7;
@@ -11532,7 +11558,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_5:
   if ($r14!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r14 = $this->a70($r6, $r16, $r11);
+    $r14 = $this->a71($r6, $r16, $r11);
   } else {
     $r14 = null;
   }
@@ -11581,7 +11607,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a71($r6, $r14, $r12);
+    $r5 = $this->a72($r6, $r14, $r12);
   }
   // free $r22
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -11729,7 +11755,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a72($r3, $r4);
+    $r2 = $this->a73($r3, $r4);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -11858,7 +11884,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     choice_2:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a38();
+      $r8 = $this->a39();
       goto choice_1;
     }
     // free $p9
@@ -11942,7 +11968,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
       choice_5:
       if ($r16!==self::$FAILED) {
         $this->savedPos = $p17;
-        $r16 = $this->a73($r7, $r13);
+        $r16 = $this->a74($r7, $r13);
         goto choice_4;
       }
       // free $p17
@@ -12034,7 +12060,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
       choice_9:
       if ($r23!==self::$FAILED) {
         $this->savedPos = $p24;
-        $r23 = $this->a74($r7, $r13, $r19);
+        $r23 = $this->a75($r7, $r13, $r19);
         goto choice_8;
       }
       // free $p24
@@ -12123,7 +12149,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     seq_5:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p17;
-      $r12 = $this->a75($r7, $r13, $r19, $r18, $r28);
+      $r12 = $this->a76($r7, $r13, $r19, $r18, $r28);
       goto choice_7;
     }
     // free $r23
@@ -12170,7 +12196,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     choice_13:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r12 = $this->a76($r7, $r13, $r8);
+      $r12 = $this->a77($r7, $r13, $r8);
       goto choice_12;
     }
     // free $p9
@@ -12245,7 +12271,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a77($r7, $r13, $r8);
+    $r5 = $this->a78($r7, $r13, $r8);
   }
   // free $r6,$r15,$r20
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -12309,7 +12335,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_3:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a38();
+      $r8 = $this->a39();
       goto choice_2;
     }
     // free $p9
@@ -12400,7 +12426,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       choice_6:
       if ($r15!==self::$FAILED) {
         $this->savedPos = $p16;
-        $r15 = $this->a78($r7);
+        $r15 = $this->a79($r7);
         goto choice_5;
       }
       // free $p16
@@ -12497,7 +12523,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       choice_10:
       if ($r22!==self::$FAILED) {
         $this->savedPos = $p23;
-        $r22 = $this->a79($r7, $r18);
+        $r22 = $this->a80($r7, $r18);
         goto choice_9;
       }
       // free $p23
@@ -12588,7 +12614,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_5:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p16;
-      $r8 = $this->a80($r7, $r18, $r17, $r27);
+      $r8 = $this->a81($r7, $r18, $r17, $r27);
       goto choice_8;
     }
     // free $r22
@@ -12637,7 +12663,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_14:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a81($r7, $r13);
+      $r8 = $this->a82($r7, $r13);
       goto choice_13;
     }
     // free $p9
@@ -12715,7 +12741,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a82($r7, $r13);
+    $r5 = $this->a83($r7, $r13);
     goto choice_1;
   }
   // free $r6,$r14,$r19
@@ -12815,7 +12841,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_2:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a38();
+      $r8 = $this->a39();
       goto choice_1;
     }
     // free $p9
@@ -12903,7 +12929,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       choice_5:
       if ($r16!==self::$FAILED) {
         $this->savedPos = $p17;
-        $r16 = $this->a73($r7, $r13);
+        $r16 = $this->a74($r7, $r13);
         goto choice_4;
       }
       // free $p17
@@ -13000,7 +13026,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       choice_9:
       if ($r23!==self::$FAILED) {
         $this->savedPos = $p24;
-        $r23 = $this->a74($r7, $r13, $r19);
+        $r23 = $this->a75($r7, $r13, $r19);
         goto choice_8;
       }
       // free $p24
@@ -13091,7 +13117,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_5:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p17;
-      $r12 = $this->a75($r7, $r13, $r19, $r18, $r28);
+      $r12 = $this->a76($r7, $r13, $r19, $r18, $r28);
       goto choice_7;
     }
     // free $r23
@@ -13140,7 +13166,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_13:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r12 = $this->a76($r7, $r13, $r8);
+      $r12 = $this->a77($r7, $r13, $r8);
       goto choice_12;
     }
     // free $p9
@@ -13218,7 +13244,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a77($r7, $r13, $r8);
+    $r5 = $this->a78($r7, $r13, $r8);
   }
   // free $r6,$r15,$r20
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -13406,7 +13432,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_4:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a83($r15, $r19);
+    $r5 = $this->a84($r15, $r19);
     goto choice_2;
   }
   // free $r14,$r20
@@ -13581,7 +13607,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $r12
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a49($r6);
+  $r5 = $this->a50($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -13703,7 +13729,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $r12
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a49($r6);
+  $r5 = $this->a50($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -13828,7 +13854,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a49($r6);
+    $r5 = $this->a50($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -14322,7 +14348,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $r12,$r13
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a49($r6);
+  $r5 = $this->a50($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -14500,7 +14526,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $r12,$r13
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a49($r6);
+  $r5 = $this->a50($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -14681,7 +14707,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a49($r6);
+    $r5 = $this->a50($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -14720,7 +14746,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a84();
+  $r7 = $this->a85();
   if (!$r7) {
     $r7 = false;
   } else {
@@ -14919,7 +14945,7 @@ return $this->traceCall(function($silence) {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a85($r3);
+    $r2 = $this->a86($r3);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -15764,7 +15790,7 @@ return $this->traceCall(function($silence) {
   $r2 = $r3;
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a86($r3);
+    $r2 = $this->a87($r3);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -15839,7 +15865,7 @@ return $this->traceCall(function($silence, &$param_preproc_sol, &$param_headingI
   $r7 = $this->parsepreproc_heading_find_close($silence, $param_preproc_sol, $param_headingIndex, $param_preproc_stop);
   // end <- $r7
   $this->savedPos = $this->currPos;
-  $r8 = $this->a87($r5, $r7);
+  $r8 = $this->a88($r5, $r7);
   if ($r8) {
     $r8 = false;
   } else {
@@ -15854,7 +15880,7 @@ return $this->traceCall(function($silence, &$param_preproc_sol, &$param_headingI
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a88($r5, $r7, $param_headingIndex);
+    $r4 = $this->a89($r5, $r7, $param_headingIndex);
   }
   // free $r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -15930,7 +15956,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   // free $r6
   $r4 = $r5;
   $this->savedPos = $p1;
-  $r4 = $this->a89($r5);
+  $r4 = $this->a90($r5);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r4,
@@ -16096,7 +16122,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   $r4 = $r5;
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a90($r5);
+    $r4 = $this->a91($r5);
     goto choice_1;
   }
   // free $r6
@@ -16128,7 +16154,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   seq_2:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a91($r7);
+    $r4 = $this->a92($r7);
   }
   // free $r6,$r8
   choice_1:
@@ -16243,7 +16269,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc_sol, &$p
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a92($r7);
+    $r4 = $this->a93($r7);
   }
   // free $r5,$r11,$r6
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -16456,7 +16482,7 @@ return $this->traceCall(function() {
     $r6 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
-  $r6 = $this->a21($r4);
+  $r6 = $this->a22($r4);
   if ($r6) {
     $r6 = false;
   } else {
@@ -16477,7 +16503,7 @@ return $this->traceCall(function() {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a22($r4, $r6);
+    $r2 = $this->a23($r4, $r6);
   }
   // free $r3
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -16585,7 +16611,7 @@ return $this->traceCall(function($silence) {
   }
   // start choice_2
   $this->savedPos = $this->currPos;
-  $r11 = $this->a93($r4, $r5, $r8);
+  $r11 = $this->a94($r4, $r5, $r8);
   if ($r11) {
     $r11 = false;
     goto choice_2;
@@ -16593,7 +16619,7 @@ return $this->traceCall(function($silence) {
     $r11 = self::$FAILED;
   }
   $this->savedPos = $this->currPos;
-  $r11 = $this->a94($r4, $r5, $r8);
+  $r11 = $this->a95($r4, $r5, $r8);
   if ($r11) {
     $r11 = false;
     goto choice_2;
@@ -16603,7 +16629,7 @@ return $this->traceCall(function($silence) {
   // start seq_4
   $p6 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r12 = $this->a95($r4, $r5, $r8);
+  $r12 = $this->a96($r4, $r5, $r8);
   if ($r12) {
     $r12 = false;
   } else {
@@ -16640,7 +16666,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p15
   $this->savedPos = $this->currPos;
-  $r14 = $this->a96($r4, $r5, $r8);
+  $r14 = $this->a97($r4, $r5, $r8);
   if ($r14) {
     $r14 = false;
   } else {
@@ -16666,7 +16692,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a97($r4, $r5, $r8);
+    $r2 = $this->a98($r4, $r5, $r8);
     goto choice_1;
   }
   // free $r3,$r7,$r9,$r10,$r11
@@ -16803,11 +16829,11 @@ return $this->traceCall(function($silence) {
   // start choice_4
   $p6 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r21 = $this->a98($r10, $r9, $r3, $r16, $r17, $r20);
+  $r21 = $this->a99($r10, $r9, $r3, $r16, $r17, $r20);
   if ($r21) {
     $r21 = false;
     $this->savedPos = $p6;
-    $r21 = $this->a99($r10, $r9, $r3, $r16, $r17, $r20);
+    $r21 = $this->a100($r10, $r9, $r3, $r16, $r17, $r20);
     goto choice_4;
   } else {
     $r21 = self::$FAILED;
@@ -16868,7 +16894,7 @@ return $this->traceCall(function($silence) {
   seq_6:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a100($r10, $r9, $r3, $r16, $r17, $r20, $r21);
+    $r2 = $this->a101($r10, $r9, $r3, $r16, $r17, $r20, $r21);
   }
   // free $r11,$r7,$r14,$r13,$r12,$r18,$r19
   choice_1:
@@ -16911,7 +16937,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p4
   $this->savedPos = $this->currPos;
-  $r5 = $this->a101($r3);
+  $r5 = $this->a102($r3);
   if ($r5) {
     $r5 = false;
   } else {
@@ -16924,7 +16950,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a102($r3);
+    $r2 = $this->a103($r3);
   }
   // free $r5
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -17023,7 +17049,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p6
   $this->savedPos = $this->currPos;
-  $r7 = $this->a103($r5);
+  $r7 = $this->a104($r5);
   if ($r7) {
     $r7 = false;
   } else {
@@ -17145,7 +17171,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a104($r8);
+    $r5 = $this->a105($r8);
   }
   // free $r6,$r7,$r13
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -17178,7 +17204,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r4 = $param_headingIndex;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r6 = $this->a105();
+  $r6 = $this->a106();
   if ($r6) {
     $r6 = false;
   } else {
@@ -17300,7 +17326,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_3:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a106($r16);
+    $r7 = $this->a107($r16);
   }
   // free $r14,$r15,$r21
   // free $p13,$r11,$r10,$r9
@@ -17319,7 +17345,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a107($r7);
+    $r5 = $this->a108($r7);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -17404,7 +17430,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // ill <- $r19
   $r18 = $r19;
   $this->savedPos = $p13;
-  $r18 = $this->a108($r12, $r19);
+  $r18 = $this->a109($r12, $r19);
   $p20 = $this->currPos;
   $r21 = self::$FAILED;
   for (;;) {
@@ -17440,7 +17466,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // free $p13,$r15,$r16,$r17
   // ce <- $r14
   $this->savedPos = $this->currPos;
-  $r17 = $this->a109($r12, $r14);
+  $r17 = $this->a110($r12, $r14);
   if ($r17) {
     $r17 = false;
   } else {
@@ -17526,7 +17552,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     goto choice_2;
   }
   $this->savedPos = $this->currPos;
-  $r24 = $this->a110($r12, $r14, $r16, $r15);
+  $r24 = $this->a111($r12, $r14, $r16, $r15);
   if ($r24) {
     $r24 = false;
   } else {
@@ -17552,7 +17578,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_2:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r5 = $this->a111($r12, $r14, $r16, $r15, $param_headingIndex);
+    $r5 = $this->a112($r12, $r14, $r16, $r15, $param_headingIndex);
   } else {
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -17632,7 +17658,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r13 = $param_headingIndex;
   // start seq_3
   $this->savedPos = $this->currPos;
-  $r15 = $this->a112($r7);
+  $r15 = $this->a113($r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -17659,17 +17685,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_3:
   if ($r16!==self::$FAILED) {
     $this->savedPos = $p17;
-    $r16 = $this->a113($r7);
+    $r16 = $this->a114($r7);
     goto choice_2;
   }
   // free $p17
   $p17 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r16 = $this->a114($r7);
+  $r16 = $this->a115($r7);
   if ($r16) {
     $r16 = false;
     $this->savedPos = $p17;
-    $r16 = $this->a115($r7);
+    $r16 = $this->a116($r7);
   } else {
     $r16 = self::$FAILED;
   }
@@ -17759,7 +17785,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_3:
   if ($r14!==self::$FAILED) {
     $this->savedPos = $p10;
-    $r14 = $this->a116($r7, $r16, $r18, $r21);
+    $r14 = $this->a117($r7, $r16, $r18, $r21);
     $r14 = false;
     $this->currPos = $p10;
     $param_preproc = $r11;
@@ -17774,7 +17800,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_2:
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r9 = $this->a117($r7);
+    $r9 = $this->a118($r7);
     goto choice_1;
   }
   // free $r14
@@ -17783,7 +17809,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $p8 = $this->currPos;
   $r9 = true;
   $this->savedPos = $p8;
-  $r9 = $this->a118($r7);
+  $r9 = $this->a119($r7);
   // free $p8
   choice_1:
   // lineContent <- $r9
@@ -17791,7 +17817,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a119($r7, $r9);
+    $r5 = $this->a120($r7, $r9);
   }
   // free $r6
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -18002,7 +18028,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a120($r6, $r10);
+    $r5 = $this->a121($r6, $r10);
   }
   // free $r12,$r13,$r14,$r15
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -18060,7 +18086,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_2:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a38();
+      $r7 = $this->a39();
     }
     // free $p8
     choice_1:
@@ -18078,7 +18104,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a121($r6);
+    $r5 = $this->a122($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -18113,7 +18139,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a122($r6);
+    $r5 = $this->a123($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -18184,7 +18210,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r16 = $r18;
   // optSp <- $r16
   $this->savedPos = $p17;
-  $r16 = $this->a123($r6, $r13, $r15, $r18);
+  $r16 = $this->a124($r6, $r13, $r15, $r18);
   // free $p17
   $r20 = $this->parsetemplate_param_value($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   if ($r20===self::$FAILED) {
@@ -18195,7 +18221,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_2:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a124($r6, $r13, $r15, $r16, $r20);
+    $r7 = $this->a125($r6, $r13, $r15, $r16, $r20);
   } else {
     $r7 = null;
   }
@@ -18207,7 +18233,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a125($r6, $r7);
+    $r5 = $this->a126($r6, $r7);
     goto choice_1;
   }
   $r5 = $this->input[$this->currPos] ?? '';
@@ -18218,7 +18244,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $param_th = $r3;
     $param_headingIndex = $r4;
     $this->savedPos = $p1;
-    $r5 = $this->a126();
+    $r5 = $this->a127();
   } else {
     $r5 = self::$FAILED;
   }
@@ -18413,7 +18439,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a127($r6);
+  $r8 = $this->a128($r6);
   if ($r8) {
     $r8 = false;
   } else {
@@ -18429,7 +18455,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a128($r6);
+    $r5 = $this->a129($r6);
   }
   // free $r7,$r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -18457,7 +18483,7 @@ return $this->traceCall(function($param_tagType) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a129($param_tagType);
+  $r3 = $this->a130($param_tagType);
   if ($r3) {
     $r3 = false;
   } else {
@@ -18795,7 +18821,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       goto seq_11;
     }
     $this->savedPos = $this->currPos;
-    $r36 = $this->a130($r13, $r15, $r32);
+    $r36 = $this->a131($r13, $r15, $r32);
     if ($r36) {
       $r36 = false;
     } else {
@@ -18927,7 +18953,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // r <- $r7
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a131($r13, $r15, $r19);
+    $r7 = $this->a132($r13, $r15, $r19);
   } else {
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -18940,7 +18966,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // free $p9,$r10,$r11,$r12
   // free $p8
   $this->savedPos = $this->currPos;
-  $r12 = $this->a132($r7);
+  $r12 = $this->a133($r7);
   if ($r12) {
     $r12 = false;
   } else {
@@ -18956,7 +18982,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a133($r7);
+    $r5 = $this->a134($r7);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -19087,7 +19113,7 @@ return $this->traceCall(function($silence) {
     }
     // free $p12
     $this->savedPos = $this->currPos;
-    $r14 = $this->a134($r3, $r11);
+    $r14 = $this->a135($r3, $r11);
     if ($r14) {
       $r14 = false;
     } else {
@@ -19100,7 +19126,7 @@ return $this->traceCall(function($silence) {
     seq_4:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a135($r3, $r11);
+      $r7 = $this->a136($r3, $r11);
     }
     // free $r10,$r13,$r14
     // free $p9
@@ -19139,7 +19165,7 @@ return $this->traceCall(function($silence) {
   // free $p8
   // start choice_3
   $this->savedPos = $this->currPos;
-  $r14 = $this->a136($r3, $r6, $r7);
+  $r14 = $this->a137($r3, $r6, $r7);
   if ($r14) {
     $r14 = false;
     goto choice_3;
@@ -19168,7 +19194,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a137($r3, $r6, $r7);
+    $r2 = $this->a138($r3, $r6, $r7);
   }
   // free $r4,$r5,$r14
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -19196,7 +19222,7 @@ return $this->traceCall(function($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a138();
+  $r3 = $this->a139();
   if ($r3) {
     $r3 = false;
   } else {
@@ -19272,7 +19298,7 @@ return $this->traceCall(function($silence) {
     }
     // free $p11
     $this->savedPos = $this->currPos;
-    $r13 = $this->a139($r10);
+    $r13 = $this->a140($r10);
     if ($r13) {
       $r13 = false;
     } else {
@@ -19285,7 +19311,7 @@ return $this->traceCall(function($silence) {
     seq_2:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a140($r10);
+      $r6 = $this->a141($r10);
     }
     // free $r9,$r12,$r13
     // free $p8
@@ -19378,7 +19404,7 @@ return $this->traceCall(function($silence) {
     }
     // free $p11
     $this->savedPos = $this->currPos;
-    $r18 = $this->a141($r5, $r16);
+    $r18 = $this->a142($r5, $r16);
     if ($r18) {
       $r18 = false;
     } else {
@@ -19391,7 +19417,7 @@ return $this->traceCall(function($silence) {
     seq_6:
     if ($r14!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r14 = $this->a142($r5, $r16);
+      $r14 = $this->a143($r5, $r16);
     }
     // free $r15,$r17,$r18
     choice_4:
@@ -19499,7 +19525,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p11
   $this->savedPos = $this->currPos;
-  $r19 = $this->a141($r5, $r17);
+  $r19 = $this->a142($r5, $r17);
   if ($r19) {
     $r19 = false;
   } else {
@@ -19512,7 +19538,7 @@ return $this->traceCall(function($silence) {
   seq_9:
   if ($r18!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r18 = $this->a142($r5, $r17);
+    $r18 = $this->a143($r5, $r17);
   }
   // free $r14,$r15,$r19
   choice_8:
@@ -19564,7 +19590,7 @@ return $this->traceCall(function($silence) {
   $p7 = $this->currPos;
   // start choice_9
   $this->savedPos = $this->currPos;
-  $r9 = $this->a143($r5, $r6);
+  $r9 = $this->a144($r5, $r6);
   if ($r9) {
     $r9 = false;
     goto choice_9;
@@ -19587,7 +19613,7 @@ return $this->traceCall(function($silence) {
   // isbncode <- $r9
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r9 = $this->a144($r5, $r6);
+    $r9 = $this->a145($r5, $r6);
   } else {
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -19595,7 +19621,7 @@ return $this->traceCall(function($silence) {
   }
   // free $p7
   $this->savedPos = $this->currPos;
-  $r12 = $this->a145($r5, $r6, $r9);
+  $r12 = $this->a146($r5, $r6, $r9);
   if ($r12) {
     $r12 = false;
   } else {
@@ -19608,7 +19634,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a146($r5, $r6, $r9);
+    $r2 = $this->a147($r5, $r6, $r9);
   }
   // free $r3,$r4,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -19801,7 +19827,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a147($r8);
+    $r5 = $this->a148($r8);
   }
   // free $r6,$r7,$r13
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -20019,7 +20045,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc, $param_
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a148($param_preproc);
+  $r7 = $this->a149($param_preproc);
   if ($r7) {
     $r7 = false;
   } else {
@@ -20111,7 +20137,7 @@ return $this->traceCall(function($silence, $boolParams, &$param_preproc, $param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a149($param_preproc, $r8);
+    $r5 = $this->a150($param_preproc, $r8);
   }
   // free $r6,$r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -20170,7 +20196,7 @@ return $this->traceCall(function($silence, &$param_preproc_sol, &$param_headingI
   // free $r6
   $r4 = $r5;
   $this->savedPos = $p1;
-  $r4 = $this->a150($r5);
+  $r4 = $this->a151($r5);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r4,
@@ -20280,7 +20306,7 @@ return $this->traceCall(function($boolParams, &$param_preproc_sol, &$param_headi
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a92($r7);
+    $r4 = $this->a93($r7);
   }
   // free $r5,$r11,$r6
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -20388,7 +20414,7 @@ return $this->traceCall(function($boolParams, &$param_preproc_sol, &$param_headi
   $r4 = $r5;
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a90($r5);
+    $r4 = $this->a91($r5);
     goto choice_1;
   }
   // free $r6
@@ -20418,7 +20444,7 @@ return $this->traceCall(function($boolParams, &$param_preproc_sol, &$param_headi
   seq_2:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a91($r7);
+    $r4 = $this->a92($r7);
   }
   // free $r6,$r8
   choice_1:
@@ -20671,7 +20697,7 @@ return $this->traceCall(function($param_tagType) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r7 = $this->a151($r4);
+  $r7 = $this->a152($r4);
   if ($r7) {
     $r7 = false;
   } else {
@@ -20751,7 +20777,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   }
   // free $p7,$r8,$r9,$r10
   $this->savedPos = $this->currPos;
-  $r10 = $this->a152($param_tagType, $r6);
+  $r10 = $this->a153($param_tagType, $r6);
   if ($r10) {
     $r10 = false;
   } else {
@@ -20831,7 +20857,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a153($param_tagType, $r6, $r9, $r8);
+    $r5 = $this->a154($param_tagType, $r6, $r9, $r8);
   }
   // free $r11,$r10,$r16,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -20859,7 +20885,7 @@ return $this->traceCall(function($silence, $param_tagType) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a154($param_tagType);
+  $r3 = $this->a155($param_tagType);
   if ($r3) {
     $r3 = false;
   } else {
@@ -20879,7 +20905,7 @@ return $this->traceCall(function($silence, $param_tagType) {
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r5 = $this->a155($param_tagType);
+  $r5 = $this->a156($param_tagType);
   if ($r5) {
     $r5 = false;
   } else {
@@ -20892,7 +20918,7 @@ return $this->traceCall(function($silence, $param_tagType) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a156($param_tagType);
+    $r2 = $this->a157($param_tagType);
   }
   // free $r3,$r4,$r5
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -20920,7 +20946,7 @@ return $this->traceCall(function($param_tagType) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a154($param_tagType);
+  $r3 = $this->a155($param_tagType);
   if ($r3) {
     $r3 = false;
   } else {
@@ -20955,7 +20981,7 @@ return $this->traceCall(function($param_tagType) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r7 = $this->a157($param_tagType, $r4);
+  $r7 = $this->a158($param_tagType, $r4);
   if ($r7) {
     $r7 = false;
   } else {
@@ -21163,7 +21189,7 @@ return $this->traceCall(function($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a158($r3, $r4);
+    $r2 = $this->a159($r3, $r4);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -21271,7 +21297,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_2:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a38();
+      $r7 = $this->a39();
     }
     // free $p8
     choice_1:
@@ -21289,7 +21315,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a159($r6);
+    $r5 = $this->a160($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -21471,7 +21497,7 @@ return $this->traceCall(function($boolParams, &$param_preproc, $param_tagType, &
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a148($param_preproc);
+  $r7 = $this->a149($param_preproc);
   if ($r7) {
     $r7 = false;
   } else {
@@ -21560,7 +21586,7 @@ return $this->traceCall(function($boolParams, &$param_preproc, $param_tagType, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a149($param_preproc, $r8);
+    $r5 = $this->a150($param_preproc, $r8);
   }
   // free $r6,$r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -21588,7 +21614,7 @@ return $this->traceCall(function($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a160();
+  $r3 = $this->a161();
   if ($r3) {
     $r3 = false;
   } else {
@@ -21632,7 +21658,7 @@ return $this->traceCall(function($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a161();
+  $r3 = $this->a162();
   if ($r3) {
     $r3 = false;
   } else {
@@ -21735,7 +21761,7 @@ return $this->traceCall(function($param_tagType) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r7 = $this->a162($r4);
+  $r7 = $this->a163($r4);
   if ($r7) {
     $r7 = false;
   } else {
@@ -21781,7 +21807,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r6 = true;
     $this->currPos += 2;
     $this->savedPos = $p1;
-    $r6 = $this->a163();
+    $r6 = $this->a164();
   } else {
     if (!$silence) { $this->fail(72); }
     $r6 = self::$FAILED;
@@ -21796,7 +21822,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r11 = $param_th;
   $r12 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r13 = $this->a164($r6);
+  $r13 = $this->a165($r6);
   if ($r13) {
     $r13 = false;
   } else {
@@ -21810,7 +21836,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_2:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a165($r6, $r14);
+    $r7 = $this->a166($r6, $r14);
     goto choice_1;
   }
   // free $r13
@@ -21823,7 +21849,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r11 = $param_th;
   $r10 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r13 = $this->a166($r6);
+  $r13 = $this->a167($r6);
   if ($r13) {
     $r13 = false;
   } else {
@@ -21835,7 +21861,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_3:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a167($r6);
+    $r7 = $this->a168($r6);
   }
   // free $r13
   // free $p9,$r12,$r11,$r10
@@ -21858,7 +21884,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r12 = $param_th;
   $r13 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r15 = $this->a168($r6, $r7);
+  $r15 = $this->a169($r6, $r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -21872,7 +21898,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_4:
   if ($r10!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r10 = $this->a169($r6, $r7, $r16);
+    $r10 = $this->a170($r6, $r7, $r16);
     goto choice_2;
   }
   // free $r15
@@ -21884,7 +21910,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r12 = $param_th;
   $r11 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r15 = $this->a170($r6, $r7);
+  $r15 = $this->a171($r6, $r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -21944,7 +21970,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a171($r6, $r7, $r10, $r12);
+    $r5 = $this->a172($r6, $r7, $r10, $r12);
   }
   // free $r15,$r11,$r19
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -21986,7 +22012,7 @@ return $this->traceCall(function($silence, &$param_preproc) {
   seq_1:
   if ($r3!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r3 = $this->a172($r4, $param_preproc);
+    $r3 = $this->a173($r4, $param_preproc);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -22091,7 +22117,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a173($r7, $r8, $r12, $r11);
+    $r5 = $this->a174($r7, $r8, $r12, $r11);
   }
   // free $r6,$r13,$r10,$r14
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -22342,7 +22368,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a174($r7, $r12, $r11);
+    $r5 = $this->a175($r7, $r12, $r11);
   }
   // free $r6,$r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -22470,7 +22496,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a175($r7, $r9, $r13, $r12);
+    $r5 = $this->a176($r7, $r9, $r13, $r12);
   }
   // free $r6,$r8,$r14
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -22624,7 +22650,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a173($r7, $r8, $r12, $r11);
+    $r5 = $this->a174($r7, $r8, $r12, $r11);
   }
   // free $r6,$r13,$r10,$r14
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -22780,7 +22806,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a27($r6);
+    $r5 = $this->a28($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -22832,7 +22858,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // f <- $r6
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a176($r6);
+  $r5 = $this->a177($r6);
   // free $r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -22887,7 +22913,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // free $r7
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a177($r6);
+  $r5 = $this->a178($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -23000,14 +23026,14 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a178($r6, $r7, $r13);
+    $r5 = $this->a179($r6, $r7, $r13);
     goto choice_1;
   }
   $r8 = $this->parselang_variant_text($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   // lvtext <- $r8
   $r5 = $r8;
   $this->savedPos = $p1;
-  $r5 = $this->a179($r8);
+  $r5 = $this->a180($r8);
   choice_1:
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -23247,7 +23273,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a49($r6);
+    $r5 = $this->a50($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -23318,7 +23344,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a180($r12, $r13, $r14);
+      $r6 = $this->a181($r12, $r13, $r14);
       $r5[] = $r6;
     } else {
       break;
@@ -23407,7 +23433,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a181($r7, $r8);
+    $r5 = $this->a182($r7, $r8);
   }
   // free $r6
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -23505,7 +23531,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a182($r7, $r11, $r10);
+    $r5 = $this->a183($r7, $r11, $r10);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -23618,7 +23644,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a183($r12, $r15);
+      $r6 = $this->a184($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -23675,7 +23701,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // start seq_2
   // start seq_3
   $this->savedPos = $this->currPos;
-  $r13 = $this->a37();
+  $r13 = $this->a38();
   if ($r13) {
     $r13 = false;
   } else {
@@ -23702,17 +23728,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_2:
   if ($r14!==self::$FAILED) {
     $this->savedPos = $p15;
-    $r14 = $this->a38();
+    $r14 = $this->a39();
     goto choice_1;
   }
   // free $p15
   $p15 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r14 = $this->a39();
+  $r14 = $this->a40();
   if ($r14) {
     $r14 = false;
     $this->savedPos = $p15;
-    $r14 = $this->a40();
+    $r14 = $this->a41();
   } else {
     $r14 = self::$FAILED;
   }
@@ -23802,7 +23828,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_3:
   if ($r12!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r12 = $this->a41($r14, $r16, $r19);
+    $r12 = $this->a42($r14, $r16, $r19);
   } else {
     $r7 = self::$FAILED;
     goto seq_2;
@@ -23822,7 +23848,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r26 = $param_th;
   $r27 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r28 = $this->a37();
+  $r28 = $this->a38();
   if ($r28) {
     $r28 = false;
   } else {
@@ -23849,17 +23875,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_4:
   if ($r29!==self::$FAILED) {
     $this->savedPos = $p30;
-    $r29 = $this->a38();
+    $r29 = $this->a39();
     goto choice_3;
   }
   // free $p30
   $p30 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r29 = $this->a39();
+  $r29 = $this->a40();
   if ($r29) {
     $r29 = false;
     $this->savedPos = $p30;
-    $r29 = $this->a40();
+    $r29 = $this->a41();
   } else {
     $r29 = self::$FAILED;
   }
@@ -23949,7 +23975,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_7:
   if ($r21!==self::$FAILED) {
     $this->savedPos = $p24;
-    $r21 = $this->a41($r29, $r31, $r34);
+    $r21 = $this->a42($r29, $r31, $r34);
   } else {
     $this->currPos = $p15;
     $param_preproc = $r13;
@@ -24034,7 +24060,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a184($r11);
+    $r5 = $this->a185($r11);
   }
   // free $r6,$r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -24147,7 +24173,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a185($r6, $r8, $r11, $r10);
+    $r5 = $this->a186($r6, $r8, $r11, $r10);
     goto choice_1;
   }
   // free $r12
@@ -24159,7 +24185,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // free $p7
   $r5 = $r12;
   $this->savedPos = $p1;
-  $r5 = $this->a186($r12);
+  $r5 = $this->a187($r12);
   choice_1:
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -24300,7 +24326,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a187($r6, $r8, $r11, $r9, $r13);
+    $r5 = $this->a188($r6, $r8, $r11, $r9, $r13);
     goto choice_1;
   }
   // free $r12,$r10,$r17
@@ -24469,7 +24495,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_4:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a188($r17, $r10, $r16, $r12, $r20, $r18, $r22);
+    $r5 = $this->a189($r17, $r10, $r16, $r12, $r20, $r18, $r22);
   }
   // free $r14,$r15,$r21,$r19,$r26
   choice_1:
@@ -24615,7 +24641,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_3:
     if ($r10!==self::$FAILED) {
       $this->savedPos = $p11;
-      $r10 = $this->a189($r6, $r8, $param_th, $r16);
+      $r10 = $this->a190($r6, $r8, $param_th, $r16);
       $r9[] = $r10;
     } else {
       break;
@@ -24628,7 +24654,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = true;
   seq_1:
   $this->savedPos = $p1;
-  $r5 = $this->a190($r6, $r8, $r9);
+  $r5 = $this->a191($r6, $r8, $r9);
   // free $r7
   // free $p1,$r2,$r3,$r4
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -24745,7 +24771,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a191($r12, $r15);
+      $r6 = $this->a192($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -24794,7 +24820,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a192($r6);
+    $r5 = $this->a193($r6);
     goto choice_1;
   }
   // start seq_1
@@ -24825,7 +24851,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r7;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a193($r7);
+    $r5 = $this->a194($r7);
     goto choice_1;
   }
   // free $r8
@@ -24930,7 +24956,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r8;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a194($r8);
+    $r5 = $this->a195($r8);
   }
   choice_1:
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -25090,7 +25116,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a195($r6, $r8);
+    $r5 = $this->a196($r6, $r8);
   }
   // free $r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -25203,7 +25229,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $r7
   $r5 = $r6;
   $this->savedPos = $p1;
-  $r5 = $this->a177($r6);
+  $r5 = $this->a178($r6);
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -25242,7 +25268,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     $r11 = $param_headingIndex;
     // start seq_2
     $this->savedPos = $this->currPos;
-    $r13 = $this->a37();
+    $r13 = $this->a38();
     if ($r13) {
       $r13 = false;
     } else {
@@ -25271,17 +25297,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     choice_3:
     if ($r14!==self::$FAILED) {
       $this->savedPos = $p15;
-      $r14 = $this->a38();
+      $r14 = $this->a39();
       goto choice_2;
     }
     // free $p15
     $p15 = $this->currPos;
     $this->savedPos = $this->currPos;
-    $r14 = $this->a39();
+    $r14 = $this->a40();
     if ($r14) {
       $r14 = false;
       $this->savedPos = $p15;
-      $r14 = $this->a40();
+      $r14 = $this->a41();
     } else {
       $r14 = self::$FAILED;
     }
@@ -25373,7 +25399,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     seq_2:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r12 = $this->a41($r14, $r16, $r19);
+      $r12 = $this->a42($r14, $r16, $r19);
     } else {
       $r7 = self::$FAILED;
       goto seq_1;
@@ -25704,7 +25730,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a27($r6);
+    $r5 = $this->a28($r6);
   }
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
@@ -25862,7 +25888,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a196($r6);
+    $r5 = $this->a197($r6);
   }
   // free $r7
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -25948,7 +25974,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a197($r7);
+    $r5 = $this->a198($r7);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -26006,7 +26032,7 @@ return $this->traceCall(function($param_tagType) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r7 = $this->a198($r4);
+  $r7 = $this->a199($r4);
   if ($r7) {
     $r7 = false;
   } else {
@@ -26076,7 +26102,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a127($r6);
+  $r8 = $this->a128($r6);
   if ($r8) {
     $r8 = false;
   } else {
@@ -26092,7 +26118,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a128($r6);
+    $r5 = $this->a129($r6);
   }
   // free $r7,$r8
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
@@ -26538,7 +26564,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   // start seq_1
   // start seq_2
   $this->savedPos = $this->currPos;
-  $r7 = $this->a37();
+  $r7 = $this->a38();
   if ($r7) {
     $r7 = false;
   } else {
@@ -26567,17 +26593,17 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   choice_2:
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a38();
+    $r8 = $this->a39();
     goto choice_1;
   }
   // free $p9
   $p9 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r8 = $this->a39();
+  $r8 = $this->a40();
   if ($r8) {
     $r8 = false;
     $this->savedPos = $p9;
-    $r8 = $this->a40();
+    $r8 = $this->a41();
   } else {
     $r8 = self::$FAILED;
   }
@@ -26669,7 +26695,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   seq_2:
   if ($r6!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r6 = $this->a41($r8, $r10, $r13);
+    $r6 = $this->a42($r8, $r10, $r13);
   } else {
     $r5 = self::$FAILED;
     goto seq_1;

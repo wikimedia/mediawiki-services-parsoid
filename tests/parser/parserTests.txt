@@ -17928,3 +17928,31 @@ parsoid=wt2html
 
 <p><b><span typeof="mw:DisplaySpace"> </span>% BOLD </b></p>
 !! end
+
+!! test
+Non extlink in wikilink
+!! wikitext
+[[Test|[123&#93;]]
+[[Example|[<nowiki/>]]
+[[Test|[{{1x|123}}]]
+!! html/php
+<p><a href="/wiki/Test" title="Test">[123&#93;</a>
+<a href="/wiki/Example" title="Example">[</a>
+<a href="/wiki/Test" title="Test">[123</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test" title="Test">[123<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#93;","srcContent":"]"}'>]</span></a>
+<a rel="mw:WikiLink" href="./Example" title="Example">[<span typeof="mw:Nowiki"></span></a>
+<a rel="mw:WikiLink" href="./Test" title="Test">[<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}'>123</span></a></p>
+!! end
+
+!! test
+Wikilink extlink precedence
+!! wikitext
+[[Test|[http://google.com test]]
+!! html/php
+<p><a href="/wiki/Test" title="Test">[http://google.com test</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test" title="Test">[http://google.com test</a></p>
+!! end

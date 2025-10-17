@@ -667,7 +667,19 @@ extlink "extlink" =
 		p2:POSITION
 		content:inlineline<extlink>?
 		p3:POSITION
-		"]" {
+		"]"
+		preproc:<&preproc>
+		& {
+			// Prevent the extlink from stealing a closing bracket
+			// from a wikilink
+			$c = $this->input[$p3 + 1] ?? '';
+			if ( $c !== ']' || $preproc !== ']]' ) {
+				return true;
+			}
+			preg_match( '/^]+/', substr( $this->input, $p3 ), $matches );
+			return strlen( $matches[0] ) % 2;
+		}
+		{
 			$tsr1 = new SourceRange( $p0, $p1, $this->source );
 			$tsr2 = new SourceRange( $p2, $p3, $this->source );
 			$dp = new DataParsoid;
@@ -683,7 +695,8 @@ extlink "extlink" =
 					],
 					$dp
 				)
-			]; }
+			];
+		}
 	)
 
 RFC = &{ return $this->siteConfig->magicLinkEnabled("RFC"); } @'RFC'

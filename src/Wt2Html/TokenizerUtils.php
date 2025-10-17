@@ -320,7 +320,7 @@ class TokenizerUtils {
 					|| $stops['linkdesc']
 					|| ( $stops['table']
 						&& $pos < strlen( $input ) - 1
-						&& preg_match( '/[}|]/', $input[$pos + 1] ) )
+						&& preg_match( '/[}|]/', $c2 ) )
 					|| ( $stops['table']
 						&& substr( $input, $pos, 6 ) === '|{{!}}' )
 				);
