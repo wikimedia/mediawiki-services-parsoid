@@ -508,10 +508,6 @@ class WTUtils {
 	 * by adjacent dom-nodes.  This is the contract that template
 	 * encapsulation, dom-reuse, and VE code all have to abide by.
 	 *
-	 * The only exception to this adjacency rule is IEW nodes in
-	 * fosterable positions (in tables) which are not span-wrapped to
-	 * prevent them from getting fostered out.
-	 *
 	 * @param Node $node
 	 * @param ?string $about
 	 * @return Node[]
@@ -524,10 +520,7 @@ class WTUtils {
 		}
 
 		$node = $node->nextSibling;
-		while ( $node && (
-			( $node instanceof Element && DOMCompat::getAttribute( $node, 'about' ) === $about ) ||
-			( DOMUtils::isFosterablePosition( $node ) && DOMUtils::isIEW( $node ) )
-		) ) {
+		while ( $node instanceof Element && DOMCompat::getAttribute( $node, 'about' ) === $about ) {
 			$nodes[] = $node;
 			$node = $node->nextSibling;
 		}
