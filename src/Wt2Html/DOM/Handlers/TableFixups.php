@@ -859,7 +859,7 @@ class TableFixups {
 	 * This impacts parsing of tables when some cells are templated since
 	 * Parsoid parses template content independent of top-level content
 	 * (without any preceding context). This means that Parsoid's table-cell
-	 * parsing in templated contexts might be incorrect
+	 * parsing in templated contexts might be incorrect.
 	 *
 	 * To deal with this, Parsoid implements this table-fixups pass that
 	 * has to deal with cell-merging and cell-reparsing scenarios.
@@ -887,7 +887,7 @@ class TableFixups {
 			// This is checking that previous sibling is not "\n" which would
 			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
 			// If this weren't template output, we would check for "stx" === 'row'.
-			// FIXME: Note that ths check is fragile and doesn't work always, but this is
+			// FIXME: Note that this check is fragile and doesn't work always, but this is
 			// the price we pay for Parsoid's independent template parsing!
 			$cell->previousSibling instanceof Element
 		) {
@@ -1003,7 +1003,7 @@ class TableFixups {
 					$newCellDp->setTempFlag( TempData::NO_ATTRS );
 					// It is important to set this so that when $newCell is processed by this pass,
 					// it won't accidentally recombine again with the previous cell!
-					$newCellDp->setTempFlag( TempData::MERGED_TABLE_CELL );
+					$newCellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 				}
 			}
 
