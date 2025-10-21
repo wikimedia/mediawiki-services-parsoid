@@ -743,6 +743,11 @@ class DOMRangeBuilder {
 			return true;
 		}
 
+		if ( WTUtils::isSolTransparentLink( $prev ) && WTUtils::isSolTransparentLink( $next ) ) {
+			// This is a narrowly targeted fix for T407798
+			return true;
+		}
+
 		return false;
 	}
 

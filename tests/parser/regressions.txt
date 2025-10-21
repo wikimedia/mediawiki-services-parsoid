@@ -243,3 +243,17 @@ T378906: Migrate trailing category tags into preceding div
 !! html/parsoid
 <div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n[[Category:Foo]]\n[[Category:Bar]]\n"}},"i":0}}]}'>foo<link rel="mw:PageProp/Category" href="./Category:Foo"/><link rel="mw:PageProp/Category" href="./Category:Bar"/></div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
 !! end
+
+!! test
+T407798: Strip newlines between category link tags in templates
+!! wikitext
+{{1x|something
+[[Category:Foo]]
+[[es:Foo]]}}
+!! html/php
+<p>something
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"something\n[[Category:Foo]]\n[[es:Foo]]"}},"i":0}}]}'>something
+</span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"http://es.wikipedia.org/wiki/Foo"},"sa":{"href":"es:Foo"}}'/></p>
+!! end
