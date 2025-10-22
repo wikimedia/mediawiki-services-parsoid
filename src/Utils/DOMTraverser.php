@@ -51,7 +51,6 @@ class DOMTraverser {
 	 * @param callable $action A callback, called on each node we traverse that matches nodeName.
 	 *   Will be called with the following parameters:
 	 *   - Node $node: the node being processed
-	 *   - Env $env: the parser environment
 	 *   - DTState $state: State.
 	 *   Return value: Node|null|true.
 	 *   - true: proceed normally
