@@ -2130,3 +2130,78 @@ Exclamation points in wikilink content in table precedence
 <tbody><tr><th><a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'>Bar!!</a></th></tr>
 </tbody></table>
 !! end
+
+!! test
+Multi-line extension tags should not interrupt table-cell parsing in the same row
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+|-
+|a1||b1 <spantag>
+{{1x|c1}}</spantag>||d1||e1
+|-
+|a2||[[Main Page]] <spantag>
+{{1x|c2}}</spantag>||d2||e2
+|}
+
+{|
+|-
+!a3!!b3 <spantag>
+{{1x|c3}}</spantag>!!d3!!e3
+|-
+!a4!![[Main Page]] <spantag>
+{{1x|c4}}</spantag>!!d4!!e4
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>a1</td>
+<td>b1 <span>
+c1</span></td>
+<td>d1</td>
+<td>e1
+</td></tr>
+<tr>
+<td>a2</td>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> <span>
+c2</span></td>
+<td>d2</td>
+<td>e2
+</td></tr></tbody></table>
+<table>
+
+<tbody><tr>
+<th>a3</th>
+<th>b3 <span>
+c3</span></th>
+<th>d3</th>
+<th>e3
+</th></tr>
+<tr>
+<th>a4</th>
+<th><a href="/wiki/Main_Page" title="Main Page">Main Page</a> <span>
+c4</span></th>
+<th>d4</th>
+<th>e4
+</th></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td>a1</td><td data-parsoid='{"stx":"row"}'>b1 <span typeof="mw:Extension/spantag" about="#mwt2" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"\n{{1x|c1}}"}}'>
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c1"}},"i":0}}]}'>c1</span></span></td><td data-parsoid='{"stx":"row"}'>d1</td><td data-parsoid='{"stx":"row"}'>e1</td></tr>
+<tr>
+<td>a2</td><td data-parsoid='{"stx":"row"}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> <span typeof="mw:Extension/spantag" about="#mwt4" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"\n{{1x|c2}}"}}'>
+<span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c2"}},"i":0}}]}'>c2</span></span></td><td data-parsoid='{"stx":"row"}'>d2</td><td data-parsoid='{"stx":"row"}'>e2</td></tr>
+</tbody></table>
+
+<table>
+<tbody><tr>
+<th>a3</th><th data-parsoid='{"stx":"row"}'>b3 <span typeof="mw:Extension/spantag" about="#mwt6" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"\n{{1x|c3}}"}}'>
+<span about="#mwt5" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c3"}},"i":0}}]}'>c3</span></span></th><th data-parsoid='{"stx":"row"}'>d3</th><th data-parsoid='{"stx":"row"}'>e3</th></tr>
+<tr>
+<th>a4</th><th data-parsoid='{"stx":"row"}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> <span typeof="mw:Extension/spantag" about="#mwt8" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"\n{{1x|c4}}"}}'>
+<span about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c4"}},"i":0}}]}'>c4</span></span></th><th data-parsoid='{"stx":"row"}'>d4</th><th data-parsoid='{"stx":"row"}'>e4</th></tr>
+</tbody></table>
+!! end
