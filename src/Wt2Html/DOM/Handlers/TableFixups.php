@@ -737,10 +737,6 @@ class TableFixups {
 		return true;
 	}
 
-	private const NO_REPARSING = 0;
-	private const COMBINE_WITH_PREV_CELL = 1;
-	private const OTHER_REPARSE = 2;
-
 	/**
 	 * The legacy parser naively aborts attributes on '/\[\[|-\{/'
 	 * Wikilinks and language converter constructs should follow suit
@@ -751,7 +747,9 @@ class TableFixups {
 			WTUtils::isGeneratedFigure( $child );
 	}
 
-	private static function pipeStatusInContent( Node $node, string $testRE, bool $inTplContent ): int {
+	private static function pipeStatusInContent(
+		Element $node, string $testRE, bool $inTplContent, bool $noAttrReparsing = false
+	): ReparseScenario {
 		$about = null;
 		$child = $node->firstChild;
 		while ( $child ) {
@@ -759,7 +757,7 @@ class TableFixups {
 				$child instanceof Text &&
 				preg_match( $testRE, $child->textContent )
 			) {
-				return 1;
+				return $noAttrReparsing ? ReparseScenario::MAYBE_SPLIT_CELL : ReparseScenario::MAYBE_REPARSE_ATTRS;
 			}
 
 			if ( $child instanceof Element ) {
@@ -783,42 +781,41 @@ class TableFixups {
 					// "|" chars in extension/language variant content don't trigger
 					// table-cell parsing since they have higher precedence in tokenization
 					if ( self::shouldAbortAttr( $child ) ) {
-						return -1;
+						$noAttrReparsing = true;
 					}
 
 					// A "|" char in the HTML will trigger table cell tokenization.
 					// Ex: "| foobar <div> x | y </div>" will split the <div>
 					// in table-cell tokenization context.
-					$status = self::pipeStatusInContent( $child, $testRE, $inTplContent );
-					if ( $status !== 0 ) { // abort OR found
+					$status = self::pipeStatusInContent(
+						$child, $testRE, $inTplContent, $noAttrReparsing );
+					if ( $status !== ReparseScenario::NOT_NEEDED ) {
 						return $status;
 					}
 
-					// $status = 0; not-found; continue with next sibling
+					// Continue with next sibling to keep looking for reparse opportunities
 				}
 			}
 
 			$child = $child->nextSibling;
 		}
 
-		return 0;
+		return ReparseScenario::NOT_NEEDED;
 	}
 
 	/**
 	 * $cell is known to be <td>/<th>
-	 *
-	 * @return int One of self::NO_REPARSING, ::COMBINE_WITH_PREV_CELL, ::OTHER_REPARSE
 	 */
-	private static function getReparseType( Element $cell, DTState $dtState ): int {
+	private static function getReparseType( Element $cell, DTState $dtState ): ReparseScenario {
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if (
-			!$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
-			!$dp->getTempFlag( TempData::MERGED_TABLE_CELL ) &&
-			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
 			// Template wrapping, which happens prior to this pass, may have combined
 			// various regions.  The important indicator of whether we want to try
 			// to combine is if the $cell was the first node of a template.
-			$dp->getTempFlag( TempData::AT_SRC_START )
+			$dp->getTempFlag( TempData::AT_SRC_START ) &&
+			!$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
+			!$dp->getTempFlag( TempData::MERGED_TABLE_CELL ) &&
+			!$dp->getTempFlag( TempData::FAILED_REPARSE )
 		) {
 			// Look for opportunities where table cells could combine. This requires
 			// $cell to be a templated cell. But, we don't support combining
@@ -835,7 +832,7 @@ class TableFixups {
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
 			) {
-				return self::COMBINE_WITH_PREV_CELL;
+				return ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL;
 			}
 		}
 
@@ -844,8 +841,7 @@ class TableFixups {
 		$inTplContent = $dtState->tplInfo !== null &&
 			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
 		$testRE = DOMUtils::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
-		$status = self::pipeStatusInContent( $cell, $testRE, $inTplContent );
-		return $status === 1 ? self::OTHER_REPARSE : self::NO_REPARSING;
+		return self::pipeStatusInContent( $cell, $testRE, $inTplContent );
 	}
 
 	/**
@@ -907,11 +903,11 @@ class TableFixups {
 		}
 
 		$reparseType = self::getReparseType( $cell, $dtState );
-		if ( $reparseType === self::NO_REPARSING ) {
+		if ( $reparseType === ReparseScenario::NOT_NEEDED ) {
 			return true;
 		}
 
-		if ( $reparseType === self::COMBINE_WITH_PREV_CELL ) {
+		if ( $reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL ) {
 			if ( self::reparseWithPreviousCell( $dtState, $cell ) ) {
 				return true;
 			} else {
@@ -924,7 +920,7 @@ class TableFixups {
 		}
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
-		if ( $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
+		if ( $reparseType === ReparseScenario::MAYBE_REPARSE_ATTRS && $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
 			self::reparseTemplatedAttributes( $dtState, $cell, $templateWrapper );
 		}

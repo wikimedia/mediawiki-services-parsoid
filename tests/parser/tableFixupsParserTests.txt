@@ -746,3 +746,22 @@ Template emitting multi-cell output as plain content should be reparsed as multi
 <tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| ",{"template":{"target":{"wt":"multi cell output","href":"./Template:Multi_cell_output"},"params":{},"i":0}}]}'>n<sup>2</sup></td><td about="#mwt1">n<sup>3</sup></td><td about="#mwt1" style="background:#9F9;" class="table-yes" data-parsoid='{"stx":"row"}'>Yes</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Attribute-suppressing content should not prevent multi-cell output split
+!! wikitext
+{|
+| [[Main Page]] {{multi cell output}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> n<sup>2</sup></td>
+<td>n<sup>3</sup></td>
+<td style="background:#9F9;" class="table-yes">Yes
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| [[Main Page]] ",{"template":{"target":{"wt":"multi cell output","href":"./Template:Multi_cell_output"},"params":{},"i":0}}]}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> n<sup>2</sup></td><td about="#mwt1">n<sup>3</sup></td><td about="#mwt1" style="background:#9F9;" class="table-yes" data-parsoid='{"stx":"row"}'>Yes</td></tr>
+</tbody></table>
+!! end
