@@ -48,26 +48,31 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *   have identical p-wrapping behavior on these tags. This is a superset of
 	 *   \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements.
 	 * - parsoid-added span wrappers around pwrap-optional nodes
+	 * - Empty nowikis
 	 *
 	 * @param Env $env
 	 * @param Node $n
 	 * @return bool
 	 */
 	public static function pWrapOptional( Env $env, Node $n ): bool {
-		if (
-			$n instanceof Element &&
+		if ( $n instanceof Comment ) {
+			return true;
+		}
+		if ( $n instanceof Text ) {
+			return (bool)preg_match( '/^\s*$/D', $n->nodeValue );
+		}
+		'@phan-var Element $n'; // @var Element $n
+		if ( DOMUtils::hasTypeOf( $n, 'mw:DOMFragment' ) ) {
+			$domFragment = DOMDataUtils::getDataParsoid( $n )->html;
+			return self::pWrapOptionalChildren( $env, $domFragment );
+		} elseif (
+			DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) ||
 			DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER )
 		) {
-			if ( DOMUtils::hasTypeOf( $n, 'mw:DOMFragment' ) ) {
-				$domFragment = DOMDataUtils::getDataParsoid( $n )->html;
-				return self::pWrapOptionalChildren( $env, $domFragment );
-			} else {
-				return self::pWrapOptionalChildren( $env, $n );
-			}
+			return self::pWrapOptionalChildren( $env, $n );
+		} else {
+			return DOMUtils::isMetaDataTag( $n );
 		}
-		return $n instanceof Comment ||
-			( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
-			( $n instanceof Element && DOMUtils::isMetaDataTag( $n ) );
 	}
 
 	/**

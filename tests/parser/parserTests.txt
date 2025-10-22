@@ -16998,9 +16998,15 @@ wgRawHtml=1
 </html>}}
 <tr><td class="hi">ho</td></tr>
 </table>
+!! html/php
+<table>
+<style>.hi { color: red; }</style>
+
+<tbody><tr><td class="hi">ho</td></tr>
+</tbody></table>
 !! html/parsoid
-<p about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;html>&lt;style>.hi { color: red; }&lt;/style>\n&lt;/html>"}},"i":0}},"\n&lt;tr>&lt;td class=\"hi\">ho&lt;/td>&lt;/tr>\n&lt;/table>"]}'><style typeof="mw:Extension/html" about="#mwt4" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;style>.hi { color: red; }&lt;/style>\n"}}'>.hi { color: red; }</style><span about="#mwt4">
-</span></p><table about="#mwt5" data-parsoid='{"stx":"html"}'>
+<style typeof="mw:Extension/html mw:Transclusion" about="#mwt3" data-parsoid='{"fostered":true}' data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;style>.hi { color: red; }&lt;/style>\n"},"parts":["&lt;table>\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;html>&lt;style>.hi { color: red; }&lt;/style>\n&lt;/html>"}},"i":0}},"\n&lt;tr>&lt;td class=\"hi\">ho&lt;/td>&lt;/tr>\n&lt;/table>"]}'>.hi { color: red; }</style><span about="#mwt3">
+</span><table about="#mwt3" data-parsoid='{"stx":"html","dsr":[0,104,7,8]}'>
 
 <tbody><tr><td class="hi">ho</td></tr>
 </tbody></table>
@@ -17955,4 +17961,14 @@ Wikilink extlink precedence
 </p>
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Test" title="Test">[http://google.com test</a></p>
+!! end
+
+!! test
+Nowikis can be considered pwrap optional based on content
+!! wikitext
+{{1x|<nowiki />[[category:123]]<div>123</div>}}
+!! html/php
+<div>123</div>
+!! html/parsoid
+<span typeof="mw:Nowiki mw:Transclusion" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;nowiki />[[category:123]]&lt;div>123&lt;/div>"}},"i":0}}]}'></span><link rel="mw:PageProp/Category" href="./Category:123" about="#mwt1"/><div about="#mwt1" data-parsoid='{"stx":"html"}'>123</div>
 !! end
