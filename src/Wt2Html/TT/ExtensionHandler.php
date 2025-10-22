@@ -224,9 +224,9 @@ class ExtensionHandler extends XMLTagBasedHandler {
 		if ( $extensionName !== 'nowiki' ) {
 			if ( !$domFragment->hasChildNodes() ) {
 				// RT extensions expanding to nothing.
-				$domFragment->appendChild(
-					$domFragment->ownerDocument->createElement( 'link' )
-				);
+				$link = $domFragment->ownerDocument->createElement( 'link' );
+				DOMDataUtils::getDataParsoid( $link )->getTemp()->empty = true;
+				$domFragment->appendChild( $link );
 			}
 
 			// Wrap the top-level nodes so that we have a firstNode element

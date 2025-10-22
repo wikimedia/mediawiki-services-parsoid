@@ -304,7 +304,9 @@ class WTUtils {
 	public static function isSolTransparentLink( ?Node $node ): bool {
 		return $node instanceof Element &&
 			DOMUtils::nodeName( $node ) === 'link' &&
-			DOMUtils::matchRel( $node, TokenUtils::SOL_TRANSPARENT_LINK_REGEX ) !== null;
+			( DOMUtils::matchRel( $node, TokenUtils::SOL_TRANSPARENT_LINK_REGEX ) !== null ||
+				// Empty extension content are given a synthetic link for roundtripping.
+				( DOMDataUtils::getDataParsoid( $node )->getTemp()->empty ?? false ) );
 	}
 
 	/**

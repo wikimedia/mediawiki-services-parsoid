@@ -11461,7 +11461,7 @@ wgRawHtml=1
 <p class="mw-empty-elt">
 </p>
 !! html/parsoid
-<p><link typeof="mw:Extension/html" about="#mwt2" data-mw='{"name":"html","attrs":{}}'/></p>
+<p class="mw-empty-elt"><link typeof="mw:Extension/html" about="#mwt2" data-mw='{"name":"html","attrs":{}}'/></p>
 !! end
 
 
@@ -13669,7 +13669,7 @@ LST Sections: Newfangled approach
 <section begin="2011-05-16" />
 <section end="2014-04-10 (MW 1.23wmf22)" />
 !! html/parsoid
-<p><link typeof="mw:Extension/section" about="#mwt4" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}' />
+<p class="mw-empty-elt"><link typeof="mw:Extension/section" about="#mwt4" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}' />
 <link typeof="mw:Extension/section" about="#mwt6" data-mw='{"name":"section","attrs":{"end":"2014-04-10 (MW 1.23wmf22)"}}' /></p>
 !! html/parsoid+integrated
 <p>&lt;section begin="2011-05-16" /> &lt;section end="2014-04-10 (MW 1.23wmf22)" /></p>

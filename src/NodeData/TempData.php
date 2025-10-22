@@ -41,6 +41,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Used for detection of template usage inside external links.
  * This is needed by linter and metrics to detect links with templates inside href part.
  * @property bool|null $linkContainsTemplate
+ *
+ * Node represents empty extension content
+ * @property bool|null $empty
  */
 #[\AllowDynamicProperties]
 class TempData {
