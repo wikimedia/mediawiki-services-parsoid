@@ -2382,28 +2382,16 @@ private function a189($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 		];
 	
 }
-private function a190($arg, $tagEndPos, &$th, $d) {
-
-			// Ignore newlines found in transclusions!
-			// This is not perfect (since {{..}} may not always tokenize to transclusions).
-			if ( $th !== false && str_contains( preg_replace( "/{{[\s\S]+?}}/", "", $this->text() ), "\n" ) ) {
-				// There's been a newline. Remove the break and continue
-				// tokenizing nested_block_in_tables.
-				$th = false;
-			}
-			return $d;
-		
-}
-private function a191($arg, $tagEndPos, $c) {
+private function a190($arg, $tagEndPos, $th) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
-			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $c
+			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $th
 		);
 	
 }
-private function a192($pp, $tht) {
+private function a191($pp, $tht) {
 
 			// Avoid modifying cached dataParsoid object
 			$tht[0] = clone $tht[0];
@@ -2419,16 +2407,16 @@ private function a192($pp, $tht) {
 			return $tht;
 		
 }
-private function a193($f) {
+private function a192($f) {
  return [ 'flag' => $f ]; 
 }
-private function a194($v) {
+private function a193($v) {
  return [ 'variant' => $v ]; 
 }
-private function a195($b) {
+private function a194($b) {
  return [ 'bogus' => $b ]; /* bad flag */
 }
-private function a196($n, $sp) {
+private function a195($n, $sp) {
 
 		$tsr = $this->tsrOffsets();
 		$tsr->end -= strlen( $sp );
@@ -2438,18 +2426,18 @@ private function a196($n, $sp) {
 		];
 	
 }
-private function a197($extToken) {
+private function a196($extToken) {
 
 		$txt = Utils::extractExtBody( $extToken );
 		return Utils::decodeWtEntities( $txt );
 	
 }
-private function a198($r) {
+private function a197($r) {
 
 		return $r;
 	
 }
-private function a199($start) {
+private function a198($start) {
 
 		list(,$name) = $start;
 		return ( mb_strtolower( $name ) === 'nowiki' );
@@ -23702,40 +23690,19 @@ private function parsetable_heading_tag($silence, $boolParams, $param_tagType, &
   // tagEndPos <- $r8
   $r9 = [];
   for (;;) {
-    $p11 = $this->currPos;
-    // start seq_3
-    $p12 = $this->currPos;
-    $r13 = $param_preproc;
-    $r14 = $param_th;
-    $r15 = $param_headingIndex;
-    $r16 = $this->parsenested_block_in_table($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    // d <- $r16
-    if ($r16===self::$FAILED) {
-      $this->currPos = $p12;
-      $param_preproc = $r13;
-      $param_th = $r14;
-      $param_headingIndex = $r15;
-      $r10 = self::$FAILED;
-      goto seq_3;
-    }
-    $r10 = true;
-    seq_3:
+    $r10 = $this->parsenested_block_in_table($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
     if ($r10!==self::$FAILED) {
-      $this->savedPos = $p11;
-      $r10 = $this->a190($r6, $r8, $param_th, $r16);
       $r9[] = $r10;
     } else {
       break;
     }
-    // free $p12,$r13,$r14,$r15
-    // free $p11
   }
-  // c <- $r9
+  // th <- $r9
   // free $r10
   $r5 = true;
   seq_1:
   $this->savedPos = $p1;
-  $r5 = $this->a191($r6, $r8, $r9);
+  $r5 = $this->a190($r6, $r8, $r9);
   // free $r7
   // free $p1,$r2,$r3,$r4
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -23849,7 +23816,7 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
     seq_1:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a192($r12, $r15);
+      $r6 = $this->a191($r12, $r15);
       $r5[] = $r6;
     } else {
       break;
@@ -23895,7 +23862,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a193($r6);
+    $r5 = $this->a192($r6);
     goto choice_1;
   }
   // start seq_1
@@ -23926,7 +23893,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
   $r5 = $r7;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a194($r7);
+    $r5 = $this->a193($r7);
     goto choice_1;
   }
   // free $r8
@@ -24031,7 +23998,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
   $r5 = $r8;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a195($r8);
+    $r5 = $this->a194($r8);
   }
   choice_1:
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -24185,7 +24152,7 @@ private function parselang_variant_nowiki($silence, $boolParams, $param_tagType,
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a196($r6, $r8);
+    $r5 = $this->a195($r6, $r8);
   }
   // free $r7
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -24905,7 +24872,7 @@ private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a197($r6);
+    $r5 = $this->a196($r6);
   }
   // free $r7
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -24988,7 +24955,7 @@ private function parsefull_table_in_link_caption($silence, $boolParams, $param_t
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a198($r7);
+    $r5 = $this->a197($r7);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -25043,7 +25010,7 @@ private function discardnowiki_check($param_tagType) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r7 = $this->a199($r4);
+  $r7 = $this->a198($r4);
   if ($r7) {
     $r7 = false;
   } else {

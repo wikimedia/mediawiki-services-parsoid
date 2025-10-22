@@ -2660,23 +2660,12 @@ table_heading_tags_parameterized =
 table_heading_tag =
 	arg:row_syntax_table_args?
 	tagEndPos:POSITION
-	c:(
-		th:<&th>
-		d:nested_block_in_table {
-			// Ignore newlines found in transclusions!
-			// This is not perfect (since {{..}} may not always tokenize to transclusions).
-			if ( $th !== false && str_contains( preg_replace( "/{{[\s\S]+?}}/", "", $this->text() ), "\n" ) ) {
-				// There's been a newline. Remove the break and continue
-				// tokenizing nested_block_in_tables.
-				$th = false;
-			}
-			return $d;
-		}
-	)* {
+	th:nested_block_in_table*
+	{
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
-			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $c
+			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $th
 		);
 	}
 
