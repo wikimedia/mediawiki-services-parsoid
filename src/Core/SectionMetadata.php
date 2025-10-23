@@ -57,14 +57,17 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 *   We strip any parameter from accepted tags, except dir="rtl|ltr" from <span>,
 	 *   to allow setting directionality in toc items.
 	 *
-	 * @note This should be converted into the proper html variant.
+	 * @note This is in the default/mixed variant and should be converted
+	 *    into the proper user language variant before output.
 	 */
 	public string $line;
 
 	/**
 	 * TOC number string (3.1.3, 4.5.2, etc.)
 	 *
-	 * @note This should be localized into the parser target language.
+	 * @note In the legacy parser, this is localized from creation, while in
+	 * Parsoid this is initially a sequence of dot-separated ascii digits and
+	 * is localized into the parser target language during postprocessing.
 	 */
 	public string $number;
 
