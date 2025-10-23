@@ -880,10 +880,14 @@ class TableFixups {
 			return true;
 		}
 
+		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th> when not the first child
 		if ( DOMUtils::nodeName( $cell ) === 'th' &&
 			DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) &&
+			// The ! wouldn't be the first content char if attrs were present
+			$cellDp->getTempFlag( TempData::NO_ATTRS ) &&
 			// This is checking that previous sibling is not "\n" which would
 			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
 			// If this weren't template output, we would check for "stx" === 'row'.
@@ -896,6 +900,8 @@ class TableFixups {
 				$leadingText = $fc->nodeValue;
 				if ( str_starts_with( $leadingText, "!" ) ) {
 					$fc->nodeValue = substr( $leadingText, 1 );
+					$cellDp->stx = 'row';
+					$cellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 				}
 			}
 		}
@@ -905,7 +911,6 @@ class TableFixups {
 			return true;
 		}
 
-		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $reparseType === self::COMBINE_WITH_PREV_CELL ) {
 			if ( self::reparseWithPreviousCell( $dtState, $cell ) ) {
 				return true;
