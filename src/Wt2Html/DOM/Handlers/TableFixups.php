@@ -76,9 +76,12 @@ class TableFixups {
 		$lastTpl = null;
 		$prevDp = null;
 		$frame = $dtState->options['frame'];
+		$aboutIdArray = [];
 
 		$index = 0;
 		foreach ( $transclusions as $tpl ) {
+			$aboutIdArray[] = DOMCompat::getAttribute( $tpl, 'about' );
+
 			$tplDp = DOMDataUtils::getDataParsoid( $tpl );
 			Assert::invariant( Utils::isValidDSR( $tplDp->dsr ?? null ), 'Expected valid DSR' );
 
@@ -136,34 +139,27 @@ class TableFixups {
 		// for additional fixups (|| Boo || Baz) by potentially
 		// invoking 'reparseTemplatedAttributes' on split cells
 		// with some modifications.
-		$child = $lastTpl;
-
-		// Transclusions may be nested in elements in some ugly wikitext so
-		// make sure we're starting at a direct descendant of td
-		while ( $child->parentNode !== $td ) {
-			$child = $child->parentNode;
-		}
-
-		while ( $child ) {
-			if (
-				DOMUtils::nodeName( $child ) === 'span' &&
-				DOMCompat::getAttribute( $child, 'about' ) === $aboutId
-			) {
-				// Remove the encapsulation attributes. If there are no more attributes left,
-				// the span wrapper is useless and can be removed.
-				$child->removeAttribute( 'about' );
-				$child->removeAttribute( 'typeof' );
-				if ( DOMDataUtils::noAttrs( $child ) ) {
-					$next = $child->firstChild ?: $child->nextSibling;
-					DOMUtils::migrateChildren( $child, $td, $child );
-					$child->parentNode->removeChild( $child );
-					$child = $next;
-				} else {
-					$child = $child->nextSibling;
+		$cell = $td;
+		while ( $cell instanceof Element && DOMCompat::getAttribute( $cell, 'about' ) === $aboutId ) {
+			$child = $cell->firstChild;
+			while ( $child ) {
+				$next = $child->nextSibling;
+				if ( $child instanceof Element &&
+					in_array( DOMCompat::getAttribute( $child, 'about' ), $aboutIdArray, true )
+				) {
+					// Remove the encapsulation attributes.
+					$child->removeAttribute( 'about' );
+					DOMUtils::removeTypeOf( $child, 'mw:Transclusion' );
+					// If there are no more attributes left, useless spans wrapper can be removed.
+					if ( DOMDataUtils::getDataParsoid( $child )->getTempFlag( TempData::WRAPPER ) ) {
+						$next = $child->firstChild ?: $child->nextSibling;
+						DOMUtils::migrateChildren( $child, $cell, $child );
+						$child->parentNode->removeChild( $child );
+					}
 				}
-			} else {
-				$child = $child->nextSibling;
+				$child = $next;
 			}
+			$cell = $cell->nextSibling;
 		}
 
 		// $dtState->tplInfo can be null when information is hoisted
