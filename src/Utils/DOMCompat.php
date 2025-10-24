@@ -65,7 +65,27 @@ class DOMCompat {
 	}
 
 	private static function zestOptions(): array {
-		return self::isUsingDodo() ? [ 'standardsMode' => true, ] : [];
+		if ( self::isUsing84Dom() ) {
+			return [
+				// Speed up getElementsById calls; this should use upstream
+				// getElementsById once these two bugs are fixed:
+				// https://github.com/php/php-src/issues/20281
+				// https://github.com/php/php-src/issues/20282
+				'getElementsById' => static function ( $context, $id ) {
+					if ( is_a( $context, '\Dom\Document', false ) ) {
+						'@phan-var Document $context';
+						return [ $context->getElementById( $id ) ];
+					}
+					return iterator_to_array(
+						$context->querySelectorAll( '#' . self::encodeCssId( $id ) )
+					);
+				},
+			];
+		} elseif ( self::isUsingDodo() ) {
+			return [ 'standardsMode' => true, ];
+		} else {
+			return [];
+		}
 	}
 
 	/**
@@ -701,5 +721,29 @@ class DOMCompat {
 			return $node->content;
 		}
 		return $node;
+	}
+
+	/**
+	 * Escape an identifier for CSS.
+	 * This is equivalent to CSS.escape
+	 * (https://drafts.csswg.org/cssom/#the-css.escape()-method)
+	 * and is the opposite of self::decodeid().
+	 * @note Borrowed from zest.php
+	 */
+	private static function encodeCssId( string $str ): string {
+		// phpcs:ignore Generic.Files.LineLength.TooLong
+		return preg_replace_callback( '/(\\x00)|([\\x01-\\x1F\\x7F])|(^[0-9])|(^-[0-9])|(^-$)|([^-A-Za-z0-9_\\x{80}-\\x{10FFFF}])/u', static function ( array $matches ) {
+			if ( isset( $matches[1] ) ) {
+				return "\u{FFFD}";
+			} elseif ( isset( $matches[2] ) || isset( $matches[3] ) ) {
+				$cp = mb_ord( $matches[0], "UTF-8" );
+				return '\\' . dechex( $cp ) . ' ';
+			} elseif ( isset( $matches[4] ) ) {
+				$cp = mb_ord( $matches[0][1], "UTF-8" );
+				return '-\\' . dechex( $cp ) . ' ';
+			} else {
+				return '\\' . $matches[0];
+			}
+		}, $str, -1, $ignore, PREG_UNMATCHED_AS_NULL );
 	}
 }
