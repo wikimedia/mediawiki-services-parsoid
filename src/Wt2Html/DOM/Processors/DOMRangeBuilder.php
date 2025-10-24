@@ -879,18 +879,22 @@ class DOMRangeBuilder {
 			$rangeStart = $range->start;
 			$newRangeStart = $elt;
 
-			$typeOf = DOMCompat::getAttribute( $rangeStart, 'typeof' );
+			DOMUtils::removeTypeOf( $rangeStart, 'mw:Transclusion' );
 			$rangeDmw = DOMDataUtils::getDataMw( $rangeStart );
 			$rangeDp = DOMDataUtils::getDataParsoid( $rangeStart );
 
 			$this->migrateElements( $elt, $rangeStart, $elt, $elt->firstChild );
 			$range->start = $newRangeStart;
 
-			$newRangeStart->setAttribute( 'typeof', $typeOf );
+			DOMUtils::addTypeOf( $newRangeStart, 'mw:Transclusion' );
+			$newRangeDmw = DOMDataUtils::getDataMw( $newRangeStart );
+			$newRangeDmw->parts = $rangeDmw->parts;
+			unset( $rangeDmw->parts );
 			$newRangeDp = DOMDataUtils::getDataParsoid( $newRangeStart );
 			$newRangeDp->pi = $rangeDp->pi;
+			unset( $rangeDp->pi );
 			$newRangeDp->dsr = $rangeDp->dsr;
-			DOMDataUtils::setDataMw( $newRangeStart, $rangeDmw );
+			unset( $rangeDp->dsr );
 		}
 
 		$elt = $range->end;

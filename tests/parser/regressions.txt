@@ -257,3 +257,21 @@ T407798: Strip newlines between category link tags in templates
 <p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"something\n[[Category:Foo]]\n[[es:Foo]]"}},"i":0}}]}'>something
 </span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"http://es.wikipedia.org/wiki/Foo"},"sa":{"href":"es:Foo"}}'/></p>
 !! end
+
+!! test
+Migrate leading category into following div
+!! wikitext
+{{1x|<div>foo</div>
+}}{{1x|[[Category:Foo]]<div>bar</div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]],"dsr":[0,22,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]],"dsr":[22,59,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>bar&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/>bar</div>
+!! end
+
+!! test
+Migrate leading empty extension into following div
+!! wikitext
+{{1x|<div>foo</div>
+}}{{1x|<section begin="2011-05-16" /><div>bar</div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;section begin=\"2011-05-16\" />&lt;div>bar&lt;/div>"}},"i":0}}]}'><link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}'/>bar</div>
+!! end
