@@ -139,15 +139,6 @@ class MockSiteConfig extends SiteConfig {
 		return '/Category/';
 	}
 
-	public function bswRegexp(): string {
-		return '/' .
-				'NOGLOBAL|DISAMBIG|NOCOLLABORATIONHUBTOC|nocollaborationhubtoc|NOTOC|notoc|' .
-				'NOGALLERY|nogallery|FORCETOC|forcetoc|TOC|toc|NOEDITSECTION|noeditsection|' .
-				'NOTITLECONVERT|notitleconvert|NOTC|notc|NOCONTENTCONVERT|nocontentconvert|' .
-				'NOCC|nocc|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|INDEX|NOINDEX|STATICREDIRECT' .
-			'/';
-	}
-
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
 		return self::NAMESPACE_MAP[$name] ?? null;
@@ -285,6 +276,11 @@ class MockSiteConfig extends SiteConfig {
 	/** @inheritDoc */
 	protected function getVariableIDs(): array {
 		return []; // None for now
+	}
+
+	/** @inheritDoc */
+	protected function getDoubleUnderscoreIDs(): array {
+		return [ 'toc', 'notoc', ];
 	}
 
 	/** @inheritDoc */

@@ -77,30 +77,30 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testGetRevisionId() {
 		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionId() );
-		$this->assertSame( 857016953, $this->getPageConfig( 'existing' )->getRevisionId() );
+		$this->assertSame( 1163188669, $this->getPageConfig( 'existing' )->getRevisionId() );
 	}
 
 	public function testGetParentRevisionId() {
 		$this->assertNull( $this->getPageConfig( 'missing' )->getParentRevisionId() );
-		$this->assertSame( 817557113, $this->getPageConfig( 'existing' )->getParentRevisionId() );
+		$this->assertSame( 857016953, $this->getPageConfig( 'existing' )->getParentRevisionId() );
 	}
 
 	public function testGetRevisionTimestamp() {
 		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionTimestamp() );
-		$this->assertSame( '20180829005516', $this->getPageConfig( 'existing' )->getRevisionTimestamp() );
+		$this->assertSame( '20230703123305', $this->getPageConfig( 'existing' )->getRevisionTimestamp() );
 	}
 
 	public function testGetRevisionSha1() {
 		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionSha1() );
 		$this->assertSame(
-			'27d4d91a06e8df01f33a2577e00305a81cd30bf0',
+			'd4291dd3db24a798ad58cb08240702841b390ec4',
 			$this->getPageConfig( 'existing' )->getRevisionSha1()
 		);
 	}
 
 	public function testGetRevisionSize() {
 		$this->assertNull( $this->getPageConfig( 'missing' )->getRevisionSize() );
-		$this->assertSame( 1736, $this->getPageConfig( 'existing' )->getRevisionSize() );
+		$this->assertSame( 1737, $this->getPageConfig( 'existing' )->getRevisionSize() );
 	}
 
 	public function testGetRevisionContent() {

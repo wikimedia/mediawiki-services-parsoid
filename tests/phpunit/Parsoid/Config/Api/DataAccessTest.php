@@ -41,10 +41,10 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		$this->assertSame( [
 			'Foo' => [ 'pageId' => 1, 'revId' => 10, 'missing' => false,
-				'known' => true, 'redirect' => true, 'linkclasses' => [],
+				'known' => true, 'redirect' => true, 'linkclasses' => [ 'mw-redirect' ],
 				'invalid' => false ],
 			'Bar_(disambiguation)' => [ 'pageId' => 2, 'revId' => 11, 'missing' => false,
-				'known' => true, 'redirect' => false, 'linkclasses' => [ 'mw-disambig' ],
+				'known' => true, 'redirect' => true, 'linkclasses' => [ 'mw-redirect', 'mw-disambig' ],
 				'invalid' => false ],
 			'Special:SpecialPages' => [ 'pageId' => null, 'revId' => null, 'missing' => false,
 				'known' => true, 'redirect' => false, 'linkclasses' => [],
@@ -74,12 +74,12 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 				'width' => 600,
 				'height' => 600,
 				// phpcs:ignore Generic.Files.LineLength.TooLong
-				'thumburl' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/100px-Example.svg.png',
+				'thumburl' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/120px-Example.svg.png',
 				'thumbwidth' => 100,
 				'thumbheight' => 100,
 				'responsiveUrls' => [
-					'1.5' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/150px-Example.svg.png',
-					'2' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/200px-Example.svg.png',
+					'1.5' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/250px-Example.svg.png',
+					'2' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/250px-Example.svg.png',
 				],
 				'url' => '//upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
 				"descriptionurl" => "//commons.wikimedia.org/wiki/File:Example.svg",
@@ -112,9 +112,14 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			"<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">[<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>]</sup> {{subst:unsigned|Example}} ~~~~~\n</p>", $ret );
 		$this->assertEquals( [], $metadata->getModules() );
 		$this->assertEquals( [
+			'ext.wikimediamessages.styles',
+			'oojs-ui-core.styles',
+			'oojs-ui.styles.indicators',
+			'mediawiki.widgets.styles',
+			'oojs-ui-core.icons',
 			'ext.discussionTools.init.styles',
 		], $metadata->getModuleStyles() );
-		$this->assertEquals( [], $metadata->getJsConfigVars() );
+		$this->assertEquals( [ 'wgDiscussionToolsPageThreads' => 'value' ], $metadata->getJsConfigVars() );
 		$this->assertEquals( [ 'Foo' ], $metadata->getCategoryNames() );
 		$this->assertEquals( 'Bar', $metadata->getCategorySortKey( 'Foo' ) );
 
@@ -171,7 +176,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( 'text/x-wiki', $c->getFormat( 'main' ) );
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			"Our '''world''' is a planet where human beings have formed many societies.\n\nNobody knows whether there are intelligent beings on other worlds.\n\nThere are about one septillion (10<sup>24</sup>) worlds in the universe.<ref name=\"Kluwer Law book\">Burci, Gian Luca; Vignes, Claude-Henri (2004). [https://books.google.com/books?id=Xou_nD9jJF0C ''World Health Organization'']. Kluwer Law International. {{ISBN|9789041122735}}. Pages 15–20.</ref><ref>{{Cite journal|title = Mortality in mental disorders and global disease burden implications: a systematic review and meta-analysis|url = https://www.ncbi.nlm.nih.gov/pubmed/25671328|journal = JAMA psychiatry|date = 2015-04-01|issn = 2168-6238|pmc = 4461039|pmid = 25671328|pages = 334-341|volume = 72|issue = 4|doi = 10.1001/jamapsychiatry.2014.2502|first = Elizabeth Reisinger|last = Walker|first2 = Robin E.|last2 = McGee|first3 = Benjamin G.|last3 = Druss}}  {{Open access}}</ref><ref>{{Cite journal|title = Essential surgery: key messages from Disease Control Priorities, 3rd edition|url = https://www.ncbi.nlm.nih.gov/pubmed/25662414|journal = Lancet|date = 2015-05-30|issn = 1474-547X|pmid = 25662414|pages = 2209-2219|volume = 385|issue = 9983|doi = 10.1016/S0140-6736(15)60091-5|first = Charles N.|last = Mock|first2 = Peter|last2 = Donkor|first3 = Atul|last3 = Gawande|first4 = Dean T.|last4 = Jamison|first5 = Margaret E.|last5 = Kruk|first6 = Haile T.|last6 = Debas}}</ref>\n\n== References ==\n<references />\n\n<!-- All the contet here is public domain and has been copied from https://www.mediawiki.org/w/index.php?title=Help:Sample_page&oldid=2331983. Only add content here that has been previously been placed in the public domain as this page is used to generate screenshots -->",
+			"Our '''world''' is a planet where human beings have formed many societies.\n\nNobody knows whether there are intelligent beings on other worlds.\n\nThere are about one septillion (10<sup>24</sup>) worlds in the universe.<ref name=\"Kluwer Law book\">Burci, Gian Luca; Vignes, Claude-Henri (2004). [https://books.google.com/books?id=Xou_nD9jJF0C ''World Health Organization'']. Kluwer Law International. {{ISBN|9789041122735}}. Pages 15–20.</ref><ref>{{Cite journal|title = Mortality in mental disorders and global disease burden implications: a systematic review and meta-analysis|url = https://www.ncbi.nlm.nih.gov/pubmed/25671328|journal = JAMA psychiatry|date = 2015-04-01|issn = 2168-6238|pmc = 4461039|pmid = 25671328|pages = 334-341|volume = 72|issue = 4|doi = 10.1001/jamapsychiatry.2014.2502|first = Elizabeth Reisinger|last = Walker|first2 = Robin E.|last2 = McGee|first3 = Benjamin G.|last3 = Druss}}  {{Open access}}</ref><ref>{{Cite journal|title = Essential surgery: key messages from Disease Control Priorities, 3rd edition|url = https://www.ncbi.nlm.nih.gov/pubmed/25662414|journal = Lancet|date = 2015-05-30|issn = 1474-547X|pmid = 25662414|pages = 2209-2219|volume = 385|issue = 9983|doi = 10.1016/S0140-6736(15)60091-5|first = Charles N.|last = Mock|first2 = Peter|last2 = Donkor|first3 = Atul|last3 = Gawande|first4 = Dean T.|last4 = Jamison|first5 = Margaret E.|last5 = Kruk|first6 = Haile T.|last6 = Debas}}</ref>\n\n== References ==\n<references />\n\n<!-- All the content here is public domain and has been copied from https://www.mediawiki.org/w/index.php?title=Help:Sample_page&oldid=2331983. Only add content here that has been previously been placed in the public domain as this page is used to generate screenshots -->",
 			$c->getContent( 'main' )
 		);
 

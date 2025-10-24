@@ -366,7 +366,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public static function provideGetMagicWordForVariable() {
 		return [
 			[ "numberofwikis", "numberofwikis" ],
-			[ "NUMBEROFWIKIS", null ],
+			[ "NUMBEROFWIKIS", "numberofwikis" ],
 			[ "numberofadmins", null ],
 		];
 	}

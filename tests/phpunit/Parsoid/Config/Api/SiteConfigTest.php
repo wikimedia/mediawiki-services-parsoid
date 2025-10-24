@@ -44,45 +44,29 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/** @dataProvider bswPagePropProvider */
-	public function testBswPagePropRegexp( string $pageProp, bool $caseSensitive ) {
+	public function testBswPagePropRegexp( string $pageProp ) {
 		$re = $this->getSiteConfig()->bswPagePropRegexp();
 		$this->assertSame( 1, preg_match( $re, "mw:PageProp/$pageProp" ) );
 		$this->assertSame( 1, preg_match( $re, "foo mw:PageProp/$pageProp  bar" ) );
-		// Check case sensitivity
-		$lower = strtolower( $pageProp );
-		$expected = $lower === $pageProp ? 1 : ( $caseSensitive ? 0 : 1 );
-		$this->assertSame( $expected, preg_match( $re, "mw:PageProp/$lower" ) );
-		$this->assertSame( $expected, preg_match( $re, " mw:PageProp/$lower " ) );
-
-		$upper = strtoupper( $pageProp );
-		$expected = ( $upper === $pageProp ) ? 1 : ( $caseSensitive ? 0 : 1 );
-		$this->assertSame( $expected, preg_match( $re, "mw:PageProp/$upper" ) );
-		$this->assertSame( $expected, preg_match( $re, " mw:PageProp/$upper " ) );
 	}
 
 	public static function bswPagePropProvider() {
+		// Page property key is the magic word ID and always lower case.
 		return [
-			// Case sensitive
-			[ 'NOGLOBAL', true ],
-			[ 'DISAMBIG', true ],
-			[ 'NEWSECTIONLINK', true ],
-			[ 'NONEWSECTIONLINK', true ],
-			[ 'HIDDENCAT', true ],
-			[ 'EXPECTUNUSEDCATEGORY', true ],
-			[ 'INDEX', true ],
-			[ 'NOINDEX', true ],
-			[ 'STATICREDIRECT', true ],
-
-			// Case insensitive
-			[ 'NoTOC', false ],
-			[ 'NoGallery', false ],
-			[ 'ForceTOC', false ],
-			[ 'ToC', false ],
-			[ 'NoEditSection', false ],
-			[ 'NoTitleConvert', false ],
-			[ 'NoTC', false ],
-			[ 'NoContentConvert', false ],
-			[ 'NoCC', false ],
+			[ 'disambiguation' ],
+			[ 'newsectionlink' ],
+			[ 'nonewsectionlink' ],
+			[ 'hiddencat' ],
+			[ 'index' ],
+			[ 'noindex' ],
+			[ 'staticredirect' ],
+			[ 'notoc' ],
+			[ 'nogallery' ],
+			[ 'forcetoc' ],
+			[ 'toc' ],
+			[ 'noeditsection' ],
+			[ 'notitleconvert' ],
+			[ 'nocontentconvert' ],
 		];
 	}
 
@@ -245,7 +229,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|EXPECTUNUSEDCATEGORY|HIDDENCAT|INDEX|NEWSECTIONLINK|NOINDEX|NONEWSECTIONLINK|STATICREDIRECT)|(?i:FORCETOC|NOCONTENTCONVERT|NOCC|NOEDITSECTION|NOGALLERY|NOTITLECONVERT|NOTC|NOTOC|TOC))__|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
+			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:(?i:__NOTOC__)|(?i:__NOGALLERY__)|(?i:__FORCETOC__)|(?i:__TOC__)|(?i:__NOEDITSECTION__)|__NEWSECTIONLINK__|__NONEWSECTIONLINK__|__HIDDENCAT__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|__INDEX__|__NOINDEX__|__STATICREDIRECT__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOCONTENTCONVERT__|__NOCC__)|__NOGLOBAL__|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
 			$this->getSiteConfig()->solTransparentWikitextRegexp()
 		);
 	}
@@ -253,7 +237,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextNoWsRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|EXPECTUNUSEDCATEGORY|HIDDENCAT|INDEX|NEWSECTIONLINK|NOINDEX|NONEWSECTIONLINK|STATICREDIRECT)|(?i:FORCETOC|NOCONTENTCONVERT|NOCC|NOEDITSECTION|NOGALLERY|NOTITLECONVERT|NOTC|NOTOC|TOC))__|<!--(?>[\s\S]*?-->))*)@',
+			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:(?i:__NOTOC__)|(?i:__NOGALLERY__)|(?i:__FORCETOC__)|(?i:__TOC__)|(?i:__NOEDITSECTION__)|__NEWSECTIONLINK__|__NONEWSECTIONLINK__|__HIDDENCAT__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|__INDEX__|__NOINDEX__|__STATICREDIRECT__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOCONTENTCONVERT__|__NOCC__)|__NOGLOBAL__|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->))*)@',
 			$this->getSiteConfig()->solTransparentWikitextNoWsRegexp()
 		);
 	}
@@ -283,7 +267,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testWidthOption() {
 		$this->assertSame(
-			220,
+			250,
 			$this->getSiteConfig()->widthOption()
 		);
 	}
@@ -292,6 +276,14 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame(
 			'disambiguation',
 			$this->getSiteConfig()->getMagicWordForBehaviorSwitch( '__DISAMBIG__' )
+		);
+		$this->assertSame(
+			'toc',
+			$this->getSiteConfig()->getMagicWordForBehaviorSwitch( '__TOC__' )
+		);
+		$this->assertSame(
+			null,
+			$this->getSiteConfig()->getMagicWordForBehaviorSwitch( 'img_width' )
 		);
 	}
 
@@ -313,11 +305,6 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			'img_width',
 			$this->getSiteConfig()->getMagicWordForMediaOption( '$1px' )
 		);
-	}
-
-	public function testIsBehaviorSwitch() {
-		$this->assertTrue( $this->getSiteConfig()->isBehaviorSwitch( '__TOC__' ) );
-		$this->assertSame( false, $this->getSiteConfig()->isBehaviorSwitch( 'img_width' ) );
 	}
 
 	public function testGetMagicWordMatcher() {
@@ -370,27 +357,29 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'gallery' => true,
 				'indicator' => true,
 				'langconvert' => true,
+				'graph' => true,
 				'timeline' => true,
 				'hiero' => true,
+				'charinsert' => true,
+				'ref' => true,
+				'references' => true,
 				'inputbox' => true,
 				'imagemap' => true,
 				'source' => true,
 				'syntaxhighlight' => true,
 				'poem' => true,
 				'categorytree' => true,
+				'section' => true,
 				'score' => true,
 				'templatestyles' => true,
 				'templatedata' => true,
 				'math' => true,
 				'ce' => true,
 				'chem' => true,
-				'graph' => true,
 				'maplink' => true,
 				'mapframe' => true,
-				'charinsert' => true,
-				'ref' => true,
-				'references' => true,
-				'section' => true,
+				'page-collection' => true,
+				'phonos' => true,
 			],
 			array_fill_keys( array_keys( $this->getSiteConfig()->getExtensionTagNameMap() ), true )
 		);
@@ -404,8 +393,8 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$matcher = $this->getSiteConfig()->getExtResourceURLPatternMatcher();
 		$this->assertIsCallable( $matcher );
 		$this->assertSame(
-			[ 'ISBN', '12345' ],
-			$matcher( 'Special:Booksources/12345' )
+			false, // enwiki doesn't have magic links enabled anymore
+			$matcher( 'Special:Booksources/9780977773114X' )
 		);
 	}
 

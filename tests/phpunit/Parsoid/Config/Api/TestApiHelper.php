@@ -19,11 +19,13 @@ class TestApiHelper extends ApiHelper {
 	/** @var array|null */
 	private $ret;
 
+	private string $file;
+
 	/**
 	 * @param TestCase $test
 	 * @param string $filename Data file name to use
 	 */
-	public function __construct( TestCase $test, string $filename ) {
+	public function __construct( TestCase $test, private string $filename ) {
 		$file = __DIR__ . '/data/' . $filename . '.reqdata';
 		$data = explode( "\n", trim( file_get_contents( $file ) ), 3 );
 		if ( count( $data ) !== 2 ) {
@@ -40,6 +42,8 @@ class TestApiHelper extends ApiHelper {
 		if ( $this->ret === null ) {
 			$this->test->fail( __METHOD__ . ' should only be called once' );
 		}
+		// Uncomment this line to update the request files
+		// self::writeRequestFile($this->filename, $params);
 		$this->test->assertEquals( $this->params, $params );
 
 		$ret = $this->ret;

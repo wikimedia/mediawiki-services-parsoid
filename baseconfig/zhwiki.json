@@ -6,11 +6,11 @@
             "sitename": "Wikipedia",
             "mainpageisdomainroot": false,
             "logo": "//zh.wikipedia.org/static/images/project-logos/zhwiki.png",
-            "generator": "MediaWiki 1.42.0-wmf.23",
-            "phpversion": "7.4.33",
+            "generator": "MediaWiki 1.45.0-wmf.25",
+            "phpversion": "8.1.33",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.25-MariaDB-log",
+            "dbversion": "10.11.13-MariaDB-log",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "linkconversion": true,
@@ -21,10 +21,8 @@
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:>=",
             "allunicodefixes": false,
-            "fixarabicunicode": true,
-            "fixmalayalamunicode": true,
-            "git-hash": "768fd92fc05f390b230e12630125520ab07d2a02",
-            "git-branch": "wmf/1.42.0-wmf.23",
+            "git-hash": "172a69ef4ad48c2999e951ed17c82613019073a9",
+            "git-branch": "wmf/1.45.0-wmf.25",
             "case": "first-letter",
             "lang": "zh",
             "fallback": [
@@ -99,7 +97,7 @@
             "server": "//zh.wikipedia.org",
             "servername": "zh.wikipedia.org",
             "wikiid": "zhwiki",
-            "time": "2024-03-28T17:30:45Z",
+            "time": "2025-10-31T14:15:35Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 5368709120,
@@ -184,15 +182,15 @@
             ],
             "externallinktarget": false,
             "wmf-config": {
-                "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 3088417,
-                "wmgCirrusSearchDefaultCluster": "local",
-                "wgCirrusSearchDefaultCluster": "eqiad"
+                "wmfMasterDatacenter": "codfw",
+                "wmfEtcdLastModifiedIndex": 6111476
             },
             "citeresponsivereferences": false,
+            "max-page-id": 9314783,
             "linter": {
                 "high": [
                     "deletable-table-tag",
+                    "duplicate-ids",
                     "html5-misnesting",
                     "misc-tidy-replacement-issues",
                     "multiline-html-table-in-list",
@@ -211,17 +209,15 @@
                     "wikilink-in-extlink"
                 ],
                 "low": [
+                    "empty-heading",
                     "missing-end-tag",
                     "missing-end-tag-in-heading",
+                    "night-mode-unaware-background-color",
                     "obsolete-tag",
                     "stripped-tag"
-                ],
-                "none": [
-                    "large-tables",
-                    "night-mode-unaware-background-color"
                 ]
             },
-            "mobileserver": "https://zh.m.wikipedia.org",
+            "mobileserver": "https://zh.wikipedia.org",
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -269,6 +265,7 @@
             "tel:",
             "telnet://",
             "urn:",
+            "wikipedia://",
             "worldwind://",
             "xmpp:",
             "//"
@@ -490,6 +487,24 @@
                 "content": false,
                 "nonincludable": false
             },
+            "126": {
+                "id": 126,
+                "case": "first-letter",
+                "name": "MOS",
+                "subpages": false,
+                "canonical": "MOS",
+                "content": false,
+                "nonincludable": false
+            },
+            "127": {
+                "id": 127,
+                "case": "first-letter",
+                "name": "MOS talk",
+                "subpages": false,
+                "canonical": "MOS talk",
+                "content": false,
+                "nonincludable": false
+            },
             "710": {
                 "id": 710,
                 "case": "first-letter",
@@ -523,6 +538,24 @@
                 "name": "Module talk",
                 "subpages": true,
                 "canonical": "Module talk",
+                "content": false,
+                "nonincludable": false
+            },
+            "1728": {
+                "id": 1728,
+                "case": "first-letter",
+                "name": "Event",
+                "subpages": true,
+                "canonical": "Event",
+                "content": false,
+                "nonincludable": false
+            },
+            "1729": {
+                "id": 1729,
+                "case": "first-letter",
+                "name": "Event talk",
+                "subpages": true,
+                "canonical": "Event talk",
                 "content": false,
                 "nonincludable": false
             },
@@ -1039,6 +1072,10 @@
                 "alias": "草稿讨论"
             },
             {
+                "id": 127,
+                "alias": "MOS talk"
+            },
+            {
                 "id": 711,
                 "alias": "TimedText talk"
             },
@@ -1089,6 +1126,10 @@
             {
                 "id": 829,
                 "alias": "模组讨论"
+            },
+            {
+                "id": 1729,
+                "alias": "Event talk"
             },
             {
                 "id": 2600,
@@ -1854,9 +1895,9 @@
             {
                 "name": "language",
                 "aliases": [
-                    "#LANGUAGE:",
-                    "#语言:",
-                    "#語言:"
+                    "#LANGUAGE",
+                    "#语言",
+                    "#語言"
                 ],
                 "case-sensitive": false
             },
@@ -2765,6 +2806,14 @@
                 "case-sensitive": false
             },
             {
+                "name": "noglobal",
+                "aliases": [
+                    "__禁用全域用户页__",
+                    "__NOGLOBAL__"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "target",
                 "aliases": [
                     "目标",
@@ -2789,6 +2838,22 @@
                     "__DISAMBIG__"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "archivedtalk",
+                "aliases": [
+                    "__已存档讨论__",
+                    "__ARCHIVEDTALK__"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "notalk",
+                "aliases": [
+                    "__禁用讨论__",
+                    "__NOTALK__"
+                ],
+                "case-sensitive": false
             },
             {
                 "name": "invoke",
@@ -2855,6 +2920,48 @@
                     "numberofwikis"
                 ],
                 "case-sensitive": false
+            },
+            {
+                "name": "timef",
+                "aliases": [
+                    "timef"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "timefl",
+                "aliases": [
+                    "timefl"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "timef-time",
+                "aliases": [
+                    "time"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "timef-date",
+                "aliases": [
+                    "date"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "timef-both",
+                "aliases": [
+                    "both"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "timef-pretty",
+                "aliases": [
+                    "pretty"
+                ],
+                "case-sensitive": true
             },
             {
                 "name": "rel2abs",
@@ -2930,13 +3037,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "noglobal",
-                "aliases": [
-                    "__NOGLOBAL__"
-                ],
-                "case-sensitive": true
-            },
-            {
                 "name": "coordinates",
                 "aliases": [
                     "coordinates"
@@ -2947,20 +3047,6 @@
                 "name": "primary",
                 "aliases": [
                     "primary"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "archivedtalk",
-                "aliases": [
-                    "__ARCHIVEDTALK__"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "notalk",
-                "aliases": [
-                    "__NOTALK__"
                 ],
                 "case-sensitive": false
             },
@@ -3007,6 +3093,27 @@
                 "case-sensitive": true
             },
             {
+                "name": "chart",
+                "aliases": [
+                    "chart"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "chart_data",
+                "aliases": [
+                    "data"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "chart_arg",
+                "aliases": [
+                    "arg:"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "phonos",
                 "aliases": [
                     "phonos"
@@ -3019,6 +3126,13 @@
                     "calendar"
                 ],
                 "case-sensitive": false
+            },
+            {
+                "name": "communityrequests",
+                "aliases": [
+                    "CommunityRequests"
+                ],
+                "case-sensitive": true
             },
             {
                 "name": "pagesusingpendingchanges",
@@ -3147,6 +3261,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "expectwithoutscans",
+                "aliases": [
+                    "__EXPECTWITHOUTSCANS__"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "translation",
                 "aliases": [
                     "translation"
@@ -3175,6 +3296,62 @@
                 "case-sensitive": false
             },
             {
+                "name": "wikifunctionlabel",
+                "aliases": [
+                    "wikifunctionlabel"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "wikifunctionlabeldesc",
+                "aliases": [
+                    "wikifunctionlabeldesc"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_all",
+                "aliases": [
+                    "NUMBEROFOBJECTS"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_functions",
+                "aliases": [
+                    "NUMBEROFFUNCTIONS"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_implementations",
+                "aliases": [
+                    "NUMBEROFIMPLEMENTATIONS"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_testers",
+                "aliases": [
+                    "NUMBEROFTESTCASES"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_types",
+                "aliases": [
+                    "NUMBEROFTYPES"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "magic_count_languages",
+                "aliases": [
+                    "NUMBEROFLANGUAGES"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "usertestwiki",
                 "aliases": [
                     "USERTESTWIKI"
@@ -3194,9 +3371,98 @@
                     "="
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "bcp47",
+                "aliases": [
+                    "#bcp47"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "contentmodel",
+                "aliases": [
+                    "#contentmodel"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "contentmodel_canonical",
+                "aliases": [
+                    "canonical"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "contentmodel_local",
+                "aliases": [
+                    "local"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "dir",
+                "aliases": [
+                    "#dir"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "expectunusedtemplate",
+                "aliases": [
+                    "__EXPECTUNUSEDTEMPLATE__"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "formal",
+                "aliases": [
+                    "#FORMAL:"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "interlanguagelink",
+                "aliases": [
+                    "#interlanguagelink"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "interwikilink",
+                "aliases": [
+                    "#interwikilink"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "language_option_bcp47",
+                "aliases": [
+                    "bcp47"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "lossless",
+                "aliases": [
+                    "LOSSLESS"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "userlanguage",
+                "aliases": [
+                    "USERLANGUAGE"
+                ],
+                "case-sensitive": true
             }
         ],
         "interwikimap": [
+            {
+                "prefix": "acc",
+                "url": "https://accounts.wmflabs.org/internal.php/viewRequest?id=$1",
+                "protorel": false
+            },
             {
                 "prefix": "acronym",
                 "url": "https://www.acronymfinder.com/$1.html",
@@ -3209,28 +3475,19 @@
                 "protorel": false
             },
             {
-                "prefix": "advogato",
-                "url": "http://www.advogato.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "aew",
-                "url": "https://wiki.arabeyes.org/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "antwiki",
                 "url": "https://antwiki.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "appropedia",
-                "url": "http://www.appropedia.org/$1",
+                "url": "https://www.appropedia.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "aquariumwiki",
-                "url": "https://www.theaquariumwiki.com/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#AquariumWiki",
                 "protorel": false
             },
             {
@@ -3244,28 +3501,29 @@
                 "protorel": false
             },
             {
-                "prefix": "baden",
-                "url": "http://www.stadtwiki-baden-baden.de/wiki/$1/",
-                "protorel": false
-            },
-            {
                 "prefix": "battlestarwiki",
                 "url": "https://en.battlestarwiki.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "bcnbio",
-                "url": "http://historiapolitica.bcn.cl/resenas_parlamentarias/wiki/$1",
+                "url": "https://www.bcn.cl/historiapolitica/resenas_parlamentarias/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "beacha",
-                "url": "http://www.beachapedia.org/$1",
+                "url": "https://www.beachapedia.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "betawiki",
                 "url": "https://translatewiki.net/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "betawikiversity",
+                "local": true,
+                "url": "https://beta.wikiversity.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3275,12 +3533,8 @@
             },
             {
                 "prefix": "bibliowiki",
-                "url": "https://wikilivres.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "bluwiki",
-                "url": "http://bluwiki.com/go/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikilivres",
                 "protorel": false
             },
             {
@@ -3306,29 +3560,19 @@
                 "protorel": false
             },
             {
-                "prefix": "c",
-                "local": true,
-                "url": "https://commons.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "c2",
-                "url": "http://c2.com/cgi/wiki?$1",
+                "url": "https://wiki.c2.com/?$1",
                 "protorel": false
             },
             {
-                "prefix": "c2find",
-                "url": "http://c2.com/cgi/wiki?FindPage&value=$1",
+                "prefix": "ccorg",
+                "url": "https://creativecommons.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "cache",
-                "url": "https://www.google.com/search?q=cache:$1",
-                "protorel": true
-            },
-            {
-                "prefix": "ĉej",
-                "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Google_Cache",
                 "protorel": false
             },
             {
@@ -3337,18 +3581,13 @@
                 "protorel": false
             },
             {
-                "prefix": "chej",
-                "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "choralwiki",
-                "url": "http://www.cpdl.org/wiki/index.php/$1",
+                "url": "https://www.cpdl.org/wiki/index.php/$1",
                 "protorel": false
             },
             {
                 "prefix": "citizendium",
-                "url": "http://en.citizendium.org/wiki/$1",
+                "url": "https://en.citizendium.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3358,18 +3597,13 @@
                 "protorel": false
             },
             {
-                "prefix": "communityscheme",
-                "url": "http://community.schemewiki.org/?c=s&key=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "communitywiki",
                 "url": "https://communitywiki.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "comune",
-                "url": "http://rete.comuni-italiani.it/wiki/$1",
+                "url": "https://rete.comuni-italiani.it/wiki/$1",
                 "protorel": false
             },
             {
@@ -3383,13 +3617,9 @@
                 "protorel": false
             },
             {
-                "prefix": "cxej",
-                "url": "http://esperanto.blahus.cz/cxej/vikio/index.php/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "dcc",
-                "url": "http://www.dccwiki.com/$1",
+                "prefix": "dbdump",
+                "local": true,
+                "url": "https://dumps.wikimedia.org/$1/latest/",
                 "protorel": false
             },
             {
@@ -3398,8 +3628,8 @@
                 "protorel": false
             },
             {
-                "prefix": "dcma",
-                "url": "http://christian-morgenstern.de/dcma/index.php?title=$1",
+                "prefix": "dcw",
+                "url": "https://dcwwiki.org/$1",
                 "protorel": false
             },
             {
@@ -3423,13 +3653,19 @@
                 "protorel": true
             },
             {
-                "prefix": "dictionary",
-                "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
+                "prefix": "dict",
+                "url": "https://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
                 "protorel": false
             },
             {
-                "prefix": "dict",
-                "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
+                "prefix": "dictionary",
+                "url": "https://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
+                "protorel": false
+            },
+            {
+                "prefix": "diffblog",
+                "local": true,
+                "url": "https://diff.wikimedia.org/$1",
                 "protorel": false
             },
             {
@@ -3440,16 +3676,6 @@
             {
                 "prefix": "disinfopedia",
                 "url": "https://sourcewatch.org/index.php/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "distributedproofreaders",
-                "url": "http://www.pgdp.net/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "distributedproofreadersca",
-                "url": "http://www.pgdpcanada.net/wiki/index.php/$1",
                 "protorel": false
             },
             {
@@ -3485,12 +3711,6 @@
                 "protorel": false
             },
             {
-                "prefix": "dbdump",
-                "local": true,
-                "url": "https://dumps.wikimedia.org/$1/latest/",
-                "protorel": false
-            },
-            {
                 "prefix": "dpd",
                 "url": "https://www.rae.es/dpd/$1",
                 "protorel": false
@@ -3506,28 +3726,9 @@
                 "protorel": false
             },
             {
-                "prefix": "dreamhost",
-                "url": "http://wiki.dreamhost.com/index.php/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "drumcorpswiki",
-                "url": "http://www.drumcorpswiki.com/index.php/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "dwjwiki",
-                "url": "http://www.suberic.net/cgi-bin/dwj/wiki.cgi?$1",
-                "protorel": false
-            },
-            {
-                "prefix": "ecoreality",
-                "url": "http://www.EcoReality.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "elibre",
-                "url": "http://enciclopedia.us.es/index.php/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#elibre",
                 "protorel": false
             },
             {
@@ -3541,28 +3742,18 @@
                 "protorel": false
             },
             {
-                "prefix": "energiewiki",
-                "url": "http://www.netzwerk-energieberater.de/wiki/index.php/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "englyphwiki",
-                "url": "http://en.glyphwiki.org/wiki/$1",
+                "url": "https://en.glyphwiki.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "enkol",
-                "url": "http://enkol.pl/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "eokulturcentro",
-                "url": "http://esperanto.toulouse.free.fr/nova/wikini/wakka.php?wiki=$1",
+                "url": "https://enkol.pl/$1",
                 "protorel": false
             },
             {
                 "prefix": "esolang",
-                "url": "http://esolangs.org/wiki/$1",
+                "url": "https://esolangs.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3582,18 +3773,38 @@
                 "protorel": true
             },
             {
-                "prefix": "exotica",
-                "url": "https://www.exotica.org.uk/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "exkcd",
                 "url": "https://www.explainxkcd.com/wiki/index.php/$1",
                 "protorel": false
             },
             {
+                "prefix": "exotica",
+                "url": "https://www.exotica.org.uk/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "fandom",
+                "url": "https://community.fandom.com/wiki/w:c:$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wikia",
+                "url": "https://community.fandom.com/wiki/w:c:$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wikiasite",
+                "url": "https://community.fandom.com/wiki/w:c:$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wikicity",
+                "url": "https://community.fandom.com/wiki/w:c:$1",
+                "protorel": false
+            },
+            {
                 "prefix": "fanimutationwiki",
-                "url": "http://wiki.animutationportal.com/index.php/$1",
+                "url": "https://wiki.animutationportal.com/index.php/$1",
                 "protorel": false
             },
             {
@@ -3612,23 +3823,18 @@
                 "protorel": false
             },
             {
-                "prefix": "flickruser",
-                "url": "https://www.flickr.com/people/$1",
-                "protorel": true
-            },
-            {
                 "prefix": "flickrphoto",
                 "url": "https://www.flickr.com/photo.gne?id=$1",
                 "protorel": true
             },
             {
-                "prefix": "floralwiki",
-                "url": "http://www.floralwiki.co.uk/wiki/$1",
-                "protorel": false
+                "prefix": "flickruser",
+                "url": "https://www.flickr.com/people/$1",
+                "protorel": true
             },
             {
                 "prefix": "foldoc",
-                "url": "http://foldoc.org/$1",
+                "url": "https://foldoc.org/$1",
                 "protorel": false
             },
             {
@@ -3644,33 +3850,13 @@
                 "protorel": false
             },
             {
-                "prefix": "foxwiki",
-                "url": "http://fox.wikis.com/wc.dll?Wiki~$1",
-                "protorel": false
-            },
-            {
-                "prefix": "freebio",
-                "url": "http://freebiology.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "freebsdman",
                 "url": "https://www.FreeBSD.org/cgi/man.cgi?apropos=1&query=$1",
                 "protorel": false
             },
             {
-                "prefix": "freeculturewiki",
-                "url": "http://wiki.freeculture.org/index.php/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "freedomdefined",
                 "url": "https://freedomdefined.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "freekiwiki",
-                "url": "http://wiki.freegeek.org/index.php/$1",
                 "protorel": false
             },
             {
@@ -3685,18 +3871,8 @@
                 "protorel": true
             },
             {
-                "prefix": "ganfyd",
-                "url": "http://ganfyd.org/index.php?title=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "gardenology",
-                "url": "http://www.gardenology.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "gausswiki",
-                "url": "http://gauss.ffii.org/$1",
+                "url": "https://www.gardenology.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3706,7 +3882,7 @@
             },
             {
                 "prefix": "genwiki",
-                "url": "http://wiki.genealogy.net/index.php/$1",
+                "url": "https://wiki.genealogy.net/index.php/$1",
                 "protorel": false
             },
             {
@@ -3717,6 +3893,12 @@
             },
             {
                 "prefix": "git",
+                "local": true,
+                "url": "https://gerrit.wikimedia.org/g/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gitiles",
                 "local": true,
                 "url": "https://gerrit.wikimedia.org/g/$1",
                 "protorel": false
@@ -3739,8 +3921,8 @@
             },
             {
                 "prefix": "glottopedia",
-                "url": "https://glottopedia.org/index.php/$1",
-                "protorel": true
+                "url": "http://glottopedia.org/index.php/$1",
+                "protorel": false
             },
             {
                 "prefix": "google",
@@ -3758,18 +3940,18 @@
                 "protorel": true
             },
             {
-                "prefix": "guildwarswiki",
-                "url": "https://wiki.guildwars.com/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "guildwiki",
-                "url": "https://guildwars.fandom.com/wiki/$1",
+                "prefix": "gs",
+                "url": "https://global-search.toolforge.org/?q=$1",
                 "protorel": false
             },
             {
                 "prefix": "gucprefix",
                 "url": "https://guc.toolforge.org/?isPrefixPattern=1&src=rc&user=$1",
+                "protorel": false
+            },
+            {
+                "prefix": "guildwarswiki",
+                "url": "https://wiki.guildwars.com/wiki/$1",
                 "protorel": false
             },
             {
@@ -3779,22 +3961,23 @@
             },
             {
                 "prefix": "gutenbergwiki",
-                "url": "http://www.gutenberg.org/wiki/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/w/index.php?title=Interwiki_map/discontinued#Gutenbergwiki",
                 "protorel": false
             },
             {
                 "prefix": "hackerspaces",
-                "url": "http://wiki.hackerspaces.org/$1",
+                "url": "https://wiki.hackerspaces.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "hammondwiki",
-                "url": "http://www.dairiki.org/HammondWiki/index.php3?$1",
+                "url": "https://www.dairiki.org/HammondWiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "hdl",
-                "url": "http://hdl.handle.net/$1",
+                "url": "https://hdl.handle.net/$1",
                 "protorel": false
             },
             {
@@ -3809,24 +3992,24 @@
                 "protorel": false
             },
             {
-                "prefix": "hrwiki",
-                "url": "http://www.hrwiki.org/index.php/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "hrfwiki",
                 "url": "http://fanstuff.hrwiki.org/index.php/$1",
                 "protorel": false
             },
             {
-                "prefix": "hupwiki",
-                "url": "http://wiki.hup.hu/index.php/$1",
+                "prefix": "hrwiki",
+                "url": "http://www.hrwiki.org/index.php/$1",
                 "protorel": false
             },
             {
                 "prefix": "iarchive",
                 "url": "https://archive.org/details/$1",
                 "protorel": true
+            },
+            {
+                "prefix": "imdbcompany",
+                "url": "https://www.imdb.com/company/co$1/",
+                "protorel": false
             },
             {
                 "prefix": "imdbname",
@@ -3836,11 +4019,6 @@
             {
                 "prefix": "imdbtitle",
                 "url": "https://www.imdb.com/title/tt$1/",
-                "protorel": false
-            },
-            {
-                "prefix": "imdbcompany",
-                "url": "https://www.imdb.com/company/co$1/",
                 "protorel": false
             },
             {
@@ -3860,20 +4038,19 @@
                 "protorel": false
             },
             {
-                "prefix": "ircs",
-                "url": "ircs://irc.libera.chat/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "ircrc",
                 "local": true,
                 "url": "irc://irc.wikimedia.org/$1",
                 "protorel": false
             },
             {
-                "prefix": "rcirc",
-                "local": true,
-                "url": "irc://irc.wikimedia.org/$1",
+                "prefix": "ircs",
+                "url": "ircs://irc.libera.chat/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "isni",
+                "url": "https://isni.org/isni/$1",
                 "protorel": false
             },
             {
@@ -3893,17 +4070,7 @@
             },
             {
                 "prefix": "jaglyphwiki",
-                "url": "http://glyphwiki.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "jefo",
-                "url": "http://esperanto-jeunes.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "jerseydatabase",
-                "url": "http://jerseydatabase.com/wiki.php?id=$1",
+                "url": "https://glyphwiki.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3912,13 +4079,8 @@
                 "protorel": false
             },
             {
-                "prefix": "jspwiki",
-                "url": "http://www.ecyrd.com/JSPWiki/Wiki.jsp?page=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "jstor",
-                "url": "http://www.jstor.org/journals/$1",
+                "url": "https://www.jstor.org/journals/$1",
                 "protorel": false
             },
             {
@@ -3932,19 +4094,9 @@
                 "protorel": false
             },
             {
-                "prefix": "kinowiki",
-                "url": "http://kino.skripov.com/index.php/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "komicawiki",
                 "url": "https://wiki.komica.org/?$1",
                 "protorel": true
-            },
-            {
-                "prefix": "kontuwiki",
-                "url": "http://kontu.wiki/$1",
-                "protorel": false
             },
             {
                 "prefix": "lexemes",
@@ -3973,39 +4125,19 @@
                 "protorel": true
             },
             {
-                "prefix": "linuxwiki",
-                "url": "http://www.linuxwiki.de/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "linuxwikide",
-                "url": "http://www.linuxwiki.de/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "listarchive",
                 "local": true,
                 "url": "https://lists.wikimedia.org/hyperkitty/$1",
                 "protorel": false
             },
             {
-                "prefix": "liswiki",
-                "url": "https://liswiki.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "literateprograms",
-                "url": "http://en.literateprograms.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "livepedia",
-                "url": "http://www.livepedia.gr/index.php?title=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "localwiki",
                 "url": "https://localwiki.org/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "lofc",
+                "url": "https://id.loc.gov/authorities/$1",
                 "protorel": false
             },
             {
@@ -4021,11 +4153,6 @@
             {
                 "prefix": "lostpedia",
                 "url": "https://lostpedia.fandom.com/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "lqwiki",
-                "url": "http://wiki.linuxquestions.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -4052,7 +4179,12 @@
             },
             {
                 "prefix": "marveldatabase",
-                "url": "http://www.marveldatabase.com/wiki/index.php/$1",
+                "url": "https://marvel.fandom.com/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "mdwiki",
+                "url": "https://mdwiki.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -4062,6 +4194,12 @@
             },
             {
                 "prefix": "mw",
+                "local": true,
+                "url": "https://www.mediawiki.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "mediawikiwiki",
                 "local": true,
                 "url": "https://www.mediawiki.org/wiki/$1",
                 "protorel": false
@@ -4096,6 +4234,11 @@
                 "protorel": false
             },
             {
+                "prefix": "miraheze",
+                "url": "https://meta.miraheze.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "mineralienatlas",
                 "url": "https://www.mineralienatlas.de/lexikon/index.php/$1",
                 "protorel": false
@@ -4111,18 +4254,8 @@
                 "protorel": false
             },
             {
-                "prefix": "monstropedia",
-                "url": "http://www.monstropedia.org/?title=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "mosapedia",
-                "url": "http://mosapedia.de/wiki/index.php/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "mozcom",
-                "url": "https://mozilla.fandom.com/wiki/$1",
+                "url": "https://mosapedia.de/wiki/index.php/$1",
                 "protorel": false
             },
             {
@@ -4132,18 +4265,7 @@
             },
             {
                 "prefix": "mozillazinekb",
-                "url": "http://kb.mozillazine.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "musicbrainz",
-                "url": "http://musicbrainz.org/doc/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "mediawikiwiki",
-                "local": true,
-                "url": "https://www.mediawiki.org/wiki/$1",
+                "url": "https://kb.mozillazine.org/$1",
                 "protorel": false
             },
             {
@@ -4157,8 +4279,8 @@
                 "protorel": false
             },
             {
-                "prefix": "nkcells",
-                "url": "http://www.nkcells.info/index.php?title=$1",
+                "prefix": "nara",
+                "url": "https://catalog.archives.gov/id/$1",
                 "protorel": false
             },
             {
@@ -4167,13 +4289,15 @@
                 "protorel": false
             },
             {
-                "prefix": "nara",
-                "url": "https://catalog.archives.gov/id/$1",
+                "prefix": "wmnoc",
+                "local": true,
+                "url": "https://noc.wikimedia.org/$1",
                 "protorel": false
             },
             {
-                "prefix": "nosmoke",
-                "url": "http://no-smok.net/nsmk/$1",
+                "prefix": "wmnoch",
+                "local": true,
+                "url": "https://noc.wikimedia.org/conf/highlight.php?file=$1",
                 "protorel": false
             },
             {
@@ -4189,9 +4313,19 @@
                 "protorel": false
             },
             {
+                "prefix": "oclc",
+                "url": "https://www.worldcat.org/oclc/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "oeis",
                 "url": "https://oeis.org/$1",
                 "protorel": true
+            },
+            {
+                "prefix": "oewiki",
+                "url": "https://oesterreichwiki.org/wiki/$1",
+                "protorel": false
             },
             {
                 "prefix": "oldwikisource",
@@ -4201,22 +4335,12 @@
             },
             {
                 "prefix": "olpc",
-                "url": "http://wiki.laptop.org/go/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "omegawiki",
-                "url": "http://www.omegawiki.org/Expression:$1",
-                "protorel": false
-            },
-            {
-                "prefix": "onelook",
-                "url": "https://www.onelook.com/?ls=b&w=$1",
+                "url": "https://wiki.laptop.org/go/$1",
                 "protorel": false
             },
             {
                 "prefix": "openlibrary",
-                "url": "http://openlibrary.org/$1",
+                "url": "https://openlibrary.org/$1",
                 "protorel": false
             },
             {
@@ -4257,11 +4381,6 @@
                 "protorel": false
             },
             {
-                "prefix": "ourmedia",
-                "url": "https://www.socialtext.net/ourmedia/index.cgi?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "outreach",
                 "local": true,
                 "url": "https://outreach.wikimedia.org/wiki/$1",
@@ -4279,23 +4398,8 @@
                 "protorel": false
             },
             {
-                "prefix": "panawiki",
-                "url": "http://wiki.alairelibre.net/index.php?title=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "patwiki",
-                "url": "http://gauss.ffii.org/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "paws",
-                "url": "https://public.paws.wmcloud.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "personaltelco",
-                "url": "https://personaltelco.net/wiki/$1",
+                "url": "https://public-paws.wmcloud.org/$1",
                 "protorel": false
             },
             {
@@ -4316,23 +4420,8 @@
                 "protorel": false
             },
             {
-                "prefix": "phwiki",
-                "url": "http://www.pocketheaven.com/ph/wiki/index.php?title=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "phpwiki",
-                "url": "http://phpwiki.sourceforge.net/phpwiki/index.php?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "planetmath",
                 "url": "https://planetmath.org/alphabetical.html",
-                "protorel": false
-            },
-            {
-                "prefix": "pmeg",
-                "url": "http://www.bertilow.com/pmeg/$1",
                 "protorel": false
             },
             {
@@ -4342,12 +4431,12 @@
             },
             {
                 "prefix": "pokewiki",
-                "url": "http://pokewiki.de/$1",
+                "url": "https://pokewiki.de/$1",
                 "protorel": false
             },
             {
                 "prefix": "pokéwiki",
-                "url": "http://pokewiki.de/$1",
+                "url": "https://pokewiki.de/$1",
                 "protorel": false
             },
             {
@@ -4358,8 +4447,8 @@
             },
             {
                 "prefix": "proofwiki",
-                "url": "https://www.proofwiki.org/wiki/$1",
-                "protorel": true
+                "url": "https://proofwiki.org/wiki/$1",
+                "protorel": false
             },
             {
                 "prefix": "pyrev",
@@ -4373,16 +4462,6 @@
                 "protorel": true
             },
             {
-                "prefix": "pythonwiki",
-                "url": "http://www.pythonwiki.de/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "pywiki",
-                "url": "http://c2.com/cgi/wiki?$1",
-                "protorel": false
-            },
-            {
                 "prefix": "quality",
                 "local": true,
                 "url": "https://quality.wikimedia.org/wiki/$1",
@@ -4391,6 +4470,12 @@
             {
                 "prefix": "quarry",
                 "url": "https://quarry.wmcloud.org/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "rcirc",
+                "local": true,
+                "url": "irc://irc.wikimedia.org/$1",
                 "protorel": false
             },
             {
@@ -4406,32 +4491,22 @@
             },
             {
                 "prefix": "revo",
-                "url": "http://purl.org/NET/voko/revo/art/$1.html",
+                "url": "https://reta-vortaro.de/#$1",
                 "protorel": false
             },
             {
                 "prefix": "rfc",
                 "url": "https://datatracker.ietf.org/doc/html/rfc$1",
-                "protorel": true
-            },
-            {
-                "prefix": "rheinneckar",
-                "url": "http://rhein-neckar-wiki.de/$1",
                 "protorel": false
             },
             {
-                "prefix": "robowiki",
-                "url": "http://robowiki.net/?$1",
+                "prefix": "rheinneckar",
+                "url": "https://rhein-neckar-wiki.de/$1",
                 "protorel": false
             },
             {
                 "prefix": "rodovid",
-                "url": "http://en.rodovid.org/wk/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "rowiki",
-                "url": "http://wiki.rennkuckuck.de/index.php/$1",
+                "url": "https://en.rodovid.org/wk/$1",
                 "protorel": false
             },
             {
@@ -4441,18 +4516,19 @@
                 "protorel": false
             },
             {
-                "prefix": "s23wiki",
-                "url": "http://s23.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "scholar",
                 "url": "https://scholar.google.com/scholar?q=$1",
                 "protorel": true
             },
             {
+                "prefix": "schoolwiki",
+                "url": "https://schoolwiki.in/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "schoolswp",
-                "url": "http://schools-wikipedia.org/",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#SchoolsWP",
                 "protorel": false
             },
             {
@@ -4462,22 +4538,7 @@
             },
             {
                 "prefix": "scoutwiki",
-                "url": "http://en.scoutwiki.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "scramble",
-                "url": "http://www.scramble.nl/wiki/index.php?title=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "seattlewiki",
-                "url": "https://seattle.fandom.com/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "slwiki",
-                "url": "http://wiki.secondlife.com/wiki/$1",
+                "url": "https://en.scoutwiki.org/$1",
                 "protorel": false
             },
             {
@@ -4500,6 +4561,11 @@
                 "prefix": "sharemap",
                 "local": true,
                 "url": "https://meta.wikimedia.org/w/index.php?title=Interwiki_map/discontinued#Sharemap",
+                "protorel": false
+            },
+            {
+                "prefix": "shoutwiki",
+                "url": "https://www.shoutwiki.com/wiki/$1",
                 "protorel": false
             },
             {
@@ -4527,11 +4593,6 @@
                 "prefix": "species",
                 "local": true,
                 "url": "https://species.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "squeak",
-                "url": "http://wiki.squeak.org/squeak/$1",
                 "protorel": false
             },
             {
@@ -4563,40 +4624,42 @@
                 "protorel": false
             },
             {
-                "prefix": "swtrain",
-                "url": "http://train.spottingworld.com/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "svn",
                 "local": true,
                 "url": "https://svn.wikimedia.org/viewvc/mediawiki/$1?view=log",
                 "protorel": false
             },
             {
-                "prefix": "swinbrain",
-                "url": "https://swinbrain.ict.swin.edu.au/wiki/$1",
-                "protorel": true
+                "prefix": "swtrain",
+                "url": "https://train.spottingworld.com/$1",
+                "protorel": false
             },
             {
-                "prefix": "tabwiki",
-                "url": "http://www.tabwiki.com/index.php/$1",
+                "prefix": "tardis",
+                "url": "https://tardis.wiki/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "tclerswiki",
-                "url": "http://wiki.tcl.tk/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "technorati",
-                "url": "http://www.technorati.com/search/$1",
+                "url": "https://wiki.tcl-lang.org/page/$1",
                 "protorel": false
             },
             {
                 "prefix": "tenwiki",
                 "local": true,
                 "url": "https://ten.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "test2wiki",
+                "local": true,
+                "url": "https://test2.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "testcommons",
+                "local": true,
+                "url": "https://test-commons.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -4612,12 +4675,6 @@
                 "protorel": false
             },
             {
-                "prefix": "test2wiki",
-                "local": true,
-                "url": "https://test2.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "tfwiki",
                 "url": "https://tfwiki.net/wiki/$1",
                 "protorel": false
@@ -4629,12 +4686,7 @@
             },
             {
                 "prefix": "theopedia",
-                "url": "http://www.theopedia.com/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "thinkwiki",
-                "url": "http://www.thinkwiki.org/wiki/$1",
+                "url": "https://www.theopedia.com/$1",
                 "protorel": false
             },
             {
@@ -4645,17 +4697,12 @@
             },
             {
                 "prefix": "tmbw",
-                "url": "http://tmbw.net/wiki/$1",
+                "url": "https://tmbw.net/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "tmnet",
-                "url": "http://www.technomanifestos.net/?$1",
-                "protorel": false
-            },
-            {
-                "prefix": "tmwiki",
-                "url": "http://www.EasyTopicMaps.com/?page=$1",
+                "prefix": "tolkiengateway",
+                "url": "https://tolkiengateway.net/wiki/$1",
                 "protorel": false
             },
             {
@@ -4680,15 +4727,15 @@
                 "protorel": true
             },
             {
+                "prefix": "translatewiki",
+                "url": "https://translatewiki.net/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "tswiki",
                 "local": true,
                 "url": "https://www.mediawiki.org/wiki/Toolserver:$1",
                 "protorel": true
-            },
-            {
-                "prefix": "translatewiki",
-                "url": "https://translatewiki.net/wiki/$1",
-                "protorel": false
             },
             {
                 "prefix": "tviv",
@@ -4697,7 +4744,7 @@
             },
             {
                 "prefix": "twiki",
-                "url": "http://twiki.org/cgi-bin/view/$1",
+                "url": "https://twiki.org/cgi-bin/view/$1",
                 "protorel": false
             },
             {
@@ -4707,7 +4754,8 @@
             },
             {
                 "prefix": "tyvawiki",
-                "url": "http://www.tyvawiki.org/index.php?title=$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#TyvaWiki",
                 "protorel": false
             },
             {
@@ -4722,27 +4770,12 @@
             },
             {
                 "prefix": "unihan",
-                "url": "http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "unreal",
-                "url": "http://wiki.beyondunreal.com/wiki/$1",
+                "url": "https://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=$1",
                 "protorel": false
             },
             {
                 "prefix": "urbandict",
-                "url": "http://www.urbandictionary.com/define.php?term=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "usej",
-                "url": "http://www.tejo.org/usej/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "usemod",
-                "url": "http://www.usemod.com/cgi-bin/wiki.pl?$1",
+                "url": "https://www.urbandictionary.com/define.php?term=$1",
                 "protorel": false
             },
             {
@@ -4752,8 +4785,18 @@
                 "protorel": false
             },
             {
+                "prefix": "usemod",
+                "url": "https://www.usemod.org/cgi-bin/wiki.pl?$1",
+                "protorel": false
+            },
+            {
                 "prefix": "utrs",
                 "url": "https://utrs-beta.wmflabs.org/appeal/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "viaf",
+                "url": "https://viaf.org/viaf/$1",
                 "protorel": false
             },
             {
@@ -4762,18 +4805,8 @@
                 "protorel": true
             },
             {
-                "prefix": "viaf",
-                "url": "https://viaf.org/viaf/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "vlos",
                 "url": "https://tusach.thuvienkhoahoc.com/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "vkol",
-                "url": "http://kol.coldfront.net/thekolwiki/index.php/$1",
                 "protorel": false
             },
             {
@@ -4783,15 +4816,20 @@
                 "protorel": false
             },
             {
+                "prefix": "vrts",
+                "local": true,
+                "url": "https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketID=$1",
+                "protorel": false
+            },
+            {
                 "prefix": "vrtwiki",
                 "local": true,
                 "url": "https://vrt-wiki.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "vrts",
-                "local": true,
-                "url": "https://ticket.wikimedia.org/otrs/index.pl?Action=AgentTicketZoom&TicketID=$1",
+                "prefix": "wcna",
+                "url": "https://wikiconference.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -4811,16 +4849,6 @@
                 "protorel": false
             },
             {
-                "prefix": "wikia",
-                "url": "https://community.fandom.com/wiki/w:c:$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wikiasite",
-                "url": "https://community.fandom.com/wiki/w:c:$1",
-                "protorel": false
-            },
-            {
                 "prefix": "wikiapiary",
                 "url": "https://wikiapiary.com/wiki/$1",
                 "protorel": true
@@ -4832,18 +4860,8 @@
                 "protorel": false
             },
             {
-                "prefix": "wikichristian",
-                "url": "http://www.wikichristian.org/index.php?title=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "wikicities",
                 "url": "https://community.fandom.com/wiki/w:$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wikicity",
-                "url": "https://community.fandom.com/wiki/w:c:$1",
                 "protorel": false
             },
             {
@@ -4860,11 +4878,6 @@
             {
                 "prefix": "wikiedudashboard",
                 "url": "https://dashboard.wikiedu.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wikif1",
-                "url": "http://www.wikif1.org/$1",
                 "protorel": false
             },
             {
@@ -4885,22 +4898,24 @@
             },
             {
                 "prefix": "wikiindex",
-                "url": "http://wikiindex.org/$1",
+                "url": "https://wikiindex.org/$1",
                 "protorel": false
             },
             {
                 "prefix": "wikilivres",
-                "url": "https://wikilivres.org/wiki/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikilivres",
                 "protorel": false
             },
             {
                 "prefix": "wikilivresru",
-                "url": "http://wikilivres.ru/$1",
+                "url": "https://wikilivres.ru/$1",
                 "protorel": false
             },
             {
-                "prefix": "wikimac-de",
-                "url": "http://apfelwiki.de/wiki/Main/$1",
+                "prefix": "wikimania",
+                "local": true,
+                "url": "https://wikimania.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -4917,7 +4932,7 @@
             },
             {
                 "prefix": "wikinfo",
-                "url": "http://wikinfo.org/w/index.php/$1",
+                "url": "https://wikinfo.org/w/index.php/$1",
                 "protorel": false
             },
             {
@@ -4927,13 +4942,9 @@
                 "protorel": false
             },
             {
-                "prefix": "wikiotics",
-                "url": "https://wikiotics.org/$1",
-                "protorel": true
-            },
-            {
                 "prefix": "wikipapers",
-                "url": "http://wikipapers.referata.com/wiki/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikipapers",
                 "protorel": false
             },
             {
@@ -4955,8 +4966,14 @@
                 "protorel": false
             },
             {
+                "prefix": "wikiskripta",
+                "url": "https://www.wikiskripta.eu/index.php/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wikisophia",
-                "url": "http://wikisophia.org/index.php?title=$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#Wikisophia",
                 "protorel": false
             },
             {
@@ -4977,13 +4994,13 @@
                 "protorel": false
             },
             {
-                "prefix": "wikispot",
-                "url": "http://wikispot.org/?action=gotowikipage&v=$1",
+                "prefix": "wikispore",
+                "url": "https://wikispore.wmflabs.org/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "wikiskripta",
-                "url": "http://www.wikiskripta.eu/index.php/$1",
+                "prefix": "wikispot",
+                "url": "http://wikispot.org/?action=gotowikipage&v=$1",
                 "protorel": false
             },
             {
@@ -4999,8 +5016,13 @@
                 "protorel": false
             },
             {
+                "prefix": "wikitrek",
+                "url": "https://wikitrek.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wikiti",
-                "url": "http://wikiti.denglend.net/index.php?title=$1",
+                "url": "https://wikiti.brandonw.net/index.php?title=$1",
                 "protorel": false
             },
             {
@@ -5016,355 +5038,14 @@
                 "protorel": false
             },
             {
-                "prefix": "betawikiversity",
-                "local": true,
-                "url": "https://beta.wikiversity.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "wikiwikiweb",
-                "url": "http://c2.com/cgi/wiki?$1",
+                "url": "https://wiki.c2.com/?$1",
                 "protorel": false
             },
             {
                 "prefix": "wiktionary",
                 "local": true,
                 "url": "https://en.wiktionary.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wlug",
-                "url": "http://www.wlug.org.nz/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmam",
-                "local": true,
-                "url": "https://am.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmar",
-                "local": true,
-                "url": "http://www.wikimedia.org.ar/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmat",
-                "url": "https://mitglieder.wikimedia.at/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmau",
-                "local": true,
-                "url": "https://wikimedia.org.au/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmbd",
-                "local": true,
-                "url": "https://bd.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmbe",
-                "local": true,
-                "url": "https://be.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmbr",
-                "local": true,
-                "url": "https://br.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmca",
-                "local": true,
-                "url": "https://ca.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmch",
-                "url": "https://www.wikimedia.ch/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmcl",
-                "url": "https://www.wikimediachile.cl/index.php?title=$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmcn",
-                "local": true,
-                "url": "https://cn.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmco",
-                "local": true,
-                "url": "https://co.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmcz",
-                "url": "https://www.wikimedia.cz/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmcz_docs",
-                "url": "https://docs.wikimedia.cz/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmcz_old",
-                "url": "https://old.wikimedia.cz/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmdc",
-                "url": "https://wikimediadc.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "securewikidc",
-                "url": "https://wikimediadc.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmde",
-                "url": "https://wikimedia.de",
-                "protorel": true
-            },
-            {
-                "prefix": "wmdk",
-                "local": true,
-                "url": "https://dk.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmdoc",
-                "local": true,
-                "url": "https://doc.wikimedia.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmee",
-                "local": true,
-                "url": "https://ee.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmec",
-                "local": true,
-                "url": "https://ec.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmes",
-                "url": "https://www.wikimedia.es/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmet",
-                "local": true,
-                "url": "https://ee.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmfdashboard",
-                "url": "https://outreachdashboard.wmflabs.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmfi",
-                "local": true,
-                "url": "https://fi.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmfr",
-                "url": "https://wikimedia.fr/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmge",
-                "local": true,
-                "url": "https://ge.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmhi",
-                "local": true,
-                "url": "https://hi.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmhk",
-                "local": true,
-                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Hong_Kong",
-                "protorel": false
-            },
-            {
-                "prefix": "wmhu",
-                "url": "https://wikimedia.hu/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmid",
-                "local": true,
-                "url": "https://id.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmil",
-                "local": true,
-                "url": "http://www.wikimedia.org.il/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmin",
-                "url": "http://wiki.wikimedia.in/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmit",
-                "url": "https://wiki.wikimedia.it/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmke",
-                "local": true,
-                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Kenya",
-                "protorel": false
-            },
-            {
-                "prefix": "wmmk",
-                "local": true,
-                "url": "https://mk.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmmx",
-                "local": true,
-                "url": "https://mx.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmnl",
-                "local": true,
-                "url": "https://nl.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmnyc",
-                "local": true,
-                "url": "https://nyc.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmno",
-                "local": true,
-                "url": "https://no.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmpa-us",
-                "local": true,
-                "url": "https://pa-us.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmph",
-                "local": true,
-                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Philippines",
-                "protorel": false
-            },
-            {
-                "prefix": "wmpl",
-                "local": true,
-                "url": "https://pl.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmplsite",
-                "url": "https://wikimedia.pl/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmpt",
-                "local": true,
-                "url": "https://pt.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmpunjabi",
-                "local": true,
-                "url": "https://punjabi.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmromd",
-                "local": true,
-                "url": "https://romd.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmrs",
-                "local": true,
-                "url": "https://rs.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmru",
-                "local": true,
-                "url": "https://ru.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmse",
-                "local": true,
-                "url": "https://se.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmsk",
-                "url": "http://wikimedia.sk/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmtr",
-                "local": true,
-                "url": "https://tr.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmtw",
-                "url": "http://wikimedia.tw/wiki/index.php5/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmua",
-                "local": true,
-                "url": "https://ua.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmuk",
-                "local": true,
-                "url": "https://wikimedia.org.uk/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmve",
-                "local": true,
-                "url": "https://wikimedia.org.ve/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wmza",
-                "local": true,
-                "url": "http://wikimedia.org.za/wiki/$1",
                 "protorel": false
             },
             {
@@ -5452,26 +5133,148 @@
                 "protorel": false
             },
             {
+                "prefix": "wmam",
+                "local": true,
+                "url": "https://am.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wmania",
                 "local": true,
                 "url": "https://wikimania.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "wikimania",
+                "prefix": "wmar",
                 "local": true,
-                "url": "https://wikimania.wikimedia.org/wiki/$1",
+                "url": "https://www.wikimedia.org.ar/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "wikispore",
-                "url": "https://wikispore.wmflabs.org/wiki/$1",
+                "prefix": "wmat",
+                "url": "https://mitglieder.wikimedia.at/$1",
                 "protorel": false
             },
             {
-                "prefix": "wmteam",
+                "prefix": "wmau",
                 "local": true,
-                "url": "https://wikimaniateam.wikimedia.org/wiki/$1",
+                "url": "https://wikimedia.org.au/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmbd",
+                "local": true,
+                "url": "https://bd.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmbe",
+                "local": true,
+                "url": "https://be.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmbr",
+                "local": true,
+                "url": "https://br.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmca",
+                "local": true,
+                "url": "https://ca.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmch",
+                "url": "https://www.wikimedia.ch/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmcl",
+                "url": "https://wikimedia.cl/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmcn",
+                "local": true,
+                "url": "https://cn.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmco",
+                "local": true,
+                "url": "https://co.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmcz",
+                "url": "https://www.wikimedia.cz/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmcz_docs",
+                "url": "https://docs.wikimedia.cz/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmcz_old",
+                "url": "https://old.wikimedia.cz/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmdc",
+                "url": "https://wikimediadc.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "securewikidc",
+                "url": "https://wikimediadc.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmde",
+                "url": "https://wikimedia.de/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmdeblog",
+                "url": "https://blog.wikimedia.de/$1",
+                "protorel": true
+            },
+            {
+                "prefix": "wmdk",
+                "local": true,
+                "url": "https://dk.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmdoc",
+                "local": true,
+                "url": "https://doc.wikimedia.org/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmec",
+                "local": true,
+                "url": "https://ec.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmee",
+                "local": true,
+                "url": "https://ee.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmes",
+                "url": "https://www.wikimedia.es/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmet",
+                "local": true,
+                "url": "https://ee.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -5487,9 +5290,208 @@
                 "protorel": false
             },
             {
-                "prefix": "wmdeblog",
-                "url": "https://blog.wikimedia.de/$1",
-                "protorel": true
+                "prefix": "wmfdashboard",
+                "url": "https://outreachdashboard.wmflabs.org/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfi",
+                "local": true,
+                "url": "https://fi.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmfr",
+                "url": "https://wikimedia.fr/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmge",
+                "local": true,
+                "url": "https://ge.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmhi",
+                "local": true,
+                "url": "https://hi.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmhk",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Hong_Kong",
+                "protorel": false
+            },
+            {
+                "prefix": "wmhu",
+                "url": "https://wikimedia.hu/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmid",
+                "local": true,
+                "url": "https://id.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmil",
+                "local": true,
+                "url": "https://www.wikimedia.org.il/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmin",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wikimedia_India",
+                "protorel": false
+            },
+            {
+                "prefix": "wmit",
+                "url": "https://wiki.wikimedia.it/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmke",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Kenya",
+                "protorel": false
+            },
+            {
+                "prefix": "wmmk",
+                "local": true,
+                "url": "https://mk.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmmx",
+                "local": true,
+                "url": "https://mx.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmnl",
+                "local": true,
+                "url": "https://nl.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmno",
+                "local": true,
+                "url": "https://no.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmnyc",
+                "local": true,
+                "url": "https://nyc.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmpa-us",
+                "local": true,
+                "url": "https://pa-us.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmph",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wiki_Society_of_the_Philippines",
+                "protorel": false
+            },
+            {
+                "prefix": "wmpl",
+                "local": true,
+                "url": "https://pl.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmplsite",
+                "url": "https://wikimedia.pl/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmpt",
+                "local": true,
+                "url": "https://pt.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmpunjabi",
+                "local": true,
+                "url": "https://punjabi.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmromd",
+                "local": true,
+                "url": "https://romd.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmrs",
+                "local": true,
+                "url": "https://rs.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmru",
+                "local": true,
+                "url": "https://ru.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmse",
+                "local": true,
+                "url": "https://se.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmsk",
+                "url": "https://wikimedia.sk/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmteam",
+                "local": true,
+                "url": "https://wikimaniateam.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmtr",
+                "local": true,
+                "url": "https://tr.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmtw",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wikimedia_Taiwan",
+                "protorel": false
+            },
+            {
+                "prefix": "wmua",
+                "local": true,
+                "url": "https://ua.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmuk",
+                "local": true,
+                "url": "https://wikimedia.org.uk/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmve",
+                "local": true,
+                "url": "https://ve.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmza",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Wikimedia_South_Africa",
+                "protorel": false
             },
             {
                 "prefix": "wookieepedia",
@@ -5498,12 +5500,12 @@
             },
             {
                 "prefix": "wowwiki",
-                "url": "http://www.wowwiki.com/$1",
+                "url": "https://wowpedia.fandom.com/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "wqy",
-                "url": "http://wqy.sourceforge.net/cgi-bin/index.cgi?$1",
+                "prefix": "wplibrary",
+                "url": "https://wikipedialibrary.wmflabs.org/search/?q=$1",
                 "protorel": false
             },
             {
@@ -5527,8 +5529,9 @@
                 "protorel": false
             },
             {
-                "prefix": "zwiki",
-                "url": "http://www.zwiki.org/$1",
+                "prefix": "c",
+                "local": true,
+                "url": "https://commons.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -5648,6 +5651,14 @@
                 "language": "Ænglisc",
                 "bcp47": "ang",
                 "url": "https://ang.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "ann",
+                "local": true,
+                "language": "Obolo",
+                "bcp47": "ann",
+                "url": "https://ann.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -5812,6 +5823,14 @@
                 "protorel": false
             },
             {
+                "prefix": "bdr",
+                "local": true,
+                "language": "Bajau Sama",
+                "bcp47": "bdr",
+                "url": "https://bdr.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "be",
                 "local": true,
                 "language": "беларуская",
@@ -5834,6 +5853,14 @@
                 "deprecated": "be-tarask",
                 "bcp47": "be-tarask",
                 "url": "https://be-tarask.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "bew",
+                "local": true,
+                "language": "Betawi",
+                "bcp47": "bew",
+                "url": "https://bew.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -6146,6 +6173,14 @@
                 "language": "dolnoserbski",
                 "bcp47": "dsb",
                 "url": "https://dsb.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "dtp",
+                "local": true,
+                "language": "Kadazandusun",
+                "bcp47": "dtp",
+                "url": "https://dtp.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -6504,7 +6539,7 @@
             {
                 "prefix": "hak",
                 "local": true,
-                "language": "客家語/Hak-kâ-ngî",
+                "language": "客家語 / Hak-kâ-ngî",
                 "bcp47": "hak",
                 "url": "https://hak.wikipedia.org/wiki/$1",
                 "protorel": false
@@ -6614,6 +6649,14 @@
                 "protorel": false
             },
             {
+                "prefix": "iba",
+                "local": true,
+                "language": "Jaku Iban",
+                "bcp47": "iba",
+                "url": "https://iba.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "id",
                 "local": true,
                 "language": "Bahasa Indonesia",
@@ -6635,6 +6678,14 @@
                 "language": "Igbo",
                 "bcp47": "ig",
                 "url": "https://ig.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "igl",
+                "local": true,
+                "language": "Igala",
+                "bcp47": "igl",
+                "url": "https://igl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -6790,6 +6841,14 @@
                 "protorel": false
             },
             {
+                "prefix": "kge",
+                "local": true,
+                "language": "Kumoring",
+                "bcp47": "kge",
+                "url": "https://kge.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "ki",
                 "local": true,
                 "language": "Gĩkũyũ",
@@ -6838,6 +6897,14 @@
                 "protorel": false
             },
             {
+                "prefix": "knc",
+                "local": true,
+                "language": "Yerwa Kanuri",
+                "bcp47": "knc",
+                "url": "https://knc.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "ko",
                 "local": true,
                 "language": "한국어",
@@ -6872,7 +6939,7 @@
             {
                 "prefix": "ks",
                 "local": true,
-                "language": "कॉशुर / کٲشُر",
+                "language": "کٲشُر",
                 "bcp47": "ks",
                 "url": "https://ks.wikipedia.org/wiki/$1",
                 "protorel": false
@@ -6891,6 +6958,14 @@
                 "language": "kurdî",
                 "bcp47": "ku",
                 "url": "https://ku.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "kus",
+                "local": true,
+                "language": "Kʋsaal",
+                "bcp47": "kus",
+                "url": "https://kus.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7182,6 +7257,14 @@
                 "protorel": false
             },
             {
+                "prefix": "mos",
+                "local": true,
+                "language": "moore",
+                "bcp47": "mos",
+                "url": "https://mos.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "mr",
                 "local": true,
                 "language": "मराठी",
@@ -7272,7 +7355,7 @@
             {
                 "prefix": "nan",
                 "local": true,
-                "language": "Bân-lâm-gú",
+                "language": "閩南語 / Bân-lâm-gí",
                 "bcp47": "nan",
                 "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
                 "protorel": false
@@ -7374,6 +7457,14 @@
                 "protorel": false
             },
             {
+                "prefix": "nr",
+                "local": true,
+                "language": "isiNdebele seSewula",
+                "bcp47": "nr",
+                "url": "https://nr.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "nrm",
                 "local": true,
                 "language": "Nouormand",
@@ -7387,6 +7478,14 @@
                 "language": "Sesotho sa Leboa",
                 "bcp47": "nso",
                 "url": "https://nso.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "nup",
+                "local": true,
+                "language": "Nupe",
+                "bcp47": "nup",
+                "url": "https://nup.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7590,6 +7689,14 @@
                 "protorel": false
             },
             {
+                "prefix": "rki",
+                "local": true,
+                "language": "ရခိုင်",
+                "bcp47": "rki",
+                "url": "https://rki.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "rm",
                 "local": true,
                 "language": "rumantsch",
@@ -7636,6 +7743,14 @@
                 "language": "tarandíne",
                 "bcp47": "nap-x-tara",
                 "url": "https://roa-tara.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "rsk",
+                "local": true,
+                "language": "руски",
+                "bcp47": "rsk",
+                "url": "https://rsk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7769,7 +7884,7 @@
             {
                 "prefix": "shn",
                 "local": true,
-                "language": "ၽႃႇသႃႇတႆး ",
+                "language": "တႆး",
                 "bcp47": "shn",
                 "url": "https://shn.wikipedia.org/wiki/$1",
                 "protorel": false
@@ -7927,6 +8042,14 @@
                 "protorel": false
             },
             {
+                "prefix": "syl",
+                "local": true,
+                "language": "ꠍꠤꠟꠐꠤ",
+                "bcp47": "syl",
+                "url": "https://syl.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "szl",
                 "local": true,
                 "language": "ślůnski",
@@ -7967,6 +8090,14 @@
                 "protorel": false
             },
             {
+                "prefix": "tdd",
+                "local": true,
+                "language": "ᥖᥭᥰ ᥖᥬᥲ ᥑᥨᥒᥰ",
+                "bcp47": "tdd",
+                "url": "https://tdd.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "te",
                 "local": true,
                 "language": "తెలుగు",
@@ -8004,6 +8135,14 @@
                 "language": "ትግርኛ",
                 "bcp47": "ti",
                 "url": "https://ti.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "tig",
+                "local": true,
+                "language": "ትግሬ",
+                "bcp47": "tig",
+                "url": "https://tig.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -8584,6 +8723,18 @@
                     ]
                 }
             },
+            "mni": {
+                "mni": {
+                    "fallbacks": [
+                        "mni"
+                    ]
+                },
+                "mni-beng": {
+                    "fallbacks": [
+                        "mni"
+                    ]
+                }
+            },
             "sh": {
                 "sh-cyrl": {
                     "fallbacks": [
@@ -8690,6 +8841,18 @@
                     ]
                 }
             },
+            "zgh": {
+                "zgh": {
+                    "fallbacks": [
+                        "zgh"
+                    ]
+                },
+                "zgh-latn": {
+                    "fallbacks": [
+                        "zgh"
+                    ]
+                }
+            },
             "zh": {
                 "zh": {
                     "fallbacks": [
@@ -8766,18 +8929,19 @@
             "vector-page-tools-pinned": 1,
             "vector-main-menu-pinned": 1,
             "vector-toc-pinned": 1,
-            "vector-client-prefs-pinned": 1,
-            "vector-font-size": 0,
-            "vector-night-mode": 2,
-            "globaluserpage": true,
-            "rcenhancedfilters-seen-highlight-button-counter": 0,
+            "vector-appearance-pinned": 1,
+            "vector-font-size": 1,
+            "vector-theme": "day",
+            "echo-subscriptions-web-boardelection": true,
+            "echo-subscriptions-email-boardelection": true,
             "advancedsearch-disable": 0,
             "usebetatoolbar": 1,
             "wikieditor-realtimepreview": 0,
             "usecodemirror": 0,
+            "usecodemirror-colorblind": 0,
+            "codemirror-preferences": "",
             "betafeatures-auto-enroll": false,
-            "popupsreferencepreviews": 0,
-            "popups-reference-previews": "1",
+            "popups": "1",
             "visualeditor-autodisable": 0,
             "visualeditor-betatempdisable": 0,
             "visualeditor-collab": 0,
@@ -8787,7 +8951,8 @@
             "visualeditor-hidetabdialog": 0,
             "visualeditor-newwikitext": 0,
             "visualeditor-tabs": "remember-last",
-            "minerva-night-mode": 0,
+            "templatedata-favorite-templates": "[]",
+            "minerva-theme": "day",
             "mobile-editor": "",
             "math": "mathml",
             "math-popups": "1",
@@ -8817,7 +8982,6 @@
             "usecodeeditor": 1,
             "revisionslider-disable": 0,
             "twocolconflict-enabled": 1,
-            "eventlogging-display-web": 0,
             "eventlogging-display-console": 0,
             "uls-preferences": "",
             "compact-language-links": 1,
@@ -8838,7 +9002,13 @@
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
+            "checkuser-temporary-account-enable": false,
             "ipinfo-use-agreement": 0,
+            "displayquicksurveys": 1,
+            "readinglists-web-ui-enabled": "0",
+            "echo-subscriptions-email-campaign-events-notification-registration": true,
+            "echo-subscriptions-web-campaign-events-notification-registration": false,
+            "campaignevents-allow-invitations": true,
             "twl-notified": null,
             "parsermigration": "0",
             "parsermigration-parsoid-readviews": "0",
@@ -8873,7 +9043,7 @@
             "previewonfirst": 0,
             "previewontop": 1,
             "pst-cssjs": 1,
-            "rcdays": 7,
+            "rcdays": 1,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
             "requireemail": 0,
@@ -8886,13 +9056,15 @@
             "showrollbackconfirmation": 0,
             "skin": "vector-2022",
             "skin-responsive": 1,
-            "thumbsize": 4,
+            "thumbsize": 5,
             "underline": 2,
             "useeditwarning": 1,
             "uselivepreview": 0,
             "usenewrc": 0,
             "watchcreations": true,
+            "watchcreations-expiry": "infinite",
             "watchdefault": 0,
+            "watchdefault-expiry": "infinite",
             "watchdeletion": 0,
             "watchlistdays": 3,
             "watchlisthideanons": 0,
@@ -8907,6 +9079,8 @@
             "watchmoves": 0,
             "watchrollback": 0,
             "watchuploads": 1,
+            "watchrollback-expiry": "infinite",
+            "watchstar-expiry": "infinite",
             "wlenhancedfilters-disable": 0,
             "wllimit": 250,
             "wikilove-enabled": 1,
@@ -8924,11 +9098,12 @@
             "language": "zh",
             "variant": "zh",
             "variant-ban": "ban",
-            "variant-en": "en",
             "variant-crh": "crh",
+            "variant-en": "en",
             "variant-gan": "gan",
             "variant-iu": "iu",
             "variant-ku": "ku",
+            "variant-mni": "mni",
             "variant-sh": "sh-latn",
             "variant-shi": "shi",
             "variant-sr": "sr",
@@ -8936,6 +9111,7 @@
             "variant-tly": "tly",
             "variant-uz": "uz",
             "variant-wuu": "wuu",
+            "variant-zgh": "zgh",
             "variant-zh": "zh",
             "searchNs0": 1,
             "searchNs1": 0,
@@ -8959,108 +9135,105 @@
             "searchNs103": 0,
             "searchNs118": 0,
             "searchNs119": 0,
+            "searchNs126": 0,
+            "searchNs127": 0,
             "searchNs710": 0,
             "searchNs711": 0,
             "searchNs828": 0,
             "searchNs829": 0,
+            "searchNs1728": 0,
+            "searchNs1729": 0,
             "searchNs2600": 0,
-            "gadget-edit0": 1,
-            "gadget-HotCat": 0,
-            "gadget-Cat-a-lot": 0,
-            "gadget-wikEd": 0,
-            "gadget-ProveIt": 0,
-            "gadget-specialchars": 0,
-            "gadget-PreviewWithVariant": 0,
-            "gadget-EditTextboxWrapping": 0,
+            "popups-reference-previews": "1",
+            "gadget-CollapsibleToggle": 0,
+            "gadget-CiteUnseen": 0,
+            "gadget-Difflink": 1,
+            "gadget-ExternalLinkNewWin": 0,
+            "gadget-HideRefLinks": 0,
+            "gadget-ImageAnnotator": 0,
+            "gadget-NavFrame": 1,
+            "gadget-Navigation_popups": 0,
+            "gadget-OSMMap": 0,
+            "gadget-ReferenceTooltips": 0,
+            "gadget-SimplifyRefNotesTag": 0,
+            "gadget-UnihanTooltips": 1,
+            "gadget-WikiMiniAtlas": 1,
+            "gadget-hantsect": 0,
+            "gadget-ilhpp": 1,
+            "gadget-large-font": 1,
+            "gadget-noteTA": 1,
+            "gadget-shareTool": 0,
             "gadget-CX-Template_Translated_page": 0,
-            "gadget-ToolsRedirect": 0,
-            "gadget-ToolsRedirect-opt-bolds": 0,
-            "gadget-ToolsRedirect-bio-latin-names": 0,
-            "gadget-ToolsRedirect-courtesy-and-art-names": 0,
-            "gadget-Wordcount": 0,
-            "gadget-fixlinkstyle": 0,
-            "gadget-dykc-nomination": 0,
-            "gadget-WikidataDesc": 0,
-            "gadget-link-ts": 0,
-            "gadget-easy-archive": 0,
-            "gadget-edit-count": 0,
-            "gadget-dcparticipant": 1,
+            "gadget-Cat-a-lot": 0,
+            "gadget-EditTextboxWrapping": 0,
             "gadget-Edittools-vector": 0,
             "gadget-Edittools-vplus": 0,
             "gadget-Edittools-vote": 0,
             "gadget-Edittools-delh": 0,
             "gadget-Edittools-refToolbar": 1,
-            "gadget-Navigation_popups": 0,
-            "gadget-removeAccessKeys": 0,
-            "gadget-UTCLiveClock": 0,
-            "gadget-contribsrange": 0,
-            "gadget-shareTool": 0,
-            "gadget-WikiMiniAtlas": 1,
-            "gadget-fullwidth-search-fix": 0,
-            "gadget-ExternalLinkNewWin": 0,
-            "gadget-ReferenceTooltips": 0,
-            "gadget-UnihanTooltips": 1,
-            "gadget-OSMMap": 0,
-            "gadget-confirm-logout": 0,
-            "gadget-Difflink": 1,
-            "gadget-pseudonamespace-UI": 1,
-            "gadget-SpecialWikitext": 1,
-            "gadget-switcher": 1,
-            "gadget-MoreMenu-local": 0,
+            "gadget-HotCat": 0,
+            "gadget-PreviewWithVariant": 0,
+            "gadget-ProveIt": 0,
+            "gadget-ToolsRedirect": 0,
+            "gadget-ToolsRedirect-opt-bolds": 0,
+            "gadget-ToolsRedirect-bio-latin-names": 0,
+            "gadget-ToolsRedirect-courtesy-and-art-names": 0,
+            "gadget-WikidataDesc": 0,
+            "gadget-Wordcount": 0,
+            "gadget-dcparticipant": 1,
+            "gadget-dykc-nomination": 0,
+            "gadget-easy-archive": 0,
+            "gadget-edit-count": 0,
+            "gadget-edit0": 1,
+            "gadget-fixlinkstyle": 0,
+            "gadget-link-ts": 0,
+            "gadget-specialchars": 0,
+            "gadget-wikEd": 0,
             "gadget-AdvancedSiteNotices": 1,
-            "gadget-RedirectSubTipAtBottom": 0,
-            "gadget-hantsect": 0,
-            "gadget-popupUserLanguage": 0,
-            "gadget-ExternalSearch": 0,
-            "gadget-hideConversionTab": 1,
             "gadget-Blackskin": 0,
-            "gadget-moveEditsectionBack": 0,
-            "gadget-ViewSourceMode": 0,
-            "gadget-ImageAnnotator": 0,
-            "gadget-markblocked": 0,
-            "gadget-disableAnimationCollapse": 0,
+            "gadget-CollapsibleSidebar": 1,
             "gadget-CommentsinLocalTime": 0,
-            "gadget-SimplifyRefNotesTag": 0,
-            "gadget-HideRefLinks": 0,
-            "gadget-large-font": 1,
-            "gadget-OldDiff": 0,
-            "gadget-OldIlh": 0,
-            "gadget-internalLinkHelper-redonly": 0,
-            "gadget-internalLinkHelper-redtipsy": 0,
-            "gadget-internalLinkHelper-redplain": 0,
-            "gadget-internalLinkHelper-external": 0,
-            "gadget-internalLinkHelper-suffix": 0,
-            "gadget-internalLinkHelper-cravix": 0,
-            "gadget-internalLinkHelper-altcolor": 1,
-            "gadget-internalLinkHelper-ilbluehl": 0,
-            "gadget-noteTA": 1,
-            "gadget-NavFrame": 1,
-            "gadget-collapsibleTables": 1,
-            "gadget-RTRC": 0,
             "gadget-DisambiguationLinks": 0,
-            "gadget-NotifCountTitle": 0,
-            "gadget-MarkRights": 0,
-            "gadget-OnlineAdmins": 0,
-            "gadget-RemoveCustomSigns": 0,
+            "gadget-ExternalSearch": 0,
             "gadget-HideEditSpecialChars": 0,
             "gadget-HideWarnings": 0,
-            "gadget-CollapsibleSidebar": 1,
-            "gadget-scrollUpButton": 1,
+            "gadget-MarkRights": 0,
+            "gadget-MoreMenu-local": 0,
+            "gadget-NotifCountTitle": 0,
+            "gadget-OldAfD": 1,
+            "gadget-OldDiff": 0,
+            "gadget-RedirectSubTipAtBottom": 0,
+            "gadget-RemoveCustomSigns": 0,
+            "gadget-SpecialWikitext": 1,
+            "gadget-UTCLiveClock": 0,
+            "gadget-ViewSourceMode": 0,
+            "gadget-confirm-logout": 0,
             "gadget-dark-mode-toggle": 0,
-            "gadget-dark-mode": 0,
-            "gadget-text-spacing": 0,
-            "gadget-Twinkle": 0,
-            "gadget-PatrollCount": 0,
-            "gadget-RCPatrol": 0,
-            "gadget-rollback-summary": 0,
-            "gadget-CleanDeleteReasons": 1,
-            "gadget-dyktool": 0,
-            "gadget-searchFocus": 0,
+            "gadget-disableAnimationCollapse": 0,
+            "gadget-fullwidth-search-fix": 0,
+            "gadget-hideConversionTab": 1,
             "gadget-mainpage-localtime": 0,
             "gadget-mainpage-wplanlist": 1,
+            "gadget-markblocked": 0,
+            "gadget-moveEditsectionBack": 0,
+            "gadget-popupUserLanguage": 0,
+            "gadget-pseudonamespace-UI": 1,
+            "gadget-removeAccessKeys": 0,
+            "gadget-scrollUpButton": 1,
+            "gadget-searchFocus": 0,
+            "gadget-text-spacing": 0,
+            "gadget-CleanDeleteReasons": 1,
+            "gadget-OnlineAdmins": 0,
+            "gadget-PatrollCount": 0,
+            "gadget-RCPatrol": 0,
+            "gadget-RTRC": 0,
+            "gadget-Twinkle": 0,
+            "gadget-contribsrange": 0,
+            "gadget-dyktool": 0,
+            "gadget-rollback-summary": 0,
+            "gadget-switcher": 1,
             "cirrussearch-pref-completion-profile": "fuzzy",
             "multimediaviewer-enable": 1,
-            "popups": "0",
             "mf_amc_optin": "0",
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
@@ -9105,6 +9278,11 @@
             "echo-subscriptions-email-thank-you-edit": false,
             "echo-subscriptions-web-thank-you-edit": true,
             "echo-subscriptions-push-thank-you-edit": true,
+            "echo-subscriptions-email-verify-email-reminder": true,
+            "echo-subscriptions-web-verify-email-reminder": true,
+            "echo-subscriptions-push-verify-email-reminder": true,
+            "echo-subscriptions-push-boardelection": true,
+            "echo-subscriptions-push-edit-thank": true,
             "echo-subscriptions-push-flow-discussion": true,
             "echo-subscriptions-email-cx": false,
             "echo-subscriptions-push-cx": true,
@@ -9116,7 +9294,6 @@
             "echo-subscriptions-push-ge-newcomer": true,
             "echo-subscriptions-push-login-fail": true,
             "echo-subscriptions-push-login-success": true,
-            "echo-subscriptions-push-edit-thank": true,
             "echo-subscriptions-email-dt-subscription": false,
             "echo-subscriptions-web-dt-subscription": true,
             "echo-subscriptions-push-dt-subscription": true,
@@ -9126,6 +9303,8 @@
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-push-wikibase-action": true,
+            "echo-subscriptions-push-campaign-events-notification-registration": true,
+            "checkuser-userinfocard-enable": false,
             "growthexperiments-help-panel-tog-help-panel": false,
             "homepage_mobile_discovery_notice_seen": true,
             "growthexperiments-homepage-suggestededits-guidance-blue-dot": "{\"vector\":{\"link-recommendation\":true,\"image-recommendation\":true},\"minerva\":{\"link-recommendation\":true,\"image-recommendation\":true}}",
@@ -9144,13 +9323,13 @@
             "growthexperiments-tour-homepage-mentorship": true,
             "growthexperiments-tour-homepage-welcome": true,
             "growthexperiments-tour-homepage-discovery": true,
-            "growthexperiments-tour-newimpact-discovery": false
+            "growthexperiments-homepage-variant": "control"
         },
         "specialpagealiases": [
             {
                 "realname": "BrokenRedirects",
                 "aliases": [
-                    "受损重定向",
+                    "BrokenRedirects",
                     "受损重定向",
                     "損壞的重新導向",
                     "損壞的重定向頁",
@@ -9160,32 +9339,30 @@
             {
                 "realname": "Deadendpages",
                 "aliases": [
-                    "断链页面",
-                    "斷鏈頁面",
-                    "斷連頁面",
+                    "DeadendPages",
                     "断链页面",
                     "無連結頁面",
                     "斷鏈頁面",
+                    "斷連頁面",
                     "DeadendPages"
                 ]
             },
             {
                 "realname": "DoubleRedirects",
                 "aliases": [
-                    "双重重定向",
-                    "雙重重新導向",
+                    "DoubleRedirects",
                     "双重重定向",
                     "两次重定向",
                     "雙重的重新導向",
                     "雙重重定向頁面",
+                    "雙重重新導向",
                     "DoubleRedirects"
                 ]
             },
             {
                 "realname": "Longpages",
                 "aliases": [
-                    "长页面",
-                    "長頁面",
+                    "LongPages",
                     "长页面",
                     "過長的頁面",
                     "長頁面",
@@ -9195,20 +9372,18 @@
             {
                 "realname": "Ancientpages",
                 "aliases": [
+                    "AncientPages",
                     "最早页面",
-                    "最早頁面",
                     "最老页面",
                     "最舊頁面",
                     "最早頁面",
-                    "最舊頁面",
                     "AncientPages"
                 ]
             },
             {
                 "realname": "Lonelypages",
                 "aliases": [
-                    "孤立页面",
-                    "孤立頁面",
+                    "LonelyPages",
                     "孤立页面",
                     "孤立頁面",
                     "LonelyPages",
@@ -9218,8 +9393,7 @@
             {
                 "realname": "Fewestrevisions",
                 "aliases": [
-                    "最少修订页面",
-                    "最少修訂頁面",
+                    "FewestRevisions",
                     "版本最少页面",
                     "最少修订页面",
                     "最少修訂頁面",
@@ -9229,19 +9403,19 @@
             {
                 "realname": "Withoutinterwiki",
                 "aliases": [
+                    "WithoutInterwiki",
                     "无跨wiki",
                     "无跨wiki链接页面",
+                    "沒有跨語言連結的頁面",
                     "無跨wiki連結頁面",
                     "無跨維基連結頁面",
-                    "沒有跨語言連結的頁面",
                     "WithoutInterwiki"
                 ]
             },
             {
                 "realname": "Protectedpages",
                 "aliases": [
-                    "已保护页面",
-                    "已保護頁面",
+                    "ProtectedPages",
                     "已保护页面",
                     "受保護頁面",
                     "已保護頁面",
@@ -9251,8 +9425,7 @@
             {
                 "realname": "Protectedtitles",
                 "aliases": [
-                    "已保护标题",
-                    "已保護標題",
+                    "ProtectedTitles",
                     "已保护标题",
                     "受保護標題",
                     "已保護標題",
@@ -9262,8 +9435,7 @@
             {
                 "realname": "Shortpages",
                 "aliases": [
-                    "短页面",
-                    "短頁面",
+                    "ShortPages",
                     "短页面",
                     "過短的頁面",
                     "短頁面",
@@ -9273,8 +9445,8 @@
             {
                 "realname": "Uncategorizedcategories",
                 "aliases": [
+                    "UncategorizedCategories",
                     "未归类分类",
-                    "未歸類分類",
                     "未分类分类",
                     "未分類的分類",
                     "未歸類分類",
@@ -9284,14 +9456,14 @@
             {
                 "realname": "Uncategorizedimages",
                 "aliases": [
+                    "UncategorizedFiles",
                     "未归类文件",
-                    "未歸類文件",
-                    "未歸類檔案",
                     "未分类文件",
                     "未分类图像",
                     "未分類的檔案",
                     "未分類的圖片",
                     "未歸類檔案",
+                    "未歸類文件",
                     "UncategorizedFiles",
                     "UncategorizedImages"
                 ]
@@ -9299,8 +9471,7 @@
             {
                 "realname": "Uncategorizedpages",
                 "aliases": [
-                    "未归类页面",
-                    "未歸類頁面",
+                    "UncategorizedPages",
                     "未分类页面",
                     "未分類的頁面",
                     "未歸類頁面",
@@ -9310,8 +9481,7 @@
             {
                 "realname": "Uncategorizedtemplates",
                 "aliases": [
-                    "未归类模板",
-                    "未歸類模板",
+                    "UncategorizedTemplates",
                     "未分类模板",
                     "未分類的模板",
                     "未歸類模板",
@@ -9321,8 +9491,7 @@
             {
                 "realname": "Unusedcategories",
                 "aliases": [
-                    "未使用分类",
-                    "未使用分類",
+                    "UnusedCategories",
                     "未使用分类",
                     "未使用的分類",
                     "未使用分類",
@@ -9332,8 +9501,7 @@
             {
                 "realname": "Unusedimages",
                 "aliases": [
-                    "未使用文件",
-                    "未使用檔案",
+                    "UnusedFiles",
                     "未使用文件",
                     "未使用图像",
                     "未使用的檔案",
@@ -9345,7 +9513,7 @@
             {
                 "realname": "Unusedtemplates",
                 "aliases": [
-                    "未使用模板",
+                    "UnusedTemplates",
                     "未使用模板",
                     "未使用的模板",
                     "未使用模板",
@@ -9355,9 +9523,9 @@
             {
                 "realname": "Unwatchedpages",
                 "aliases": [
+                    "UnwatchedPages",
                     "未受监视页面",
                     "未監視的頁面",
-                    "未被監視的頁面",
                     "未被監視的頁面",
                     "UnwatchedPages"
                 ]
@@ -9365,7 +9533,7 @@
             {
                 "realname": "Wantedcategories",
                 "aliases": [
-                    "需要的分类",
+                    "WantedCategories",
                     "需要的分类",
                     "待撰分类",
                     "需要的分類",
@@ -9376,8 +9544,7 @@
             {
                 "realname": "Wantedfiles",
                 "aliases": [
-                    "需要的文件",
-                    "需要的檔案",
+                    "WantedFiles",
                     "需要的文件",
                     "需要的檔案",
                     "WantedFiles"
@@ -9386,7 +9553,7 @@
             {
                 "realname": "Wantedpages",
                 "aliases": [
-                    "需要的页面",
+                    "WantedPages",
                     "需要的页面",
                     "待撰页面",
                     "受损链接",
@@ -9399,7 +9566,7 @@
             {
                 "realname": "Wantedtemplates",
                 "aliases": [
-                    "需要的模板",
+                    "WantedTemplates",
                     "需要的模板",
                     "需要的模板",
                     "WantedTemplates"
@@ -9408,8 +9575,7 @@
             {
                 "realname": "Allpages",
                 "aliases": [
-                    "所有页面",
-                    "所有頁面",
+                    "AllPages",
                     "所有页面",
                     "所有頁面",
                     "AllPages"
@@ -9418,20 +9584,17 @@
             {
                 "realname": "Prefixindex",
                 "aliases": [
+                    "PrefixIndex",
                     "前缀索引",
                     "前綴索引",
                     "字首索引",
-                    "前缀索引",
-                    "字首索引",
-                    "前綴索引",
                     "PrefixIndex"
                 ]
             },
             {
                 "realname": "Categories",
                 "aliases": [
-                    "页面分类",
-                    "頁面分類",
+                    "Categories",
                     "页面分类",
                     "分類",
                     "頁面分類",
@@ -9441,19 +9604,19 @@
             {
                 "realname": "Listredirects",
                 "aliases": [
+                    "ListRedirects",
                     "重定向页列表",
                     "重定向列表",
                     "重新導向清單",
-                    "重定向页列表",
-                    "重新導向清單",
-                    "重定向頁面列表",
                     "重新導向頁面清單",
+                    "重定向頁面列表",
                     "ListRedirects"
                 ]
             },
             {
                 "realname": "PagesWithProp",
                 "aliases": [
+                    "PagesWithProp",
                     "带属性的页面",
                     "基于属性的页面",
                     "擁有屬性的頁面",
@@ -9467,7 +9630,7 @@
             {
                 "realname": "TrackingCategories",
                 "aliases": [
-                    "追踪分类",
+                    "TrackingCategories",
                     "追踪分类",
                     "追蹤分類",
                     "跟蹤分類",
@@ -9477,12 +9640,11 @@
             {
                 "realname": "Userlogin",
                 "aliases": [
-                    "用户登录",
-                    "用戶登入",
-                    "使用者登入",
+                    "UserLogin",
                     "用户登录",
                     "登录",
                     "使用者登入",
+                    "用戶登入",
                     "UserLogin",
                     "Login"
                 ]
@@ -9490,12 +9652,11 @@
             {
                 "realname": "Userlogout",
                 "aliases": [
-                    "用户退出",
-                    "用戶登出",
-                    "使用者登出",
+                    "UserLogout",
                     "用户退出",
                     "退出",
                     "使用者登出",
+                    "用戶登出",
                     "UserLogout",
                     "Logout"
                 ]
@@ -9503,45 +9664,64 @@
             {
                 "realname": "CreateAccount",
                 "aliases": [
+                    "CreateAccount",
                     "创建账户",
-                    "創建賬戶",
-                    "建立帳戶",
-                    "建立帳號",
                     "建立帐号",
-                    "创建账户",
                     "建立帳號",
                     "建立帳戶",
-                    "建立帳號",
+                    "創建賬戶",
                     "CreateAccount"
                 ]
             },
             {
                 "realname": "LinkAccounts",
                 "aliases": [
+                    "LinkAccounts",
+                    "链接账号",
+                    "連結帳號",
                     "LinkAccounts"
                 ]
             },
             {
                 "realname": "UnlinkAccounts",
                 "aliases": [
+                    "UnlinkAccounts",
+                    "取消关联账号",
+                    "解除連結帳號",
                     "UnlinkAccounts"
                 ]
             },
             {
                 "realname": "ChangeCredentials",
                 "aliases": [
+                    "ChangeCredentials",
+                    "更改凭据",
+                    "變更憑證",
                     "ChangeCredentials"
                 ]
             },
             {
                 "realname": "RemoveCredentials",
                 "aliases": [
+                    "RemoveCredentials",
+                    "移除凭据",
+                    "移除憑證",
                     "RemoveCredentials"
+                ]
+            },
+            {
+                "realname": "AuthenticationPopupSuccess",
+                "aliases": [
+                    "AuthenticationPopupSuccess",
+                    "认证成功弹窗",
+                    "認證成功彈窗",
+                    "AuthenticationPopupSuccess"
                 ]
             },
             {
                 "realname": "Activeusers",
                 "aliases": [
+                    "ActiveUsers",
                     "活跃用户",
                     "活躍使用者",
                     "ActiveUsers"
@@ -9550,6 +9730,7 @@
             {
                 "realname": "Block",
                 "aliases": [
+                    "Block",
                     "封禁",
                     "封禁IP",
                     "封禁用户",
@@ -9560,7 +9741,6 @@
                     "封禁",
                     "封禁IP",
                     "封禁使用者",
-                    "封鎖使用者",
                     "Block",
                     "BlockIP",
                     "BlockUser"
@@ -9569,12 +9749,13 @@
             {
                 "realname": "Unblock",
                 "aliases": [
+                    "Unblock",
                     "解除封禁",
                     "解封",
                     "解除封鎖",
                     "解除封禁",
+                    "解封",
                     "解禁",
-                    "解除封鎖",
                     "解除封禁",
                     "Unblock"
                 ]
@@ -9582,7 +9763,7 @@
             {
                 "realname": "BlockList",
                 "aliases": [
-                    "封禁列表",
+                    "BlockList",
                     "封禁列表",
                     "IP封禁列表",
                     "封鎖清單",
@@ -9598,18 +9779,22 @@
                 "realname": "AutoblockList",
                 "aliases": [
                     "AutoblockList",
+                    "自动封禁列表",
+                    "列出自动封禁",
+                    "自動封鎖清單",
+                    "列出自動封鎖",
+                    "AutoblockList",
                     "ListAutoblocks"
                 ]
             },
             {
                 "realname": "ChangePassword",
                 "aliases": [
-                    "修改密码",
-                    "修改密碼",
+                    "ChangePassword",
                     "修改密码",
                     "重置密码",
                     "找回密码",
-                    "更改密碼",
+                    "變更密碼",
                     "修改密碼",
                     "密碼重設",
                     "ChangePassword",
@@ -9620,14 +9805,17 @@
             {
                 "realname": "BotPasswords",
                 "aliases": [
+                    "BotPasswords",
+                    "机器人密码",
+                    "機器人密碼",
                     "BotPasswords"
                 ]
             },
             {
                 "realname": "PasswordReset",
                 "aliases": [
+                    "PasswordReset",
                     "重置密码",
-                    "重設密碼",
                     "重设密码",
                     "重設密碼",
                     "PasswordReset"
@@ -9636,45 +9824,45 @@
             {
                 "realname": "DeletedContributions",
                 "aliases": [
+                    "DeletedContributions",
                     "删除的贡献",
                     "已删除的用户贡献",
                     "已刪除的貢獻",
                     "已刪除的用戶貢獻",
-                    "DeletedContributions"
+                    "DeletedContributions",
+                    "DeletedContribs"
                 ]
             },
             {
                 "realname": "Preferences",
                 "aliases": [
-                    "参数设置",
-                    "偏好設定",
-                    "參數設置",
+                    "Preferences",
                     "参数设置",
                     "设置",
                     "偏好設定",
+                    "參數設置",
                     "Preferences"
                 ]
             },
             {
                 "realname": "ResetTokens",
                 "aliases": [
+                    "ResetTokens",
                     "重置密钥",
-                    "重設金鑰",
                     "重置权标",
                     "重設密鑰",
                     "覆寫令牌",
+                    "重設金鑰",
                     "ResetTokens"
                 ]
             },
             {
                 "realname": "Contributions",
                 "aliases": [
-                    "用户贡献",
-                    "用戶貢獻",
-                    "使用者貢獻",
-                    "使用者贡献",
+                    "Contributions",
                     "用户贡献",
                     "贡献",
+                    "使用者贡献",
                     "使用者貢獻",
                     "用戶貢獻",
                     "Contributions",
@@ -9684,12 +9872,13 @@
             {
                 "realname": "Listgrouprights",
                 "aliases": [
+                    "ListGroupRights",
                     "群组权限",
-                    "群組權限",
                     "用户组权限",
                     "群組權限清單",
                     "使用者群組權限",
                     "群組權限列表",
+                    "群組權限",
                     "ListGroupRights",
                     "UserGroupRights"
                 ]
@@ -9697,18 +9886,20 @@
             {
                 "realname": "Listgrants",
                 "aliases": [
+                    "ListGrants",
+                    "列出授权",
+                    "列出授權",
                     "ListGrants"
                 ]
             },
             {
                 "realname": "Listusers",
                 "aliases": [
-                    "用户列表",
-                    "用戶列表",
-                    "使用者清單",
+                    "ListUsers",
                     "用户列表",
                     "使用者清單",
                     "使用者列表",
+                    "用戶列表",
                     "ListUsers",
                     "UserList",
                     "Users"
@@ -9717,8 +9908,7 @@
             {
                 "realname": "Listadmins",
                 "aliases": [
-                    "管理员列表",
-                    "管理員列表",
+                    "ListAdmins",
                     "管理员列表",
                     "管理員清單",
                     "管理員列表",
@@ -9728,24 +9918,21 @@
             {
                 "realname": "Listbots",
                 "aliases": [
-                    "机器人列表",
-                    "機器人清單",
-                    "機械人清單",
+                    "ListBots",
                     "机器人列表",
                     "機器人清單",
                     "機械人列表",
+                    "機械人清單",
                     "ListBots"
                 ]
             },
             {
                 "realname": "Userrights",
                 "aliases": [
+                    "UserRights",
                     "用户权限",
+                    "使用者權限",
                     "用戶權限",
-                    "使用者權限",
-                    "用户权限",
-                    "使用者權限",
-                    "使用者權限",
                     "UserRights",
                     "MakeSysop",
                     "MakeBot"
@@ -9754,6 +9941,7 @@
             {
                 "realname": "EditWatchlist",
                 "aliases": [
+                    "EditWatchlist",
                     "编辑监视列表",
                     "編輯監視清單",
                     "編輯監視列表",
@@ -9763,19 +9951,21 @@
             {
                 "realname": "PasswordPolicies",
                 "aliases": [
+                    "PasswordPolicies",
+                    "密码策略",
+                    "密碼原則",
                     "PasswordPolicies"
                 ]
             },
             {
                 "realname": "Newimages",
                 "aliases": [
-                    "新建文件",
-                    "新建檔案",
+                    "NewFiles",
                     "新建文件",
                     "新建图像",
                     "新增檔案",
                     "新增圖片",
-                    "新增檔案",
+                    "新建檔案",
                     "NewFiles",
                     "NewImages"
                 ]
@@ -9783,8 +9973,7 @@
             {
                 "realname": "Log",
                 "aliases": [
-                    "日志",
-                    "日誌",
+                    "Log",
                     "日志",
                     "日誌",
                     "Log",
@@ -9794,32 +9983,31 @@
             {
                 "realname": "Watchlist",
                 "aliases": [
+                    "Watchlist",
                     "监视列表",
+                    "監視清單",
                     "監視列表",
-                    "監視清单",
-                    "监视列表",
-                    "監視清單",
-                    "監視清單",
                     "Watchlist"
                 ]
             },
             {
                 "realname": "Newpages",
                 "aliases": [
+                    "NewPages",
                     "最新页面",
-                    "最新頁面",
                     "新建页面",
                     "新增頁面",
                     "新頁面",
+                    "最新頁面",
                     "NewPages"
                 ]
             },
             {
                 "realname": "Recentchanges",
                 "aliases": [
+                    "RecentChanges",
                     "最近更改",
-                    "近期變動",
-                    "最近更改",
+                    "近期變更",
                     "最近變更",
                     "最近更改",
                     "近期變動",
@@ -9829,14 +10017,14 @@
             {
                 "realname": "Recentchangeslinked",
                 "aliases": [
+                    "RecentChangesLinked",
                     "链出更改",
-                    "鏈出更改",
-                    "連出更改",
                     "最近链出更改",
                     "相关更改",
                     "已連結的最近變更",
                     "相關變更",
                     "連出更改",
+                    "鏈出更改",
                     "RecentChangesLinked",
                     "RelatedChanges"
                 ]
@@ -9844,8 +10032,7 @@
             {
                 "realname": "Tags",
                 "aliases": [
-                    "标签",
-                    "標籤",
+                    "Tags",
                     "标签",
                     "標籤",
                     "Tags"
@@ -9854,16 +10041,14 @@
             {
                 "realname": "Listfiles",
                 "aliases": [
-                    "文件列表",
-                    "檔案列表",
-                    "档案列表",
+                    "ListFiles",
                     "文件列表",
                     "图像列表",
+                    "档案列表",
                     "檔案清單",
                     "圖片清單",
                     "檔案列表",
                     "圖像列表",
-                    "檔案清單",
                     "ListFiles",
                     "FileList",
                     "ImageList"
@@ -9872,18 +10057,18 @@
             {
                 "realname": "Filepath",
                 "aliases": [
+                    "FilePath",
                     "文件路径",
-                    "文件路徑",
-                    "檔案路徑",
                     "档案路径",
-                    "文件路径",
                     "檔案路徑",
+                    "文件路徑",
                     "FilePath"
                 ]
             },
             {
                 "realname": "MediaStatistics",
                 "aliases": [
+                    "MediaStatistics",
                     "媒体统计",
                     "媒體統計",
                     "MediaStatistics"
@@ -9892,11 +10077,9 @@
             {
                 "realname": "MIMEsearch",
                 "aliases": [
+                    "MIMESearch",
                     "MIME搜索",
-                    "MIME搜尋",
                     "MIME搜寻",
-                    "MIME搜索",
-                    "MIME搜尋",
                     "MIME搜尋",
                     "MIMESearch"
                 ]
@@ -9904,9 +10087,10 @@
             {
                 "realname": "FileDuplicateSearch",
                 "aliases": [
+                    "FileDuplicateSearch",
                     "搜索重复文件",
-                    "重複檔案搜尋",
                     "搜尋重複檔案",
+                    "重複檔案搜尋",
                     "搜尋重復檔案",
                     "FileDuplicateSearch"
                 ]
@@ -9914,19 +10098,19 @@
             {
                 "realname": "Upload",
                 "aliases": [
+                    "Upload",
                     "上传文件",
-                    "上傳檔案",
-                    "上載檔案",
                     "上载档案",
-                    "上传文件",
                     "上傳",
                     "上載檔案",
+                    "上傳檔案",
                     "Upload"
                 ]
             },
             {
                 "realname": "UploadStash",
                 "aliases": [
+                    "UploadStash",
                     "上传藏匿",
                     "上傳儲藏庫",
                     "UploadStash"
@@ -9935,6 +10119,7 @@
             {
                 "realname": "ListDuplicatedFiles",
                 "aliases": [
+                    "ListDuplicatedFiles",
                     "重复文件列表",
                     "重複檔案清單",
                     "重複檔案列表",
@@ -9945,18 +10130,40 @@
             {
                 "realname": "ApiSandbox",
                 "aliases": [
+                    "ApiSandbox",
+                    "API沙盒",
+                    "API沙盒",
                     "ApiSandbox"
+                ]
+            },
+            {
+                "realname": "Interwiki",
+                "aliases": [
+                    "Interwiki",
+                    "跨wiki",
+                    "跨维基",
+                    "跨wiki",
+                    "跨維基",
+                    "Interwiki"
+                ]
+            },
+            {
+                "realname": "RestSandbox",
+                "aliases": [
+                    "RestSandbox",
+                    "REST沙盒",
+                    "REST沙盒",
+                    "RestSandbox"
                 ]
             },
             {
                 "realname": "Statistics",
                 "aliases": [
+                    "Statistics",
                     "统计",
                     "统计信息",
+                    "統計資訊",
                     "統計",
-                    "統計資訊",
-                    "统计信息",
-                    "統計資訊",
                     "Statistics",
                     "Stats"
                 ]
@@ -9964,11 +10171,10 @@
             {
                 "realname": "Allmessages",
                 "aliases": [
+                    "AllMessages",
                     "所有消息",
-                    "所有訊息",
-                    "所有讯息",
                     "所有信息",
-                    "所有訊息",
+                    "所有讯息",
                     "所有訊息",
                     "AllMessages"
                 ]
@@ -9976,53 +10182,61 @@
             {
                 "realname": "Version",
                 "aliases": [
-                    "版本",
+                    "Version",
                     "版本",
                     "版本信息",
                     "版本",
                     "版本資訊",
-                    "Version"
+                    "Version",
+                    "Versions"
                 ]
             },
             {
                 "realname": "Lockdb",
                 "aliases": [
+                    "LockDB",
                     "锁定数据库",
                     "鎖定資料庫",
                     "鎖定數據庫",
-                    "鎖定資料庫",
                     "LockDB"
                 ]
             },
             {
                 "realname": "Unlockdb",
                 "aliases": [
+                    "UnlockDB",
                     "解除数据库锁定",
                     "解除鎖定資料庫",
-                    "解除資料庫鎖定",
                     "解除資料庫鎖定",
                     "UnlockDB"
                 ]
             },
             {
+                "realname": "NamespaceInfo",
+                "aliases": [
+                    "NamespaceInfo",
+                    "命名空间信息",
+                    "命名空間資訊",
+                    "NamespaceInfo"
+                ]
+            },
+            {
                 "realname": "LinkSearch",
                 "aliases": [
+                    "LinkSearch",
                     "链接搜索",
-                    "鏈接搜索",
-                    "連結搜尋",
-                    "连结搜寻",
                     "搜索网页链接",
+                    "连结搜寻",
                     "連結搜尋",
                     "搜尋網頁連結",
-                    "搜尋網頁連結",
+                    "鏈接搜索",
                     "LinkSearch"
                 ]
             },
             {
                 "realname": "Randompage",
                 "aliases": [
-                    "随机页面",
-                    "隨機頁面",
+                    "Random",
                     "随机",
                     "随机页面",
                     "隨機頁面",
@@ -10033,6 +10247,7 @@
             {
                 "realname": "RandomInCategory",
                 "aliases": [
+                    "RandomInCategory",
                     "分类内随机",
                     "隨機分類頁面",
                     "於分類中隨機",
@@ -10042,17 +10257,19 @@
             {
                 "realname": "Randomredirect",
                 "aliases": [
+                    "RandomRedirect",
                     "随机重定向",
                     "随机重定向页",
                     "隨機重新導向",
-                    "隨機重定向頁面",
                     "隨機重新導向頁面",
+                    "隨機重定向頁面",
                     "RandomRedirect"
                 ]
             },
             {
                 "realname": "Randomrootpage",
                 "aliases": [
+                    "RandomRootpage",
                     "随机根页面",
                     "隨機根頁面",
                     "RandomRootpage"
@@ -10061,14 +10278,16 @@
             {
                 "realname": "GoToInterwiki",
                 "aliases": [
+                    "GoToInterwiki",
+                    "去往跨wiki页面",
+                    "前往跨wiki頁面",
                     "GoToInterwiki"
                 ]
             },
             {
                 "realname": "Mostlinkedcategories",
                 "aliases": [
-                    "最多链接分类",
-                    "最多連結分類",
+                    "MostLinkedCategories",
                     "最多链接分类",
                     "被連結最多的分類",
                     "最多連結分類",
@@ -10079,12 +10298,11 @@
             {
                 "realname": "Mostimages",
                 "aliases": [
-                    "最多链接文件",
-                    "最多鏈接文件",
-                    "最多連結檔案",
+                    "MostLinkedFiles",
                     "最多链接文件",
                     "被連結最多的檔案",
                     "最多連結檔案",
+                    "最多鏈接文件",
                     "MostLinkedFiles",
                     "MostFiles",
                     "MostImages"
@@ -10093,7 +10311,9 @@
             {
                 "realname": "Mostinterwikis",
                 "aliases": [
+                    "MostInterwikis",
                     "最多跨wiki链接页面",
+                    "最多跨wiki連結的頁面",
                     "最多_Interwiki_連結的頁面",
                     "最多跨wiki連結",
                     "MostInterwikis"
@@ -10102,8 +10322,7 @@
             {
                 "realname": "Mostlinked",
                 "aliases": [
-                    "最多链接页面",
-                    "最多連結頁面",
+                    "MostLinkedPages",
                     "最多链接页面",
                     "被連結最多的頁面",
                     "最多連結頁面",
@@ -10114,10 +10333,9 @@
             {
                 "realname": "Mostlinkedtemplates",
                 "aliases": [
+                    "MostTranscludedPages",
                     "最多链接模板",
-                    "最多連結模板",
                     "最多嵌入页面",
-                    "最多链接模板",
                     "最多使用模板",
                     "被引用最多的頁面",
                     "被連結最多的模板",
@@ -10130,8 +10348,7 @@
             {
                 "realname": "Mostcategories",
                 "aliases": [
-                    "最多分类页面",
-                    "最多分類頁面",
+                    "MostCategories",
                     "最多分类页面",
                     "最多分類的頁面",
                     "最多分類頁面",
@@ -10141,8 +10358,7 @@
             {
                 "realname": "Mostrevisions",
                 "aliases": [
-                    "最多修订页面",
-                    "最多修訂頁面",
+                    "MostRevisions",
                     "最多修订页面",
                     "最多修訂的頁面",
                     "最多修訂頁面",
@@ -10152,8 +10368,8 @@
             {
                 "realname": "ComparePages",
                 "aliases": [
+                    "ComparePages",
                     "对比页面",
-                    "頁面比較",
                     "頁面比較",
                     "ComparePages"
                 ]
@@ -10161,58 +10377,53 @@
             {
                 "realname": "Export",
                 "aliases": [
-                    "导出页面",
-                    "導出頁面",
-                    "匯出頁面",
-                    "汇出页面",
+                    "Export",
                     "导出页面",
                     "导出",
+                    "汇出页面",
                     "匯出",
                     "匯出頁面",
+                    "導出頁面",
                     "Export"
                 ]
             },
             {
                 "realname": "Import",
                 "aliases": [
-                    "导入页面",
-                    "導入頁面",
-                    "匯入頁面",
-                    "汇入页面",
+                    "Import",
                     "导入页面",
                     "导入",
+                    "汇入页面",
                     "匯入",
                     "匯入頁面",
+                    "導入頁面",
                     "Import"
                 ]
             },
             {
                 "realname": "Undelete",
                 "aliases": [
-                    "恢复被删页面",
-                    "恢復被刪頁面",
+                    "Undelete",
                     "恢复被删页面",
                     "取消刪除",
+                    "恢復被刪頁面",
                     "Undelete"
                 ]
             },
             {
                 "realname": "Whatlinkshere",
                 "aliases": [
+                    "WhatLinksHere",
                     "链入页面",
+                    "連入頁面",
                     "鏈入頁面",
-                    "連入頁面",
-                    "链入页面",
-                    "連入頁面",
-                    "連入頁面",
                     "WhatLinksHere"
                 ]
             },
             {
                 "realname": "MergeHistory",
                 "aliases": [
-                    "合并历史",
-                    "合併歷史",
+                    "MergeHistory",
                     "合并历史",
                     "合併歷史",
                     "MergeHistory"
@@ -10221,6 +10432,7 @@
             {
                 "realname": "ExpandTemplates",
                 "aliases": [
+                    "ExpandTemplates",
                     "展开模板",
                     "展開模板",
                     "ExpandTemplates"
@@ -10229,34 +10441,37 @@
             {
                 "realname": "ChangeContentModel",
                 "aliases": [
+                    "ChangeContentModel",
+                    "更改内容模型",
+                    "變更內容模型",
                     "ChangeContentModel"
                 ]
             },
             {
                 "realname": "Booksources",
                 "aliases": [
-                    "网络书源",
-                    "網絡書源",
-                    "網路書源",
+                    "BookSources",
                     "网络书源",
                     "書籍來源",
                     "網路書源",
+                    "網絡書源",
                     "BookSources"
                 ]
             },
             {
                 "realname": "ApiHelp",
                 "aliases": [
-                    "Api帮助",
-                    "Api使用說明",
+                    "ApiHelp",
+                    "API帮助",
+                    "API說明",
+                    "API使用說明",
                     "ApiHelp"
                 ]
             },
             {
                 "realname": "Blankpage",
                 "aliases": [
-                    "空白页面",
-                    "空白頁面",
+                    "BlankPage",
                     "空白页面",
                     "空白頁面",
                     "BlankPage"
@@ -10266,16 +10481,21 @@
                 "realname": "DeletePage",
                 "aliases": [
                     "DeletePage",
+                    "删除页面",
+                    "刪除頁面",
+                    "刪除",
+                    "DeletePage",
                     "Delete"
                 ]
             },
             {
                 "realname": "Diff",
                 "aliases": [
+                    "Diff",
                     "差异",
-                    "差異",
                     "编辑差异",
                     "編輯差異",
+                    "差異",
                     "Diff"
                 ]
             },
@@ -10283,24 +10503,32 @@
                 "realname": "EditPage",
                 "aliases": [
                     "EditPage",
+                    "编辑页面",
+                    "编辑",
+                    "編輯頁面",
+                    "編輯",
+                    "EditPage",
                     "Edit"
                 ]
             },
             {
                 "realname": "EditTags",
                 "aliases": [
+                    "EditTags",
+                    "编辑标签",
+                    "編輯標籤",
                     "EditTags"
                 ]
             },
             {
                 "realname": "Emailuser",
                 "aliases": [
-                    "电邮联系",
-                    "電郵聯絡",
+                    "EmailUser",
                     "电邮联系",
                     "寄信給使用者",
                     "寄信",
                     "電郵使用者",
+                    "電郵聯絡",
                     "EmailUser",
                     "Email"
                 ]
@@ -10308,8 +10536,7 @@
             {
                 "realname": "Movepage",
                 "aliases": [
-                    "移动页面",
-                    "移動頁面",
+                    "MovePage",
                     "移动页面",
                     "移動頁面",
                     "MovePage"
@@ -10318,8 +10545,7 @@
             {
                 "realname": "Mycontributions",
                 "aliases": [
-                    "我的贡献",
-                    "我的貢獻",
+                    "MyContributions",
                     "我的贡献",
                     "我的貢獻",
                     "MyContributions",
@@ -10329,8 +10555,7 @@
             {
                 "realname": "MyLanguage",
                 "aliases": [
-                    "我的语言",
-                    "我的語言",
+                    "MyLanguage",
                     "我的语言",
                     "我的語言",
                     "MyLanguage"
@@ -10339,15 +10564,16 @@
             {
                 "realname": "Mylog",
                 "aliases": [
+                    "MyLog",
+                    "我的日志",
+                    "我的日誌",
                     "MyLog"
                 ]
             },
             {
                 "realname": "Mypage",
                 "aliases": [
-                    "我的用户页",
-                    "我的用戶頁",
-                    "我的使用者頁面",
+                    "MyPage",
                     "我的用户页",
                     "我的使用者頁面",
                     "我的用戶頁",
@@ -10357,8 +10583,7 @@
             {
                 "realname": "Mytalk",
                 "aliases": [
-                    "我的讨论页",
-                    "我的討論頁",
+                    "MyTalk",
                     "我的讨论页",
                     "我的对话页",
                     "我的對話",
@@ -10370,12 +10595,20 @@
                 "realname": "PageHistory",
                 "aliases": [
                     "PageHistory",
+                    "页面历史",
+                    "頁面歷史",
+                    "歷史",
+                    "PageHistory",
                     "History"
                 ]
             },
             {
                 "realname": "PageInfo",
                 "aliases": [
+                    "PageInfo",
+                    "页面信息",
+                    "頁面資訊",
+                    "資訊",
                     "PageInfo",
                     "Info"
                 ]
@@ -10384,18 +10617,27 @@
                 "realname": "ProtectPage",
                 "aliases": [
                     "ProtectPage",
+                    "保护页面",
+                    "保护",
+                    "保護頁面",
+                    "保護",
+                    "ProtectPage",
                     "Protect"
                 ]
             },
             {
                 "realname": "Purge",
                 "aliases": [
+                    "Purge",
+                    "刷新",
+                    "更新快取",
                     "Purge"
                 ]
             },
             {
                 "realname": "Myuploads",
                 "aliases": [
+                    "MyUploads",
                     "我上传的文件",
                     "我的文件",
                     "我的上傳",
@@ -10408,6 +10650,7 @@
             {
                 "realname": "AllMyUploads",
                 "aliases": [
+                    "AllMyUploads",
                     "我上传的所有文件",
                     "我的所有文件",
                     "所有我的上傳",
@@ -10422,14 +10665,19 @@
                 "realname": "NewSection",
                 "aliases": [
                     "NewSection",
+                    "新章节",
+                    "新章節",
+                    "NewSection",
                     "Newsection"
                 ]
             },
             {
                 "realname": "PermanentLink",
                 "aliases": [
+                    "PermanentLink",
                     "固定链接",
                     "永久链接",
+                    "固定連結",
                     "靜態連結",
                     "永久連結",
                     "PermanentLink",
@@ -10439,8 +10687,7 @@
             {
                 "realname": "Redirect",
                 "aliases": [
-                    "重定向",
-                    "重新導向",
+                    "Redirect",
                     "重定向",
                     "重新導向",
                     "重定向",
@@ -10450,23 +10697,22 @@
             {
                 "realname": "Renameuser",
                 "aliases": [
+                    "RenameUser",
                     "重命名用户",
                     "重新命名用户",
+                    "重新命名使用者",
                     "重新命名用戶",
-                    "重新命名使用者",
-                    "重命名用户",
-                    "重新命名使用者",
                     "RenameUser"
                 ]
             },
             {
                 "realname": "Revisiondelete",
                 "aliases": [
+                    "RevisionDelete",
                     "版本删除",
                     "删除修订",
                     "恢复修订",
                     "修訂刪除",
-                    "刪除或恢復版本",
                     "刪除或恢復版本",
                     "RevisionDelete"
                 ]
@@ -10474,6 +10720,7 @@
             {
                 "realname": "RunJobs",
                 "aliases": [
+                    "RunJobs",
                     "运行工作",
                     "執行作業",
                     "運行工作",
@@ -10483,8 +10730,7 @@
             {
                 "realname": "Specialpages",
                 "aliases": [
-                    "特殊页面",
-                    "特殊頁面",
+                    "SpecialPages",
                     "特殊页面",
                     "特殊頁面",
                     "SpecialPages"
@@ -10493,20 +10739,34 @@
             {
                 "realname": "PageData",
                 "aliases": [
+                    "PageData",
+                    "页面数据",
+                    "頁面資料",
                     "PageData"
                 ]
             },
             {
                 "realname": "Contribute",
                 "aliases": [
+                    "Contribute",
+                    "做出贡献",
+                    "做出貢獻",
                     "Contribute"
+                ]
+            },
+            {
+                "realname": "TalkPage",
+                "aliases": [
+                    "TalkPage",
+                    "讨论页",
+                    "討論頁",
+                    "TalkPage"
                 ]
             },
             {
                 "realname": "Search",
                 "aliases": [
-                    "搜索",
-                    "搜尋",
+                    "Search",
                     "搜索",
                     "搜尋",
                     "Search"
@@ -10515,30 +10775,32 @@
             {
                 "realname": "Confirmemail",
                 "aliases": [
-                    "确认电子邮件",
-                    "確認電子郵件",
+                    "ConfirmEmail",
                     "确认电子邮件",
                     "確認信箱",
                     "確認電郵",
+                    "確認電子郵件",
                     "ConfirmEmail"
                 ]
             },
             {
                 "realname": "Invalidateemail",
                 "aliases": [
+                    "InvalidateEmail",
                     "不可识别的电邮地址",
-                    "不可識別的電郵位址",
                     "无效电邮地址",
                     "無效的信箱",
                     "無法識別的電郵位址",
+                    "不可識別的電郵位址",
                     "InvalidateEmail"
                 ]
             },
             {
                 "realname": "ChangeEmail",
                 "aliases": [
+                    "ChangeEmail",
                     "修改邮箱地址",
-                    "更改信箱",
+                    "變更信箱",
                     "修改郵箱",
                     "ChangeEmail"
                 ]
@@ -10546,12 +10808,25 @@
             {
                 "realname": "Mute",
                 "aliases": [
+                    "Mute",
+                    "屏蔽",
+                    "靜音",
                     "Mute"
+                ]
+            },
+            {
+                "realname": "EditRecovery",
+                "aliases": [
+                    "EditRecovery",
+                    "编辑恢复",
+                    "編輯恢復",
+                    "EditRecovery"
                 ]
             },
             {
                 "realname": "Hieroglyphs",
                 "aliases": [
+                    "Hieroglyphs",
                     "象形文字",
                     "象形文字",
                     "Hieroglyphs"
@@ -10560,9 +10835,11 @@
             {
                 "realname": "SiteMatrix",
                 "aliases": [
+                    "SiteMatrix",
                     "网站矩阵",
-                    "维基媒体Wiki",
+                    "维基媒体wiki",
                     "站點矩陣",
+                    "維基媒體wiki",
                     "站點列表",
                     "SiteMatrix",
                     "WikimediaWikis"
@@ -10571,8 +10848,10 @@
             {
                 "realname": "CiteThisPage",
                 "aliases": [
+                    "CiteThisPage",
                     "引用此页面",
                     "引用",
+                    "引用此頁面",
                     "引用",
                     "CiteThisPage",
                     "Cite"
@@ -10581,6 +10860,7 @@
             {
                 "realname": "CategoryTree",
                 "aliases": [
+                    "CategoryTree",
                     "分类树",
                     "分類樹",
                     "CategoryTree"
@@ -10589,6 +10869,7 @@
             {
                 "realname": "Gadgets",
                 "aliases": [
+                    "Gadgets",
                     "小工具",
                     "小工具",
                     "Gadgets"
@@ -10597,6 +10878,7 @@
             {
                 "realname": "GadgetUsage",
                 "aliases": [
+                    "GadgetUsage",
                     "小工具使用统计",
                     "小工具使用統計",
                     "GadgetUsage"
@@ -10605,6 +10887,7 @@
             {
                 "realname": "OrphanedTimedText",
                 "aliases": [
+                    "OrphanedTimedText",
                     "孤立定时文本",
                     "OrphanedTimedText"
                 ]
@@ -10612,6 +10895,7 @@
             {
                 "realname": "TranscodeStatistics",
                 "aliases": [
+                    "Transcode_statistics",
                     "定时媒体处理器",
                     "Transcode_statistics",
                     "Transcode_Statistics",
@@ -10621,7 +10905,10 @@
             {
                 "realname": "UrlShortener",
                 "aliases": [
+                    "UrlShortener",
+                    "URL缩短器",
                     "URL缩短程序",
+                    "縮網址器",
                     "URL縮短程式",
                     "UrlShortener"
                 ]
@@ -10635,18 +10922,25 @@
             {
                 "realname": "ManageShortUrls",
                 "aliases": [
+                    "ManageShortUrls",
+                    "管理短链接",
+                    "管理短網址",
                     "ManageShortUrls"
                 ]
             },
             {
                 "realname": "QrCode",
                 "aliases": [
+                    "QrCode",
+                    "二维码",
+                    "QR碼",
                     "QrCode"
                 ]
             },
             {
                 "realname": "GlobalBlock",
                 "aliases": [
+                    "GlobalBlock",
                     "全域封禁",
                     "全域封鎖",
                     "GlobalBlock"
@@ -10655,14 +10949,19 @@
             {
                 "realname": "GlobalBlockList",
                 "aliases": [
+                    "GlobalBlockList",
                     "全域封禁列表",
+                    "列出全域封禁",
                     "全域封鎖清單",
-                    "GlobalBlockList"
+                    "列出全域封鎖",
+                    "GlobalBlockList",
+                    "ListGlobalBlocks"
                 ]
             },
             {
                 "realname": "GlobalBlockStatus",
                 "aliases": [
+                    "GlobalBlockWhitelist",
                     "全域封禁白名单",
                     "全域封禁状态",
                     "禁用全域封禁",
@@ -10677,16 +10976,41 @@
             {
                 "realname": "RemoveGlobalBlock",
                 "aliases": [
+                    "GlobalUnblock",
                     "全域解禁",
                     "移除全域封禁",
+                    "全域解除封鎖",
                     "解除全域封鎖",
                     "GlobalUnblock",
                     "RemoveGlobalBlock"
                 ]
             },
             {
+                "realname": "MassGlobalBlock",
+                "aliases": [
+                    "MassGlobalBlock",
+                    "批量全域封禁",
+                    "批次全域封鎖",
+                    "MassGlobalBlock",
+                    "MultiGlobalBlock"
+                ]
+            },
+            {
+                "realname": "Contact",
+                "aliases": [
+                    "Contact",
+                    "联系",
+                    "联络",
+                    "聯絡",
+                    "聯繫",
+                    "聯係",
+                    "Contact"
+                ]
+            },
+            {
                 "realname": "SecurePoll",
                 "aliases": [
+                    "SecurePoll",
                     "安全投票",
                     "安全投票",
                     "SecurePoll"
@@ -10695,6 +11019,7 @@
             {
                 "realname": "Nuke",
                 "aliases": [
+                    "Nuke",
                     "大量删除",
                     "大量刪除",
                     "Nuke"
@@ -10703,6 +11028,7 @@
             {
                 "realname": "Captcha",
                 "aliases": [
+                    "Captcha",
                     "验证码",
                     "驗證碼",
                     "認證碼",
@@ -10712,8 +11038,13 @@
             {
                 "realname": "CentralAuth",
                 "aliases": [
+                    "CentralAuth",
+                    "GlobalAccount",
+                    "CA",
                     "中央认证",
+                    "全域账号",
                     "中央認證",
+                    "全域帳號",
                     "CentralAuth",
                     "GlobalAccount",
                     "CA"
@@ -10734,12 +11065,17 @@
             {
                 "realname": "CreateLocalAccount",
                 "aliases": [
+                    "CreateLocalAccount",
+                    "创建本地账号",
+                    "建立本地帳號",
                     "CreateLocalAccount"
                 ]
             },
             {
                 "realname": "MergeAccount",
                 "aliases": [
+                    "MergeAccount",
+                    "合并账号",
                     "合并账户",
                     "整合账户",
                     "合併帳號",
@@ -10749,9 +11085,12 @@
             {
                 "realname": "GlobalGroupMembership",
                 "aliases": [
+                    "GlobalUserRights",
+                    "GlobalGroupMembership",
                     "全域用户权限",
                     "全域组成员资格",
                     "全域使用者權限",
+                    "全域群組成員資格",
                     "全域用戶權限",
                     "GlobalUserRights",
                     "GlobalGroupMembership"
@@ -10760,6 +11099,7 @@
             {
                 "realname": "GlobalGroupPermissions",
                 "aliases": [
+                    "GlobalGroupPermissions",
                     "全域组权限",
                     "全域群組權限",
                     "GlobalGroupPermissions"
@@ -10768,10 +11108,12 @@
             {
                 "realname": "WikiSets",
                 "aliases": [
+                    "WikiSets",
+                    "EditWikiSets",
                     "Wiki集合",
                     "编辑wiki集合",
-                    "Wiki_集合",
-                    "編輯Wiki集合",
+                    "Wiki集合",
+                    "編輯wiki集合",
                     "WikiSets",
                     "EditWikiSets"
                 ]
@@ -10779,14 +11121,17 @@
             {
                 "realname": "GlobalUsers",
                 "aliases": [
+                    "GlobalUsers",
                     "全域用户",
                     "全域使用者",
+                    "全域用戶",
                     "GlobalUsers"
                 ]
             },
             {
                 "realname": "MultiLock",
                 "aliases": [
+                    "MultiLock",
                     "批量锁定",
                     "批次鎖定",
                     "MultiLock"
@@ -10795,14 +11140,18 @@
             {
                 "realname": "GlobalRenameUser",
                 "aliases": [
+                    "GlobalRenameUser",
                     "全域重命名用户",
                     "全域重新命名使用者",
+                    "全域重新命名用戶",
                     "GlobalRenameUser"
                 ]
             },
             {
                 "realname": "GlobalRenameProgress",
                 "aliases": [
+                    "GlobalRenameProgress",
+                    "全域重命名进度",
                     "全域重命名状态",
                     "全域重新命名進度",
                     "GlobalRenameProgress"
@@ -10811,13 +11160,15 @@
             {
                 "realname": "ApiFeatureUsage",
                 "aliases": [
-                    "Api功能使用率",
+                    "ApiFeatureUsage",
+                    "API功能使用率",
                     "ApiFeatureUsage"
                 ]
             },
             {
                 "realname": "BannerLoader",
                 "aliases": [
+                    "BannerLoader",
                     "横幅装载器",
                     "橫幅讀取器",
                     "BannerLoader"
@@ -10826,6 +11177,7 @@
             {
                 "realname": "BannerRandom",
                 "aliases": [
+                    "BannerRandom",
                     "随机横幅",
                     "隨機橫幅",
                     "BannerRandom"
@@ -10834,6 +11186,7 @@
             {
                 "realname": "RecordImpression",
                 "aliases": [
+                    "RecordImpression",
                     "记录印象",
                     "記錄印象",
                     "RecordImpression"
@@ -10842,6 +11195,7 @@
             {
                 "realname": "HideBanners",
                 "aliases": [
+                    "HideBanners",
                     "隐藏横幅",
                     "隱藏橫幅",
                     "HideBanners"
@@ -10851,12 +11205,16 @@
                 "realname": "DownloadAsPdf",
                 "aliases": [
                     "DownloadAsPdf",
+                    "下载为PDF",
+                    "下載為PDF",
+                    "DownloadAsPdf",
                     "ElectronPdf"
                 ]
             },
             {
                 "realname": "AbuseLog",
                 "aliases": [
+                    "AbuseLog",
                     "滥用日志",
                     "过滤日志",
                     "濫用日誌",
@@ -10866,8 +11224,10 @@
             {
                 "realname": "AbuseFilter",
                 "aliases": [
+                    "AbuseFilter",
                     "滥用过滤器",
                     "防滥用过滤器",
+                    "防濫用過濾器",
                     "濫用過濾器",
                     "AbuseFilter"
                 ]
@@ -10875,12 +11235,16 @@
             {
                 "realname": "BlockedExternalDomains",
                 "aliases": [
+                    "BlockedExternalDomains",
+                    "已封禁的外部域名",
+                    "已封鎖的外部網域",
                     "BlockedExternalDomains"
                 ]
             },
             {
                 "realname": "MostGloballyLinkedFiles",
                 "aliases": [
+                    "MostGloballyLinkedFiles",
                     "全域最多链接文件",
                     "全域最多連結檔案",
                     "全域最多連接檔案",
@@ -10890,6 +11254,7 @@
             {
                 "realname": "GloballyWantedFiles",
                 "aliases": [
+                    "GloballyWantedFiles",
                     "全域需要的文件",
                     "全域需要的檔案",
                     "GloballyWantedFiles"
@@ -10898,6 +11263,7 @@
             {
                 "realname": "GloballyUnusedFiles",
                 "aliases": [
+                    "GloballyUnusedFiles",
                     "全域未使用文件",
                     "全域未使用的檔案",
                     "GloballyUnusedFiles"
@@ -10906,6 +11272,7 @@
             {
                 "realname": "GlobalUsage",
                 "aliases": [
+                    "GlobalUsage",
                     "全域使用情况",
                     "全域使用狀況",
                     "GlobalUsage"
@@ -10944,6 +11311,7 @@
             {
                 "realname": "BetaFeatures",
                 "aliases": [
+                    "BetaFeatures",
                     "测试功能",
                     "測試功能",
                     "BetaFeatures"
@@ -10952,6 +11320,9 @@
             {
                 "realname": "LintErrors",
                 "aliases": [
+                    "LintErrors",
+                    "Lint错误",
+                    "Lint錯誤",
                     "LintErrors"
                 ]
             },
@@ -10960,6 +11331,14 @@
                 "aliases": [
                     "CollabPad",
                     "Collab_Pad"
+                ]
+            },
+            {
+                "realname": "TemplateDiscovery",
+                "aliases": [
+                    "TemplateDiscovery",
+                    "Template_Discovery",
+                    "TemplateSearch"
                 ]
             },
             {
@@ -11033,34 +11412,18 @@
                 ]
             },
             {
-                "realname": "VipsTest",
-                "aliases": [
-                    "Vips测试",
-                    "Vips_測試",
-                    "VipsTest"
-                ]
-            },
-            {
                 "realname": "FeedItem",
                 "aliases": [
+                    "FeedItem",
                     "供稿项目",
                     "供稿項目",
                     "FeedItem"
                 ]
             },
             {
-                "realname": "Interwiki",
-                "aliases": [
-                    "跨wiki",
-                    "跨维基",
-                    "跨Wiki",
-                    "跨維基",
-                    "Interwiki"
-                ]
-            },
-            {
                 "realname": "Notifications",
                 "aliases": [
+                    "Notifications",
                     "通知",
                     "通知",
                     "Notifications"
@@ -11069,6 +11432,7 @@
             {
                 "realname": "DisplayNotificationsConfiguration",
                 "aliases": [
+                    "DisplayNotificationsConfiguration",
                     "显示通知配置",
                     "顯示通知設定",
                     "DisplayNotificationsConfiguration"
@@ -11077,6 +11441,7 @@
             {
                 "realname": "NotificationsMarkRead",
                 "aliases": [
+                    "NotificationsMarkRead",
                     "标记通知为已读",
                     "標記通知為已讀",
                     "NotificationsMarkRead"
@@ -11093,8 +11458,8 @@
             {
                 "realname": "StructuredDiscussions",
                 "aliases": [
+                    "StructuredDiscussions",
                     "结构式讨论",
-                    "結構式討論",
                     "結構式討論",
                     "StructuredDiscussions",
                     "Flow"
@@ -11103,10 +11468,9 @@
             {
                 "realname": "EnableStructuredDiscussions",
                 "aliases": [
+                    "EnableStructuredDiscussions",
                     "启用结构式讨论",
                     "启用Flow",
-                    "啟用結構式討論",
-                    "啟用Flow",
                     "啟用結構式討論",
                     "啟用Flow",
                     "EnableStructuredDiscussions",
@@ -11116,6 +11480,7 @@
             {
                 "realname": "DisambiguationPages",
                 "aliases": [
+                    "DisambiguationPages",
                     "消歧义页面",
                     "消歧義頁面",
                     "DisambiguationPages"
@@ -11124,7 +11489,11 @@
             {
                 "realname": "DisambiguationPageLinks",
                 "aliases": [
+                    "DisambiguationPageLinks",
+                    "链接到消歧义页面的页面",
                     "链接到消歧义页的页面",
+                    "連結到消歧義頁面的頁面",
+                    "連結到消歧義頁的頁面",
                     "消歧義頁面連結",
                     "DisambiguationPageLinks"
                 ]
@@ -11132,24 +11501,32 @@
             {
                 "realname": "TopicSubscriptions",
                 "aliases": [
+                    "TopicSubscriptions",
+                    "话题订阅",
                     "TopicSubscriptions"
                 ]
             },
             {
                 "realname": "FindComment",
                 "aliases": [
+                    "FindComment",
+                    "查找留言",
                     "FindComment"
                 ]
             },
             {
                 "realname": "GoToComment",
                 "aliases": [
+                    "GoToComment",
+                    "转到留言",
                     "GoToComment"
                 ]
             },
             {
                 "realname": "DiscussionToolsDebug",
                 "aliases": [
+                    "DiscussionToolsDebug",
+                    "讨论工具调试",
                     "DiscussionToolsDebug"
                 ]
             },
@@ -11168,6 +11545,7 @@
             {
                 "realname": "ContentTranslation",
                 "aliases": [
+                    "ContentTranslation",
                     "内容翻译",
                     "內容翻譯",
                     "ContentTranslation",
@@ -11175,12 +11553,13 @@
                 ]
             },
             {
-                "realname": "ContentTranslationStats",
+                "realname": "AutomaticTranslation",
                 "aliases": [
-                    "内容翻译统计",
-                    "內容翻譯統計",
-                    "ContentTranslationStats",
-                    "CXStats"
+                    "AutomaticTranslation",
+                    "自动翻译",
+                    "自動翻譯",
+                    "AutomaticTranslation",
+                    "MinT"
                 ]
             },
             {
@@ -11219,6 +11598,7 @@
             {
                 "realname": "TemplateSandbox",
                 "aliases": [
+                    "TemplateSandbox",
                     "模板沙盒",
                     "模板沙盒",
                     "TemplateSandbox"
@@ -11227,14 +11607,22 @@
             {
                 "realname": "PageAssessments",
                 "aliases": [
+                    "PageAssessments",
                     "页面评级",
                     "頁面評級",
                     "PageAssessments"
                 ]
             },
             {
+                "realname": "GlobalJsonLinks",
+                "aliases": [
+                    "GlobalJsonLinks"
+                ]
+            },
+            {
                 "realname": "OAuth",
                 "aliases": [
+                    "OAuth",
                     "OAuth",
                     "MWOAuth"
                 ]
@@ -11242,6 +11630,7 @@
             {
                 "realname": "OAuthManageMyGrants",
                 "aliases": [
+                    "OAuthManageMyGrants",
                     "OAuth应用程序授权",
                     "OAuth授权",
                     "OAuth應用程式授權",
@@ -11253,6 +11642,7 @@
             {
                 "realname": "OAuthListConsumers",
                 "aliases": [
+                    "OAuthListConsumers",
                     "OAuth应用程序列表",
                     "OAuth列表",
                     "OAuth應用程式清單",
@@ -11263,6 +11653,7 @@
             {
                 "realname": "DisableOATHForUser",
                 "aliases": [
+                    "DisableOATHForUser",
                     "禁用用户OATH",
                     "停用使用者OATH",
                     "停用用戶OATH",
@@ -11272,9 +11663,12 @@
             {
                 "realname": "OATHManage",
                 "aliases": [
+                    "AccountSecurity",
+                    "Manage_Two-factor_authentication",
                     "OATH验证",
                     "OATH驗證",
                     "OATH_認證",
+                    "AccountSecurity",
                     "Manage_Two-factor_authentication",
                     "OATH_Manage",
                     "OATHManage",
@@ -11286,6 +11680,7 @@
             {
                 "realname": "VerifyOATHForUser",
                 "aliases": [
+                    "VerifyOATHForUser",
                     "验证用户OATH",
                     "確認使用者OATH",
                     "確認用戶OATH",
@@ -11301,6 +11696,7 @@
             {
                 "realname": "CheckUser",
                 "aliases": [
+                    "CheckUser",
                     "用户查核",
                     "使用者查核",
                     "用戶查核",
@@ -11310,10 +11706,29 @@
             {
                 "realname": "CheckUserLog",
                 "aliases": [
+                    "CheckUserLog",
                     "用户查核日志",
                     "使用者查核日誌",
                     "用戶查核日誌",
                     "CheckUserLog"
+                ]
+            },
+            {
+                "realname": "Investigate",
+                "aliases": [
+                    "Investigate",
+                    "调查",
+                    "調查",
+                    "Investigate"
+                ]
+            },
+            {
+                "realname": "InvestigateBlock",
+                "aliases": [
+                    "InvestigateBlock",
+                    "调查封禁",
+                    "調查封鎖",
+                    "InvestigateBlock"
                 ]
             },
             {
@@ -11331,7 +11746,10 @@
             {
                 "realname": "GlobalPreferences",
                 "aliases": [
+                    "GlobalPreferences",
+                    "全域参数设置",
                     "全域设置",
+                    "全域偏好設定",
                     "全域設定",
                     "GlobalPreferences"
                 ]
@@ -11339,45 +11757,169 @@
             {
                 "realname": "MentorDashboard",
                 "aliases": [
+                    "MentorDashboard",
+                    "导师面板",
+                    "導師面板",
                     "MentorDashboard"
-                ]
-            },
-            {
-                "realname": "EditGrowthConfig",
-                "aliases": [
-                    "EditGrowthConfig"
                 ]
             },
             {
                 "realname": "ManageMentors",
                 "aliases": [
+                    "ManageMentors",
+                    "管理导师",
+                    "管理導師",
                     "ManageMentors"
                 ]
             },
             {
                 "realname": "EnrollAsMentor",
                 "aliases": [
+                    "EnrollAsMentor",
+                    "登记为导师",
+                    "登記為導師",
                     "EnrollAsMentor"
                 ]
             },
             {
                 "realname": "QuitMentorship",
                 "aliases": [
+                    "QuitMentorship",
+                    "退出导师计划",
+                    "退出導師計畫",
                     "QuitMentorship"
+                ]
+            },
+            {
+                "realname": "EnableEventRegistration",
+                "aliases": [
+                    "EnableEventRegistration",
+                    "启用活动报名",
+                    "啟用活動報名",
+                    "EnableEventRegistration"
+                ]
+            },
+            {
+                "realname": "EditEventRegistration",
+                "aliases": [
+                    "EditEventRegistration",
+                    "编辑活动报名",
+                    "編輯活動報名",
+                    "EditEventRegistration"
+                ]
+            },
+            {
+                "realname": "DeleteEventRegistration",
+                "aliases": [
+                    "DeleteEventRegistration",
+                    "删除活动报名",
+                    "刪除活動報名",
+                    "DeleteEventRegistration"
+                ]
+            },
+            {
+                "realname": "RegisterForEvent",
+                "aliases": [
+                    "RegisterForEvent",
+                    "报名活动",
+                    "報名活動",
+                    "RegisterForEvent"
+                ]
+            },
+            {
+                "realname": "CancelEventRegistration",
+                "aliases": [
+                    "CancelEventRegistration",
+                    "取消活动报名",
+                    "取消活動報名",
+                    "CancelEventRegistration"
+                ]
+            },
+            {
+                "realname": "MyEvents",
+                "aliases": [
+                    "MyEvents",
+                    "我的活动",
+                    "我的活動",
+                    "MyEvents"
+                ]
+            },
+            {
+                "realname": "AllEvents",
+                "aliases": [
+                    "AllEvents",
+                    "所有活动",
+                    "所有活動",
+                    "AllEvents"
+                ]
+            },
+            {
+                "realname": "EventDetails",
+                "aliases": [
+                    "EventDetails",
+                    "活动详情",
+                    "活動詳情",
+                    "EventDetails"
+                ]
+            },
+            {
+                "realname": "GenerateInvitationList",
+                "aliases": [
+                    "GenerateInvitationList",
+                    "生成邀请列表",
+                    "產生邀請列表",
+                    "GenerateInvitationList"
+                ]
+            },
+            {
+                "realname": "MyInvitationLists",
+                "aliases": [
+                    "MyInvitationLists",
+                    "我的邀请列表",
+                    "我的邀請列表",
+                    "MyInvitationLists"
+                ]
+            },
+            {
+                "realname": "InvitationList",
+                "aliases": [
+                    "InvitationList",
+                    "邀请列表",
+                    "邀請列表",
+                    "InvitationList"
                 ]
             },
             {
                 "realname": "Nearby",
                 "aliases": [
+                    "Nearby",
                     "附近",
                     "附近",
                     "Nearby"
                 ]
             },
             {
+                "realname": "CommunityConfiguration",
+                "aliases": [
+                    "CommunityConfiguration",
+                    "CommunityConfig"
+                ]
+            },
+            {
+                "realname": "SecurePollLog",
+                "aliases": [
+                    "SecurePollLog",
+                    "安全投票日志",
+                    "安全投票日誌",
+                    "SecurePollLog"
+                ]
+            },
+            {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
+                    "GlobalRenameRequest",
                     "全域重命名申请",
+                    "全域重新命名申請",
                     "全域重命名申請",
                     "GlobalRenameRequest"
                 ]
@@ -11385,27 +11927,64 @@
             {
                 "realname": "GlobalRenameQueue",
                 "aliases": [
+                    "GlobalRenameQueue",
                     "全域重命名队列",
+                    "全域重新命名佇列",
                     "全域重命名佇列",
                     "GlobalRenameQueue"
                 ]
             },
             {
-                "realname": "Investigate",
+                "realname": "GlobalVanishRequest",
                 "aliases": [
-                    "Investigate"
+                    "GlobalVanishRequest",
+                    "全域隐退申请",
+                    "全域隱退申請",
+                    "GlobalVanishRequest"
                 ]
             },
             {
-                "realname": "InvestigateBlock",
+                "realname": "IPContributions",
                 "aliases": [
-                    "InvestigateBlock"
+                    "IPContributions",
+                    "IP贡献",
+                    "IP貢獻",
+                    "IPContributions",
+                    "IPContribs"
+                ]
+            },
+            {
+                "realname": "GlobalContributions",
+                "aliases": [
+                    "GlobalContributions",
+                    "全域贡献",
+                    "全域貢獻",
+                    "GlobalContributions",
+                    "GlobalContribs"
+                ]
+            },
+            {
+                "realname": "IPInfo",
+                "aliases": [
+                    "IPInfo"
+                ]
+            },
+            {
+                "realname": "EditGrowthConfig",
+                "aliases": [
+                    "EditGrowthConfig",
+                    "编辑Growth配置",
+                    "編輯Growth設定",
+                    "EditGrowthConfig"
                 ]
             },
             {
                 "realname": "Homepage",
                 "aliases": [
+                    "Homepage",
+                    "新手主页",
                     "首页",
+                    "新手主頁",
                     "首頁",
                     "Homepage"
                 ]
@@ -11413,6 +11992,8 @@
             {
                 "realname": "Impact",
                 "aliases": [
+                    "Impact",
+                    "影响力",
                     "影响",
                     "影響",
                     "Impact"
@@ -11421,6 +12002,7 @@
             {
                 "realname": "ClaimMentee",
                 "aliases": [
+                    "ClaimMentee",
                     "认领学员",
                     "認領學員",
                     "ClaimMentee"
@@ -11429,12 +12011,16 @@
             {
                 "realname": "NewcomerTasksInfo",
                 "aliases": [
+                    "NewcomerTasksInfo",
+                    "新手任务信息",
+                    "新手任務資訊",
                     "NewcomerTasksInfo"
                 ]
             },
             {
                 "realname": "WelcomeSurvey",
                 "aliases": [
+                    "WelcomeSurvey",
                     "欢迎调查",
                     "歡迎調查",
                     "WelcomeSurvey"
@@ -11469,6 +12055,7 @@
             "<chem>",
             "<maplink>",
             "<mapframe>",
+            "<page-collection>",
             "<phonos>"
         ],
         "functionhooks": [
@@ -11489,6 +12076,7 @@
             "grammar",
             "gender",
             "plural",
+            "formal",
             "bidi",
             "numberingroup",
             "language",
@@ -11539,6 +12127,11 @@
             "numberofpages",
             "numberofadmins",
             "numberofedits",
+            "bcp47",
+            "dir",
+            "interwikilink",
+            "interlanguagelink",
+            "contentmodel",
             "int",
             "special",
             "speciale",
@@ -11553,6 +12146,8 @@
             "iferror",
             "time",
             "timel",
+            "timef",
+            "timefl",
             "expr",
             "rel2abs",
             "titleparts",
@@ -11570,6 +12165,7 @@
             "statements",
             "commaSeparatedList",
             "assessment",
+            "chart",
             "mentor"
         ],
         "variables": [
@@ -11649,12 +12245,39 @@
             "localtimestamp",
             "directionmark",
             "contentlanguage",
+            "userlanguage",
             "pagelanguage",
             "numberofadmins",
             "cascadingsources",
+            "bcp47",
+            "contentmodel",
+            "dir",
+            "language",
             "numberofwikis",
             "noexternallanglinks",
             "wbreponame"
+        ],
+        "doubleunderscores": [
+            "notoc",
+            "nogallery",
+            "forcetoc",
+            "toc",
+            "noeditsection",
+            "newsectionlink",
+            "nonewsectionlink",
+            "hiddencat",
+            "expectunusedcategory",
+            "expectunusedtemplate",
+            "index",
+            "noindex",
+            "staticredirect",
+            "notitleconvert",
+            "nocontentconvert",
+            "noglobal",
+            "disambiguation",
+            "archivedtalk",
+            "notalk",
+            "expectedUnconnectedPage"
         ]
     }
 }

@@ -304,8 +304,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		}
 
 		// Check if we have a magic variable implemented by the legacy parser
-		$magicWordVar = $siteConfig->getMagicWordForVariable( $prefix ) ??
-			$siteConfig->getMagicWordForVariable( mb_strtolower( $prefix ) );
+		$magicWordVar = $siteConfig->getMagicWordForVariable( $prefix );
 		[ 'key' => $canonicalFunctionName, 'isNative' => $isNative ] =
 			  $siteConfig->getMagicWordForParserFunction( $prefix );
 		if ( $canonicalFunctionName !== null && !$isNative ) {

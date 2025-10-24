@@ -6,11 +6,11 @@
             "sitename": "Wikipedia",
             "mainpageisdomainroot": false,
             "logo": "//ja.wikipedia.org/static/images/project-logos/jawiki.png",
-            "generator": "MediaWiki 1.45.0-wmf.22",
+            "generator": "MediaWiki 1.45.0-wmf.25",
             "phpversion": "8.1.33",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.11.11-MariaDB-log",
+            "dbversion": "10.11.13-MariaDB-log",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "linkconversion": true,
@@ -21,10 +21,8 @@
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:>=",
             "allunicodefixes": false,
-            "fixarabicunicode": true,
-            "fixmalayalamunicode": true,
-            "git-hash": "004d90931e00dd8864c7137d6e8914256ed1da7d",
-            "git-branch": "wmf/1.45.0-wmf.22",
+            "git-hash": "172a69ef4ad48c2999e951ed17c82613019073a9",
+            "git-branch": "wmf/1.45.0-wmf.25",
             "case": "first-letter",
             "lang": "ja",
             "fallback": [
@@ -46,7 +44,7 @@
             "server": "//ja.wikipedia.org",
             "servername": "ja.wikipedia.org",
             "wikiid": "jawiki",
-            "time": "2025-10-14T20:44:24Z",
+            "time": "2025-10-31T14:15:32Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 5368709120,
@@ -132,10 +130,10 @@
             "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "codfw",
-                "wmfEtcdLastModifiedIndex": 6095338
+                "wmfEtcdLastModifiedIndex": 6111476
             },
             "citeresponsivereferences": false,
-            "max-page-id": 5152376,
+            "max-page-id": 5159745,
             "linter": {
                 "high": [
                     "deletable-table-tag",
@@ -2920,6 +2918,11 @@
         ],
         "interwikimap": [
             {
+                "prefix": "acc",
+                "url": "https://accounts.wmflabs.org/internal.php/viewRequest?id=$1",
+                "protorel": false
+            },
+            {
                 "prefix": "acronym",
                 "url": "https://www.acronymfinder.com/$1.html",
                 "protorel": false
@@ -3349,6 +3352,12 @@
             },
             {
                 "prefix": "git",
+                "local": true,
+                "url": "https://gerrit.wikimedia.org/g/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gitiles",
                 "local": true,
                 "url": "https://gerrit.wikimedia.org/g/$1",
                 "protorel": false
@@ -8440,6 +8449,8 @@
             "echo-subscriptions-email-oauth-admin": true,
             "checkuser-temporary-account-enable": false,
             "ipinfo-use-agreement": 0,
+            "displayquicksurveys": 1,
+            "readinglists-web-ui-enabled": "0",
             "echo-subscriptions-email-campaign-events-notification-registration": true,
             "echo-subscriptions-web-campaign-events-notification-registration": false,
             "campaignevents-allow-invitations": true,
@@ -9070,7 +9081,8 @@
                     "削除された投稿記録",
                     "削除された投稿履歴",
                     "削除歴",
-                    "DeletedContributions"
+                    "DeletedContributions",
+                    "DeletedContribs"
                 ]
             },
             {
@@ -10393,8 +10405,6 @@
                 "realname": "CheckUser",
                 "aliases": [
                     "チェックユーザー",
-                    "チェックユーザ",
-                    "利用者調査",
                     "CheckUser"
                 ]
             },
@@ -10402,19 +10412,20 @@
                 "realname": "CheckUserLog",
                 "aliases": [
                     "チェックユーザー記録",
-                    "利用者調査記録",
                     "CheckUserLog"
                 ]
             },
             {
                 "realname": "Investigate",
                 "aliases": [
+                    "調査",
                     "Investigate"
                 ]
             },
             {
                 "realname": "InvestigateBlock",
                 "aliases": [
+                    "調査ブロック",
                     "InvestigateBlock"
                 ]
             },
@@ -10565,6 +10576,7 @@
             {
                 "realname": "IPContributions",
                 "aliases": [
+                    "IP投稿記録",
                     "IPContributions",
                     "IPContribs"
                 ]
@@ -10572,6 +10584,7 @@
             {
                 "realname": "GlobalContributions",
                 "aliases": [
+                    "グローバル投稿記録",
                     "GlobalContributions",
                     "GlobalContribs"
                 ]
@@ -10850,6 +10863,28 @@
             "numberofwikis",
             "noexternallanglinks",
             "wbreponame"
+        ],
+        "doubleunderscores": [
+            "notoc",
+            "nogallery",
+            "forcetoc",
+            "toc",
+            "noeditsection",
+            "newsectionlink",
+            "nonewsectionlink",
+            "hiddencat",
+            "expectunusedcategory",
+            "expectunusedtemplate",
+            "index",
+            "noindex",
+            "staticredirect",
+            "notitleconvert",
+            "nocontentconvert",
+            "noglobal",
+            "disambiguation",
+            "archivedtalk",
+            "notalk",
+            "expectedUnconnectedPage"
         ]
     }
 }
