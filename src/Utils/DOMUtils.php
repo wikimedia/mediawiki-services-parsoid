@@ -764,6 +764,9 @@ class DOMUtils {
 		self::addAttributes( $elt, $attrs );
 		$head = DOMCompat::getHead( $document );
 		if ( !$head ) {
+			if ( !$document->documentElement ) {
+				$document->appendChild( $document->createElement( 'html' ) );
+			}
 			$head = $document->createElement( 'head' );
 			$document->documentElement->insertBefore(
 				$head, DOMCompat::getBody( $document )
