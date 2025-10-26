@@ -4,8 +4,12 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Wt2Html;
 
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\Parsoid\Fragments\HtmlPFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\PreprocTk;
+use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMDataCodec;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\WikiPEG\DefaultTracer;
@@ -15,6 +19,54 @@ use Wikimedia\WikiPEG\DefaultTracer;
  * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PegTokenizer
  */
 class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\Grammar
+	 * @covers ::tokenizeAs
+	 * @dataProvider provideTokenizeAs
+	 */
+	public function testTokenizeAs( $input, $expected, $options = [] ) {
+		$env = new MockEnv( [] );
+		$codec = new DOMDataCodec( $env->getTopLevelDoc(), [] );
+		if ( $options['pFragmentMap'] ?? false ) {
+			$env->addToPFragmentMap( $options['pFragmentMap'] );
+		}
+		$pt = new PegTokenizer( $env );
+		$r = $pt->tokenizeAs( $input, $options['rule'] ?? 'start', $options['sol'] ?? true );
+		$hint = Token::hint();
+		if ( is_array( $r ) ) {
+			$hint = new Hint( $hint, Hint::LIST );
+		}
+		$actual = $codec->toJsonString( $r, $hint );
+		$this->assertSame( $expected, $actual );
+	}
+
+	public static function provideTokenizeAs() {
+		$marker = PipelineUtils::PARSOID_FRAGMENT_PREFIX . '9}}';
+		$pFragmentMap = [
+			$marker => HtmlPFragment::newFromHtmlString(
+				'<!--test-->', null
+			),
+		];
+
+		yield "Parsoid fragment by itself" => [
+			"$marker",
+			'[{"type":"TagTk","name":"span","attribs":[{"k":"typeof","v":"mw:DOMFragment"}],"dataParsoid":{"html":{"_h":"\u003C!--test--\u003E"},"tsr":[0,23]}},{"type":"EndTagTk","name":"span","attribs":[],"dataParsoid":{"tsr":[23,23]}}]',
+			[ 'pFragmentMap' => $pFragmentMap, ],
+		];
+
+		yield "Parsoid fragment after dash" => [
+			"-$marker",
+			'["-",{"type":"TagTk","name":"span","attribs":[{"k":"typeof","v":"mw:DOMFragment"}],"dataParsoid":{"html":{"_h":"\u003C!--test--\u003E"},"tsr":[1,24]}},{"type":"EndTagTk","name":"span","attribs":[],"dataParsoid":{"tsr":[24,24]}}]',
+			[ 'pFragmentMap' => $pFragmentMap, ],
+		];
+
+		yield "Parsoid fragment pretending to be a template argument" => [
+			'{' . $marker . '}',
+			'["{",{"type":"TagTk","name":"span","attribs":[{"k":"typeof","v":"mw:DOMFragment"}],"dataParsoid":{"html":{"_h":"\u003C!--test--\u003E"},"tsr":[1,24]}},{"type":"EndTagTk","name":"span","attribs":[],"dataParsoid":{"tsr":[24,24]}},"}"]',
+			[ 'pFragmentMap' => $pFragmentMap, ],
+		];
+	}
 
 	/**
 	 * @covers \Wikimedia\Parsoid\Wt2Html\Grammar
@@ -115,6 +167,130 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 			  }}}
 			}}}
 			"}"
+			END,
+		];
+
+		$marker = PipelineUtils::PARSOID_FRAGMENT_PREFIX . '12}}';
+		yield "1 matching braces w/ marker" => [
+			"{" . $marker . "}", <<<END
+			"{"
+			<Parsoid Fragment 12>
+			"}"
+			END,
+		];
+		yield "2 matching braces w/ marker" => [
+			"{{" . $marker . "}}", <<<END
+			{{
+			  <Parsoid Fragment 12>
+			}}
+			END,
+		];
+		yield "3 matching braces w/ marker" => [
+			"{{{" . $marker . "}}}", <<<END
+			{{{
+			  <Parsoid Fragment 12>
+			}}}
+			END,
+		];
+		yield "4 matching braces w/ marker" => [
+			"{{{{" . $marker . "}}}}", <<<END
+			"{"
+			{{{
+			  <Parsoid Fragment 12>
+			}}}
+			"}"
+			END,
+		];
+		yield "5 matching braces w/ marker" => [
+			"{{{{{" . $marker . "}}}}}", <<<END
+			{{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}}
+			END,
+		];
+		yield "6 matching braces w/ marker" => [
+			"{{{{{{" . $marker . "}}}}}}", <<<END
+			{{{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}}}
+			END,
+		];
+		yield "7 matching braces w/ marker" => [
+			"{{{{{{{" . $marker . "}}}}}}}", <<<END
+			"{"
+			{{{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}}}
+			"}"
+			END,
+		];
+		yield "Dash then 0 matching braces w/ marker" => [
+			"-" . $marker . "-", <<<END
+			"-"
+			<Parsoid Fragment 12>
+			"-"
+			END,
+		];
+		yield "Dash then 1 matching braces w/ marker" => [
+			"-{" . $marker . "}-", <<<END
+			-{
+			  <Parsoid Fragment 12>
+			}-
+			END,
+		];
+		yield "Dash then 2 matching braces w/ marker" => [
+			"-{{" . $marker . "}}-", <<<END
+			"-"
+			{{
+			  <Parsoid Fragment 12>
+			}}
+			"-"
+			END,
+		];
+		yield "Dash then 3 matching braces w/ marker" => [
+			"-{{{" . $marker . "}}}-", <<<END
+			"-"
+			{{{
+			  <Parsoid Fragment 12>
+			}}}
+			"-"
+			END,
+		];
+		yield "Dash then 4 matching braces w/ marker" => [
+			"-{{{{" . $marker . "}}}}-", <<<END
+			-{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}-
+			END,
+		];
+		yield "Dash then 5 matching braces w/ marker" => [
+			"-{{{{{" . $marker . "}}}}}-", <<<END
+			"-"
+			{{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}}
+			"-"
+			END,
+		];
+		yield "Dash then 6 matching braces w/ marker" => [
+			"-{{{{{{" . $marker . "}}}}}}-", <<<END
+			"-"
+			{{{
+			  {{{
+			    <Parsoid Fragment 12>
+			  }}}
+			}}}
+			"-"
 			END,
 		];
 		# note that tplarg (three braces) has precedence, and rightmost

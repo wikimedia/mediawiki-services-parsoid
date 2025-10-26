@@ -892,12 +892,13 @@ ipv6urladdr =
  * and close as we find them.
  */
 tplarg_or_template =
-	parsoid_fragment_marker /
 	&'{{'
 	@(
-		&('{{' &('{{{'+ !'{') tplarg) @(template/broken_template)
-		/ @$('{' &('{{{'+ !'{'))? @tplarg
-		/ @$('{' &('{{' !'{'))? @template
+		&('{{' &(triple_brace+ not_a_brace) tplarg) @(template/broken_template)
+		/ &('{{' parsoid_fragment_marker_literal) @(template/broken_template)
+		/ '{' parsoid_fragment_marker
+		/ @$('{' &(triple_brace+ not_a_brace))? @tplarg
+		/ @$('{' &('{{' not_a_brace))? @template
 		/ broken_template
 	)
 
@@ -905,6 +906,7 @@ tplarg_or_template_or_bust =
 	r:(tplarg_or_template / .)+ { return TokenizerUtils::flattenIfArray( $r ); }
 
 template =
+	parsoid_fragment_marker /
 	template_preproc<&preproc="}}">
 
 // The old preprocessor maintains a single stack of "closing token we
@@ -992,7 +994,8 @@ parsoid_fragment_marker = marker:parsoid_fragment_marker_literal {
 }
 
 tplarg =
-	tplarg_preproc<&preproc="}}">
+	!("{" parsoid_fragment_marker_literal)
+	@tplarg_preproc<&preproc="}}">
 
 tplarg_preproc =
 	"{{{" nl_comment_space*
@@ -1119,9 +1122,11 @@ inlineline_in_tpls =
 // -{{{{ is (since {{{ has precedence over {{).
 
 lang_variant_or_tpl =
-	&('-{' &('{{{'+ !'{') tplarg) @lang_variant
-	/ @$('-' &('{{{'+ !'{')) @tplarg
-	/ @$('-' &('{{' '{{{'* !'{')) @template
+	&('-{' &(triple_brace+ not_a_brace) tplarg) @lang_variant
+	/ &('-{' parsoid_fragment_marker_literal) @lang_variant
+	/ @$('-' &(triple_brace+ not_a_brace)) @tplarg
+	/ '-' parsoid_fragment_marker
+	/ @$('-' &('{{' triple_brace* not_a_brace)) @template
 	/ &'-{' @lang_variant
 
 broken_lang_variant =
@@ -1712,12 +1717,26 @@ preproc_piece_template =
 
 // These lookahead rules are used to ensure rightward precedence
 // http://www.mediawiki.org/wiki/Preprocessor_ABNF#Ideal_precedence
+// parsoid_fragment_marker has highest precedence
 
+triple_brace = $( "{" !parsoid_fragment_marker_literal "{{" )
+not_a_brace = &parsoid_fragment_marker_literal / !"{"
+
+// `x &preproc_piece_tplarg_lookahead` should be read as
+// "will matching (lower precedence) rule x ensure that everything
+// rightward of x is at tplarg priority or higher?"
 preproc_piece_tplarg_lookahead =
-	&("{{{"+ !"{") @preproc_piece_tplarg
+	&(triple_brace+ not_a_brace) @preproc_piece_tplarg
+	/ parsoid_fragment_marker_literal
 
+// `x &preproc_piece_template_lookahead` should be read as
+// "will matching (lower precedence) rule x ensure that everything
+// rightward of x is template priority or higher?" (ie
+// "template followed by templateargs")
+// (preproc_piece_template also matches parsoid_fragment_marker
+// which is "higher than template priority")
 preproc_piece_template_lookahead =
-	&("{{" "{{{"* !"{") @preproc_piece_template
+	&("{{" triple_brace* not_a_brace) @preproc_piece_template
 
 // Separate cached-and-not-inlined rule so we don't have to repeat our
 // search forward and can skip directly to the 'interesting' pieces when
