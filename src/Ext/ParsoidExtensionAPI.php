@@ -1096,9 +1096,9 @@ class ParsoidExtensionAPI {
 						return null;
 					}
 					return new DomSourceRange(
-						$start->start, $end->start,
+						$start?->start, $end?->start,
 						$dsr->openWidth, $dsr->closeWidth,
-						source: $start->source
+						source: $start?->source
 					);
 				},
 			],
