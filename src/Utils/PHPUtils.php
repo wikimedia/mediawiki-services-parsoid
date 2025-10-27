@@ -354,22 +354,6 @@ class PHPUtils {
 	}
 
 	/**
-	 * Indicate that the code which calls this function is intended to be
-	 * unreachable.
-	 *
-	 * This is a workaround for T247093; this has been moved upstream
-	 * into wikimedia/assert.
-	 *
-	 * @param string $reason
-	 * @return never
-	 * @deprecated since 0.16; just throw an UnreachableException instead.
-	 */
-	public static function unreachable( string $reason = "should never happen" ) {
-		self::deprecated( __METHOD__, "0.16" );
-		throw new UnreachableException( $reason );
-	}
-
-	/**
 	 * If a string starts with a given prefix, remove the prefix. Otherwise,
 	 * return the original string. Like preg_replace( "/^$prefix/", '', $subject )
 	 * except about 1.14x faster in the replacement case and 2x faster in

@@ -35,5 +35,3 @@ class ParsoidDOMBuilder extends RemexDOMBuilder {
 		return DOMCompat::newDocument();
 	}
 }
-/** @deprecated since 0.22 */
-class_alias( ParsoidDOMBuilder::class, '\Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder' );

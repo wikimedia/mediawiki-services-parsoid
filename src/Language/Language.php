@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Language;
 
-use Wikimedia\Parsoid\Utils\PHPUtils;
-
 /**
  * Base class for Language objects.
  */
@@ -37,21 +35,4 @@ class Language {
 		}
 		return $validityCache[$code];
 	}
-
-	/**
-	 * Get an array of language names, indexed by code.
-	 * @param string $inLanguage Code of language in which to return the names.
-	 *   Use null for autonyms (native names)
-	 * @param string $include One of:
-	 *   * `all` all available languages
-	 *   * `mw` only if the language is defined in MediaWiki or `wgExtraLanguageNames` (default)
-	 *   * `mwfile` only if the language is in `mw` *and* has a message file
-	 * @return array
-	 * @deprecated since 0.17; appears to be unused
-	 */
-	public function fetchLanguageNames( string $inLanguage, string $include ): array {
-		PHPUtils::deprecated( __METHOD__, "0.17" );
-		return [];
-	}
-
 }

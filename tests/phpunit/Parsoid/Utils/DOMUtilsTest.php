@@ -192,19 +192,16 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * Test element properties methods.
 	 *
 	 * @covers ::assertElt
-	 * @covers ::attributes
 	 * @covers ::isMetaDataTag
 	 * @dataProvider provideElementProperties
 	 */
 	public function testElementProperties( string $html, array $props ) {
-		PHPUtils::filterDeprecationForTest( '/DOMUtils::attributes/' );
 		$doc = DOMUtils::parseHTML( $html );
 		$sel = $props['selector'] ?? 'body > *';
 		$node = DOMCompat::querySelector( $doc, $sel );
 		'@phan-var Element $node'; // @var Element $node
 
 		$methods = [
-			'attributes',
 			'isMetaDataTag',
 		];
 		$expected = [];
@@ -224,23 +221,14 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	public static function provideElementProperties() {
 		return [
-			[ '<a href="xyz">foo<!--bar--></a>', [
-				'attributes' => [ 'href' => 'xyz' ],
-			] ],
 			[ '<link rel="foo" />', [
-				'attributes' => [ 'rel' => 'foo' ],
 				'isMetaDataTag' => true,
 			] ],
 			[ '<base href="//foo/" />', [
-				'attributes' => [ 'href' => '//foo/' ],
 				'isMetaDataTag' => true,
 			] ],
 			[ '<meta name="foo" />', [
-				'attributes' => [ 'name' => 'foo' ],
 				'isMetaDataTag' => true,
-			] ],
-			[ '<span xmlns="test" class="foo">bar</span>', [
-				'attributes' => [ 'xmlns' => 'test', 'class' => 'foo' ],
 			] ],
 		];
 	}

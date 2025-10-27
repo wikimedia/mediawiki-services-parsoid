@@ -159,5 +159,3 @@ abstract class PFragmentHandler {
 		return false;
 	}
 }
-/** @deprecated since 0.21 */
-class_alias( PFragmentHandler::class, '\Wikimedia\Parsoid\Ext\FragmentHandler' );

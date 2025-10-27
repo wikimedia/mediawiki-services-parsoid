@@ -202,32 +202,6 @@ class ContentUtils {
 		}
 	}
 
-	/**
-	 * Extensions might be interested in examining their content embedded
-	 * in data-mw attributes that don't otherwise show up in the DOM.
-	 *
-	 * Ex: inline media captions that aren't rendered, language variant markup,
-	 *     attributes that are transcluded. More scenarios might be added later.
-	 *
-	 * @deprecated since 0.21.
-	 * Don't use this directly: use ::processAttributeEmbeddedDom().
-	 * This method may omit content which is embedded natively as
-	 * DocumentFragments instead of as HTML strings.
-	 *
-	 * @param ParsoidExtensionAPI $extAPI
-	 * @param Element $elt The node whose data attributes need to be examined
-	 * @param Closure $proc The processor that will process the embedded HTML
-	 *        Signature: (string) -> string
-	 *        This processor will be provided the HTML string as input
-	 *        and is expected to return a possibly modified string.
-	 */
-	public static function processAttributeEmbeddedHTML(
-		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
-	): void {
-		$extAPI->getSiteConfig()->deprecated( __METHOD__, "0.21" );
-		self::processAttributeEmbeddedHTMLInternal( $extAPI->getSiteConfig(), $elt, $proc );
-	}
-
 	private static function processAttributeEmbeddedHTMLInternal(
 		SiteConfig $siteConfig, Element $elt, Closure $proc
 	): void {

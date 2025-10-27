@@ -123,18 +123,6 @@ class DOMCompat {
 	}
 
 	/**
-	 * Return the lower-case version of the node name.
-	 *
-	 * @deprecated since 0.22; does not return the standards-compliant
-	 *   value, which would be uppercase.  The return value will
-	 *   change in the future to be standards-compliant.
-	 */
-	public static function nodeName( Node $node ): string {
-		PHPUtils::deprecated( __METHOD__, "0.22" );
-		return DOMUtils::nodeName( $node );
-	}
-
-	/**
 	 * Get document body.
 	 * Unlike the spec we return it as a native PHP DOM object.
 	 * @param Document $document

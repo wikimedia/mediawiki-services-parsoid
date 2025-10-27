@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Core;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Section metadata for generating TOC.
@@ -271,27 +270,6 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	public function getExtensionData( $key ) {
 		$value = $this->extensionData[$key] ?? null;
 		return $value;
-	}
-
-	/**
-	 * Alias for ::toLegacy(), for b/c compatibility only.
-	 * @deprecated since 0.17, use ::toLegacy()
-	 * @return array
-	 */
-	public function toArray(): array {
-		PHPUtils::deprecated( __METHOD__, "0.17" );
-		return $this->toLegacy();
-	}
-
-	/**
-	 * Alias for ::fromLegacy(), for b/c compatibility only.
-	 * @deprecated since 0.17, use ::fromLegacy()
-	 * @param array $data
-	 * @return SectionMetadata
-	 */
-	public static function fromArray( array $data ): SectionMetadata {
-		PHPUtils::deprecated( __METHOD__, "0.17" );
-		return self::fromLegacy( $data );
 	}
 
 	/**

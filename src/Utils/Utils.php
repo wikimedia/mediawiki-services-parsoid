@@ -88,51 +88,6 @@ class Utils {
 	}
 
 	/**
-	 * Deep clones by default.
-	 * @param object|array $obj arrays or plain objects
-	 *    Tokens or DOM nodes shouldn't be passed in.
-	 *
-	 *    CAVEAT: It looks like debugging methods pass in arrays
-	 *    that can have DOM nodes. So, for debugging purposes,
-	 *    we handle top-level DOM nodes or DOM nodes embedded in arrays
-	 *    But, this will miserably fail if an object embeds a DOM node.
-	 *
-	 * @param bool $deepClone
-	 * @param bool $debug
-	 * @return object|array
-	 * @deprecated since 0.21; use native PHP cloning and Utils::cloneArray when needed
-	 */
-	public static function clone( $obj, $deepClone = true, $debug = false ) {
-		PHPUtils::deprecated( __METHOD__, "0.21" );
-		if ( $debug ) {
-			if ( $obj instanceof \DOMNode ) {
-				return $obj->cloneNode( $deepClone );
-			}
-			if ( is_array( $obj ) ) {
-				if ( $deepClone ) {
-					return array_map(
-						static function ( $o ) {
-							// @phan-suppress-next-line PhanDeprecatedFunction
-							return Utils::clone( $o, true, true );
-						},
-						$obj
-					);
-				} else {
-					return $obj; // Copy-on-write cloning
-				}
-			}
-		}
-
-		if ( !$deepClone && is_object( $obj ) ) {
-			return clone $obj;
-		}
-
-		// FIXME, see T161647
-		// This will fail if $obj is (or embeds) a DOMNode
-		return unserialize( serialize( $obj ) );
-	}
-
-	/**
 	 * Extract the last *unicode* character of the string.
 	 * This might be more than one byte, if the last character
 	 * is non-ASCII.

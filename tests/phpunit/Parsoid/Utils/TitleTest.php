@@ -30,7 +30,6 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::__construct
-	 * @covers ::getKey
 	 * @covers ::getPrefixedDBKey
 	 * @covers ::getPrefixedText
 	 * @covers ::getFragment
@@ -99,10 +98,8 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideNewFromText
 	 */
 	public function testNewFromText( $args, $key, $ns, $fragment, $lang = null, $interwiki = '', $rawKey = null ) {
-		PHPUtils::filterDeprecationForTest( '/Title::getKey was deprecated/' );
 		array_splice( $args, 1, 0, [ $this->getMockSiteConfig( $lang ?? 'en' ) ] );
 		$title = Title::newFromText( ...$args );
-		$this->assertSame( $key, $title->getKey() );
 		$this->assertSame( $ns, $title->getNamespace() );
 		$this->assertSame( $fragment, $title->getFragment() ?: null );
 

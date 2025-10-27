@@ -158,19 +158,6 @@ class SourceRange implements JsonCodecable {
 		return new SourceRange( 0, strlen( $source->getSrcText() ), $source );
 	}
 
-	/**
-	 * Create a new source offset range from an array of
-	 * integers (such as created during JSON serialization).
-	 * @param int[] $sr
-	 * @return SourceRange
-	 * @deprecated since 0.20; use ::newFromJsonArray
-	 */
-	public static function fromArray( array $sr ): SourceRange {
-		PHPUtils::deprecated( __METHOD__, "0.20" );
-		// Dynamic dispatch (DomSourceRange subclasses this)
-		return static::newFromJsonArray( $sr );
-	}
-
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		return [ $this->start, $this->end ];

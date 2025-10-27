@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
-use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -681,28 +680,6 @@ class ParsoidExtensionAPI {
 	 *
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
-	 * @deprecated since 0.21; use ::processAttributeEmbeddedDom().
-	 * This method may omit content which is embedded natively as
-	 * DocumentFragments instead of as HTML strings.
-	 *
-	 * @param Element $elt The node whose data attributes need to be examined
-	 * @param Closure $proc The processor that will process the embedded HTML
-	 *        Signature: (string) -> string
-	 *        This processor will be provided the HTML string as input
-	 *        and is expected to return a possibly modified string.
-	 */
-	public function processAttributeEmbeddedHTML( Element $elt, Closure $proc ): void {
-		$this->getSiteConfig()->deprecated( __METHOD__, "0.21" );
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		ContentUtils::processAttributeEmbeddedHTML( $this, $elt, $proc );
-	}
-
-	/**
-	 * Extensions might be interested in examining (their) content embedded
-	 * in attributes that don't otherwise show up in the DOM.
-	 *
-	 * Ex: inline media captions that aren't rendered, language variant markup,
-	 *     attributes that are transcluded. More scenarios might be added later.
 	 *
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param callable(DocumentFragment):bool $proc
@@ -731,37 +708,6 @@ class ParsoidExtensionAPI {
 		DOMDataUtils::setDataMw(
 			$to, clone DOMDataUtils::getDataMw( $from )
 		);
-	}
-
-	/**
-	 * Equivalent of 'preprocess' from Parser.php in core.
-	 * - expands templates
-	 * - replaces magic variables
-	 * This does not run any hooks however since that would be unexpected.
-	 * This also doesn't support replacing template args from a frame.
-	 *
-	 * @param string $wikitext
-	 * @return array{error:bool,src?:string,fragment?:PFragment}
-	 *  - 'error' did we hit resource limits?
-	 *  - 'src' expanded wikitext OR error message to print
-	 *     FIXME: Maybe error message should be localizable
-	 *  - 'fragment' Optional fragment (wikitext plus strip state)
-	 * @deprecated since 0.21; use ::preprocessFragment instead
-	 */
-	public function preprocessWikitext( string $wikitext ) {
-		$this->getSiteConfig()->deprecated( __METHOD__, "0.21" );
-		$error = false;
-		$result = $this->preprocessFragment(
-			WikitextPFragment::newFromWt( $wikitext, null ),
-			$error
-		);
-		if ( $error ) {
-			return [
-				'error' => true,
-				'src' => $result->killMarkers(),
-			];
-		}
-		return [ 'error' => false, 'fragment' => $result, ];
 	}
 
 	/**
@@ -1162,26 +1108,6 @@ class ParsoidExtensionAPI {
 			// Note that $ct could be an AutoURLLinkText, not just null
 			return [ '', '' ];
 		}
-	}
-
-	/**
-	 * @param array $modules
-	 *
-	 * @deprecated since 0.20; use ::getMetadata()->appendOutputStrings( MODULE, ...) instead.
-	 */
-	public function addModules( array $modules ): void {
-		$this->getSiteConfig()->deprecated( __METHOD__, "0.20" );
-		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE, $modules );
-	}
-
-	/**
-	 * @param array $modulestyles
-	 *
-	 * @deprecated since 0.20; use ::getMetadata()->appendOutputStrings(MODULE_STYLE, ...) instead.
-	 */
-	public function addModuleStyles( array $modulestyles ): void {
-		$this->getSiteConfig()->deprecated( __METHOD__, "0.20" );
-		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, $modulestyles );
 	}
 
 	/**

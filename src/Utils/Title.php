@@ -267,24 +267,6 @@ class Title implements LinkTarget {
 	}
 
 	/**
-	 * Get the DBkey, prefixed with interwiki prefix if any.
-	 * This is Parsoid's convention, which differs from core;
-	 * use ::getDBkey() for a method compatible with core's
-	 * convention.
-	 *
-	 * @return string
-	 * @see ::getDBkey()
-	 * @deprecated since 0.20; use ::getDBkey()
-	 */
-	public function getKey(): string {
-		PHPUtils::deprecated( __METHOD__, "0.20" );
-		if ( $this->interwiki ) {
-			return $this->interwiki . ':' . $this->dbkey;
-		}
-		return $this->dbkey;
-	}
-
-	/**
 	 * Get the main part of the link target, in canonical database form.
 	 *
 	 * The main part is the link target without namespace prefix or hash fragment.
