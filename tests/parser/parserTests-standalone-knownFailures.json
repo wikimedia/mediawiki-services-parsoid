@@ -1257,9 +1257,6 @@
         "selser [[4,2,0]]": "81pro31xhenjk[[Main Page]]}}",
         "selser [[3,[4],0]]": "[[Main Page|1787260]]}}"
     },
-    "Template with just whitespace in it, T70421": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'>{{1x|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[9,27,8,9]}'>}</span>}}</p>"
-    },
     "Template with template name as argument": {
         "html2wt": "(test)\n"
     },

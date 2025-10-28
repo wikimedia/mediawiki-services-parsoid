@@ -947,7 +947,8 @@ broken_template =
 
 template_preproc =
 	"{{" nl_comment_space*
-	target:inlineline_in_tpls
+	p:POSITION
+	target:inlineline_in_tpls?
 	params:(
 		nl_comment_space* "|"
 		@(
@@ -969,6 +970,9 @@ template_preproc =
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
 		// again.
+		if ( $target === null ) {
+			$target = [ 'tokens' => '', 'srcOffsets' => new SourceRange( $p, $p, $this->source ) ];
+		}
 		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets']->expandTsrK() ) );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
