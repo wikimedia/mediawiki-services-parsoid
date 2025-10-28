@@ -8,6 +8,7 @@ use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Core\Source;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
@@ -304,7 +305,7 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 		return $codec->newFromJsonArray( $input, self::hint() );
 	}
 
-	public function fetchExpandedAttrValue( string $key ): ?string {
+	public function fetchExpandedAttrValue( string $key ): ?DocumentFragment {
 		if ( preg_match(
 			'/mw:ExpandedAttrs/', $this->getAttributeV( 'typeof' ) ?? ''
 		) ) {
@@ -313,7 +314,7 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 				return null;
 			}
 			foreach ( $dmw->attribs as $attr ) {
-				if ( ( $attr->key['txt'] ?? null ) === $key ) {
+				if ( $attr->getKeyString() === $key ) {
 					return $attr->value['html'] ?? null;
 				}
 			}

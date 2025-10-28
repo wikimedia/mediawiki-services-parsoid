@@ -19,7 +19,6 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -919,14 +918,13 @@ class Sanitizer {
 			if ( is_array( $a->v ) ) {
 				// Use the expanded attr instead of trying to unpackDOMFragments
 				// since the fragment will have been released when expanding to DOM
-				$expandedVal = $token ? $token->fetchExpandedAttrValue( $a->k ) : null;
-				if ( $expandedVal === null ) {
+				$expandedDom = $token ? $token->fetchExpandedAttrValue( $a->k ) : null;
+				if ( $expandedDom === null ) {
 					$a->v = TokenUtils::tokensToString( $a->v );
 				} else {
 					// See the comment in TokenUtils::tokensToString about
 					// unpackDOMFragments for why we're just using the textContent
-					$dom = DOMUtils::parseHTML( $expandedVal );
-					$a->v = DOMCompat::getBody( $dom )->textContent;
+					$a->v = $expandedDom->textContent;
 				}
 			}
 

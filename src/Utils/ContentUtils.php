@@ -174,6 +174,21 @@ class ContentUtils {
 		};
 		self::processAttributeEmbeddedHTMLInternal( $siteConfig, $elt, $str2df2str );
 
+		// Expanded attributes
+		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
+			$dmw = DOMDataUtils::getDataMw( $elt );
+			if ( $dmw->attribs ?? null ) {
+				foreach ( $dmw->attribs as $a ) {
+					// Look in both key and value of the DataMwAttrib
+					foreach ( [ 'key', 'value' ] as $part ) {
+						if ( isset( $a->$part['html'] ) ) {
+							$proc( $a->$part['html'] );
+						}
+					}
+				}
+			}
+		}
+
 		// Language variant markup
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
 			$dmwv = DOMDataUtils::getDataMwVariant( $elt );
@@ -234,21 +249,6 @@ class ContentUtils {
 	): void {
 		if ( !$elt->hasAttribute( 'typeof' ) ) {
 			return;
-		}
-
-		// Expanded attributes
-		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
-			$dmw = DOMDataUtils::getDataMw( $elt );
-			if ( $dmw->attribs ?? null ) {
-				foreach ( $dmw->attribs as $a ) {
-					// Look in both key and value of the DataMwAttrib
-					foreach ( [ 'key', 'value' ] as $part ) {
-						if ( !is_string( $a->$part ) && isset( $a->$part['html'] ) ) {
-							$a->$part['html'] = $proc( $a->$part['html'] );
-						}
-					}
-				}
-			}
 		}
 
 		// Process extension-specific embedded HTML

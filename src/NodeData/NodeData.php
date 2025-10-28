@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -67,19 +68,16 @@ class NodeData {
 		foreach ( $nd->mw->attribs ?? [] as $attr ) {
 			// Look for DOMFragments in both key and value of DataMwAttrib
 			foreach ( [ 'key', 'value' ] as $part ) {
-				if (
-					isset( $attr->$part['html'] ) &&
-					str_contains( $attr->$part['html'], 'mw:DOMFragment/sealed' )
-				) {
-					$doc = DOMUtils::parseHTML( $attr->$part['html'] );
-					DOMUtils::visitDOM( $doc, static function ( Node $node ) {
+				if ( isset( $attr->$part['html'] ) ) {
+					$df = $attr->$part['html'];
+					DOMUtils::visitDOM( $df, static function ( Node $node ) {
 						if (
 							DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment/sealed/\w+$#D' )
 						) {
-							DOMCompat::getParentElement( $node )->removeChild( $node );
+							'@phan-var Element $node';
+							DOMCompat::remove( $node );
 						}
 					} );
-					$attr->$part['html'] = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
 				}
 			}
 		}

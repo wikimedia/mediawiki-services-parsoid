@@ -397,18 +397,22 @@ class PipelineUtils {
 	 * @param array $v
 	 *    The value to process.
 	 *    The value is expected to be an associative array with a "html" property.
-	 *    The html property is expanded to DOM only if it is an array (of tokens).
-	 *    Non-arrays are passed back unexpanded.
+	 *    The html property is expanded to DOM only if it is an array (of tokens)
+	 *    or a (wikitext) string.
+	 *    Non-array/non-strings are passed back unexpanded.
 	 * @param bool $expandTemplates
 	 *    Should any templates encountered here be expanded
 	 *    (usually false for nested templates since they are never directly editable).
 	 * @param bool $inTemplate
 	 *    Unexpanded templates can occur in the content of extension tags.
-	 * @return array
+	 * @return array{html:DocumentFragment}
 	 */
 	public static function expandAttrValueToDOM(
 		Env $env, Frame $frame, array $v, bool $expandTemplates, bool $inTemplate
 	): array {
+		if ( is_string( $v['html'] ?? null ) ) {
+			$v['html'] = [ $v['html'] ];
+		}
 		if ( is_array( $v['html'] ?? null ) ) {
 			$attrCache = null;
 			$cacheKey = null;
@@ -481,9 +485,7 @@ class PipelineUtils {
 			// Since we aren't at the top level, data attrs
 			// were not applied in cleanup.  However, tmp
 			// was stripped.
-			$v['html'] = ContentUtils::ppToXML(
-				$domFragment, [ 'innerXML' => true, 'fragment' => true ]
-			);
+			$v['html'] = $domFragment;
 		}
 		// Remove srcOffsets after value is expanded, so they don't show
 		// up in the output data-mw attribute
@@ -508,7 +510,7 @@ class PipelineUtils {
 	 * @param bool $inTemplate
 	 *    Unexpanded templates can occur in the content of extension tags.
 	 *
-	 * @return list<array>
+	 * @return list<array{html:DocumentFragment}>
 	 */
 	public static function expandAttrValuesToDOM(
 		Env $env, $frame, array $vals, bool $expandTemplates, bool $inTemplate

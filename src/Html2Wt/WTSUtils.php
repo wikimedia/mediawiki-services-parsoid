@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -334,13 +333,7 @@ class WTSUtils {
 		$arr = $dataMw->attribs ?? [];
 		$i = false;
 		foreach ( $arr as $k => $a ) {
-			if ( is_string( $a->key ) ) {
-				$txt = $a->key;
-			} elseif ( is_array( $a->key ) ) {
-				$txt = $a->key['txt'] ?? null;
-			} else {
-				throw new UnreachableException( 'Control should never get here!' );
-			}
+			$txt = $a->getKeyString();
 			if ( $txt === $key ) {
 				$i = $k;
 				break;

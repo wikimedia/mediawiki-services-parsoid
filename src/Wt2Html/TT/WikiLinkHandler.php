@@ -334,8 +334,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		if ( is_array( $hrefKV->v ) ) {
 			// Use the expanded attr instead of trying to unpackDOMFragments
 			// since the fragment will have been released when expanding to DOM
-			$expandedVal = $token->fetchExpandedAttrValue( 'href' );
-			$expandedDom = DOMUtils::parseHTML( $expandedVal ?? '' );
+			$expandedDom = $token->fetchExpandedAttrValue( 'href' )
+				?? $env->getTopLevelDoc()->createDocumentFragment();
 			foreach ( DOMCompat::querySelectorAll( $expandedDom, '[typeof]' ) as $el ) {
 				if ( DOMUtils::matchTypeOf( $el, '#^mw:(Nowiki|Extension|DOMFragment/sealed)#' ) !== null ) {
 					return self::bailTokens( $this->manager, $token );

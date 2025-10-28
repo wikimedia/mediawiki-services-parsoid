@@ -175,8 +175,8 @@ class WikitextSerializer {
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's key is generated content,
 			// serialize HTML back to generator wikitext.
-			if ( ( $attr->key['txt'] ?? null ) === $key && isset( $attr->key['html'] ) ) {
-				return $this->htmlToWikitext( [
+			if ( $attr->getKeyString() === $key && isset( $attr->key['html'] ) ) {
+				return $this->domToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
 				], $attr->key['html'] );
@@ -195,8 +195,7 @@ class WikitextSerializer {
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's value is generated content,
 			// serialize HTML back to generator wikitext.
-			// PORT-FIXME: not type safe. Need documentation on attrib format.
-			if ( ( $attr->key === $key || ( $attr->key['txt'] ?? null ) === $key )
+			if ( $attr->getKeyString() === $key
 				 // Only return here if the value is generated (ie. .html),
 				 // it may just be in .txt form.
 				 // html:"" will serialize to "" and
@@ -206,7 +205,7 @@ class WikitextSerializer {
 				 // Ex: <div {{1x|1=style='color:red'}}>foo</div>
 				 && isset( $attr->value['html'] )
 			) {
-				return $this->htmlToWikitext( [
+				return $this->domToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
 					'inAttribute' => true,
