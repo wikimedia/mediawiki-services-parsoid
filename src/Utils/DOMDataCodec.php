@@ -14,8 +14,6 @@ use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
  * Customized subclass of JsonCodec for serialization of rich attributes.
  */
 class DOMDataCodec extends JsonCodec {
-	public Document $ownerDoc;
-	public array $options = [];
 	private ?array $fragmentIndex = null;
 
 	public function setOptions( array $options ): array {
@@ -118,10 +116,8 @@ class DOMDataCodec extends JsonCodec {
 	 * @param Document $ownerDoc
 	 * @param array $options
 	 */
-	public function __construct( Document $ownerDoc, array $options ) {
+	public function __construct( public Document $ownerDoc, public array $options ) {
 		parent::__construct();
-		$this->ownerDoc = $ownerDoc;
-		$this->options = $options;
 		// Add codec for DocumentFragment
 		$this->addCodecFor( DocumentFragment::class, new class( $this ) implements JsonClassCodec {
 			private DOMDataCodec $codec;

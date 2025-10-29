@@ -1415,30 +1415,44 @@ class DOMDataUtils {
 			if ( $dataMw->attribs ?? false ) {
 				$unused = [];
 				foreach ( $dataMw->attribs as $a ) {
-					if ( $a instanceof DataMwAttrib && isset( $a->value['rich'] ) ) {
-						$key = $a->key;
-						$value = $a->value['rich'];
+					if ( !( $a instanceof DataMwAttrib ) ) {
+						// This shouldn't happen!
+						$unused[] = $a;
+						continue;
+					}
+					$key = $a->key;
+					$value = $a->value;
+					if ( is_array( $key ) ) {
 						// Attribute expander may use array values for
 						// key, since it supports rich key values.
 						// Ignore any entries created this way, since
 						// we can't preserve their values: they will be
 						// added to $unused and replaced.
-						if ( is_string( $key ) || is_numeric( $key ) ) {
-							$propName = self::RICH_ATTR_DATA_PREFIX . $key;
-							$nodeData = self::getNodeData( $node );
-							// wrap $value with an array to indicate that
-							// is it not yet decoded. Preserve the flattened
-							// value as well in case we round-trip without
-							// modifying this value.
-							$nodeData->$propName = [ $value, $flatValue ];
-							// Signal that the value has been moved to NodeData
-							// (this will also short cut this iteration over
-							// data-mw.attribs in future calls)
-							$node->removeAttribute( $key );
-							continue;
-						}
+						$unused[] = $a;
+						continue;
 					}
-					$unused[] = $a;
+					$propName = self::RICH_ATTR_DATA_PREFIX . $key;
+					$hintName = self::RICH_ATTR_HINT_PREFIX . $key;
+					$nodeData = self::getNodeData( $node );
+					if ( isset( $value['html'] ) ) {
+						// DocumentFragment has already been decoded.
+						$nodeData->$propName = $value['html'];
+						$nodeData->$hintName = DocumentFragment::class;
+					} elseif ( isset( $value['rich'] ) ) {
+						// wrap $value with an array to indicate that
+						// is it not yet decoded. Preserve the flattened
+						// value as well in case we round-trip without
+						// modifying this value.
+						$nodeData->$propName = [ $value['rich'], $flatValue ];
+						// Don't know the decode hint yet.
+					} else {
+						$unused[] = $a;
+						continue;
+					}
+					// Signal that the value has been moved to NodeData
+					// (this will also short cut this iteration over
+					// data-mw.attribs in future calls)
+					$node->removeAttribute( $key );
 				}
 				if ( count( $unused ) === 0 ) {
 					unset( $dataMw->attribs );
@@ -1481,12 +1495,14 @@ class DOMDataUtils {
 			// Look for dynamic properties with names w/ the proper prefix
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
 				$attrName = substr( $k, strlen( self::RICH_ATTR_DATA_PREFIX ) );
+				$hasSpecialSemantics = self::isHtmlAttributeWithSpecialSemantics( $tagName, $attrName );
 				if (
 					( $options['onlySpecial'] ?? false ) &&
-					!self::isHtmlAttributeWithSpecialSemantics( $tagName, $attrName )
+					!$hasSpecialSemantics
 				) {
 					continue; // skip this for now
 				}
+				$df = null;
 				if ( is_array( $v ) ) {
 					// If $v is an array, it was never decoded.
 					$json = $v[0];
@@ -1502,13 +1518,20 @@ class DOMDataUtils {
 						// NOTE: call 'flatten()' before 'toJsonArray()' since
 						// the latter may have side effects on $v.
 						$flat = $codec->flatten( $v );
-						$json = $codec->toJsonArray( $v, $classHint );
+						if ( $hasSpecialSemantics && $classHint === DocumentFragment::class ) {
+							// Special case for attributes stored in
+							// DataMwAttribs::$html
+							$json = null;
+							$df = $v;
+						} else {
+							$json = $codec->toJsonArray( $v, $classHint );
+						}
 					} catch ( InvalidArgumentException $e ) {
 						// For better debuggability, include the attribute name
 						throw new InvalidArgumentException( "$attrName: " . $e->getMessage() );
 					}
 				}
-				if ( !self::isHtmlAttributeWithSpecialSemantics( $tagName, $attrName ) ) {
+				if ( !$hasSpecialSemantics ) {
 					$encoded = PHPUtils::jsonEncode( $json );
 					$node->setAttribute( $attrName, $encoded );
 				} else {
@@ -1520,7 +1543,7 @@ class DOMDataUtils {
 						$node->removeAttribute( $attrName );
 					}
 					$dataMw = self::getDataMw( $node );
-					$value = [ 'rich' => $json ];
+					$value = $df ? [ 'html' => $df ] : [ 'rich' => $json ];
 					$dataMw->attribs[] = new DataMwAttrib( $attrName, $value );
 					DOMUtils::addTypeOf( $node, 'mw:ExpandedAttrs' );
 				}

@@ -277,25 +277,27 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
 			$siteConfig = new MockSiteConfig( [] );
-			$html = DomPageBundle::fromLoadedDocument( $doc, [
+			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
 				'siteConfig' => $siteConfig,
-			] )->toInlineAttributeHtml( siteConfig: $siteConfig );
+			];
+			$html = DomPageBundle::fromLoadedDocument( $doc, $options )
+				->toInlineAttributeHtml( $options );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
-				'<template data-tid="g/SsaX6L">This is pretty <b>bold</b>!</template>' .
-				'<template data-tid="ie1lOoOR">ebb &amp; flow</template>' .
 				'<template data-tid="g/SsaX6L-1">This is pretty <b>bold</b>!</template>' .
 				'<template data-tid="ie1lOoOR-1">ebb &amp; flow</template>' .
+				'<template data-tid="g/SsaX6L-2">This is pretty <b>bold</b>!</template>' .
+				'<template data-tid="ie1lOoOR-2">ebb &amp; flow</template>' .
 				'</head><body><p ' .
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
 				'title2="ebb &amp; flow" ' .
 				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\' ' .
 				'data-mw-foo2=\'{"_t":"ie1lOoOR-1"}\' ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}],["title2",{"rich":{"_t":"ie1lOoOR"}}]]}\'>' .
+				'data-mw=\'{"attribs":[["title",{"html":{"_t":"g/SsaX6L-2"}}],["title2",{"html":{"_t":"ie1lOoOR-2"}}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>' :
 
@@ -307,8 +309,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'data-mw-foo=\'{"_h":"This is pretty &lt;b>bold&lt;/b>!"}\' ' .
 				'data-mw-foo2=\'{"_h":"ebb &amp;amp; flow"}\' ' .
 				'data-mw=\'{"attribs":[' .
-				'["title",{"rich":{"_h":"This is pretty &lt;b>bold&lt;/b>!"}}],' .
-				'["title2",{"rich":{"_h":"ebb &amp;amp; flow"}}]]}\'>' .
+				'["title",{"html":"This is pretty &lt;b>bold&lt;/b>!"}],' .
+				'["title2",{"html":"ebb &amp;amp; flow"}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>',
 				$html
@@ -364,25 +366,27 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
 			$siteConfig = new MockSiteConfig( [] );
-			$html = DomPageBundle::fromLoadedDocument( $doc, [
+			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
 				'siteConfig' => $siteConfig,
-			] )->toInlineAttributeHtml( siteConfig: $siteConfig );
+			];
+			$html = DomPageBundle::fromLoadedDocument( $doc, $options )
+				->toInlineAttributeHtml( $options );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
-				'<template data-tid="uOo/VU3m"><b>be bold</b></template>' .
 				'<template data-tid="uOo/VU3m-1"><b>be bold</b></template>' .
-				'<template data-tid="g/SsaX6L">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw=\'{"attribs":[["title",{"rich":{"_t":"uOo/VU3m"}}]]}\' data-mw-foo=\'{"_t":"uOo/VU3m-1"}\'>bold</b>!</template>' .
 				'<template data-tid="uOo/VU3m-2"><b>be bold</b></template>' .
 				'<template data-tid="uOo/VU3m-3"><b>be bold</b></template>' .
-				'<template data-tid="g/SsaX6L-1">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw=\'{"attribs":[["title",{"rich":{"_t":"uOo/VU3m-2"}}]]}\' data-mw-foo=\'{"_t":"uOo/VU3m-3"}\'>bold</b>!</template>' .
+				'<template data-tid="g/SsaX6L-1">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m-2"}}]]}\' data-mw-foo=\'{"_t":"uOo/VU3m-3"}\'>bold</b>!</template>' .
+				'<template data-tid="uOo/VU3m-4"><b>be bold</b></template>' .
+				'<template data-tid="g/SsaX6L-2">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw-foo=\'{"_t":"uOo/VU3m-1"}\' data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m-4"}}]]}\'>bold</b>!</template>' .
 				'</head><body><p ' .
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
 				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\' ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}]]}\'>' .
+				'data-mw=\'{"attribs":[["title",{"html":{"_t":"g/SsaX6L-2"}}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>' :
 
@@ -392,18 +396,21 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'typeof="mw:ExpandedAttrs" ' .
 				'title="This is pretty bold!" ' .
 				'data-mw-foo=\'{"_h":' .
-				'"This is pretty &lt;b typeof=\"mw:ExpandedAttrs\" ' .
+				'"This is pretty &lt;b ' .
+				'typeof=\"mw:ExpandedAttrs\" ' .
 				'title=\"be bold\" ' .
-				'data-mw=&apos;{\"attribs\":[[\"title\",{\"rich\":{\"_h\":' .
-				'\"&amp;lt;b>be bold&amp;lt;/b>\"}}]]}&apos; ' .
+				'data-mw=&apos;{\"attribs\":[[\"title\",{\"html\":' .
+				'\"&amp;lt;b>be bold&amp;lt;/b>\"}]]}&apos; ' .
 				'data-mw-foo=&apos;{\"_h\":' .
 				'\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}\' ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_h":' .
-				'"This is pretty &lt;b typeof=\"mw:ExpandedAttrs\" ' .
+				'data-mw=\'{"attribs":[["title",{"html":' .
+				'"This is pretty &lt;b ' .
+				'typeof=\"mw:ExpandedAttrs\" ' .
 				'title=\"be bold\" ' .
-				'data-mw=&apos;{\"attribs\":[[\"title\",{\"rich\":{\"_h\":' .
-				'\"&amp;lt;b>be bold&amp;lt;/b>\"}}]]}&apos; ' .
-				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}}]]}\'>' .
+				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos; ' .
+				'data-mw=&apos;{\"attribs\":[[\"title\",{\"html\":' .
+				'\"&amp;lt;b>be bold&amp;lt;/b>\"}]]}&apos;' .
+				'>bold&lt;/b>!"}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>',
 				$html
@@ -463,7 +470,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'<body id="mwAA"><p ' .
 			'title="be bold" ' .
 			'typeof="mw:ExpandedAttrs" ' .
-			'data-mw=\'{"attribs":[["title",{"rich":{"_t":"uOo/VU3m"}}]]}\' ' .
+			'data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m"}}]]}\' ' .
 			'id="mwAg">Hello, world</p></body></html>'
 			:
 			"<!DOCTYPE html>\n<html><head>" .
@@ -476,7 +483,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'<body id="mwAA"><p ' .
 			'title="be bold" ' .
 			'typeof="mw:ExpandedAttrs" ' .
-			'data-mw=\'{"attribs":[["title",{"rich":{"_h":"&lt;b id=\"mwAQ\">be bold&lt;/b>"}}]]}\' ' .
+			'data-mw=\'{"attribs":[["title",{"html":"&lt;b id=\"mwAQ\">be bold&lt;/b>"}]]}\' ' .
 			'id="mwAg">Hello, world</p></body></html>',
 			$html
 		);
