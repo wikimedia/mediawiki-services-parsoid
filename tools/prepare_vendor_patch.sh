@@ -121,7 +121,9 @@ rm composer.json.bak
 # Wait a bit for changes to propagate to packagist
 sleep 2
 echo "Ready to prepare vendor patch. Please verify that packagist has the new tag."
-echo "Visit https://packagist.org/packages/wikimedia/parsoid to verify."
+echo "Visit https://packagist.org/packages/wikimedia/parsoid"
+echo "and   https://repo.packagist.org/p2/wikimedia/parsoid.json to verify."
+echo "(The latter is what composer uses, and it can take ~15min to update.)"
 waitForConfirmation
 echo
 
