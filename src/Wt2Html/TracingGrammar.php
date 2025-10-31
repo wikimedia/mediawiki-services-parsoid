@@ -388,7 +388,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 146 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
 147 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
 148 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-149 => ["type" => "class", "value" => "[^{}|;]", "description" => "[^{}|;]"],
+149 => ["type" => "class", "value" => "[^{}|;\\[\\]]", "description" => "[^{}|;\\[\\]]"],
 150 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
 151 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
 152 => ["type" => "other", "description" => "nowiki_text"],
@@ -24071,7 +24071,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   $r9 = $param_preproc;
   $r10 = $param_th;
   $r11 = $param_headingIndex;
-  if (strcspn($this->input, ";{|}", $this->currPos, 1) !== 0) {
+  if (strcspn($this->input, ";[]{|}", $this->currPos, 1) !== 0) {
     $r12 = true;
     $r12 = false;
     $this->currPos = $p7;
@@ -24844,7 +24844,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       goto seq_2;
     }
     // free $p17,$r18,$r19,$r20
-    if (strcspn($this->input, ";{|}", $this->currPos, 1) !== 0) {
+    if (strcspn($this->input, ";[]{|}", $this->currPos, 1) !== 0) {
       $r20 = true;
       self::advanceChar($this->input, $this->currPos);
     } else {

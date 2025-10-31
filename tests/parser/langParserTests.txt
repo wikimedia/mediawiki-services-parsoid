@@ -1393,7 +1393,7 @@ T153135: Nested language converter markup in definition list (code coverage)
 !! options
 language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
-;-{|zh-cn:AAA -{zh-hans|foo:bar}- -{R|bat:baz}-}-:def
+;-{zh-cn:AAA -{zh-hans|foo:bar}- -{R|bat:baz}-}-:def
 !! html/php
 <dl><dt>AAA foo:bar bat:baz</dt>
 <dd>def</dd></dl>
@@ -1718,4 +1718,71 @@ language=sr htmlVariantLanguage=sr-Cyrl
 <p><a rel="mw:WikiLink" href="./Тест" title="Тест" data-parsoid='{"stx":"simple","a":{"href":"./Тест","title":"Тест"},"sa":{"href":"Test","title":"Test"}}'>Test</a></p>
 !! html/parsoid+langconv
 <p data-mw-variant-lang="sr-el"><a rel="mw:WikiLink" href="./Тест" title="Тест">Тест</a></p>
+!! end
+
+# Bugs found via rt testing (T417533)
+!! test
+Links with fragments inside variant markup
+!! options
+language=sr htmlVariantLanguage=sr-Latn
+parsoid=wt2html
+!! wikitext
+-{[[A#B|C]]}-
+!! html/php
+<p><a href="/wiki/A#B" title="A">C</a>
+</p>
+!! html/parsoid
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"&lt;a rel=\"mw:WikiLink\" href=\"./A#B\" title=\"A\">C&lt;/a>"}}'></span></p>
+!! end
+
+!! test
+Two-way rules with images
+!! options
+language=zh htmlVariantLanguage=zh-tw
+!! wikitext
+-{zh-tw:[[File:Foobar.jpg|thumb|tw]]; zh-hk:[[File:Foobar.jpg|thumb|hk]]; zh-cn:[[File:Foobar.jpg|thumb|cn]]}-
+!! html/php
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption>tw</figcaption></figure>
+!! html/parsoid
+<div typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[{"l":"zh-tw","t":"&lt;figure class=\"mw-default-size\" typeof=\"mw:File/Thumb\">&lt;a href=\"./File:Foobar.jpg\" class=\"mw-file-description\">&lt;img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"20\" width=\"180\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x\" class=\"mw-file-element\"/>&lt;/a>&lt;figcaption>tw&lt;/figcaption>&lt;/figure>"},{"l":"zh-hk","t":"&lt;figure class=\"mw-default-size\" typeof=\"mw:File/Thumb\">&lt;a href=\"./File:Foobar.jpg\" class=\"mw-file-description\">&lt;img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"20\" width=\"180\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x\" class=\"mw-file-element\"/>&lt;/a>&lt;figcaption>hk&lt;/figcaption>&lt;/figure>"},{"l":"zh-cn","t":"&lt;figure class=\"mw-default-size\" typeof=\"mw:File/Thumb\">&lt;a href=\"./File:Foobar.jpg\" class=\"mw-file-description\">&lt;img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"20\" width=\"180\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x\" class=\"mw-file-element\"/>&lt;/a>&lt;figcaption>cn&lt;/figcaption>&lt;/figure>"}]}'></div>
+!! end
+
+!! test
+Embedded new lines
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+-{zh-tw:* foo;
+zh-cn:* bar}-
+!! html/php
+<p>* foo
+</p>
+!! html/parsoid
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[{"l":"zh-tw","t":"* foo"},{"l":"zh-cn","t":"* bar"}]}'></span></p>
+!! end
+
+!! test
+Language variant with empty flag section
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html,html2html
+!! wikitext
+This is -{|a test}-
+!! html/php
+<p>This is a test
+</p>
+!! html/parsoid
+<p>This is <span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"a test"}}'></span></p>
+!! end
+
+!! test
+html2wt of language variant text that could be confused for a flag
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=html2wt
+!! html/parsoid
+<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"R|R"}}'></span>
+!! wikitext
+-{R|R|R}-
 !! end

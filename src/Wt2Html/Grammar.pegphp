@@ -1327,7 +1327,8 @@ lang_variant_flags =
 lang_variant_flag =
 	f:[-+A-Z]           { return [ 'flag' => $f ]; }
 	/ v:lang_variant_name { return [ 'variant' => $v ]; }
-	/ b:$(!space_or_newline !nowiki [^{}|;])+ { return [ 'bogus' => $b ]; /* bad flag */}
+	// T417534: This production is overly complicated and should be dropped
+	/ b:$(!space_or_newline !nowiki [^{}|;\[\]])+ { return [ 'bogus' => $b ]; /* bad flag */}
 
 // language variant name, like zh, zh-cn, etc.
 lang_variant_name =

@@ -50,7 +50,11 @@ class LanguageVariantHandler {
 				'env' => $state->getEnv(),
 				'onSOL' => false
 			];
-			return $state->serializer->domToWikitext( $options, $df );
+			$result = $state->serializer->domToWikitext( $options, $df );
+			if ( $options['trimNLs'] ?? true ) {
+				$result = trim( $result, "\n\r" );
+			}
+			return $result;
 	}
 
 	/**
@@ -73,7 +77,13 @@ class LanguageVariantHandler {
 	 * @return string
 	 */
 	private static function combine( string $flagStr, string $bodyStr, $useTrailingSemi ): string {
-		if ( $flagStr !== '' || str_contains( $bodyStr, '|' ) ) {
+		// This is a superset of what is matched by the opt_lang_variant_flags
+		// production in the tokenizer. Anything which matches the grammar
+		// should also match this regex, although this regex can match stuff
+		// which the tokenizer rejects.
+		// FIXME T417534: The tokenizer production should be simplified!
+		$validFlagsRe = '/^\s*[^{}|;\[\]]+\s*(;\s*[^{}|;\[\]]+\s*)*;?[|]/';
+		if ( $flagStr !== '' || preg_match( $validFlagsRe, $bodyStr ) ) {
 			$flagStr .= '|';
 		}
 		if ( $useTrailingSemi !== false ) {
