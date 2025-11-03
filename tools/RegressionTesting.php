@@ -190,6 +190,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		$this->dashes( "Checking out $commit on parsoidtest1001" );
 		$this->ssh( self::cmd(
+			'umask 0002', '&&',
 			$cdDir, '&&',
 			"git fetch", '&&',
 			'git checkout', [ $commit ], '&&',
@@ -201,6 +202,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			# the --contentVersion option in most scenarios
 			$this->dashes( "Checking out $commit on testreduce1002" );
 			$this->ssh( self::cmd(
+				'umask 0002', '&&',
 				$cdDir, '&&',
 				"git fetch", '&&',
 				'git checkout', [ $commit ] ), 'testreduce1002.eqiad.wmnet' );
