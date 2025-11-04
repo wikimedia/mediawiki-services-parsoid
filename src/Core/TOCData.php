@@ -297,16 +297,19 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
-		return [
+		$result = [
 			'sections' => $this->sections,
-			'extensionData' => $this->extensionData,
 		];
+		if ( $this->extensionData ) {
+			$result['extensionData'] = $this->extensionData;
+		}
+		return $result;
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ) {
 		$tocData = new TOCData( ...$json['sections'] );
-		foreach ( $json['extensionData'] as $key => $value ) {
+		foreach ( ( $json['extensionData'] ?? [] ) as $key => $value ) {
 			$tocData->setExtensionData( $key, $value );
 		}
 		return $tocData;
