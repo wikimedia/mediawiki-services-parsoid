@@ -5,10 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Composer\Semver\Semver;
 use InvalidArgumentException;
-use LogicException;
 use stdClass;
-use TypeError;
-use UnexpectedValueException;
 use WeakMap;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
@@ -190,6 +187,13 @@ class DOMDataUtils {
 				// (Note that UnpackDOMFragments may call us with nodes which
 				// don't have unique ids, though!)
 				$nd = $bag->getObject( $id );
+				// All we are doing here is cloning the node-data object
+				// and reassigning it to the same node. So, any unloaded
+				// data continues to be available. But, since cloning inspects
+				// data->mw->attribs, it should be fully loaded if in JSON form.
+				// So, force loading by getting data-mw.
+				self::getDataMw( $node );
+
 				$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 				$nd = $nd->cloneNodeData();
 				self::setNodeData( $node, $nd );
@@ -251,27 +255,17 @@ class DOMDataUtils {
 		if ( $nodeId === null ) {
 			// Initialized on first request
 			$nodeData = new NodeData;
-			self::setNodeData( $node, $nodeData );
 			$id = DOMCompat::getAttribute( $node, 'id' );
 			if ( $id !== null && $pb !== null ) {
 				// See if there is data-parsoid or data-mw in the page bundle
-				$codec = self::getCodec( $node );
-				$hints = self::getCodecHints();
 				if ( isset( $pb->parsoid['ids'][$id] ) ) {
-					$dp = $codec->newFromJsonArray(
-						$pb->parsoid['ids'][$id],
-						$hints['data-parsoid']
-					);
-					$nodeData->parsoid = $dp;
+					$nodeData->parsoid = [ $pb->parsoid['ids'][$id] ]; // Undecoded JSON blob
 				}
 				if ( isset( $pb->mw['ids'][$id] ) ) {
-					$dmw = $codec->newFromJsonArray(
-						$pb->mw['ids'][$id],
-						$hints['data-mw']
-					);
-					$nodeData->mw = $dmw;
+					$nodeData->mw = [ $pb->mw['ids'][$id] ]; // Undecoded JSON blob
 				}
 			}
+			self::setNodeData( $node, $nodeData );
 			return $nodeData;
 		}
 
@@ -309,7 +303,20 @@ class DOMDataUtils {
 	 */
 	public static function getDataParsoid( Element $node ): DataParsoid {
 		$data = self::getNodeData( $node );
-		$data->parsoid ??= new DataParsoid;
+		$dp = $data->parsoid;
+		if ( !$dp instanceof DataParsoid ) {
+			$newDP = false;
+			$dp = self::getAttributeObject( $node, 'data-parsoid', self::getCodecHints()['data-parsoid'] );
+			if ( $dp === null ) {
+				$dp = new DataParsoid;
+				$newDP = true;
+			}
+			$data->parsoid = $dp;
+			$codec = self::getCodec( $node );
+			if ( !empty( $codec->options['markNew'] ) ) {
+				$dp->setTempFlag( TempData::IS_NEW, $newDP );
+			}
+		}
 		return $data->parsoid;
 	}
 
@@ -466,7 +473,14 @@ class DOMDataUtils {
 	 */
 	public static function getDataMw( Element $node ): DataMw {
 		$data = self::getNodeData( $node );
-		$data->mw ??= new DataMw;
+		$dmw = $data->mw;
+		if ( !$dmw instanceof DataMw ) {
+			$dmw = self::getAttributeObject( $node, 'data-mw', self::getCodecHints()['data-mw'] );
+			if ( $dmw === null ) {
+				$dmw = new DataMw;
+			}
+			$data->mw = $dmw;
+		}
 		return $data->mw;
 	}
 
@@ -607,10 +621,9 @@ class DOMDataUtils {
 	 * @param stdClass $data data
 	 * @param array $idIndex Index of used id attributes in the DOM
 	 */
-	public static function storeInPageBundle(
+	private static function storeInPageBundle(
 		DomPageBundle $pb, Element $node, stdClass $data, array $idIndex
 	): void {
-		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$codec = self::getCodec( $node );
 		$docDp = &$pb->parsoid;
@@ -637,10 +650,9 @@ class DOMDataUtils {
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
-		// Convert from DataParsoid/DataMw objects to associative array
-		$docDp['ids'][$uid] = $codec->toJsonArray( $data->parsoid, $hints['data-parsoid'] );
+		$docDp['ids'][$uid] = $data->parsoid;
 		if ( isset( $data->mw ) ) {
-			$pb->mw['ids'][$uid] = $codec->toJsonArray( $data->mw, $hints['data-mw'] );
+			$pb->mw['ids'][$uid] = $data->mw;
 		}
 	}
 
@@ -652,8 +664,8 @@ class DOMDataUtils {
 		static $hints = null;
 		if ( $hints === null ) {
 			$hints = [
-				'data-parsoid' => Hint::build( DataParsoid::class, Hint::ALLOW_OBJECT ),
-				'data-mw' => Hint::build( DataMw::class, Hint::ALLOW_OBJECT ),
+				'data-parsoid' => DataParsoid::hint(),
+				'data-mw' => DataMw::hint()
 			];
 		}
 		return $hints;
@@ -697,61 +709,25 @@ class DOMDataUtils {
 			return;
 		}
 		$bag = self::getBag( $node->ownerDocument ?? $node );
-		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
-		$codec = self::getCodec( $node );
-		$dataParsoidAttr = DOMCompat::getAttribute( $node, 'data-parsoid' );
-		if ( $dataParsoidAttr === null ) {
-			// data-parsoid might have come from page bundle
-			$newDP = ( $nodeData->parsoid === null );
-			$dp = self::getDataParsoid( $node );
-		} else {
-			$newDP = false;
-			try {
-				$dp = $codec->newFromJsonString(
-					$dataParsoidAttr, self::getCodecHints()['data-parsoid']
-				);
-				Assert::invariant( $dp instanceof DataParsoid, "Unexpected data-parsoid" );
-			} catch ( TypeError | LogicException $e ) {
-				// improve debuggability: T403208
-				throw new UnexpectedValueException( "Unable to decode data-parsoid [$dataParsoidAttr]", 0, $e );
-			}
-		}
-		if ( !empty( $options['markNew'] ) ) {
-			$dp->setTempFlag( TempData::IS_NEW, $newDP );
-		}
-		self::setDataParsoid( $node, $dp );
-		$node->removeAttribute( 'data-parsoid' );
-
-		$dataMwAttr = DOMCompat::getAttribute( $node, 'data-mw' );
-		// note that data-mw might already be present in node data from
-		// page bundle, but inline attribute takes precedence
-		if ( $dataMwAttr !== null ) {
-			try {
-				$dmw = $codec->newFromJsonString(
-					$dataMwAttr, self::getCodecHints()['data-mw']
-				);
-				Assert::invariant( $dmw instanceof DataMw, "Unexpected data-mw" );
-			} catch ( TypeError | LogicException $e ) {
-				// improve debuggability: T388160
-				throw new UnexpectedValueException( "Unable to decode data-mw [$dataMwAttr]", 0, $e );
-			}
-			self::setDataMw( $node, $dmw );
-			$node->removeAttribute( 'data-mw' );
-		}
-
 		$about = DOMCompat::getAttribute( $node, 'about' );
 		if ( $about !== null ) {
 			$bag->seenAboutId( $about );
 		}
+		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
+		// Force load of data-mw to lookup annotation range id.
+		// FIXME: This effectively makes data-mw an eagerly-loaded property.
+		// We will fix this in a followup patch by adding metadata about range ids
+		// to the page bundle.
+		self::getDataMw( $node );
 		if ( isset( $nodeData->mw->rangeId ) ) {
 			$bag->seenAnnotationId( $nodeData->mw->rangeId );
 		}
 
-		// We don't load rich attributes here: that will be done lazily as
-		// getAttributeObject()/etc methods are called because we don't
-		// know the true types of the rich values yet.  In the future
-		// we might have a schema or self-labelling of values which would
-		// allow us to load rich attributes here as well.
+		// We don't load rich attributes or data-parsoid: that will be done
+		// lazily on demand when getDataParsoid or getAttributeObject()/etc
+		// methods are called. For OutputTransformPipeline stages, this is a
+		// performance optimization. For non-data-parsoid, in addition, we also
+		// don't know the true types of the rich values yet.
 	}
 
 	/**
@@ -809,6 +785,7 @@ class DOMDataUtils {
 		$codec = self::getCodec( $node );
 		$oldOptions = $codec->setOptions( $options );
 
+		$options['hasNewNodesMarked'] = !empty( $oldOptions['markNew'] );
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
 			self::storeDataAttribs( $node, $options );
 		}, $options );
@@ -832,85 +809,16 @@ class DOMDataUtils {
 	 *   - idIndex: Array of used ID attributes
 	 */
 	private static function storeDataAttribs( Node $node, ?array $options = null ): void {
-		$hints = self::getCodecHints();
 		$options ??= [];
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
 
-		// Store rich attributes.  Note that, at present, rich attributes may
-		// be serialized into the data-mw attributes which are serialized in
-		// the pagebundle; thus we need to serialize all the "attributes
-		// with special html semantics" (which will get added to data-mw)
-		// *before* we handle the other attributes and the page bundle.
-		self::storeRichAttributes( $node, [ 'onlySpecial' => true ] + $options );
-		$codec = self::getCodec( $node );
-		$dp = self::getDataParsoid( $node );
-		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
-		if ( $dp->getTempFlag( TempData::IS_NEW ) && !$dp->isModified() ) {
-			// This hack ensures that a loadDataAttribs + storeDataAttribs pair
-			// don't dirty the node by introducing an empty data-parsoid attribute
-			// where one didn't exist before.
-			//
-			// Ideally, we'll find a better solution for this edge case later.
-			$discardDataParsoid = true;
-		}
-		$data = null;
-		if ( !$discardDataParsoid ) {
-			// FIXME: $dp->toJsonArray drops tmp so it's discarded regardless
-			// of this flag
-			if ( empty( $options['keepTmp'] ) ) {
-				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
-				unset( $dp->tmp );
-			}
-
-			if ( !empty( $options['storeInPageBundle'] ) ) {
-				$data ??= new stdClass;
-				$data->parsoid = $dp;
-			} else {
-				$node->setAttribute(
-					'data-parsoid',
-					PHPUtils::jsonEncode(
-						$codec->toJsonArray( $dp, $hints['data-parsoid'] )
-					)
-				);
-			}
-		}
-
-		// Special handling for data-mw.  This should eventually go away
-		// and be replaced with the standard "rich attribute" handling:
-		// (a) now that DataMw is a class type, we should never actually
-		// have "invalid" data mw objects in practice;
-		// (b) eventually we can remove support for output content version
-		// older than 999.x.
-
-		// Strip empty data-mw attributes
-		$dmw = self::getDataMw( $node );
-		if ( !$dmw->isEmpty() ) {
-			if (
-				!empty( $options['storeInPageBundle'] ) &&
-				// The pagebundle didn't have data-mw before 999.x
-				Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' )
-			) {
-				$data ??= new stdClass;
-				$data->mw = $dmw;
-			} else {
-				$node->setAttribute(
-					'data-mw',
-					PHPUtils::jsonEncode(
-						$codec->toJsonArray( $dmw, $hints['data-mw'] )
-					)
-				);
-			}
-		}
-
-		// Serialize the rest of the rich attributes
-		// (This will eventually include data-mw.)
-		self::storeRichAttributes( $node, $options );
+		$pbData = self::storeRichAttributes( $node, $options );
 
 		// Store pagebundle
-		if ( $data !== null ) {
-			self::storeInPageBundle( $options['storeInPageBundle'], $node, $data, $options['idIndex'] );
+		if ( $pbData !== null ) {
+			self::storeInPageBundle( $options['storeInPageBundle'], $node, $pbData, $options['idIndex'] );
 		}
 
 		// Indicate that this node's data has been stored so that if we try
@@ -1068,6 +976,35 @@ class DOMDataUtils {
 		return !(bool)preg_match( '/^data-/i', $attrName );
 	}
 
+	private static function nodeDataPropName( string $name ): string {
+		return ( $name === 'data-mw' || $name === 'data-parsoid' ) ?
+			preg_replace( '/data-/', '', $name ) : self::RICH_ATTR_DATA_PREFIX . $name;
+	}
+
+	/**
+	 * @param DOMDataCodec $codec
+	 * @param object|array $value
+	 * @param Hint $classHint
+	 * @return object
+	 */
+	private static function decodeAttribute( DOMDataCodec $codec, $value, $classHint ) {
+		// This value should be decoded
+		$value = $codec->newFromJsonArray( $value, $classHint );
+		if ( is_array( $value ) ) {
+			// JsonCodec allows class hints to indicate that the value
+			// is an array of some object type, but for our purposes
+			// the result must always be an object so that it is live.
+			$value = (object)$value;
+		}
+		// To signal that it's been decoded already we need $value
+		// not to be an array
+		Assert::invariant(
+			!is_array( $value ), "rich attribute can't be array"
+		);
+
+		return $value;
+	}
+
 	/**
 	 * Return the value of a rich attribute as a live (by-reference) object.
 	 * This also serves as an assertion that there are not conflicting types.
@@ -1087,26 +1024,13 @@ class DOMDataUtils {
 			return null;
 		}
 		$nodeData = self::getNodeData( $node );
-		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+		$propName = self::nodeDataPropName( $name );
 		$value = $nodeData->$propName ?? null;
 		// We lazily decode rich values, because we need to know the $classHint
 		// before we decode.  Undecoded values are wrapped with an array so
 		// we can tell whether the value has been decoded already or not.
 		if ( is_array( $value ) ) {
-			// This value should be decoded
-			$codec = self::getCodec( $node );
-			$value = $codec->newFromJsonArray( $value[0], $classHint );
-			if ( is_array( $value ) ) {
-				// JsonCodec allows class hints to indicate that the value
-				// is an array of some object type, but for our purposes
-				// the result must always be an object so that it is live.
-				$value = (object)$value;
-			}
-			// To signal that it's been decoded already we need $value
-			// not to be an array
-			Assert::invariant(
-				!is_array( $value ), "rich attribute can't be array"
-			);
+			$value = self::decodeAttribute( self::getCodec( $node ), $value[0], $classHint );
 			$nodeData->$propName = $value;
 			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
 			$nodeData->$hintName = $classHint;
@@ -1191,7 +1115,7 @@ class DOMDataUtils {
 	public static function setAttributeObjectNodeData(
 		NodeData $nodeData, string $name, object $value, $classHint = null
 	): void {
-		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+		$propName = self::nodeDataPropName( $name );
 		$nodeData->$propName = $value;
 		if ( $classHint === null && is_a( $value, RichCodecable::class ) ) {
 			$className = get_class( $value );
@@ -1214,7 +1138,7 @@ class DOMDataUtils {
 		self::removeFromExpandedAttrs( $node, $name );
 		if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			$nodeData = self::getNodeData( $node );
-			$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+			$propName = self::nodeDataPropName( $name );
 			unset( $nodeData->$propName );
 			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
 			unset( $nodeData->$hintName );
@@ -1333,7 +1257,7 @@ class DOMDataUtils {
 		// serialization.
 		self::removeAttributeDom( $node, $name );
 		$nodeData = self::getNodeData( $node );
-		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+		$propName = self::nodeDataPropName( $name );
 		$nodeData->$propName = $value;
 		$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
 		$nodeData->$hintName = DocumentFragment::class;
@@ -1354,7 +1278,7 @@ class DOMDataUtils {
 		self::removeFromExpandedAttrs( $node, $name );
 		if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			$nodeData = self::getNodeData( $node );
-			$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+			$propName = self::nodeDataPropName( $name );
 			unset( $nodeData->$propName );
 			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
 			unset( $nodeData->$hintName );
@@ -1463,19 +1387,75 @@ class DOMDataUtils {
 			return;
 		}
 		// The attribute does not have "special HTML semantics"
-		$decoded = json_decode( $flatValue, false );
+		$decoded = json_decode( $flatValue, true );
 		// $decoded is the 'non-string' form of the value; we can't finish
-		// deserializing it into an object until we know the appropriate type
-		// hint.
+		// deserializing it into an object until we know the appropriate type hint.
 		self::removeAttributeObject( $node, $name );
 		$nodeData = self::getNodeData( $node );
-		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+		$propName = self::nodeDataPropName( $name );
 		// Mark this as undecoded by wrapping it as an array,
 		// since decoded values will always be objects.
 		// (Attribute values without "special HTML semantics" do not
-		// have flattened versions, so 2nd element to this array isn't
-		// needed.)
+		// have flattened versions, so 2nd element to this array isn't needed.)
 		$nodeData->$propName = [ $decoded ];
+	}
+
+	/**
+	 * @param DOMDataCodec $codec
+	 * @param Element $node
+	 * @param bool $hasSpecialSemantics
+	 * @param NodeData $nodeData
+	 * @param string $attrName
+	 * @param mixed $v
+	 */
+	private static function storeAttribute(
+		DOMDataCodec $codec, Element $node, bool $hasSpecialSemantics, NodeData $nodeData, string $attrName, $v
+	): void {
+		$df = null;
+		if ( is_array( $v ) ) {
+			// If $v is an array, it was never decoded.
+			$json = $v[0];
+			$flat = $v[1] ?? null;
+		} else {
+			$hintName = self::RICH_ATTR_HINT_PREFIX . $attrName;
+			$classHint = $nodeData->$hintName ?? null;
+			if ( is_a( $v, RichCodecable::class ) ) {
+				$classHint ??= $v::hint();
+			}
+			$classHint ??= get_class( $v );
+			try {
+				// NOTE: call 'flatten()' before 'toJsonArray()' since
+				// the latter may have side effects on $v.
+				$flat = $codec->flatten( $v );
+				if ( $hasSpecialSemantics && $classHint === DocumentFragment::class ) {
+					// Special case for attributes stored in
+					// DataMwAttribs::$html
+					$json = null;
+					$df = $v;
+				} else {
+					$json = $codec->toJsonArray( $v, $classHint );
+				}
+			} catch ( InvalidArgumentException $e ) {
+				// For better debuggability, include the attribute name
+				throw new InvalidArgumentException( "$attrName: " . $e->getMessage() );
+			}
+		}
+		if ( !$hasSpecialSemantics ) {
+			$encoded = PHPUtils::jsonEncode( $json );
+			$node->setAttribute( $attrName, $encoded );
+		} else {
+			// For compatibility, store the rich value in data-mw.attribs
+			// and store a flattened version in the $attrName.
+			if ( $flat !== null ) {
+				$node->setAttribute( $attrName, $flat );
+			} else {
+				$node->removeAttribute( $attrName );
+			}
+			$dataMw = self::getDataMw( $node );
+			$value = $df ? [ 'html' => $df ] : [ 'rich' => $json ];
+			$dataMw->attribs[] = new DataMwAttrib( $attrName, $value );
+			DOMUtils::addTypeOf( $node, 'mw:ExpandedAttrs' );
+		}
 	}
 
 	/**
@@ -1484,72 +1464,148 @@ class DOMDataUtils {
 	 * @param Element $node The node possibly containing the rich attribute
 	 * @param array $options The options provided to ::storeDataAttribs()
 	 */
-	private static function storeRichAttributes( Element $node, array $options ): void {
+	private static function storeRichAttributes( Element $node, array $options ): ?stdClass {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			return; // No rich attributes here
+			return null; // No rich attributes here
 		}
-		$tagName = $node->tagName;
+
 		$nodeData = self::getNodeData( $node );
 		$codec = self::getCodec( $node );
+
+		// At present, rich attributes may be serialized into the data-mw attributes
+		// which are serialized in the pagebundle; thus we need to serialize all
+		// the "attributes with special html semantics" (which will get added to data-mw)
+		// *before* we handle the other attributes and the page bundle.
+
+		// Special attributes first
 		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
 			// Look for dynamic properties with names w/ the proper prefix
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
 				$attrName = substr( $k, strlen( self::RICH_ATTR_DATA_PREFIX ) );
-				$hasSpecialSemantics = self::isHtmlAttributeWithSpecialSemantics( $tagName, $attrName );
-				if (
-					( $options['onlySpecial'] ?? false ) &&
-					!$hasSpecialSemantics
-				) {
-					continue; // skip this for now
+				if ( self::isHtmlAttributeWithSpecialSemantics( $node->tagName, $attrName ) ) {
+					self::storeAttribute( $codec, $node, true, $nodeData, $attrName, $v );
+					unset( $nodeData->$k );
 				}
-				$df = null;
-				if ( is_array( $v ) ) {
-					// If $v is an array, it was never decoded.
-					$json = $v[0];
-					$flat = $v[1] ?? null;
+			}
+		}
+
+		// Deal with data-parsoid (and data-mw).
+		//
+		// Because of lazy loading, data-parsoid can be in one of three states:
+		// * Fully loaded as DataParsoid in $nodeData->parsoid.
+		// * Partially loaded as a decoded JSON blob in $nodeData->parsoid.
+		// * Not loaded at all and available via the HTML data-parsoid attribute (string).
+		$dp = $nodeData->parsoid;
+		$discardDataParsoid =
+			!empty( $options['discardDataParsoid'] ) ||
+			// This hack ensures that a loadDataAttribs + storeDataAttribs pair
+			// don't dirty the node by introducing an empty data-parsoid attribute
+			// where one didn't exist before.
+			// Ideally, we'll find a better solution for this edge case later.
+			( $dp instanceof DataParsoid && $dp->getTempFlag( TempData::IS_NEW ) && !$dp->isModified() );
+
+		$pbData = null;
+		$hints = self::getCodecHints();
+		if ( !$discardDataParsoid ) {
+			// Force a load of data-parsoid if:
+			// * we have to migrate it from an inline-attribute to the pagebundle.
+			// * we have to assign empty data-parsoid objects to nodes that don't have them
+			//
+			// In all other cases, if an inline attribute is not loaded,
+			// we avoid the overhead of loading it from the inline attribute
+			// just to store it back into the inline attribute unchanged.
+			if ( !$dp && ( !empty( $options['storeInPageBundle'] ) || !$options['hasNewNodesMarked'] ) ) {
+				self::loadRichAttributes( $node, "data-parsoid" );
+				$dp = $nodeData->parsoid[0] ?? null; // undecoded json blob
+				if ( $dp ) {
+					// json_decode in loadRichAttributes creates a stdClass
+					// So, tests that compare raw $pbData->parsoid blobs will fail
+					// without this conversion.
+					$dp = (array)$dp;
+				} elseif ( !$options['hasNewNodesMarked'] ) {
+					// NOTE: We always create an empty data-parsoid for all nodes in the DOM
+					// to distinguish "original HTML" from "newly added nodes in edited HTML"
+					// to aid selser. But, if we were marking new nodes, we would have
+					// discarded dp (as above) in an eagerly-load-data-parsoid set up.
+					// Hence also, the check if we were tracking new nodes.
+					$dp = new DataParsoid;
+				}
+			} elseif ( is_array( $dp ) ) {
+				// Unwrap the array wrapper added by getNodeData
+				$dp = $dp[0];
+			}
+
+			if ( $dp ) {
+				if ( $dp instanceof DataParsoid ) {
+					if ( empty( $options['keepTmp'] ) ) {
+						// FIXME: $dp->toJsonArray drops tmp so it's discarded regardless
+						// of this flag
+						// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
+						unset( $dp->tmp );
+					}
+					$dp = $codec->toJsonArray( $dp, $hints['data-parsoid'] );
+				}
+
+				if ( !empty( $options['storeInPageBundle'] ) ) {
+					$pbData ??= new stdClass;
+					$pbData->parsoid = $dp;
 				} else {
-					$hintName = self::RICH_ATTR_HINT_PREFIX . $attrName;
-					$classHint = $nodeData->$hintName ?? null;
-					if ( is_a( $v, RichCodecable::class ) ) {
-						$classHint ??= $v::hint();
-					}
-					$classHint ??= get_class( $v );
-					try {
-						// NOTE: call 'flatten()' before 'toJsonArray()' since
-						// the latter may have side effects on $v.
-						$flat = $codec->flatten( $v );
-						if ( $hasSpecialSemantics && $classHint === DocumentFragment::class ) {
-							// Special case for attributes stored in
-							// DataMwAttribs::$html
-							$json = null;
-							$df = $v;
-						} else {
-							$json = $codec->toJsonArray( $v, $classHint );
-						}
-					} catch ( InvalidArgumentException $e ) {
-						// For better debuggability, include the attribute name
-						throw new InvalidArgumentException( "$attrName: " . $e->getMessage() );
-					}
+					$node->setAttribute( 'data-parsoid', PHPUtils::jsonEncode( $dp ) );
 				}
-				if ( !$hasSpecialSemantics ) {
-					$encoded = PHPUtils::jsonEncode( $json );
-					$node->setAttribute( $attrName, $encoded );
-				} else {
-					// For compatibility, store the rich value in data-mw.attribs
-					// and store a flattened version in the $attrName.
-					if ( $flat !== null ) {
-						$node->setAttribute( $attrName, $flat );
-					} else {
-						$node->removeAttribute( $attrName );
-					}
-					$dataMw = self::getDataMw( $node );
-					$value = $df ? [ 'html' => $df ] : [ 'rich' => $json ];
-					$dataMw->attribs[] = new DataMwAttrib( $attrName, $value );
-					DOMUtils::addTypeOf( $node, 'mw:ExpandedAttrs' );
-				}
+			}
+		}
+
+		// Special handling for data-mw.
+		// (a) now that DataMw is a class type, we should never actually
+		//     have "invalid" data mw objects in practice;
+		// (b) eventually we can remove support for output content version
+		//    older than 999.x.
+
+		$storeDmwInPb =
+			!empty( $options['storeInPageBundle'] ) &&
+			// The pagebundle didn't have data-mw before 999.x
+			Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' );
+
+		$dmw = $nodeData->mw;
+		if ( $dmw ) {
+			if ( $dmw instanceof DataMw ) {
+				// Strip empty data-mw attributes
+				$dmw = $dmw->isEmpty() ? null : $codec->toJsonArray( $dmw, $hints['data-mw'] );
+			} elseif ( is_array( $dmw ) ) {
+				// Unwrap the array wrapper added by getNodeData
+				$dmw = $dmw[0];
+			}
+		} elseif ( $storeDmwInPb ) {
+			// Force a load of data-mw to migrate it from
+			// an inline-attribute to the pagebundle.
+			self::loadRichAttributes( $node, "data-mw" );
+			$dmw = $nodeData->mw[0] ?? null; // undecoded json blob OR null
+		}
+
+		if ( $dmw ) {
+			if ( $storeDmwInPb ) {
+				$pbData ??= new stdClass;
+				$pbData->mw = $dmw;
+			} else {
+				$node->setAttribute( 'data-mw', PHPUtils::jsonEncode( $dmw ) );
+			}
+		}
+
+		// Non-special attributes next
+		// (data-parsoid and data-mw could be done in this loop with the
+		// rest of the "non-special" attributes, but at present they have
+		// a lot of special handling. In principle they are just the same
+		// as the rest of the lazy-loaded rich attributes, though.)
+		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
+			// Look for dynamic properties with names w/ the proper prefix
+			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
+				$attrName = substr( $k, strlen( self::RICH_ATTR_DATA_PREFIX ) );
+				self::storeAttribute( $codec, $node, false, $nodeData, $attrName, $v );
 				unset( $nodeData->$k );
 			}
 		}
+
+		return $pbData;
 	}
 
 	/**
@@ -1574,12 +1630,32 @@ class DOMDataUtils {
 		$oldOptions = $codec->setOptions( [ 'noSideEffects' => true, ] );
 		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
 			// Look for dynamic properties with names w/ the proper prefix
+			$isRichAttr = false;
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
+				$isRichAttr = true;
 				$attrName = substr( $k, strlen( self::RICH_ATTR_DATA_PREFIX ) );
-				if ( is_array( $v ) ) {
+			} elseif ( $k === 'parsoid' || $k === 'mw' ) {
+				$isRichAttr = true;
+				$attrName = "data-$k";
+			}
+			if ( $isRichAttr ) {
+				'@phan-var string $attrName';
+				if ( $v === null ) {
+					$v = DOMCompat::getAttribute( $node, $attrName );
+					if ( $v ) {
+						$attrs[$attrName] = $v;
+					}
+				} elseif ( is_array( $v ) ) {
 					// If $v is an array, it was never decoded.
 					$json = $v[0];
+					$attrs[$attrName] = PHPUtils::jsonEncode( $json );
 				} else {
+					if ( $k === 'parsoid' ) {
+						if ( !$keepTmp ) {
+							$v = clone $v;
+							unset( $v->tmp );
+						}
+					}
 					$hintName = self::RICH_ATTR_HINT_PREFIX . $attrName;
 					$classHint = $nodeData->$hintName ?? null;
 					if ( is_a( $v, RichCodecable::class ) ) {
@@ -1587,28 +1663,11 @@ class DOMDataUtils {
 					}
 					$classHint ??= get_class( $v );
 					$json = $codec->toJsonArray( $v, $classHint );
+					$attrs[$attrName] = PHPUtils::jsonEncode( $json );
 				}
-				$encoded = PHPUtils::jsonEncode( $json );
-				$attrs[$attrName] = $encoded;
 			}
 		}
-		$dp = $nodeData->parsoid;
-		if ( $dp ) {
-			if ( !$keepTmp ) {
-				$dp = clone $dp;
-				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
-				unset( $dp->tmp );
-			}
-			$attrs['data-parsoid'] = $codec->toJsonString(
-				$dp, self::getCodecHints()['data-parsoid']
-			);
-		}
-		$dmw = $nodeData->mw;
-		if ( $dmw ) {
-			$attrs['data-mw'] = $codec->toJsonString(
-				$dmw, self::getCodecHints()['data-mw']
-			);
-		}
+
 		if ( !$storeDiffMark ) {
 			unset( $attrs['data-parsoid-diff'] );
 		}

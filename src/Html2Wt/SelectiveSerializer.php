@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -141,6 +142,8 @@ class SelectiveSerializer {
 					$span->setAttribute( 'data-mw-selser-wrapper', '' );
 					$dp = DOMDataUtils::getDataParsoid( $span );
 					$dp->dsr = new DomSourceRange( $start, $start + $len, 0, 0 );
+					// This is not a *new* span wrapper necessarily.
+					$dp->setTempFlag( TempData::IS_NEW, false );
 					$start += $len;
 
 					if ( $nl ) {

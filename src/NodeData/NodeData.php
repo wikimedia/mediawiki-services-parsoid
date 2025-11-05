@@ -26,13 +26,15 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class NodeData {
 	/**
 	 * The unserialized data-parsoid attribute
+	 * @var array|DataParsoid|null
 	 */
-	public ?DataParsoid $parsoid = null;
+	public $parsoid = null;
 
 	/**
 	 * The unserialized data-mw attribute
+	 * @var array|DataMw|null
 	 */
-	public ?DataMw $mw = null;
+	public $mw = null;
 
 	public function __clone() {
 		// PHP performs a shallow clone then calls this method.
@@ -64,6 +66,7 @@ class NodeData {
 			return $nd;
 		}
 
+		// It is the responsibility of callers to ensure nd->mw is not in json-blob form.
 		// Avoid cloning sealed DOMFragments that may occur in expanded attributes
 		foreach ( $nd->mw->attribs ?? [] as $attr ) {
 			// Look for DOMFragments in both key and value of DataMwAttrib

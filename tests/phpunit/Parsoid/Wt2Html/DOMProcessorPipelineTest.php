@@ -4,11 +4,14 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Wt2Html;
 
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
 use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
@@ -33,10 +36,18 @@ class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 		];
 		$dpp->resetState( $opts );
 		$dpp->setFrame( $mockEnv->topFrame );
-		$document = ContentUtils::createAndLoadDocument( $html );
+		$document = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => false ] );
+		$body = DOMCompat::getBody( $document );
+		DOMUtils::visitDOM( $body, static function ( Node $node, array $options ) {
+			// Force data-parsoid to be loaded since lazy-loading code won't
+			// process data-parsoid always which fail test expectations.
+			if ( $node instanceof Element ) {
+				DOMDataUtils::getDataParsoid( $node );
+			}
+		}, [] );
 		$dpp->doPostProcess( DOMCompat::getBody( $document ) );
 		if ( $storeDataAttribs ) {
-			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $document ) );
+			DOMDataUtils::visitAndStoreDataAttribs( $body );
 		}
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}

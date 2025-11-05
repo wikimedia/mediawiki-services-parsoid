@@ -124,6 +124,8 @@ class CleanUp {
 	public const ALLOWED_TPL_WRAPPER_ATTRS = [
 		'about' => 1,
 		'typeof' => 1,
+		'data-parsoid' => 1,
+		'data-mw' => 1
 	];
 
 	/**

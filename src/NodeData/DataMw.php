@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\JsonCodecableWithCodecTrait;
+use Wikimedia\Parsoid\Utils\RichCodecable;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -43,7 +44,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property DataMwExtAttribs $extAttribs Attributes for an extension tag or annotation
  */
 #[\AllowDynamicProperties]
-class DataMw implements JsonCodecable {
+class DataMw implements JsonCodecable, RichCodecable {
 	/*
 	 * Because the 'caption' and 'html' fields have embedded DocumentFragments
 	 * that /don't/ use the standard encoding, we need to use a custom
@@ -141,6 +142,21 @@ class DataMw implements JsonCodecable {
 				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );
 			}
 		}
+	}
+
+	/** @return Hint<DataMw> */
+	public static function hint(): Hint {
+		return Hint::build( self::class, Hint::ALLOW_OBJECT );
+	}
+
+	/** @inheritDoc */
+	public static function defaultValue(): ?self {
+		return new DataMw;
+	}
+
+	/** @inheritDoc */
+	public function flatten(): ?string {
+		return null;
 	}
 
 	/** @inheritDoc */

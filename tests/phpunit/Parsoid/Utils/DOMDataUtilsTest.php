@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
+use Wikimedia\TestingAccessWrapper;
 
 /**
  * @coversDefaultClass  \Wikimedia\Parsoid\Utils\DOMDataUtils
@@ -29,9 +30,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		) );
 		DOMDataUtils::prepareDoc( $dpb->doc );
 		$p = DOMCompat::querySelector( $dpb->doc, 'p' );
-		DOMDataUtils::storeInPageBundle( $dpb, $p, (object)[
-			'parsoid' => [ 'go' => 'team' ],
-			'mw' => [ 'test' => 'me' ],
+		TestingAccessWrapper::newFromClass( DOMDataUtils::class )->storeInPageBundle( $dpb, $p, (object)[
+			'parsoid' => '{"go":"team"}',
+			'mw' => '{"test":"me"}',
 		], DOMDataUtils::usedIdIndex( new MockSiteConfig( [] ), $p->ownerDocument ) );
 		$id = DOMCompat::getAttribute( $p, 'id' ) ?? '';
 		$this->assertNotEquals( '', $id );
