@@ -599,7 +599,7 @@ class PipelineUtils {
 	 *
 	 * @param DocumentFragment $domFragment List of DOM nodes that need to be tunneled through.
 	 * @param array $opts
-	 * @see encapsulateExpansionHTML's doc. for more info about these options.
+	 * @see tunnelDOMThroughTokens's doc. for more info about these options.
 	 * @return array<Token|string> List of token representatives.
 	 */
 	private static function getWrapperTokens(

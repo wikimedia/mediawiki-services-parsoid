@@ -101,8 +101,8 @@ class TempData {
 	public const WRAPPER = 1 << 6;
 
 	/**
-	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
-	 * to propagate the setDSR option to that function.
+	 * This is set on wrapper tokens created by PipelineUtils::tunnelDOMThroughTokens()
+	 * to propagate the setDSR option to UnpackDOMFragments.
 	 */
 	public const SET_DSR = 1 << 7;
 
@@ -134,8 +134,8 @@ class TempData {
 	public const BOGUS_PX = 1 << 12;
 
 	/**
-	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
-	 * to propagate the fromCache option to that function.
+	 * This is set on wrapper tokens created by PipelineUtils::tunnelDOMThroughTokens()
+	 * to propagate the fromCache option to UnpackDOMFragments.
 	 */
 	public const FROM_CACHE = 1 << 13;
 
