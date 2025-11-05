@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Closure;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -388,17 +387,27 @@ class ContentUtils {
 			}
 		};
 		// Collect DSR offsets throughout the document
-		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect, $source ): DomSourceRange {
+		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect, $source, $env ): DomSourceRange {
 			// Validate DSR source
 			// FIXME T405759: $dsr->source shouldn't be null but we haven't
 			// fixed all our code yet.  Also, technically we
 			// could/should collect a list of all the different $dsr
 			// sources and then run this multiple times, once for each
 			// source text.
-			Assert::invariant(
-				$dsr->source === null || $dsr->source === $source,
-				"Bad source in ::convertOffsets"
-			);
+			if ( !(
+				$dsr->source === null || $dsr->source === $source
+			) ) {
+				// T409345
+				$env->log(
+					'error/wt2html',
+					"Bad source in ::convertOffsets (T409345): ",
+					$env->getContextTitle()->getFullText(),
+					mb_substr( $dsr->source->getSrcText(), 0, 100 )
+				);
+				// Don't collect (or mutate) this, we don't know where
+				// it came from.
+				return $dsr;
+			}
 			if ( $dsr->start !== null ) {
 				$collect( $dsr->start );
 				$collect( $dsr->innerStart() );
