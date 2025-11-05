@@ -5,6 +5,7 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 
 use MediaWiki\Settings\SettingsBuilder;
 use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
 use Wikimedia\Parsoid\ParserTests\Stats;
 use Wikimedia\Parsoid\ParserTests\Test;
 use Wikimedia\Parsoid\ParserTests\TestRunner;
@@ -668,7 +669,8 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$a = preg_replace( '/\xA0/', "␣", $actual['normal'] );
 		// PORT_FIXME:
 		if ( !self::$differ ) {
-			self::$differ = new Differ();
+			$outputBuilder = new UnifiedDiffOutputBuilder;
+			self::$differ = new Differ( $outputBuilder );
 		}
 
 		$diffs = self::$differ->diff( $e, $a );
