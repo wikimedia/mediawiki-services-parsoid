@@ -791,7 +791,6 @@ class PipelineUtils {
 	 *            whether the DSR from the placeholder node is transferred
 	 *            over to the unpacked DOM or not.
 	 *            For example: Cite, reused transclusions.
-	 *    - bool  fromCache
 	 *    - array pipelineOpts
 	 *    - bool  unpackOutput
 	 *    - string wrapperName
@@ -821,12 +820,6 @@ class PipelineUtils {
 		if ( !empty( $opts['setDSR'] ) ) {
 			$firstWrapperToken->dataParsoid->setTempFlag(
 				TempData::SET_DSR, $opts['setDSR'] );
-		}
-
-		// Pass through fromCache flag
-		if ( !empty( $opts['fromCache'] ) ) {
-			$firstWrapperToken->dataParsoid->setTempFlag(
-				TempData::FROM_CACHE, $opts['fromCache'] );
 		}
 
 		// Transfer the tsr.

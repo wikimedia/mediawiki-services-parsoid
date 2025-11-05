@@ -134,12 +134,6 @@ class TempData {
 	public const BOGUS_PX = 1 << 12;
 
 	/**
-	 * This is set on wrapper tokens created by PipelineUtils::tunnelDOMThroughTokens()
-	 * to propagate the fromCache option to UnpackDOMFragments.
-	 */
-	public const FROM_CACHE = 1 << 13;
-
-	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used
 	 * in findAutoInsertedTags() in conjunction with data-stag to identify
 	 * auto-inserted tags, and for debugging.

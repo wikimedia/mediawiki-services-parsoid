@@ -49,26 +49,6 @@ class UnpackDOMFragments {
 			DOMUtils::treeHasElement( $fragment, 'a' );
 	}
 
-	private static function fixAbouts( Env $env, Node $node, array &$aboutIdMap = [] ): void {
-		$c = $node->firstChild;
-		while ( $c ) {
-			if ( $c instanceof Element ) {
-				$cAbout = DOMCompat::getAttribute( $c, 'about' );
-				if ( $cAbout !== null ) {
-					// Update about
-					$newAbout = $aboutIdMap[$cAbout] ?? null;
-					if ( !$newAbout ) {
-						$newAbout = $env->newAboutId();
-						$aboutIdMap[$cAbout] = $newAbout;
-					}
-					$c->setAttribute( 'about', $newAbout );
-				}
-				self::fixAbouts( $env, $c, $aboutIdMap );
-			}
-			$c = $c->nextSibling;
-		}
-	}
-
 	private static function makeChildrenEncapWrappers(
 		DocumentFragment $domFragment, string $about
 	): void {
@@ -169,7 +149,6 @@ class UnpackDOMFragments {
 
 		// Update DSR:
 		//
-		// - Only update DSR for content that came from cache.
 		// - For new DOM fragments from this pipeline,
 		//   previously-computed DSR is valid.
 		// - EXCEPTION: fostered content from tables get their DSR reset
@@ -190,7 +169,6 @@ class UnpackDOMFragments {
 		$placeholderDSR = $placeholderDP->dsr ?? null;
 		if ( $placeholderDSR && (
 			$placeholderDP->getTempFlag( TempData::SET_DSR ) ||
-			$placeholderDP->getTempFlag( TempData::FROM_CACHE ) ||
 			!empty( $placeholderDP->fostered ) ||
 			$isTransclusion
 		) ) {
@@ -216,24 +194,9 @@ class UnpackDOMFragments {
 			}
 		}
 
-		if ( $placeholderDP->getTempFlag( TempData::FROM_CACHE ) ) {
-			// Replace old about-id with new about-id that is
-			// unique to the global page environment object.
-			//
-			// <figure>s are reused from cache. Note that figure captions
-			// can contain multiple independent transclusions. Each one
-			// of those individual transclusions should get a new unique
-			// about id. Hence a need for an aboutIdMap and the need to
-			// walk the entire tree.
-			self::fixAbouts( $env, $fragmentDOM );
-		}
-
 		// If the fragment wrapper has an about id, it came from template
 		// annotating (the wrapper was an about sibling) and should be transferred
-		// to top-level nodes after span wrapping.  This should happen regardless
-		// of whether we're coming `fromCache` or not.
-		// FIXME: Presumably we have a nesting issue here if this is a cached
-		// transclusion.
+		// to top-level nodes after span wrapping.
 		$about = DOMCompat::getAttribute( $placeholder, 'about' );
 		if ( $about !== null ) {
 			// Span wrapping may not have happened for the transclusion above if
