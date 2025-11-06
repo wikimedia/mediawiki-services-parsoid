@@ -147,6 +147,38 @@ class UnpackDOMFragments {
 			DOMDataUtils::getDataParsoid( $fragmentContent )->pi = $placeholderDP->pi ?? null;
 		}
 
+		// If the fragment wrapper has an about id, it came from template
+		// annotating (the wrapper was an about sibling) and should be transferred
+		// to top-level nodes after span wrapping.
+		$about = DOMCompat::getAttribute( $placeholder, 'about' );
+		if ( $about !== null ) {
+			// Span wrapping may not have happened for the transclusion above if
+			// the fragment is not the first encapsulation wrapper node.
+			PipelineUtils::addSpanWrappers( DOMUtils::childNodes( $fragmentDOM ) );
+			// Reset `fragmentContent`, since the `firstChild` may have changed in
+			// span wrapping.
+			$c = $fragmentContent = $fragmentDOM->firstChild;
+			while ( $c ) {
+				'@phan-var Element $c'; // @var Element $c
+				$c->setAttribute( 'about', $about );
+				$c = $c->nextSibling;
+			}
+		}
+
+		// Preserve fostered flag from DOM fragment
+		if ( !empty( $placeholderDP->fostered ) ) {
+			PipelineUtils::addSpanWrappers( DOMUtils::childNodes( $fragmentDOM ) );
+			// Reset `fragmentContent`, since the `firstChild` may have changed in
+			// span wrapping.
+			$n = $fragmentContent = $fragmentDOM->firstChild;
+			while ( $n ) {
+				'@phan-var Element $n'; // @var Element $n
+				$dp = DOMDataUtils::getDataParsoid( $n );
+				$dp->fostered = true;
+				$n = $n->nextSibling;
+			}
+		}
+
 		// Update DSR:
 		//
 		// - For new DOM fragments from this pipeline,
@@ -187,26 +219,12 @@ class UnpackDOMFragments {
 			) {
 				$fragmentDP->dsr = $placeholderDSR;
 			} else { // non-transcluded images
+				// FIXME: Presumably, all the fostered content gets DSR reset,
+				// not just $fragmentContent
 				$fragmentDP->dsr = new DomSourceRange(
 					$placeholderDSR->start, $placeholderDSR->end, 2, 2,
 					source: $placeholderDSR->source
 				);
-			}
-		}
-
-		// If the fragment wrapper has an about id, it came from template
-		// annotating (the wrapper was an about sibling) and should be transferred
-		// to top-level nodes after span wrapping.
-		$about = DOMCompat::getAttribute( $placeholder, 'about' );
-		if ( $about !== null ) {
-			// Span wrapping may not have happened for the transclusion above if
-			// the fragment is not the first encapsulation wrapper node.
-			PipelineUtils::addSpanWrappers( DOMUtils::childNodes( $fragmentDOM ) );
-			$c = $fragmentDOM->firstChild;
-			while ( $c ) {
-				'@phan-var Element $c'; // @var Element $c
-				$c->setAttribute( 'about', $about );
-				$c = $c->nextSibling;
 			}
 		}
 
@@ -312,18 +330,6 @@ class UnpackDOMFragments {
 			// placeholderParent itself is useless now
 			$placeholderParent->parentNode->removeChild( $placeholderParent );
 		} else {
-			// Preserve fostered flag from DOM fragment
-			if ( !empty( $placeholderDP->fostered ) ) {
-				PipelineUtils::addSpanWrappers( DOMUtils::childNodes( $fragmentDOM ) );
-				$n = $fragmentDOM->firstChild;
-				while ( $n ) {
-					'@phan-var Element $n'; // @var Element $n
-					$dp = DOMDataUtils::getDataParsoid( $n );
-					$dp->fostered = true;
-					$n = $n->nextSibling;
-				}
-			}
-
 			// Move the content nodes over and delete the placeholder node
 			DOMUtils::migrateChildren( $fragmentDOM, $placeholderParent, $placeholder );
 			$placeholderParent->removeChild( $placeholder );

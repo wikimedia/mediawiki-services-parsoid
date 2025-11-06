@@ -44,6 +44,11 @@
 			"name": "f8_countargs",
 			"aliases": [ "f8_countargs" ],
 			"case-sensitive": true
+		},
+		{
+			"name": "f9_comment",
+			"aliases": [ "f9_comment" ],
+			"case-sensitive": true
 		}
 	]
 }

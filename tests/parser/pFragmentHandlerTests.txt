@@ -301,3 +301,22 @@ disabled
 * Two: {{#f8_countargs:1=1|2=2}}
 !! html/parsoid+integrated
 !! end
+
+## Regression test for T408958
+!! test
+Fostered dom fragment
+!! wikitext
+{|
+[[category:123]]{{#f9_comment}}
+|test
+|}
+!! html/parsoid+integrated
+<link rel="mw:PageProp/Category" href="./Category:123" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["{|\n[[category:123]]",{"parserfunction":{"target":{"wt":"#f9_comment","key":"f9_comment"},"params":{},"i":0}},"\n|test\n|}"]}'/><span about="#mwt2"><!-- WARNING: template omitted, post-expand include size too large --></span>
+<table about="#mwt2">
+<tbody>
+<tr>
+<td>test</td>
+</tr>
+</tbody>
+</table>
+!! end

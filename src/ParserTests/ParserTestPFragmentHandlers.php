@@ -42,7 +42,7 @@ class ParserTestPFragmentHandlers {
 			// and as cases in ::getHandler() below.
 			'f1_wt', 'f2_if', 'f3_uc',
 			'f4_return_html', 'f5_from_nowiki',
-			'f7_kv', 'f8_countargs',
+			'f7_kv', 'f8_countargs', 'f9_comment'
 		];
 		$handlerFactory = self::class . '::getHandler';
 		$pFragmentConfig = array_map( static fn ( $key ) => [
@@ -297,6 +297,21 @@ class ParserTestPFragmentHandlers {
 					) {
 						return LiteralStringPFragment::newFromLiteral(
 							strval( count( $arguments->getOrderedArgs( $extApi ) ) ),
+							null
+						);
+					}
+				};
+
+			case 'f9_comment':
+				return new class extends PFragmentHandler {
+					/** @inheritDoc */
+					public function sourceToFragment(
+						ParsoidExtensionAPI $extApi,
+						Arguments $arguments,
+						bool $tagSyntax
+					) {
+						return HtmlPFragment::newFromHtmlString(
+							'<!-- WARNING: template omitted, post-expand include size too large -->',
 							null
 						);
 					}
