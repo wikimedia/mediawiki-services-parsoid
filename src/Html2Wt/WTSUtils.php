@@ -174,16 +174,14 @@ class WTSUtils {
 	}
 
 	public static function traceNodeName( Node $node ): string {
-		switch ( $node->nodeType ) {
-			case XML_ELEMENT_NODE:
-				return ( DiffUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMUtils::nodeName( $node );
-			case XML_TEXT_NODE:
-				return 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue );
-			case XML_COMMENT_NODE:
-				return 'CMT : ' . PHPUtils::jsonEncode( self::commentWT( $node->nodeValue ) );
-			default:
-				return DOMUtils::nodeName( $node );
-		}
+		return match ( $node->nodeType ) {
+			XML_ELEMENT_NODE => DiffUtils::isDiffMarker( $node ) ?
+				'DIFF_MARK' :
+				'NODE: ' . DOMUtils::nodeName( $node ),
+			XML_TEXT_NODE => 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue ),
+			XML_COMMENT_NODE => 'CMT : ' . PHPUtils::jsonEncode( self::commentWT( $node->nodeValue ) ),
+			default => DOMUtils::nodeName( $node ),
+		};
 	}
 
 	/**

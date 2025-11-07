@@ -33,18 +33,10 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 	}
 
 	private static function imageExtensions( string $str ): bool {
-		switch ( $str ) {
-			case 'avif': // fall through
-			case 'gif': // fall through
-			case 'jpeg': // fall through
-			case 'jpg': // fall through
-			case 'png': // fall through
-			case 'svg':
-			case 'webp':
-				return true;
-			default:
-				return false;
-		}
+		return match ( $str ) {
+			'avif', 'gif', 'jpeg', 'jpg', 'png', 'svg', 'webp' => true,
+			default => false
+		};
 	}
 
 	private function arraySome( array $array, callable $fn ): bool {
@@ -245,13 +237,10 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 
 	/** @inheritDoc */
 	public function onTag( XMLTagTk $token ): ?array {
-		switch ( $token->getName() ) {
-			case 'urllink':
-				return $this->onUrlLink( $token );
-			case 'extlink':
-				return $this->onExtLink( $token );
-			default:
-				return null;
-		}
+		return match ( $token->getName() ) {
+			'urllink' => $this->onUrlLink( $token ),
+			'extlink' => $this->onExtLink( $token ),
+			default => null
+		};
 	}
 }

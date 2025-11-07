@@ -406,20 +406,12 @@ class TreeBuilderStage extends PipelineStage {
 			) {
 				$origTxt = $dp->tsr->substr( $this->frame->getSource() );
 			} else {
-				switch ( $name ) {
-					case 'td':
-						$origTxt = '|';
-						break;
-					case 'tr':
-						$origTxt = '|-';
-						break;
-					case 'th':
-						$origTxt = '!';
-						break;
-					default:
-						$origTxt = '';
-						break;
-				}
+				$origTxt = match ( $name ) {
+					'td' => '|',
+					'tr' => '|-',
+					'th' => '!',
+					default => ''
+				};
 			}
 			if ( $origTxt !== '' ) {
 				$this->remexPipeline->dispatcher->characters( $origTxt, 0, strlen( $origTxt ), 0,

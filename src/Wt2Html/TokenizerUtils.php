@@ -474,19 +474,13 @@ class TokenizerUtils {
 	 */
 	public static function enforceParserResourceLimits( Env $env, $token ): void {
 		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
-			$resource = null;
-			switch ( $token->getName() ) {
-				case 'listItem':
-					$resource = 'listItem';
-					break;
-				case 'template':
-					$resource = 'transclusion';
-					break;
-				case 'td':
-				case 'th':
-					$resource = 'tableCell';
-					break;
-			}
+			$resource = match ( $token->getName() ) {
+				'listItem' => 'listItem',
+				'template' => 'transclusion',
+				'td',
+				'th' => 'tableCell',
+				default => null
+			};
 			if (
 				$resource !== null &&
 				$env->bumpWt2HtmlResourceUse( $resource ) === false

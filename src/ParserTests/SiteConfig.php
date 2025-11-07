@@ -217,19 +217,12 @@ class SiteConfig extends ApiSiteConfig {
 
 	/** @inheritDoc */
 	public function getMWConfigValue( string $key ) {
-		switch ( $key ) {
-			case 'CiteResponsiveReferences':
-				return $this->responsiveReferences['enabled'];
-
-			case 'CiteResponsiveReferencesThreshold':
-				return $this->responsiveReferences['threshold'];
-
-			case 'ParsoidExperimentalParserFunctionOutput':
-				return $this->v3pf;
-
-			default:
-				return null;
-		}
+		return match ( $key ) {
+			'CiteResponsiveReferences' => $this->responsiveReferences['enabled'],
+			'CiteResponsiveReferencesThreshold' => $this->responsiveReferences['threshold'],
+			'ParsoidExperimentalParserFunctionOutput' => $this->v3pf,
+			default => null
+		};
 	}
 
 	public function setInterwikiMagic( bool $val ): void {

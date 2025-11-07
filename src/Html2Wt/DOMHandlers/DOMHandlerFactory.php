@@ -24,84 +24,46 @@ class DOMHandlerFactory {
 	 * @return DOMHandler|null
 	 */
 	public function newFromTagHandler( string $tag ): ?DOMHandler {
-		switch ( $tag ) {
-			case 'a':
-				return new AHandler();
-			case 'audio':
-				return new MediaHandler();
-			case 'b':
-				return new QuoteHandler( "'''" );
-			case 'body':
-				return new BodyHandler();
-			case 'br':
-				return new BRHandler();
-			case 'caption':
-				return new CaptionHandler();
-			case 'dd':
-				return new DDHandler(); // multi-line dt/dd
-			case 'dd_row':
-				return new DDHandler( 'row' ); // single-line dt/dd
-			case 'dl':
-				return new ListHandler( [ 'dt', 'dd' ] );
-			case 'dt':
-				return new DTHandler();
-			case 'figure':
-				return new FigureHandler();
-			case 'hr':
-				return new HRHandler();
-			case 'h1':
-				return new HeadingHandler( '=' );
-			case 'h2':
-				return new HeadingHandler( '==' );
-			case 'h3':
-				return new HeadingHandler( '===' );
-			case 'h4':
-				return new HeadingHandler( '====' );
-			case 'h5':
-				return new HeadingHandler( '=====' );
-			case 'h6':
-				return new HeadingHandler( '======' );
-			case 'i':
-				return new QuoteHandler( "''" );
-			case 'img':
-				return new ImgHandler();
-			case 'li':
-				return new LIHandler();
-			case 'link':
-				return new LinkHandler();
-			case 'meta':
-				return new MetaHandler();
-			case 'ol':
-				return new ListHandler( [ 'li' ] );
-			case 'p':
-				return new PHandler();
-			case 'pre':
-				return new PreHandler(); // Wikitext indent pre generated with leading space
-			case 'pre_html':
-				return new HTMLPreHandler(); // HTML pre
-			case 'span':
-				return new SpanHandler();
-			case 'table':
-				return new TableHandler();
-			case 'tbody':
-				return new JustChildrenHandler();
-			case 'td':
-				return new TDHandler();
-			case 'tfoot':
-				return new JustChildrenHandler();
-			case 'th':
-				return new THHandler();
-			case 'thead':
-				return new JustChildrenHandler();
-			case 'tr':
-				return new TRHandler();
-			case 'ul':
-				return new ListHandler( [ 'li' ] );
-			case 'video':
-				return new MediaHandler();
-			default:
-				return null;
-		}
+		return match ( $tag ) {
+			'a' => new AHandler(),
+			'audio',
+			'video' => new MediaHandler(),
+			'b' => new QuoteHandler( "'''" ),
+			'body' => new BodyHandler(),
+			'br' => new BRHandler(),
+			'caption' => new CaptionHandler(),
+			'dd' => new DDHandler(), // multi-line dt/dd
+			'dd_row' => new DDHandler( 'row' ), // single-line dt/dd
+			'dl' => new ListHandler( [ 'dt', 'dd' ] ),
+			'dt' => new DTHandler(),
+			'figure' => new FigureHandler(),
+			'hr' => new HRHandler(),
+			'h1' => new HeadingHandler( '=' ),
+			'h2' => new HeadingHandler( '==' ),
+			'h3' => new HeadingHandler( '===' ),
+			'h4' => new HeadingHandler( '====' ),
+			'h5' => new HeadingHandler( '=====' ),
+			'h6' => new HeadingHandler( '======' ),
+			'i' => new QuoteHandler( "''" ),
+			'img' => new ImgHandler(),
+			'li' => new LIHandler(),
+			'link' => new LinkHandler(),
+			'meta' => new MetaHandler(),
+			'ol',
+			'ul' => new ListHandler( [ 'li' ] ),
+			'p' => new PHandler(),
+			'pre' => new PreHandler(), // Wikitext indent pre generated with leading space
+			'pre_html' => new HTMLPreHandler(), // HTML pre
+			'span' => new SpanHandler(),
+			'table' => new TableHandler(),
+			'thead',
+			'tbody',
+			'tfoot' => new JustChildrenHandler(),
+			'td' => new TDHandler(),
+			'th' => new THHandler(),
+			'tr' => new TRHandler(),
+			default => null
+		};
 	}
 
 	/**

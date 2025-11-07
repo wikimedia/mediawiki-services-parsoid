@@ -165,16 +165,12 @@ class KV implements JsonCodecable, \JsonSerializable {
 
 	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyName ) {
-		switch ( $keyName ) {
-			case 'k':
-			case 'v':
-				// Hint these as "array of Token" which is the most common
-				// thing after "string".
-				return Hint::build( Token::class, Hint::INHERITED, Hint::LIST );
-			case 'srcOffsets':
-				return Hint::build( KVSourceRange::class, Hint::USE_SQUARE );
-			default:
-				return null;
-		}
+		return match ( $keyName ) {
+			// Hint these as "array of Token" which is the most common
+			// thing after "string".
+			'k', 'v' => Hint::build( Token::class, Hint::INHERITED, Hint::LIST ),
+			'srcOffsets' => Hint::build( KVSourceRange::class, Hint::USE_SQUARE ),
+			default => null
+		};
 	}
 }

@@ -552,32 +552,17 @@ class MockDataAccess extends DataAccess {
 	): string {
 		// Render to html the contents of known extension tags
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $wikitext, $match );
-		switch ( $match[1] ) {
-			case 'templatestyles':
-				// Silliness
-				$html = "<style data-mw-deduplicate='TemplateStyles:r123456'>" .
-					"small { font-size: 120% } big { font-size: 80% }</style>";
-				break;
-
-			case 'translate':
-				$html = $wikitext;
-				break;
-
-			case 'indicator':
-			case 'section':
-				$html = "";
-				break;
-
-			case 'math':
-				// phpcs:ignore Generic.Files.LineLength.TooLong
-				$html = '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mstyle displaystyle="true" scriptlevel="0"><mi>x</mi></mstyle></mrow></math>';
-				break;
-
-			default:
-				throw new Error( 'Unhandled extension type encountered in: ' . $wikitext );
-		}
-
-		return $html;
+		return match ( $match[1] ) {
+			'templatestyles' => "<style data-mw-deduplicate='TemplateStyles:r123456'>" .
+				'small { font-size: 120% } big { font-size: 80% }</style>',
+			'translate' => $wikitext,
+			'indicator',
+			'section' => '',
+			'math' => '<math xmlns="http://www.w3.org/1998/Math/MathML">' .
+				'<mrow data-mjx-texclass="ORD"><mstyle displaystyle="true" scriptlevel="0">' .
+				'<mi>x</mi></mstyle></mrow></math>',
+			default => throw new Error( 'Unhandled extension type encountered in: ' . $wikitext )
+		};
 	}
 
 	/** @inheritDoc */

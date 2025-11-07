@@ -57,18 +57,13 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 
 	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyName ) {
-		switch ( $keyName ) {
-			case 'dataParsoid':
-				return DOMDataUtils::getCodecHints()['data-parsoid'];
-			case 'dataMw':
-				return DOMDataUtils::getCodecHints()['data-mw'];
-			case 'attribs':
-				return Hint::build( KV::class, Hint::LIST );
-			case 'nestedTokens':
-				return new Hint( self::hint(), Hint::LIST );
-			default:
-				return null;
-		}
+		return match ( $keyName ) {
+			'dataParsoid' => DOMDataUtils::getCodecHints()['data-parsoid'],
+			'dataMw' => DOMDataUtils::getCodecHints()['data-mw'],
+			'attribs' => Hint::build( KV::class, Hint::LIST ),
+			'nestedTokens' => new Hint( self::hint(), Hint::LIST ),
+			default => null
+		};
 	}
 
 	/** @inheritDoc */

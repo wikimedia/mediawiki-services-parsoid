@@ -117,31 +117,17 @@ abstract class LineBasedHandler extends TokenHandler {
 	public function process( array $tokens ): array {
 		$accum = [];
 		foreach ( $tokens as $token ) {
-			switch ( true ) {
-				case $token instanceof XMLTagTk:
-					$res = $this->onTag( $token );
-					break;
-
-				case is_string( $token ):
-				case $token instanceof CommentTk:
-					$res = null;
-					break;
-
-				case $token instanceof NlTk:
-					$res = $this->onNewline( $token );
-					break;
-
-				case $token instanceof CompoundTk:
-					$res = $this->onCompoundTk( $token, $this );
-					break;
-
-				case $token instanceof EOFTk:
-					$res = $this->onEnd( $token );
-					break;
-
-				default:
-					$res = null;
-			}
+			$res = match ( true ) {
+				// Ordered from most likely to least likely for performance reasons
+				$token instanceof XMLTagTk => $this->onTag( $token ),
+				// Intentional duplicates to bail out as fast as possible
+				is_string( $token ) => null,
+				$token instanceof CommentTk => null,
+				$token instanceof NlTk => $this->onNewline( $token ),
+				$token instanceof CompoundTk => $this->onCompoundTk( $token, $this ),
+				$token instanceof EOFTk => $this->onEnd( $token ),
+				default => null
+			};
 
 			if ( $res === null && $this->onAnyEnabled ) {
 				$res = $this->onAny( $token );

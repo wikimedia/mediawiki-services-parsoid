@@ -1039,13 +1039,10 @@ class TemplateHandler extends XMLTagBasedHandler {
 
 	/** @inheritDoc */
 	public function onTag( XMLTagTk $token ): ?array {
-		switch ( $token->getName() ) {
-			case "template":
-				return $this->onTemplate( $token );
-			case "templatearg":
-				return $this->onTemplateArg( $token );
-			default:
-				return null;
-		}
+		return match ( $token->getName() ) {
+			'template' => $this->onTemplate( $token ),
+			'templatearg' => $this->onTemplateArg( $token ),
+			default => null
+		};
 	}
 }

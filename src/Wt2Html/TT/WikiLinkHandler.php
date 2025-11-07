@@ -1506,21 +1506,14 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			}
 		}
 
-		$rdfaType = 'mw:File';
-
 		// If the format is something we *recognize*, add the subtype
-		switch ( $format ) {
-			case 'manualthumb':  // FIXME(T305759): Does it deserve its own type?
-			case 'thumbnail':
-				$rdfaType .= '/Thumb';
-				break;
-			case 'framed':
-				$rdfaType .= '/Frame';
-				break;
-			case 'frameless':
-				$rdfaType .= '/Frameless';
-				break;
-		}
+		$rdfaType = 'mw:File' . match ( $format ) {
+			'manualthumb', // FIXME(T305759): Does it deserve its own type?
+			'thumbnail' => '/Thumb',
+			'framed' => '/Frame',
+			'frameless' => '/Frameless',
+			default => ''
+		};
 
 		// Tell VE that it shouldn't try to edit this
 		if ( !empty( $dataParsoid->uneditable ) ) {
@@ -1725,13 +1718,10 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 	/** @inheritDoc */
 	public function onTag( XMLTagTk $token ): ?array {
-		switch ( $token->getName() ) {
-			case 'wikilink':
-				return $this->onWikiLink( $token );
-			case 'mw:redirect':
-				return $this->onRedirect( $token );
-			default:
-				return null;
-		}
+		return match ( $token->getName() ) {
+			'wikilink' => $this->onWikiLink( $token ),
+			'mw:redirect' => $this->onRedirect( $token ),
+			default => null
+		};
 	}
 }

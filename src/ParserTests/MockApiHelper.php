@@ -1004,34 +1004,23 @@ class MockApiHelper extends ApiHelper {
 		// used in parser tests currently. This would need to be updated
 		// as more templates are added OR we need to rely on true parsing.
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $text, $match );
-		switch ( $match[1] ?? '' ) {
+		$res = match ( $match[1] ?? '' ) {
 			// FIXME: this isn't really used by the mocha tests
 			// since some mocha tests hit the production db, but
 			// when we fix that, they should go through this.
-			case 'templatestyles':
-				$res = "<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>"; // Silliness
-				break;
+			'templatestyles' => "<style data-mw-deduplicate='TemplateStyles:r123456'>small { font-size: 120% } big { font-size: 80% }</style>",
+			'translate' => $text,
+			'indicator',
+			'section' => '',
+			default => throw new Error( 'Unhandled extension type encountered in: ' . $text )
+		};
 
-			case 'translate':
-				$res = $text;
-				break;
-
-			case 'indicator':
-			case 'section':
-				$res = "";
-				break;
-
-			default:
-				throw new Error( 'Unhandled extension type encountered in: ' . $text );
-		}
-
-		$parse = [
+		return [ 'parse' => [
 			'text' => $res,
 			'categories' => [],
 			'modules' => [],
 			'modulestyles' => []
-		];
-		return [ 'parse' => $parse ];
+		] ];
 	}
 
 	/**
