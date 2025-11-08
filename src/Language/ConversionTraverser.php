@@ -239,7 +239,9 @@ class ConversionTraverser extends DOMTraverser {
 			while ( $el->firstChild !== null ) {
 				DOMCompat::remove( $el->firstChild );
 			}
-			$el->appendChild( $df );
+			if ( $df->hasChildNodes() ) {
+				$el->appendChild( $df );
+			}
 			return $el->nextSibling;
 		} elseif ( $dmv->twoway ?? false ) {
 			// FIXME
