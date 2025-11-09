@@ -20,10 +20,20 @@ class DOMTraverser {
 	 * List of handlers to call on each node. Each handler is an array with the following fields:
 	 * - action: a callable to call
 	 * - nodeName: if set, only call it on nodes with this name
+	 * These handlers are called before attribute-embedded HTML.
 	 * @var array<array{action:callable,nodeName:string}>
 	 * @see addHandler()
 	 */
-	private $handlers = [];
+	private $beforeAttributeHandlers = [];
+	/**
+	 * List of handlers to call on each node. Each handler is an array with the following fields:
+	 * - action: a callable to call
+	 * - nodeName: if set, only call it on nodes with this name
+	 * These handlers are called after attribute-embedded HTML.
+	 * @var array<array{action:callable,nodeName:string}>
+	 * @see addHandler()
+	 */
+	private $afterAttributeHandlers = [];
 
 	/**
 	 * Should the handlers be called on attribute-embedded-HTML strings?
@@ -47,23 +57,37 @@ class DOMTraverser {
 	/**
 	 * Add a handler to the DOM traverser.
 	 *
+	 * If you want traversal to continue into the children of this node,
+	 * typically you will return true.  If you want traversal to skip the
+	 * children of this node, typically you will return $node->nextSibling
+	 * (which may be null).
+	 *
 	 * @param ?string $nodeName An optional node name filter
-	 * @param callable $action A callback, called on each node we traverse that matches nodeName.
-	 *   Will be called with the following parameters:
+	 * @param callable $action A callback, called on each node we traverse
+	 *   that matches nodeName, with the following parameters:
 	 *   - Node $node: the node being processed
 	 *   - DTState $state: State.
 	 *   Return value: Node|null|true.
-	 *   - true: proceed normally
+	 *   - true: proceed normally (aka recurse into children and attributes)
 	 *   - Node: traversal will continue on the new node (further handlers will not be called
 	 *     on the current node); after processing it and its siblings, it will continue with the
 	 *     next sibling of the closest ancestor which has one.
 	 *   - null: like the Node case, except there is no new node to process before continuing.
+	 * @param bool $beforeAttributes If true, this node is visited
+	 *   *before* the contents of any attribute-embedded HTML. If false
+	 *   (the default), this node is visited *after* the contents of
+	 *   attribute-embedded HTML.
 	 */
-	public function addHandler( ?string $nodeName, callable $action ): void {
-		$this->handlers[] = [
+	public function addHandler( ?string $nodeName, callable $action, bool $beforeAttributes = false ): void {
+		$handler = [
 			'action' => $action,
 			'nodeName' => $nodeName,
 		];
+		if ( $beforeAttributes ) {
+			$this->beforeAttributeHandlers[] = $handler;
+		} else {
+			$this->afterAttributeHandlers[] = $handler;
+		}
 	}
 
 	/**
@@ -74,6 +98,16 @@ class DOMTraverser {
 	 */
 	private function callHandlers( Node $node, ?SiteConfig $siteConfig, ?DTState $state ) {
 		$name = DOMUtils::nodeName( $node );
+
+		foreach ( $this->beforeAttributeHandlers as $handler ) {
+			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {
+				$result = $handler['action']( $node, $state );
+				if ( $result !== true ) {
+					// Abort processing for this node
+					return $result;
+				}
+			}
+		}
 
 		// Process embedded HTML first since the handlers below might
 		// return a different node which aborts processing. By processing
@@ -104,7 +138,7 @@ class DOMTraverser {
 			);
 		}
 
-		foreach ( $this->handlers as $handler ) {
+		foreach ( $this->afterAttributeHandlers as $handler ) {
 			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {
 				$result = $handler['action']( $node, $state );
 				if ( $result !== true ) {
