@@ -167,19 +167,17 @@ class TokenUtils {
 	public static function isSolTransparent( Env $env, $token ): bool {
 		if ( is_string( $token ) ) {
 			return (bool)preg_match( '/^[ \t]*$/D', $token );
-		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
+		} elseif (
+			self::isSolTransparentLinkTag( $token ) ||
+			$token instanceof EmptyLineTk ||
+			( $token instanceof CommentTk && !self::isTranslationUnitMarker( $env, $token ) ) ||
+			self::isBehaviorSwitch( $env, $token )
+		) {
 			return true;
-		} elseif ( $token instanceof EmptyLineTk ) {
-			return true;
-		} elseif ( $token instanceof CommentTk && !self::isTranslationUnitMarker( $env, $token ) ) {
-			return true;
-		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
-			return true;
-		} elseif ( !$token instanceof SelfclosingTagTk || $token->getName() !== 'meta' ) {
-			return false;
-		} else {  // only metas left
+		} elseif ( $token instanceof SelfclosingTagTk && $token->getName() === 'meta' ) {
 			return !( isset( $token->dataParsoid->stx ) && $token->dataParsoid->stx === 'html' );
 		}
+		return false;
 	}
 
 	/**
@@ -270,27 +268,25 @@ class TokenUtils {
 	public static function dedupeAboutIds( Env $env, array $maybeTokens ): void {
 		$aboutMap = [];
 		foreach ( $maybeTokens as $t ) {
-			if ( $t instanceof Token ) {
-				foreach ( $t->attribs ?? [] as $kv ) {
-					if ( $kv->k === 'about' ) {
-						$oldAbout = $kv->v;
-						$newAbout = $aboutMap[$oldAbout] ?? null;
-						if ( !$newAbout ) {
-							$newAbout = $aboutMap[$oldAbout] = $env->newAboutId();
-						}
-						$t->setAttribute( 'about', $newAbout );
-					} else {
-						if ( $kv->k instanceof Token ) {
-							self::dedupeAboutIds( $env, [ $kv->k ] );
-						} elseif ( is_array( $kv->k ) ) {
-							self::dedupeAboutIds( $env, $kv->k );
-						}
+			if ( !( $t instanceof Token ) ) {
+				continue;
+			}
 
-						if ( $kv->v instanceof Token ) {
-							self::dedupeAboutIds( $env, [ $kv->v ] );
-						} elseif ( is_array( $kv->v ) ) {
-							self::dedupeAboutIds( $env, $kv->v );
-						}
+			foreach ( $t->attribs ?? [] as $kv ) {
+				if ( $kv->k === 'about' ) {
+					$aboutMap[$kv->v] ??= $env->newAboutId();
+					$t->setAttribute( 'about', $aboutMap[$kv->v] );
+				} else {
+					if ( $kv->k instanceof Token ) {
+						self::dedupeAboutIds( $env, [ $kv->k ] );
+					} elseif ( is_array( $kv->k ) ) {
+						self::dedupeAboutIds( $env, $kv->k );
+					}
+
+					if ( $kv->v instanceof Token ) {
+						self::dedupeAboutIds( $env, [ $kv->v ] );
+					} elseif ( is_array( $kv->v ) ) {
+						self::dedupeAboutIds( $env, $kv->v );
 					}
 				}
 			}
@@ -310,66 +306,59 @@ class TokenUtils {
 		}
 
 		// update/clear tsr
-		for ( $i = 0, $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[$i];
-			switch ( true ) {
-				case $t instanceof XMLTagTk:
-				case $t instanceof NlTk:
-				case $t instanceof CommentTk:
-				case $t instanceof PreprocTk:
-					$da = $t->dataParsoid;
-					$tsr = $da->tsr ?? null;
-					if ( $tsr ) {
-						$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
-					}
+		foreach ( $tokens as $t ) {
+			if ( !( $t instanceof XMLTagTk ||
+				$t instanceof NlTk ||
+				$t instanceof CommentTk ||
+				$t instanceof PreprocTk
+			) ) {
+				continue;
+			}
 
-					if ( $offset !== null ) {
-						if ( isset( $da->extTagOffsets ) ) {
-							$da->extTagOffsets =
-								$da->extTagOffsets->offset( $offset );
-						}
+			$da = $t->dataParsoid;
+			$tsr = $da->tsr ?? null;
+			if ( $tsr ) {
+				$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
+			}
 
-						// SSS FIXME: offset will always be available in
-						// chunky-tokenizer mode in which case we wont have
-						// buggy offsets below.  The null scenario is only
-						// for when the token-stream-patcher attempts to
-						// reparse a string -- it is likely to only patch up
-						// small string fragments and the complicated use cases
-						// below should not materialize.
-						// CSA: token-stream-patcher shouldn't have problems
-						// now that $tsr->source/$frame->srcText is always
-						// accurate?
+			if ( $offset !== null ) {
+				if ( isset( $da->extTagOffsets ) ) {
+					$da->extTagOffsets = $da->extTagOffsets->offset( $offset );
+				}
 
-						// content offsets for ext-links
-						if ( isset( $da->tmp->extLinkContentOffsets ) ) {
-							$da->tmp->extLinkContentOffsets =
-								$da->tmp->extLinkContentOffsets->offset( $offset );
-						}
-					}
+				// SSS FIXME: offset will always be available in
+				// chunky-tokenizer mode in which case we wont have
+				// buggy offsets below.  The null scenario is only
+				// for when the token-stream-patcher attempts to
+				// reparse a string -- it is likely to only patch up
+				// small string fragments and the complicated use cases
+				// below should not materialize.
+				// CSA: token-stream-patcher shouldn't have problems
+				// now that $tsr->source/$frame->srcText is always
+				// accurate?
 
-					// Process attributes
-					if ( $t->attribs !== null ) {
-						for ( $j = 0, $m = count( $t->attribs );  $j < $m;  $j++ ) {
-							$a = $t->attribs[$j];
-							if ( is_array( $a->k ) ) {
-								self::shiftTokenTSR( $a->k, $offset );
-							}
-							if ( is_array( $a->v ) ) {
-								self::shiftTokenTSR( $a->v, $offset );
-							}
+				// content offsets for ext-links
+				if ( isset( $da->tmp->extLinkContentOffsets ) ) {
+					$da->tmp->extLinkContentOffsets =
+						$da->tmp->extLinkContentOffsets->offset( $offset );
+				}
+			}
 
-							// src offsets used to set mw:TemplateParams
-							if ( $offset === null ) {
-								$a->srcOffsets = null;
-							} elseif ( $a->srcOffsets !== null ) {
-								$a->srcOffsets = $a->srcOffsets->offset( $offset );
-							}
-						}
-					}
-					break;
+			// Process attributes
+			foreach ( $t->attribs ?? [] as $a ) {
+				if ( is_array( $a->k ) ) {
+					self::shiftTokenTSR( $a->k, $offset );
+				}
+				if ( is_array( $a->v ) ) {
+					self::shiftTokenTSR( $a->v, $offset );
+				}
 
-				default:
-					break;
+				// src offsets used to set mw:TemplateParams
+				if ( $offset === null ) {
+					$a->srcOffsets = null;
+				} elseif ( $a->srcOffsets !== null ) {
+					$a->srcOffsets = $a->srcOffsets->offset( $offset );
+				}
 			}
 		}
 	}
@@ -382,8 +371,8 @@ class TokenUtils {
 	 * @return array return the modified token array so that this call can be chained
 	 */
 	public static function stripEOFTkFromTokens( array &$tokens ): array {
-		$n = count( $tokens );
-		if ( $n && $tokens[$n - 1] instanceof EOFTk ) {
+		$last = array_key_last( $tokens );
+		if ( $last !== null && $tokens[$last] instanceof EOFTk ) {
 			array_pop( $tokens );
 		}
 		return $tokens;
@@ -593,8 +582,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isEntitySpanToken( $token ): bool {
-		return $token &&
-			$token instanceof TagTk &&
+		return $token instanceof TagTk &&
 			$token->getName() === 'span' &&
 			self::hasTypeOf( $token, 'mw:Entity' );
 	}
@@ -606,14 +594,13 @@ class TokenUtils {
 	 * @return non-empty-list<NlTk|string> (interspersed string and NlTk tokens)
 	 */
 	public static function newlinesToNlTks( string $str ): array {
-		$toks = preg_split( '/\n|\r\n/', $str );
 		$ret = [];
-		// Add one NlTk between each pair, hence toks.length-1
-		for ( $i = 0, $n = count( $toks ) - 1;  $i < $n;  $i++ ) {
-			$ret[] = $toks[$i];
-			$ret[] = new NlTk( null );
+		foreach ( preg_split( '/\r?\n/', $str ) as $i => $tok ) {
+			if ( $i ) {
+				$ret[] = new NlTk( null );
+			}
+			$ret[] = $tok;
 		}
-		$ret[] = $toks[$i];
 		return $ret;
 	}
 
@@ -729,13 +716,8 @@ class TokenUtils {
 	 */
 	public static function tokenTrim( $tokens ) {
 		if ( !is_array( $tokens ) ) {
-			if ( is_string( $tokens ) ) {
-				return trim( $tokens );
-			}
-			return $tokens;
+			return is_string( $tokens ) ? trim( $tokens ) : $tokens;
 		}
-
-		$n = count( $tokens );
 
 		// strip leading space
 		foreach ( $tokens as &$token ) {
@@ -752,7 +734,7 @@ class TokenUtils {
 		}
 
 		// strip trailing space
-		for ( $i = $n - 1;  $i >= 0;  $i-- ) {
+		for ( $i = count( $tokens ); $i--; ) {
 			$token = &$tokens[$i];
 			if ( $token instanceof NlTk ) {
 				$token = ''; // replace newline with empty
@@ -775,14 +757,8 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function hasTemplateToken( $tokens ): bool {
-		if ( is_array( $tokens ) ) {
-			foreach ( $tokens as $t ) {
-				if ( self::isTemplateToken( $t ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
+		return is_array( $tokens ) &&
+			array_any( $tokens, self::isTemplateToken( ... ) );
 	}
 
 }
