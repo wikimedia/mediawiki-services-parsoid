@@ -201,9 +201,7 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 		);
 
 		$expTitle = explode( '/', $title->getPrefixedDBKey() );
-		$expTitle = array_map( static function ( $comp ) {
-			return PHPUtils::encodeURIComponent( $comp );
-		}, $expTitle );
+		$expTitle = array_map( PHPUtils::encodeURIComponent( ... ), $expTitle );
 
 		DOMUtils::appendToHead( $document, 'link', [
 			'rel' => 'dc:isVersionOf',

@@ -206,13 +206,7 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 */
 	public static function fromLegacy( array $data ): TOCData {
 		// The legacy format has no way to represent extension data.
-		$sections = array_map(
-			static function ( $d ) {
-				return SectionMetadata::fromLegacy( $d );
-			},
-			$data
-		);
-		return new TOCData( ...$sections );
+		return new TOCData( ...array_map( SectionMetadata::fromLegacy( ... ), $data ) );
 	}
 
 	/**

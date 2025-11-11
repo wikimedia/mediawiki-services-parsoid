@@ -22,7 +22,7 @@ class AddLinkAttributesTest extends TestCase {
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( null, false, true );
-		$traverser->addHandler( 'a', static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ) );
+		$traverser->addHandler( 'a', AddLinkAttributes::handler( ... ) );
 		$traverser->run( $mockEnv, $body, [ 'env' => $mockEnv ] );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
@@ -38,7 +38,7 @@ class AddLinkAttributesTest extends TestCase {
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( null, false, true );
-		$traverser->addHandler( 'a', static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ) );
+		$traverser->addHandler( 'a', AddLinkAttributes::handler( ... ) );
 		$traverser->run( $mockEnv, $body, [ 'env' => $mockEnv ] );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );

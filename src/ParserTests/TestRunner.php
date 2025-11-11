@@ -226,7 +226,7 @@ class TestRunner {
 		$this->stats = new Stats();
 		$this->stats->modes = $newModes;
 
-		$this->mockApi = new MockApiHelper( null, fn ( $title )=>$this->normalizeTitleKey( $title ) );
+		$this->mockApi = new MockApiHelper( null, $this->normalizeTitleKey( ... ) );
 		$this->siteConfig = new SiteConfig( $this->mockApi, [] );
 		$this->dataAccess = new DataAccess( $this->mockApi, $this->siteConfig, [ 'stripProto' => false ] );
 		$this->dummyEnv = new Env(
