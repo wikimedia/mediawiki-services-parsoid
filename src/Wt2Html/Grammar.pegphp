@@ -2711,7 +2711,8 @@ table_data_tags =
 	// avoid recursion via nested_block_in_table
 	! <tableDataBlock>
 	p:pipe
-	![+-] td:table_data_tag
+	![+\-}]
+	td:table_data_tag
 	tds:tds {
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
@@ -2726,7 +2727,6 @@ table_data_tags =
 	}
 
 table_data_tag =
-	! "}"
 	arg:row_syntax_table_args?
 	// use inline_breaks to break on tr etc
 	tagEndPos:POSITION

@@ -21626,8 +21626,9 @@ private function parsetable_data_tags($silence, $boolParams, $param_tagType, &$p
   $r10 = $param_preproc;
   $r11 = $param_th;
   $r12 = $param_headingIndex;
-  $r8 = $this->input[$this->currPos] ?? '';
-  if (!($r8 === "+" || $r8 === "-")) {
+  if (strspn($this->input, "+-}", $this->currPos, 1) !== 0) {
+    $r8 = true;
+  } else {
     $r8 = self::$FAILED;
   }
   if ($r8 === self::$FAILED) {
@@ -21648,14 +21649,6 @@ private function parsetable_data_tags($silence, $boolParams, $param_tagType, &$p
   // free $p9,$r10,$r11,$r12
   $r12 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   // td <- $r12
-  if ($r12===self::$FAILED) {
-    $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
-    $r5 = self::$FAILED;
-    goto seq_1;
-  }
   $r11 = $this->parsetds($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   // tds <- $r11
   $r5 = true;
@@ -22656,75 +22649,53 @@ private function parsetable_data_tag($silence, $boolParams, $param_tagType, &$pa
   $r3 = $param_th;
   $r4 = $param_headingIndex;
   // start seq_1
-  if (($this->input[$this->currPos] ?? null) === "}") {
-    $r6 = true;
-  } else {
-    $r6 = self::$FAILED;
-  }
-  if ($r6 === self::$FAILED) {
-    $r6 = false;
-  } else {
-    $r6 = self::$FAILED;
+  // start seq_2
+  $r7 = self::charAt($this->input, $this->currPos);
+  if ($r7 !== '' && !($r7 === "\x0a" || $r7 === "\x0d")) {
+    $r7 = false;
     $this->currPos = $p1;
     $param_preproc = $r2;
     $param_th = $r3;
     $param_headingIndex = $r4;
-    $r5 = self::$FAILED;
-    goto seq_1;
-  }
-  // start seq_2
-  $p8 = $this->currPos;
-  $r9 = $param_preproc;
-  $r10 = $param_th;
-  $r11 = $param_headingIndex;
-  $r12 = self::charAt($this->input, $this->currPos);
-  if ($r12 !== '' && !($r12 === "\x0a" || $r12 === "\x0d")) {
-    $r12 = false;
-    $this->currPos = $p8;
-    $param_preproc = $r9;
-    $param_th = $r10;
-    $param_headingIndex = $r11;
   } else {
-    $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(139); }
     $r7 = self::$FAILED;
+    if (!$silence) { $this->fail(139); }
+    $r6 = self::$FAILED;
     goto seq_2;
   }
-  $r7 = $this->parserow_syntax_table_args($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-  if ($r7===self::$FAILED) {
-    $this->currPos = $p8;
-    $param_preproc = $r9;
-    $param_th = $r10;
-    $param_headingIndex = $r11;
-    $r7 = self::$FAILED;
+  $r6 = $this->parserow_syntax_table_args($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p1;
+    $param_preproc = $r2;
+    $param_th = $r3;
+    $param_headingIndex = $r4;
+    $r6 = self::$FAILED;
     goto seq_2;
   }
   seq_2:
-  if ($r7===self::$FAILED) {
-    $r7 = null;
+  if ($r6===self::$FAILED) {
+    $r6 = null;
   }
-  // free $p8,$r9,$r10,$r11
-  // arg <- $r7
-  $r11 = $this->parsePOSITION($silence);
-  // tagEndPos <- $r11
-  $r10 = [];
+  // arg <- $r6
+  $r8 = $this->parsePOSITION($silence);
+  // tagEndPos <- $r8
+  $r9 = [];
   for (;;) {
-    $r9 = $this->parsenested_block_in_table($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    if ($r9!==self::$FAILED) {
-      $r10[] = $r9;
+    $r10 = $this->parsenested_block_in_table($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    if ($r10!==self::$FAILED) {
+      $r9[] = $r10;
     } else {
       break;
     }
   }
-  // td <- $r10
-  // free $r9
+  // td <- $r9
+  // free $r10
   $r5 = true;
   seq_1:
-  if ($r5!==self::$FAILED) {
-    $this->savedPos = $p1;
-    $r5 = $this->a180($r7, $r11, $r10);
-  }
-  // free $r6,$r12
+  $this->savedPos = $p1;
+  $r5 = $this->a180($r6, $r8, $r9);
+  // free $r7
+  // free $p1,$r2,$r3,$r4
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
@@ -22820,14 +22791,6 @@ private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc
     // free $p13
     $r15 = $this->parsetable_data_tag($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
     // tdt <- $r15
-    if ($r15===self::$FAILED) {
-      $this->currPos = $p8;
-      $param_preproc = $r9;
-      $param_th = $r10;
-      $param_headingIndex = $r11;
-      $r6 = self::$FAILED;
-      goto seq_1;
-    }
     $r6 = true;
     seq_1:
     if ($r6!==self::$FAILED) {
