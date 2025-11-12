@@ -433,6 +433,78 @@ Template pre: Simple
 !! end
 
 !! test
+Template pre: Quotes
+!! wikitext
+<pre>'''123'''</pre>
+
+{{pre|'''123'''}}
+!! html/php
+<pre>'''123'''</pre>
+<pre><b>123</b></pre>
+!! html/parsoid+integrated
+<pre typeof="mw:Extension/pre" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"&apos;&apos;&apos;123&apos;&apos;&apos;"}}'>'''123'''</pre>
+<pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"&apos;&apos;&apos;123&apos;&apos;&apos;"},"parts":[{"template":{"target":{"wt":"pre","href":"./Template:Pre"},"params":{"1":{"wt":"&apos;&apos;&apos;123&apos;&apos;&apos;"}},"i":0}}]}'>'''123'''</pre>
+!! end
+
+!! test
+Template pre: Indent pre
+!! wikitext
+<pre>a
+ test
+b</pre>
+
+{{pre|a
+ test
+b}}
+!! html/php
+<pre>a
+ test
+b</pre>
+<pre>a
+ test
+b</pre>
+!! html/parsoid+integrated
+<pre typeof="mw:Extension/pre" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"a\n test\nb"}}'>a
+ test
+b</pre>
+<pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"a\n test\nb"},"parts":[{"template":{"target":{"wt":"pre","href":"./Template:Pre"},"params":{"1":{"wt":"a\n test\nb"}},"i":0}}]}'>a
+ test
+b</pre>
+!! end
+
+!! test
+Template pre: Pwrap
+!! wikitext
+<pre>
+foo
+
+bar
+</pre>
+
+{{pre|
+foo
+
+bar
+}}
+!! html/php
+<pre>foo
+
+bar
+</pre>
+<pre>foo
+
+bar
+</pre>
+!! html/parsoid+integrated
+<pre typeof="mw:Extension/pre" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\nfoo\n\nbar\n"}}'>foo
+
+bar</pre>
+<pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"\nfoo\n\nbar\n"},"parts":[{"template":{"target":{"wt":"pre","href":"./Template:Pre"},"params":{"1":{"wt":"\nfoo\n\nbar\n"}},"i":0}}]}'>foo
+
+bar</pre>
+!! end
+
+!! test
 Template pre: List
 !! wikitext
 <pre>
