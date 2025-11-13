@@ -669,7 +669,10 @@ class DOMDataUtils {
 		// Document codec's options, so that we can use this flag when
 		// loading embedded document fragments.
 		self::getCodec( $node )->setOptions( $options );
-		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $options );
+
+		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
+			self::loadDataAttribs( $node, $options );
+		}, $options );
 	}
 
 	/**
@@ -683,7 +686,7 @@ class DOMDataUtils {
 	 * @param Node $node node
 	 * @param array $options options
 	 */
-	public static function loadDataAttribs( Node $node, array $options ): void {
+	private static function loadDataAttribs( Node $node, array $options ): void {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
@@ -792,11 +795,17 @@ class DOMDataUtils {
 			Assert::invariant( isset( $options['idIndex'] ),
 							  "Page bundle requires idIndex to avoid conflicts" );
 		}
+
+		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
+			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
+
 		// Set the "storage options" and save the "loading options"
 		$codec = self::getCodec( $node );
 		$oldOptions = $codec->setOptions( $options );
 
-		DOMUtils::visitDOM( $node, [ self::class, 'storeDataAttribs' ], $options );
+		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
+			self::storeDataAttribs( $node, $options );
+		}, $options );
 
 		// Restore the "loading options"
 		$codec->setOptions( $oldOptions );
@@ -816,7 +825,7 @@ class DOMDataUtils {
 	 *     didn't have data-mw before 999.x
 	 *   - idIndex: Array of used ID attributes
 	 */
-	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
+	private static function storeDataAttribs( Node $node, ?array $options = null ): void {
 		$hints = self::getCodecHints();
 		$options ??= [];
 		if ( !( $node instanceof Element ) ) {
@@ -829,9 +838,6 @@ class DOMDataUtils {
 		// with special html semantics" (which will get added to data-mw)
 		// *before* we handle the other attributes and the page bundle.
 		self::storeRichAttributes( $node, [ 'onlySpecial' => true ] + $options );
-
-		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
-			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$codec = self::getCodec( $node );
 		$dp = self::getDataParsoid( $node );
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );

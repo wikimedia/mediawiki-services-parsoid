@@ -209,7 +209,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'<p data-mw-foo=\'{"rich":{"bar":"nested!"}}\' data-mw-bar=\'{"html":{"_h":"Nested and &lt;b>bold&lt;/b>!"}}\'>Hello, world</p>',
 			$html
 		);
-		DOMDataUtils::loadDataAttribs( $p, [] );
+
+		DOMDataUtils::visitAndLoadDataAttribs( $p, [] );
 
 		// Values should be preserved!
 		$rd3 = DOMDataUtils::getAttributeObject( $p, 'data-mw-foo', SampleNestedRichData::class );
