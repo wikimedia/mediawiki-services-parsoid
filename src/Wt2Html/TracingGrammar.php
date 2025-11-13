@@ -383,7 +383,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 141 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
 142 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
 143 => ["type" => "other", "description" => "row_syntax_table_args"],
-144 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
+144 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
 145 => ["type" => "other", "description" => "directive"],
 146 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
 147 => ["type" => "literal", "value" => "!", "description" => "\"!\""],

@@ -3025,7 +3025,7 @@ directive =
 
 wikilink_preprocessor_text =
 	r:(
-		t:$[^<[{\n\r\t|!\]}{ &\-]+
+		t:$[^<[{\n\r\t|!\]} &\-]+
 		/ !inline_breaks !pipe @( directive / $( !"]]" ( text_char / [!<\-\}\]\n\r] ) ) )
 	)+ {
 		return TokenizerUtils::flattenString( $r );

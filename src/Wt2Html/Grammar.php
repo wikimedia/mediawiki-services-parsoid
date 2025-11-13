@@ -379,7 +379,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 137 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
 138 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
 139 => ["type" => "other", "description" => "row_syntax_table_args"],
-140 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
+140 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
 141 => ["type" => "other", "description" => "directive"],
 142 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
 143 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
