@@ -123,7 +123,11 @@ class ParsoidExtensionAPI {
 	public function pushError( DataMwError|string $key, ...$params ): DocumentFragment {
 		$err = $key instanceof DataMwError ? $key : new DataMwError( $key, $params );
 		$this->errors[] = $err;
-		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $err->key, $params );
+		$domFragment = WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $err->key, $params );
+		$i18nFrag = $domFragment->firstChild;
+		'@phan-var Element $i18nFrag'; // @var Element $firstNode
+		$i18nFrag->setAttribute( 'class', 'error' );
+		return $domFragment;
 	}
 
 	/**
