@@ -57,6 +57,31 @@ File:Video.ogv
 !! end
 
 !! test
+Audio in a packed <gallery>
+!! wikitext
+<gallery mode="packed">
+File:Foobar.jpg|one
+File:Audio.oga|two
+</gallery>
+!! html/php
+<ul class="gallery mw-gallery-packed">
+		<li class="gallerybox" style="width: 1061.3333333333px">
+			<div class="thumb" style="width: 1059.3333333333px;"><span typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="one"><img alt="one" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" width="1060" height="120" class="mw-file-element" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x" /></a></span></div>
+			<div class="gallerytext">one</div>
+		</li>
+		<li class="gallerybox" style="width: 122px">
+			<div class="thumb" style="width: 120px;"><span typeof="mw:File"><span><audio id="mwe_player_1" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="120" style="width:120px;" data-durationhint="1" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-width="0" data-height="0" /></audio></span></span></div>
+			<div class="gallerytext">two</div>
+		</li>
+</ul>
+!! html/parsoid
+<ul class="gallery mw-gallery-packed" typeof="mw:Extension/gallery" about="#mwt1" data-mw='{"name":"gallery","attrs":{"mode":"packed"},"body":{}}'>
+<li class="gallerybox" style="width: 1061.3333333333px;"><div class="thumb" style="width: 1059.3333333333px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="one"><img alt="one" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x" class="mw-file-element"/></a></span></div><div class="gallerytext">one</div></li>
+<li class="gallerybox" style="width: 122px;"><div class="thumb" style="width: 120px;"><span typeof="mw:File"><span title="two"><audio controls="" preload="none" data-mw-tmh="" height="120" width="120" style="width: 120px;" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></div><div class="gallerytext">two</div></li>
+</ul>
+!! end
+
+!! test
 Video with thumbtime=1:25
 !! wikitext
 [[File:Video.ogv|thumbtime=1:25]]

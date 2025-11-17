@@ -613,6 +613,10 @@ class MockApiHelper extends ApiHelper {
 	 * @param int|float|null &$theight Thumbnail height (inout parameter)
 	 */
 	public static function transformHelper( $width, $height, &$twidth, &$theight ): void {
+		if ( $width === 0 || $height === 0 ) {
+			$width = $twidth;
+			$height = $theight;
+		}
 		if ( $theight === null ) {
 			// File::scaleHeight in PHP
 			$theight = round( $height * $twidth / $width );

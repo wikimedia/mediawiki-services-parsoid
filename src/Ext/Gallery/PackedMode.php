@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class PackedMode extends TraditionalMode {
 	/**
@@ -36,14 +37,23 @@ class PackedMode extends TraditionalMode {
 	public function scaleMedia( Opts $opts, Element $wrapper ) {
 		$elt = $wrapper->firstChild->firstChild;
 		'@phan-var Element $elt'; // @var Element $elt
+		$isAudio = ( DOMUtils::nodeName( $elt ) === 'audio' );
 		$width = DOMCompat::getAttribute( $elt, 'width' );
-		if ( !is_numeric( $width ) ) {
+		// In the ->dimensions method, we set a large width but the legacy
+		// parser doesn't do that for audio files.  Since we don't know
+		// beforehand that the media is an audio file, undo that here.
+		// Audio has no dimensions and should get the default width
+		if ( !is_numeric( $width ) || $isAudio ) {
 			$width = $opts->imageWidth;
 		} else {
 			$width = intval( $width, 10 );
 			$width /= $this->scale;
 		}
 		$elt->setAttribute( 'width', strval( ceil( $width ) ) );
+		if ( $isAudio ) {
+			// Update the inline style that AddMediaInfo adds as well
+			$elt->setAttribute( 'style', "width: {$width}px;" );
+		}
 		$elt->setAttribute( 'height', "$opts->imageHeight" );
 		return $width;
 	}

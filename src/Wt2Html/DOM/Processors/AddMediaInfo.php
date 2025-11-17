@@ -267,6 +267,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null, true );
+		// T133673: Inline style matches TMH
 		$audio->setAttribute( 'style', "width: {$size['width']}px;" );
 
 		// Hardcoded until defined heights are respected.
