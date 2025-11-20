@@ -22,6 +22,7 @@ use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
@@ -471,13 +472,18 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	}
 
 	public function html2Wt(
-		array $configOpts, array $parsoidOpts, string $html,
+		array $configOpts, array $parsoidOpts, string|HtmlPageBundle $html,
 		?SelectiveUpdateData $selserData = null
 	): string {
 		$configOpts["pageContent"] = $selserData->revText ?? ''; // FIXME: T234549
 		$this->setupConfig( $configOpts );
 
 		try {
+			if ( $html instanceof HtmlPageBundle ) {
+				return $this->parsoid->dom2wikitext(
+					$this->pageConfig, $html, $parsoidOpts, $selserData
+				);
+			}
 			return $this->parsoid->html2wikitext(
 				$this->pageConfig, $html, $parsoidOpts, $selserData
 			);

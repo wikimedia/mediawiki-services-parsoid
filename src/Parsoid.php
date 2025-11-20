@@ -487,10 +487,12 @@ class Parsoid {
 		PageConfig $pageConfig, $doc, array $options = [],
 		?SelectiveUpdateData $selserData = null
 	): string {
-		Assert::invariant(
-			!DOMDataUtils::isPrepared( $doc ),
-			"document should not be already prepared"
-		);
+		if ( $doc instanceof Document ) {
+			Assert::invariant(
+				!DOMDataUtils::isPrepared( $doc ),
+				"document should not be already prepared"
+			);
+		}
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
