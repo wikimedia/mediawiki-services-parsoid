@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "109cf2b3618bbbbb8fc72ee630fa15a208a8d868",
+		"latestCommit": "c0b3547cbb7584d1586aadca010638c8f00f55dd",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -47,19 +47,19 @@
 			},
 			"indicators.txt": {
 				"path": "tests/parser/indicators.txt",
-				"expectedSHA1": "6f96bf3544a9e8e4d4c657b1357515d400f7e4b6"
+				"expectedSHA1": "ce53efa729ab70e58d2d3b83209034782a426984"
 			},
 			"interlanguageLinks.txt": {
 				"path": "tests/parser/interlanguageLinks.txt",
-				"expectedSHA1": "56b3b85ad5dc3f2f20ae9b8c9bb6b729c003a144"
+				"expectedSHA1": "132eef0fcbff8717aa8bbba4041f89c79fd694a5"
 			},
 			"interwikiLinks.txt": {
 				"path": "tests/parser/interwikiLinks.txt",
-				"expectedSHA1": "4369fcf68ad20c12e8bd8d43449e5df5f8bbf7ef"
+				"expectedSHA1": "75b7f8a9d8c54763a81035ca6ed64e3045edde9b"
 			},
 			"langParserTests.txt": {
 				"path": "tests/parser/langParserTests.txt",
-				"expectedSHA1": "6acaae6ab019de5cfa4925948c8ab41e7925f22a"
+				"expectedSHA1": "b2499e412d5ea2407c9bcf76ae279c2786057896"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -75,11 +75,11 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "139fd2e97701271b466dd242e04dda5831a6b0fb"
+				"expectedSHA1": "6bd2a93ec2cc5c370e55a2c74e00bbed41c07d86"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
-				"expectedSHA1": "70988a24e37005f2f5be8010d5e9aa90009d5b10"
+				"expectedSHA1": "ac2842f350411549985ebbbef2745f8580bc08a6"
 			},
 			"pst.txt": {
 				"path": "tests/parser/pst.txt",
@@ -103,7 +103,7 @@
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
-				"expectedSHA1": "2826b1d3df42216786871f1422b28bdd3b63022b"
+				"expectedSHA1": "c80fa3868972a79165d70a799a9d66d9c863a1c9"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
