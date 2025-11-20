@@ -56,19 +56,6 @@ if ( $parsoidMode === 'integrated' ) {
 	] );
 
 	abstract class Maintenance extends \Maintenance {
-		private bool $requiresParsoid;
-
-		/**
-		 * @param bool $requiresParsoid Whether parsoid-specific processing
-		 *   should be done (default: true)
-		 */
-		public function __construct( bool $requiresParsoid = true ) {
-			$this->requiresParsoid = $requiresParsoid;
-			parent::__construct();
-			if ( $this->requiresParsoid ) {
-				$this->requireExtension( 'Parsoid' );
-			}
-		}
 
 		/**
 		 * @inheritDoc
@@ -78,22 +65,20 @@ if ( $parsoidMode === 'integrated' ) {
 		}
 
 		public function addDefaultParams(): void {
-			if ( $this->requiresParsoid ) {
-				$this->addOption(
-					'integrated',
-					'Run parsoid integrated with a host MediaWiki installation ' .
+			$this->addOption(
+				'integrated',
+				'Run parsoid integrated with a host MediaWiki installation ' .
 					'at MW_INSTALL_PATH'
-				);
-				$this->addOption(
-					'standalone',
-					'Run parsoid standalone, communicating with a host MediaWiki ' .
+			);
+			$this->addOption(
+				'standalone',
+				'Run parsoid standalone, communicating with a host MediaWiki ' .
 					'using network API (see --domain option)'
-				);
-				$this->addOption(
-					'mock',
-					'Use mock environment instead of api or standalone'
-				);
-			}
+			);
+			$this->addOption(
+				'mock',
+				'Use mock environment instead of api or standalone'
+			);
 			parent::addDefaultParams();
 		}
 
@@ -134,35 +119,21 @@ if ( $parsoidMode === 'integrated' ) {
 	error_reporting( E_ALL );
 
 	abstract class Maintenance extends OptsProcessor {
-		/** @var bool Whether to perform Parsoid-specific processing */
-		private $requiresParsoid;
-
-		/**
-		 * @param bool $requiresParsoid Whether parsoid-specific processing
-		 *   should be done (default: true)
-		 */
-		public function __construct( bool $requiresParsoid = true ) {
-			parent::__construct();
-			$this->requiresParsoid = $requiresParsoid;
-		}
-
 		public function addDefaultParams(): void {
-			if ( $this->requiresParsoid ) {
-				$this->addOption(
-					'integrated',
-					'Run parsoid integrated with a host MediaWiki installation ' .
+			$this->addOption(
+				'integrated',
+				'Run parsoid integrated with a host MediaWiki installation ' .
 					'at MW_INSTALL_PATH'
-				);
-				$this->addOption(
-					'standalone',
-					'Run parsoid standalone, communicating with a host MediaWiki ' .
+			);
+			$this->addOption(
+				'standalone',
+				'Run parsoid standalone, communicating with a host MediaWiki ' .
 					'using network API (see --domain option)'
-				);
-				$this->addOption(
-					'mock',
-					'Use mock environment instead of api or standalone'
-				);
-			}
+			);
+			$this->addOption(
+				'mock',
+				'Use mock environment instead of api or standalone'
+			);
 			parent::addDefaultParams();
 		}
 

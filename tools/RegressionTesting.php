@@ -18,7 +18,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private string $titlesPath = '/tmp/titles';
 
 	public function __construct() {
-		parent::__construct( false /* Doesn't actually require parsoid */ );
+		parent::__construct();
 		$this->addDescription(
 			"Validate round-trip testing results.\n" .
 			"Typical usage:\n" .
