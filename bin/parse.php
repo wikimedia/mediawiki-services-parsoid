@@ -14,12 +14,14 @@ use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title as MWTitle;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Api\SiteConfig;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
@@ -845,12 +847,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		} else {
 			$json = $this->getOption( 'pbin' );
 		}
-		$pb = PHPUtils::jsonDecode( $json );
-		$pb = new HtmlPageBundle(
-			$input,
-			$pb['parsoid'] ?? null,
-			[ 'ids' => [] ]  // FIXME: ^999.0.0
-		);
+		$pb = ( new JsonCodec )->newFromJsonString( $json, BasePageBundle::class );
+		$pb->mw ??= [ 'ids' => [] ];  // FIXME: ^999.0.0
+		$pb = $pb->withHtml( $input );
 		return $pb->toInlineAttributeHtml( siteConfig: $this->siteConfig );
 	}
 
@@ -883,10 +882,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				file_put_contents(
 					$this->getOption( 'pboutfile' ),
-					PHPUtils::jsonEncode( [
-						'parsoid' => $pb->parsoid,
-						'mw' => $pb->mw,
-					] )
+					( new JsonCodec )->toJsonString(
+						$pb->toBasePageBundle(),
+						BasePageBundle::class
+					)
 				);
 				$html = $pb->html;
 			} elseif ( $this->hasOption( 'pageBundle' ) ) {

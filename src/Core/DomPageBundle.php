@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -343,9 +345,8 @@ class DomPageBundle extends BasePageBundle {
 	 */
 	private function encodeForHeadElement(): string {
 		// Note that $this->parsoid and $this->mw are already serialized arrays
-		// so a naive jsonEncode is sufficient.  We don't need a codec.
-		// XXX except that objects here will be converted to arrays when we
-		// deserialize, so maybe we should use a codec after all?
+		// so a naive jsonEncode is sufficient.  We use a JsonCodec to ensure
+		// that objects stay objects and arrays stay arrays, though.
 		$json = [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ];
 		if ( $this->fragments ) {
 			// Preserve fragments in the <head>
@@ -354,7 +355,8 @@ class DomPageBundle extends BasePageBundle {
 				$this->fragments
 			);
 		}
-		return PHPUtils::jsonEncode( $json );
+		$codec = new JsonCodec();
+		return $codec->toJsonString( $json, self::headElementHint() );
 	}
 
 	/**
@@ -364,14 +366,14 @@ class DomPageBundle extends BasePageBundle {
 	private static function decodeFromHeadElement( Document $doc, string $s, array $options = [] ): DomPageBundle {
 		// Note that only 'parsoid' and 'mw' are encoded, so these will be
 		// the only fields set in the decoded DomPageBundle
-		$decoded = PHPUtils::jsonDecode( $s );
+		// Even though 'parsoid' and 'mw' are encoded, use a JsonCodec so
+		// that objects stay objects and arrays stay arrays.
+		$codec = new JsonCodec();
+		$decoded = $codec->newFromJsonString( $s, self::headElementHint() );
 		$fragments = array_map(
 			static fn ( $html ) => DOMUtils::parseHTMLToFragment( $doc, $html ),
 			$decoded['fragments'] ?? []
 		);
-		// XXX data-parsoid={} gets converted to data-parsoid=[] when we
-		// decode; maybe we want to use a proper JsonCodec to keep our
-		// objects from turning into arrays.
 		return new DomPageBundle(
 			$doc,
 			$decoded['parsoid'] ?? null,
@@ -381,6 +383,11 @@ class DomPageBundle extends BasePageBundle {
 			$options['contentmodel'] ?? null,
 			$fragments
 		);
+	}
+
+	private static function headElementHint(): Hint {
+		// @phan-suppress-next-line PhanUndeclaredClassReference array
+		return Hint::build( 'array', Hint::LIST, Hint::LIST, Hint::LIST );
 	}
 
 	// JsonCodecable -------------

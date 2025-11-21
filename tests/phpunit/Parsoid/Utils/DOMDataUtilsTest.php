@@ -456,7 +456,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'<template data-tid="uOo/VU3m"><b id="mwAQ">be bold</b></template>' .
 			'<script id="mw-pagebundle" type="application/x-mw-pagebundle">' .
 			'{"parsoid":{"counter":2,"ids":{' .
-			'"mwAA":{},' .
+			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
 			'"mwAg":{"src":"test1"}}' .
 			'},"mw":{"ids":[]}}</script></head>' .
@@ -469,7 +469,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			"<!DOCTYPE html>\n<html><head>" .
 			'<script id="mw-pagebundle" type="application/x-mw-pagebundle">' .
 			'{"parsoid":{"counter":2,"ids":{' .
-			'"mwAA":{},' .
+			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
 			'"mwAg":{"src":"test1"}}' .
 			'},"mw":{"ids":[]}}</script></head>' .
