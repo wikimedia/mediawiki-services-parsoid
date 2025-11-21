@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use Composer\Semver\Semver;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
@@ -52,6 +53,27 @@ class BasePageBundle implements JsonCodecable {
 		/** @var ?string */
 		public ?string $contentmodel = null,
 	) {
+	}
+
+	/**
+	 * Check if this pagebundle is valid.
+	 * @param string $contentVersion Document content version to validate against.
+	 * @param ?string &$errorMessage Error message will be returned here.
+	 * @return bool
+	 */
+	public function validate(
+		string $contentVersion, ?string &$errorMessage = null
+	) {
+		if ( !$this->parsoid || !isset( $this->parsoid['ids'] ) ) {
+			$errorMessage = 'Invalid data-parsoid was provided.';
+			return false;
+		} elseif ( Semver::satisfies( $contentVersion, '^999.0.0' )
+			&& ( !$this->mw || !isset( $this->mw['ids'] ) )
+		) {
+			$errorMessage = 'Invalid data-mw was provided.';
+			return false;
+		}
+		return true;
 	}
 
 	/**
