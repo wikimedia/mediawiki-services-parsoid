@@ -153,8 +153,7 @@ class DomPageBundle extends BasePageBundle {
 			}
 			DOMDataUtils::getBag( $doc )->loaded = true;
 		} else {
-			// This will be deprecated in the future.
-			// PHPUtils::deprecated( __METHOD__ . ' with $load=false', '0.23' );
+			PHPUtils::deprecated( __METHOD__ . ' with $load=false', '0.23' );
 			$doc = $this->toInlineAttributeDocument(
 				$options, $fragments
 			);
@@ -290,8 +289,7 @@ class DomPageBundle extends BasePageBundle {
 		$doc = $this->toDom( true, null, $fragments );
 		$siteConfig ??= $options['siteConfig'] ?? null;
 		if ( $siteConfig === null ) {
-			// XXX This will be deprecated in the future
-			// PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
+			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
 			$siteConfig = new MockSiteConfig( [] );
 		}
 		$options = [

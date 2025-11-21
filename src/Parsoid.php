@@ -31,6 +31,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Histogram;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
@@ -729,8 +730,7 @@ class Parsoid {
 		array $dg, HtmlPageBundle $pageBundle, ?SiteConfig $siteConfig = null
 	): void {
 		if ( $siteConfig === null ) {
-			// Will be deprecated in the future
-			// PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
+			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
 			$siteConfig = new MockSiteConfig( [] );
 		}
 		foreach ( self::DOWNGRADES as [ 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ] ) {
