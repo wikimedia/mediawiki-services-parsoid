@@ -64,27 +64,6 @@ class HtmlPageBundle extends BasePageBundle {
 	}
 
 	/**
-	 * Check if this pagebundle is valid.
-	 * @param string $contentVersion Document content version to validate against.
-	 * @param ?string &$errorMessage Error message will be returned here.
-	 * @return bool
-	 */
-	public function validate(
-		string $contentVersion, ?string &$errorMessage = null
-	) {
-		if ( !$this->parsoid || !isset( $this->parsoid['ids'] ) ) {
-			$errorMessage = 'Invalid data-parsoid was provided.';
-			return false;
-		} elseif ( Semver::satisfies( $contentVersion, '^999.0.0' )
-			&& ( !$this->mw || !isset( $this->mw['ids'] ) )
-		) {
-			$errorMessage = 'Invalid data-mw was provided.';
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * @phpcs:ignore Generic.Files.LineLength.TooLong
 	 * @return array{contentmodel: string, html: array{headers: array, body: string}, data-parsoid: array{headers: array{content-type: string}, body: ?array{counter?: int, offsetType?: 'byte'|'char'|'ucs2', ids: array<string, array>}}, data-mw?: array{headers: array{content-type: string}, body: ?array{ids: array<string, array>}}}
 	 */
