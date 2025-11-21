@@ -148,6 +148,12 @@ class DOMDataUtils {
 		DOMCompat::getBody( $doc );
 	}
 
+	/** @internal */
+	public static function unprepareDoc( Document $doc ): void {
+		self::setExtensionData( $doc, "bag", null );
+		self::setExtensionData( $doc, "codec", null );
+	}
+
 	/**
 	 * @param Document $topLevelDoc
 	 * @param Document $childDoc

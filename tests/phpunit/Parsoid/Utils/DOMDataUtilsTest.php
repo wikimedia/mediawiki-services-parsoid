@@ -276,11 +276,12 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		}
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
+			$siteConfig = new MockSiteConfig( [] );
 			$html = DomPageBundle::fromLoadedDocument( $doc, [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
-				'siteConfig' => new MockSiteConfig( [] ),
-			] )->toInlineAttributeHtml();
+				'siteConfig' => $siteConfig,
+			] )->toInlineAttributeHtml( siteConfig: $siteConfig );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
@@ -292,9 +293,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
 				'title2="ebb &amp; flow" ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}],["title2",{"rich":{"_t":"ie1lOoOR"}}]]}\' ' .
 				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\' ' .
-				'data-mw-foo2=\'{"_t":"ie1lOoOR-1"}\'>' .
+				'data-mw-foo2=\'{"_t":"ie1lOoOR-1"}\' ' .
+				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}],["title2",{"rich":{"_t":"ie1lOoOR"}}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>' :
 
@@ -303,11 +304,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'typeof="mw:ExpandedAttrs" ' .
 				'title="This is pretty bold!" ' .
 				'title2="ebb &amp; flow" ' .
+				'data-mw-foo=\'{"_h":"This is pretty &lt;b>bold&lt;/b>!"}\' ' .
+				'data-mw-foo2=\'{"_h":"ebb &amp;amp; flow"}\' ' .
 				'data-mw=\'{"attribs":[' .
 				'["title",{"rich":{"_h":"This is pretty &lt;b>bold&lt;/b>!"}}],' .
-				'["title2",{"rich":{"_h":"ebb &amp;amp; flow"}}]]}\' ' .
-				'data-mw-foo=\'{"_h":"This is pretty &lt;b>bold&lt;/b>!"}\' ' .
-				'data-mw-foo2=\'{"_h":"ebb &amp;amp; flow"}\'>' .
+				'["title2",{"rich":{"_h":"ebb &amp;amp; flow"}}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>',
 				$html
@@ -362,11 +363,12 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		}
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
+			$siteConfig = new MockSiteConfig( [] );
 			$html = DomPageBundle::fromLoadedDocument( $doc, [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
-				'siteConfig' => new MockSiteConfig( [] ),
-			] )->toInlineAttributeHtml();
+				'siteConfig' => $siteConfig,
+			] )->toInlineAttributeHtml( siteConfig: $siteConfig );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
@@ -379,8 +381,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'</head><body><p ' .
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}]]}\' ' .
-				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\'>Hello, world</p>' .
+				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\' ' .
+				'data-mw=\'{"attribs":[["title",{"rich":{"_t":"g/SsaX6L"}}]]}\'>' .
+				'Hello, world</p>' .
 				'</body></html>' :
 
 				"<!DOCTYPE html>\n<html><head></head><body>" .
@@ -388,19 +391,20 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'<p ' .
 				'typeof="mw:ExpandedAttrs" ' .
 				'title="This is pretty bold!" ' .
-				'data-mw=\'{"attribs":[["title",{"rich":{"_h":' .
-				'"This is pretty &lt;b typeof=\"mw:ExpandedAttrs\" ' .
-				'title=\"be bold\" ' .
-				'data-mw=&apos;{\"attribs\":[[\"title\",{\"rich\":{\"_h\":' .
-				'\"&amp;lt;b>be bold&amp;lt;/b>\"}}]]}&apos; ' .
-				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}}]]}\' ' .
 				'data-mw-foo=\'{"_h":' .
 				'"This is pretty &lt;b typeof=\"mw:ExpandedAttrs\" ' .
 				'title=\"be bold\" ' .
 				'data-mw=&apos;{\"attribs\":[[\"title\",{\"rich\":{\"_h\":' .
 				'\"&amp;lt;b>be bold&amp;lt;/b>\"}}]]}&apos; ' .
 				'data-mw-foo=&apos;{\"_h\":' .
-				'\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}\'>Hello, world</p>' .
+				'\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}\' ' .
+				'data-mw=\'{"attribs":[["title",{"rich":{"_h":' .
+				'"This is pretty &lt;b typeof=\"mw:ExpandedAttrs\" ' .
+				'title=\"be bold\" ' .
+				'data-mw=&apos;{\"attribs\":[[\"title\",{\"rich\":{\"_h\":' .
+				'\"&amp;lt;b>be bold&amp;lt;/b>\"}}]]}&apos; ' .
+				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;>bold&lt;/b>!"}}]]}\'>' .
+				'Hello, world</p>' .
 				'</body></html>',
 				$html
 			);
