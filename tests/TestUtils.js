@@ -109,6 +109,11 @@ TestUtils.normalizeOut = function(domBody, options) {
 		// apos variant
 		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=&apos;.*?&apos;/g, '');
 
+		// FIXME: strip ids in html in data-mw (note the \\)
+		// DOMDataUtils.applyPageBundle doesn't know about rich attributes
+		// causing trivial diffs when ids aren't reproduced
+		out = out.replace(/ id=\\"mw((t\d+)|([\w-]{2,}))\\"/g, '');
+
 		// strip self-closed <nowiki /> because we frequently test WTS
 		// <nowiki> insertion by providing an html/parsoid section with the
 		// <meta> tags stripped out, allowing the html2wt test to verify that
