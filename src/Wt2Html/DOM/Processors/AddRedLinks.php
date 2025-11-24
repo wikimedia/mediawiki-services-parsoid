@@ -36,6 +36,15 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' )
 		);
 
+		[ $customCaptionLinks, $defaultCaptionLinks ] = $this->splitByLinkCaption( $allLinks );
+
+		$this->runInternal( $env, $root, $customCaptionLinks, false );
+		$this->runInternal( $env, $root, $defaultCaptionLinks, true );
+	}
+
+	private function runInternal(
+		Env $env, Node $root, array $allLinks, bool $isDefaultCaptionLinks
+	) {
 		// Split up processing into chunks of 1000 so that we don't exceed LinkCache::MAX_SIZE
 		$chunks = array_chunk( $allLinks, self::LINK_BATCH_SIZE );
 		foreach ( $chunks as $links ) {
@@ -52,7 +61,11 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			}
 
 			$start = hrtime( true );
-			$titleMap = $env->getDataAccess()->getPageInfo( $env->getPageConfig(), array_keys( $titles ) );
+			$titleMap = $env->getDataAccess()->getPageInfo(
+				$env->getPageConfig(),
+				array_keys( $titles ),
+				$isDefaultCaptionLinks
+			);
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
 				$profile->bumpMWTime( "RedLinks", hrtime( true ) - $start, "api" );
@@ -65,7 +78,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				$env,
 				$root->ownerDocument,
 				$titles,
-				$titleMap
+				$titleMap,
+				$isDefaultCaptionLinks
 			);
 
 			foreach ( $links as $a ) {
@@ -177,12 +191,42 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Splits the array of links into two arrays: those with custom captions
+	 * and those with default captions.
+	 *
+	 * For the definition of "default caption", see {@see isDefaultLinkCaption()}.
+	 * @param Element[] $links
+	 * @return array{0:list<Element>,1:list<Element>} A pair, where the first element
+	 *   is the list of links with non-default captions, and the second element is the list
+	 *   of links with default captions.
+	 */
+	private function splitByLinkCaption( array $links ): array {
+		$nonDefaultCaptionLinks = [];
+		$defaultCaptionLinks = [];
+
+		foreach ( $links as $link ) {
+			$title = DOMCompat::getAttribute( $link, 'title' );
+			$caption = DOMCompat::getInnerHTML( $link );
+
+			$isDefaultCaption = $this->isDefaultLinkCaption( $title, $caption );
+
+			if ( $isDefaultCaption ) {
+				$defaultCaptionLinks[] = $link;
+			} else {
+				$nonDefaultCaptionLinks[] = $link;
+			}
+		}
+		return [ $nonDefaultCaptionLinks, $defaultCaptionLinks ];
+	}
+
+	/**
 	 * Attempt to resolve nonexistent link targets using their variants (T258856)
 	 *
 	 * @param Env $env
 	 * @param Document $doc
 	 * @param array<string,true> $titles map keyed by page titles
 	 * @param array<string,array> $titleMap map of resolved page data keyed by title
+	 * @param bool $isDefaultCaptionLinks whether the links being processed have default captions
 	 *
 	 * @return array<string,array> map of resolved variant page data keyed by original title
 	 */
@@ -190,7 +234,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		Env $env,
 		Document $doc,
 		array $titles,
-		array $titleMap
+		array $titleMap,
+		bool $isDefaultCaptionLinks
 	): array {
 		// Optimize for the common case where the page language has no variants
 		if ( !$env->langConverterEnabled() ) {
@@ -230,7 +275,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		foreach ( array_chunk( $variantTitles, self::LINK_BATCH_SIZE ) as $variantChunk ) {
 			$variantChunkData = $env->getDataAccess()->getPageInfo(
 				$env->getPageConfig(),
-				$variantChunk
+				$variantChunk,
+				$isDefaultCaptionLinks
 			);
 
 			// Map resolved variant titles to their corresponding originals
@@ -252,5 +298,60 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			}
 		}
 		return $variantsByOrig;
+	}
+
+	/**
+	 * Checks if the provided caption can be considered a default link caption
+	 * for the given target page.
+	 *
+	 * A caption is default if, after stripping HTML tags and decoding HTML entities in it:
+	 *   - it's a suffix of the target's prefixed title, and
+	 *   - the target's prefixed title, after stripping the caption from the end,
+	 *     ends with a colon, slash, or is empty.
+	 *
+	 * NOTE: For a given title, there may be multiple captions that are considered default.
+	 *   For example, for "User:Admin/Sandbox", the default captions will be: "Sandbox",
+	 *   "Admin/Sandbox", and "User:Admin/Sandbox".
+	 *
+	 * Examples:
+	 *  - Target: "Help:Contents", Caption: "Contents" => true
+	 *  - Target: "Help:Contents", Caption: "Help:Contents" => true
+	 *  - Target: "Help:Contents", Caption: "ents" => false
+	 *  - Target: "User:~2025-1", Caption: "&#126;2025-1" => true
+	 *
+	 * @see LinkRenderer::isDefaultLinkCaption in MediaWiki core
+	 * @return bool
+	 */
+	public function isDefaultLinkCaption(
+		?string $targetPage,
+		string $caption
+	): bool {
+		// If the target page is invalid, it has no default caption
+		if ( $targetPage === null ) {
+			return false;
+		}
+
+		$caption = html_entity_decode( strip_tags( $caption ) );
+		$captionLength = mb_strlen( $caption );
+		$titleLength = mb_strlen( $targetPage );
+
+		if ( $captionLength > $titleLength ) {
+			return false;
+		}
+
+		$titleSuffix = mb_substr( $targetPage, -$captionLength );
+		if ( $titleSuffix !== $caption ) {
+			return false;
+		}
+
+		if ( $titleLength === $captionLength ) {
+			return true;
+		}
+
+		$precedingChar = mb_substr( $targetPage, -$captionLength - 1, 1 );
+		if ( $precedingChar === ':' || $precedingChar === '/' ) {
+			return true;
+		}
+		return false;
 	}
 }

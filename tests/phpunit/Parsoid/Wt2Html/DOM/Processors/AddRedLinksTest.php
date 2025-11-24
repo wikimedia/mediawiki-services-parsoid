@@ -142,6 +142,12 @@ class AddRedLinksTest extends TestCase {
 				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title",' .
 				'"params":["User:89119"]}}\'>User:89119</a>',
 				'Inexistent user with a number as username and a fragment'
+			],
+			[
+			'<a href="./User:~2025-1" title="User:~2025-1" rel="mw:WikiLink">~2025-1</a>',
+				'<a href="./User:~2025-1" title="User:~2025-1" rel="mw:WikiLink" ' .
+				'class="mw-userlink mw-tempuserlink">~2025-1</a>',
+				'Link to a temporary account'
 			]
 		];
 	}

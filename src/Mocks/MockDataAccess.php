@@ -199,6 +199,26 @@ class MockDataAccess extends DataAccess {
 				"mw-disambig",
 			]
 		],
+		"User:~2025-1" => [
+			"title" => "~2025-1",
+			"pageid" => 42,
+			"ns" => 0,
+			"revid" => 42,
+			"parentid" => 0,
+			'slots' => [
+				'main' => [
+					'contentmodel' => 'wikitext',
+					'contentformat' => 'text/x-wiki',
+					'*' => "This is a mock temp user page."
+				]
+			],
+			"linkclasses" => [
+				"mw-userlink",
+			],
+			"linkclasses-default" => [
+				"mw-tempuserlink",
+			]
+		],
 		"Special:Version" => [
 			"title" => "Version",
 			"pageid" => 107,
@@ -401,7 +421,7 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getPageInfo( $pageConfigOrTitle, array $titles ): array {
+	public function getPageInfo( $pageConfigOrTitle, array $titles, bool $defaultLinkCaption = false ): array {
 		$ret = [];
 		foreach ( $titles as $title ) {
 			$normTitle = $this->normTitle( $title );
@@ -410,13 +430,17 @@ class MockDataAccess extends DataAccess {
 				// Update data of the large page
 				$pageData['slots']['main']['*'] = str_repeat( 'a', $this->opts['maxWikitextSize'] ?? 1000000 );
 			}
+			$linkClasses = $pageData['linkclasses'] ?? [];
+			if ( $defaultLinkCaption ) {
+				$linkClasses = array_merge( $linkClasses, $pageData['linkclasses-default'] ?? [] );
+			}
 			$ret[$title] = [
 				'pageId' => $pageData['pageid'] ?? null,
 				'revId' => $pageData['revid'] ?? null,
 				'missing' => $pageData === null,
 				'known' => $pageData !== null,
 				'redirect' => $pageData['redirect'] ?? false,
-				'linkclasses' => $pageData['linkclasses'] ?? [],
+				'linkclasses' => $linkClasses,
 			];
 		}
 

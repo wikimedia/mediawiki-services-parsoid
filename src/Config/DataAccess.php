@@ -29,6 +29,9 @@ abstract class DataAccess {
 	 *  Either a PageConfig or else just the context title from the PageConfig
 	 *  (as a LinkTarget)
 	 * @param string[] $titles
+	 * @param bool $defaultLinkCaption Whether the links have default captions. This flag
+	 *  may affect the link classes returned. For definition of "default caption", see
+	 *  LinkRenderer::isDefaultLinkCaption() in MediaWiki core.
 	 * @return array<string,array> [ string Title => array ], where the array contains
 	 *  - pageId: (int|null) Page ID
 	 *  - revId: (int|null) Current revision of the page
@@ -38,7 +41,7 @@ abstract class DataAccess {
 	 *  - linkclasses: (string[]) Extensible "link color" information; see
 	 *      ApiQueryInfo::getLinkClasses() in MediaWiki core
 	 */
-	abstract public function getPageInfo( $pageConfigOrTitle, array $titles ): array;
+	abstract public function getPageInfo( $pageConfigOrTitle, array $titles, bool $defaultLinkCaption = false ): array;
 
 	/**
 	 * Return information about files (images)

@@ -105,7 +105,7 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getPageInfo( $pageConfigOrTitle, array $titles ): array {
+	public function getPageInfo( $pageConfigOrTitle, array $titles, bool $defaultLinkCaption = false ): array {
 		$contextTitle = $pageConfigOrTitle instanceof PageConfig ?
 			$pageConfigOrTitle->getLinkTarget() : $pageConfigOrTitle;
 
@@ -121,6 +121,7 @@ class DataAccess extends IDataAccess {
 				'prop' => 'info',
 				'inprop' => 'linkclasses',
 				'inlinkcontext' => $pageConfigTitle,
+				'indefaultlinkcaption' => $defaultLinkCaption,
 				'titles' => implode( '|', $batch ),
 			] )['query'];
 			$norm = [];
