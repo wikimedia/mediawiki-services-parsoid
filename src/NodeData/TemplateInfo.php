@@ -113,6 +113,18 @@ class TemplateInfo implements JsonCodecable {
 			$param0 = new ParamInfo( "1", null );
 			$param0->valueWt = $arg0;
 			array_unshift( $ti->paramInfos, $param0 );
+			// BACKWARD COMPATIBILITY: T410826 if there are named parameters
+			// here, convert them to numeric.
+			foreach ( $ti->paramInfos as $param ) {
+				if ( $param->named ) {
+					if ( $param->srcOffsets !== null ) {
+						$param->srcOffsets = $param->srcOffsets->span()->expandTsrV();
+					}
+					$param->valueWt = ( $param->keyWt ?? $param->k ) . '=' . ( $param->valueWt ?? '' );
+					$param->named = false;
+					$param->keyWt = null;
+				}
+			}
 			// Renumber all params (again, all positional with $keyWt=null)
 			self::renumberParamInfos( $ti->paramInfos );
 		}
