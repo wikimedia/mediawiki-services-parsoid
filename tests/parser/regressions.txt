@@ -275,3 +275,13 @@ Migrate leading empty extension into following div
 !! html/parsoid
 <div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;section begin=\"2011-05-16\" />&lt;div>bar&lt;/div>"}},"i":0}}]}'><link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}'/>bar</div>
 !! end
+
+!! test
+T410826: named arguments to parser functions in "old-style" DOM
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p data-parsoid='{"dsr":[0,52,0,0]}'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]],"dsr":[0,52,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"fullurl:User talk:cscott","function":"fullurl"},"params":{"action":{"wt":"edit&amp;section=new"}},"i":0}}]}'>//en.wikipedia.org/w/index.php?title=User_talk:Cscott&amp;action=edit&amp;section=new</span></p>
+!! wikitext
+{{fullurl:User talk:cscott|action=edit&section=new}}
+!! end
