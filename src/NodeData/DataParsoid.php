@@ -119,10 +119,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Temporarily present in data-parsoid, but not in final DOM output.
  * @property DomSourceRange|null $extTagOffsets
  *
- * This is true on the extension output wrapper if the extension input wikitext
- * was an empty string. Consumed by <references/>.
- * @property bool $empty
- *
  * The reference group. This is attached to the <ol> or its wrapper <div>,
  * redundantly with the data-mw-group attribute on the <ol>. It is produced by
  * the extension's sourceToDom() and consumed by wtPostprocess().

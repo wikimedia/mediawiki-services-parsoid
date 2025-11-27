@@ -503,11 +503,6 @@ class ParsoidExtensionAPI {
 			// Sanitize args and set on the wrapper
 			Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $wrapper, $extArgs );
 
-			// Mark empty content DOMs
-			if ( $wikitext === '' ) {
-				DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
-			}
-
 			if ( $this->extTag->isSelfClosed() ) {
 				DOMDataUtils::getDataParsoid( $wrapper )->selfClose = true;
 			}
