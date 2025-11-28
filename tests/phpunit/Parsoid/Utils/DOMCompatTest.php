@@ -493,6 +493,25 @@ HTML;
 	}
 
 	/**
+	 * @covers ::appendChild()
+	 */
+	public function testAppendChild() {
+		$html = '<html><head></head><body><div id="a"></div></body></html>';
+		$doc = DOMUtils::parseHTML( $html );
+		$a = $doc->getElementById( 'a' );
+
+		// Append an empty fragment
+		$df = $doc->createDocumentFragment();
+		$df = DOMCompat::appendChild( $a, $df );
+		$this->assertSame( $html, DOMCompat::getOuterHTML( $doc->documentElement ) );
+
+		DOMCompat::appendChild( $df, $doc->createTextNode( 'b' ) );
+		$df = DOMCompat::appendChild( $a, $df );
+		$this->assertFalse( $df->hasChildNodes() );
+		$this->assertSame( '<div id="a">b</div>', DOMCompat::getOuterHTML( $a ) );
+	}
+
+	/**
 	 * @covers ::remove()
 	 */
 	public function testRemove() {

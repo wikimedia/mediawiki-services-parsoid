@@ -449,8 +449,30 @@ class DOMCompat {
 			if ( is_string( $node ) ) {
 				$node = $parentNode->ownerDocument->createTextNode( $node );
 			}
+			self::appendChild( $parentNode, $node );
+		}
+	}
+
+	/**
+	 * Append a child node to the parent node.
+	 * @param Document|DocumentFragment|Element $parentNode
+	 * @param Node $node
+	 * @note From T411228 et al, appending an empty Document Fragment results
+	 * in a PHP warning.  No longer necessary when isUsing84Dom is true.
+	 */
+	public static function appendChild( $parentNode, $node ): Node {
+		Assert::parameterType( [
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			],
+			$parentNode, '$parentNode'
+		);
+		if ( !( $node instanceof DocumentFragment ) || $node->hasChildNodes() ) {
 			$parentNode->appendChild( $node );
 		}
+		return $node;
 	}
 
 	/**
