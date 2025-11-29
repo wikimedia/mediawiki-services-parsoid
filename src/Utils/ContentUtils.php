@@ -161,7 +161,7 @@ class ContentUtils {
 		}
 		$str2df2str = static function ( string $html ) use ( $elt, $proc ): string {
 			$dom = ContentUtils::createAndLoadDocumentFragment(
-				$elt->ownerDocument, $html
+				$elt->ownerDocument, $html, [ 'markNew' => true ]
 			);
 			$ret = $proc( $dom );
 			if ( $ret ) {
