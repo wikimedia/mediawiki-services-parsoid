@@ -410,6 +410,37 @@ class Sanitizer {
 	}
 
 	/**
+	 * Token-based version of core \MediaWiki\Parser\Sanitizer::validateTag
+	 *
+	 * @param XMLTagTk $token
+	 * @return bool
+	 * @see \MediaWiki\Parser\Sanitizer::validateTag
+	 */
+	public static function escapeLiteralHTMLTag( XMLTagTk $token ): bool {
+		$tag = $token->getName();
+		if ( $tag !== 'meta' && $tag !== 'link' ) {
+			return false;
+		}
+
+		// <meta> and <link> must have an itemprop="" otherwise they are not valid or safe in content
+		if ( $token->getAttributeV( 'itemprop' ) === null ) {
+			return true;
+		}
+
+		// <meta> must have a content="" for the itemprop
+		if ( $tag === 'meta' && $token->getAttributeV( 'content' ) === null ) {
+			return true;
+		}
+
+		// <link> must have an associated href=""
+		if ( $tag === 'link' && $token->getAttributeV( 'href' ) === null ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Ensure that any entities and character references are legal
 	 * for XML and XHTML specifically. Any stray bits will be
 	 * &amp;-escaped to result in a valid text fragment.

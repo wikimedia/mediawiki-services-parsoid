@@ -99,7 +99,11 @@ class Consts {
 				'i', 'ins',
 				'kbd',
 				'li',
+				# Link and meta are conditionally allowed.
+				# See \Wikimedia\Parsoid\Core\Sanitizer::escapeLiteralHTMLTag
+				'link',
 				'mark',
+				'meta',
 				'ol',
 				'p', 'pre',
 				'q',

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -513,6 +514,10 @@ class WikitextEscapeHandlers {
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
 				if ( isset( Consts::$Sanitizer['AllowedLiteralTags'][mb_strtolower( $t->getName() )] ) ) {
+					// Don't wrap with nowiki if tag will be escaped by the sanitizer
+					if ( Sanitizer::escapeLiteralHTMLTag( $t ) ) {
+						continue;
+					}
 					return true;
 				} else {
 					continue;

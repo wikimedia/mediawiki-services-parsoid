@@ -9523,7 +9523,7 @@ Sanitizer: Validating that <meta> and <link> work, but only for Microdata
 	<link rel="stylesheet" href="{{SERVER}}">
 	<link rel="stylesheet" itemprop="hello" href="{{SERVER}}">
 </div>
-!! html
+!! html/php
 <div itemscope="">
 <p>	<meta itemprop="hello" content="world" />
 	&lt;meta http-equiv="refresh" content="5"&gt;
@@ -9532,6 +9532,15 @@ Sanitizer: Validating that <meta> and <link> work, but only for Microdata
 	&lt;link rel="stylesheet" href="<a rel="nofollow" class="external free" href="http://example.org">http://example.org</a>"&gt;
 	<link itemprop="hello" href="http&#58;//example.org" />
 </p>
+</div>
+!! html/parsoid+standalone
+<div itemscope="" data-parsoid='{"stx":"html"}'>
+	<p><meta itemprop="hello" content="world" data-parsoid='{"stx":"html","noClose":true}'/>
+	&lt;meta http-equiv="refresh" content="5">
+	<meta itemprop="hello" content="5" data-parsoid='{"stx":"html","noClose":true,"a":{"http-equiv":null},"sa":{"http-equiv":"refresh"}}'/>
+	<link itemprop="hello" href="http://example.org" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","noClose":true,"a":{"href":"http://example.org"},"sa":{"href":"{{SERVER}}"}}' data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;a rel=\"nofollow\" class=\"external free\" href=\"http://example.org\" typeof=\"mw:Transclusion mw:ExtLink/URL\" about=\"#mwt1\" data-parsoid=&apos;{\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SERVER\",\"function\":\"server\"},\"params\":{},\"i\":0}}]}&apos;>http://example.org&lt;/a>"}]]}'/>
+	&lt;link rel="stylesheet" href="{{SERVER}}">
+	<link data-x-rel="stylesheet" itemprop="hello" href="http://example.org" about="#mwt6" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","noClose":true,"a":{"href":"http://example.org"},"sa":{"href":"{{SERVER}}"}}' data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;a rel=\"nofollow\" class=\"external free\" href=\"http://example.org\" typeof=\"mw:Transclusion mw:ExtLink/URL\" about=\"#mwt5\" data-parsoid=&apos;{\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SERVER\",\"function\":\"server\"},\"params\":{},\"i\":0}}]}&apos;>http://example.org&lt;/a>"}]]}'/></p>
 </div>
 !! end
 

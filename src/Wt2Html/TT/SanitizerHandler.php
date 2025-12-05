@@ -58,7 +58,8 @@ class SanitizerHandler extends UniversalTokenHandler {
 			$token instanceof XMLTagTk &&
 			TokenUtils::isHTMLTag( $token ) &&
 			( empty( $allowedTags[$token->getName()] ) ||
-				( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) ) )
+				( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) ) ||
+				Sanitizer::escapeLiteralHTMLTag( $token ) )
 		) { // unknown tag -- convert to plain text
 			if ( !$inTemplate && !empty( $token->dataParsoid->tsr ) ) {
 				// Just get the original token source, so that we can avoid
