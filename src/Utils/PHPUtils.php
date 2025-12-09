@@ -171,7 +171,7 @@ class PHPUtils {
 		if ( strlen( $ss ) === 0 ) {
 			return $ss;
 		}
-		$firstChar = ord( $ss );
+		$firstChar = ord( $ss[0] );
 		Assert::invariant(
 			( $firstChar & 0xC0 ) !== 0x80,
 			'Bad UTF-8 at start of string'
