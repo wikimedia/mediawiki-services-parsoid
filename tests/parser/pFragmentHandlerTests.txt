@@ -320,3 +320,12 @@ Fostered dom fragment
 </tbody>
 </table>
 !! end
+
+## Regression test for tumwiki
+!! test
+Leaking fragment marker
+!! wikitext
+{{1x|{<nowiki/>}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{&lt;nowiki/>"}},"i":0}}]}'>{</span></p>
+!! end
