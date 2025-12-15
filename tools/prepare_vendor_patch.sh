@@ -164,6 +164,6 @@ echo
 # Add instructions
 echo "------ Followup needed ------"
 echo "* Please add contents of $pwd/deploy.log.txt to [[mw:Parsoid/Deployments]]"
-echo "* Please verify new patch in core repo ($coreRepo) and upload to gerrit for review"
 echo "* Please verify new patch in vendor repo ($vendorRepo) and upload to gerrit for review"
+echo "* Please verify new patch in core repo ($coreRepo) and upload to gerrit for review"
 echo "* Please +2 the uploaded core patch to ensure that when the vendor patch is +2ed, they merge together"
