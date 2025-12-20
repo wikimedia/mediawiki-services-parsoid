@@ -12,6 +12,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
@@ -44,6 +45,8 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  * This includes both global configuration and wiki-level configuration.
  */
 abstract class SiteConfig {
+	use LoggerAwareTrait;
+
 	/**
 	 * FIXME: not private so that ParserTests can reset these variables
 	 * since they reuse site config and other objects between tests for
@@ -211,9 +214,6 @@ abstract class SiteConfig {
 		return array_values( $this->extModules );
 	}
 
-	/** @var LoggerInterface|null */
-	protected $logger = null;
-
 	/** @var int */
 	protected $iwMatcherBatchSize = 4096;
 
@@ -283,14 +283,6 @@ abstract class SiteConfig {
 			$this->logger = new NullLogger;
 		}
 		return $this->logger;
-	}
-
-	/**
-	 * Set the log channel, for debugging
-	 * @param ?LoggerInterface $logger
-	 */
-	public function setLogger( ?LoggerInterface $logger ): void {
-		$this->logger = $logger;
 	}
 
 	/**
