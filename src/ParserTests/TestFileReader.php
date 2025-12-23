@@ -172,5 +172,21 @@ class TestFileReader {
 			}
 			unset( $item );
 		}
+		// Convenience function to expand language converter tests
+		$expanded = [];
+		foreach ( $this->testCases as $t ) {
+			$langs = $t->options['htmlvariantlanguage'] ?? null;
+			if ( is_array( $langs ) ) {
+				foreach ( $langs as $l ) {
+					$tt = clone $t;
+					$tt->options['htmlvariantlanguage'] = $l;
+					$tt->testName .= " (variant=$l)";
+					$expanded[] = $tt;
+				}
+			} else {
+				$expanded[] = $t;
+			}
+		}
+		$this->testCases = $expanded;
 	}
 }
