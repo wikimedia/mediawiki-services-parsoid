@@ -5,7 +5,6 @@ namespace Test\Parsoid\Config\Api;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\ScopedCallback;
 
 class TestApiHelper extends ApiHelper {
 
@@ -58,7 +57,6 @@ class TestApiHelper extends ApiHelper {
 		if ( !$ch ) {
 			throw new \RuntimeException( "Failed to open curl handle" );
 		}
-		$reset = new ScopedCallback( 'curl_close', [ $ch ] );
 
 		$params['format'] = 'json';
 		$params['formatversion'] ??= '2';
@@ -88,8 +86,6 @@ class TestApiHelper extends ApiHelper {
 		if ( $code !== 200 ) {
 			throw new \RuntimeException( "HTTP request failed: HTTP code $code" );
 		}
-
-		ScopedCallback::consume( $reset );
 
 		if ( !$res ) {
 			throw new \RuntimeException( "HTTP request failed: Empty response" );
