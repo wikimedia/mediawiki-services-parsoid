@@ -62,7 +62,7 @@
 		"wikimedia/alea": "^1.0.0",
 		"wikimedia/dodo": "^0.7.0",
 		"wikimedia/langconv": "^0.4.2",
-		"wikimedia/testing-access-wrapper": "~3.0"
+		"wikimedia/testing-access-wrapper": "~3.0.0 || ~4.0.0"
 	},
 	"autoload": {
 		"psr-4": {
