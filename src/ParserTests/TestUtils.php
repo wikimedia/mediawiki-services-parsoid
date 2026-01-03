@@ -477,7 +477,7 @@ class TestUtils {
 	public static function filterNodeDsr( Element $el ): void {
 		$dp = DOMDataUtils::getDataParsoid( $el );
 		unset( $dp->dsr );
-		// XXX: could also set TempData::IS_NEW if !$dp->isModified(),
+		// XXX: could also set TempData::IS_NEW if $dp->isEmpty(),
 		// rather than using the preg_replace above.
 		foreach ( DOMUtils::childNodes( $el ) as $child ) {
 			if ( $child instanceof Element ) {

@@ -1502,7 +1502,7 @@ class DOMDataUtils {
 			// don't dirty the node by introducing an empty data-parsoid attribute
 			// where one didn't exist before.
 			// Ideally, we'll find a better solution for this edge case later.
-			( $dp instanceof DataParsoid && $dp->getTempFlag( TempData::IS_NEW ) && !$dp->isModified() );
+			( $dp instanceof DataParsoid && $dp->getTempFlag( TempData::IS_NEW ) && $dp->isEmpty() );
 
 		$pbData = null;
 		$hints = self::getCodecHints();

@@ -247,8 +247,8 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 		}
 	}
 
-	public function isModified(): bool {
-		return $this->toJsonArray() !== [];
+	public function isEmpty(): bool {
+		return $this->toJsonArray() === [];
 	}
 
 	/**

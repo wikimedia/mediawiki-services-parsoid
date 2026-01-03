@@ -211,7 +211,7 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 			return [
 				"value" => $curVal,
 				// Mark as modified if a new element
-				"modified" => $this->dataParsoid->isModified(),
+				"modified" => !$this->dataParsoid->isEmpty(),
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataParsoid->a[$name] !== $curVal ) {
