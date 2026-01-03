@@ -248,7 +248,8 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 	}
 
 	public function isEmpty(): bool {
-		return $this->toJsonArray() === [];
+		// First two checks short-circuit for the common case (dsr for nodes & tsr for tokens)
+		return !isset( $this->dsr ) && !isset( $this->tsr ) && $this->toJsonArray() === [];
 	}
 
 	/**
