@@ -38,3 +38,13 @@ if ( DOMCompat::isUsingDodo() ) {
 	/* This class doesn't exist for PHP < 8.4 */
 
 }
+
+// phpcs:ignore Generic.CodeAnalysis.UnconditionalIfStatement.Found
+if ( false ) {
+	/**
+	 * This is needed for classmap-authoritative support (T409283)
+	 * This should be re-evaluated once support for PHP 8.3 is dropped
+	 */
+	class HTMLDocument {
+	}
+}
