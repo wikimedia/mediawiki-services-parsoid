@@ -19,11 +19,12 @@ require('../core-upgrade.js');
  * $REPO_PATH is the path to a checked out git copy of the repo containing
  *   the parserTest file on your local machine.
  * $BRANCH is a branch name for the patch to $TARGET_REPO (ie, 'ptsync-<date>')
+ * $BASE is typically master, but might be a release branch
  *
  *   $ cd $PARSOID
- *   $ tools/sync-parserTests.js $TARGET_REPO $REPO_PATH $BRANCH
+ *   $ tools/sync-parserTests.js $TARGET_REPO $REPO_PATH $BRANCH [$BASE]
  *   $ cd $REPO_PATH
- *   $ git rebase --keep-empty master origin/master
+ *   $ git rebase --keep-empty $BASE
  *     ... resolve conflicts, sigh ...
  *   $ php tests/parser/parserTests.php
  *     ... fix any failures by marking tests parsoid-only, etc ...
@@ -143,7 +144,7 @@ Promise.async(function *() {
 		'help': { description: 'Show this message' },
 	});
 	const argv = opts.argv;
-	if (argv.help || argv._.length !== 3) {
+	if (argv.help || argv._.length < 3 || argv._.length > 4) {
 		opts.showHelp();
 		let morehelp = yield fs.readFile(__filename, 'utf8');
 		morehelp = strip(morehelp.split(/== [A-Z]* ==/, 2)[1]);
@@ -188,6 +189,7 @@ Promise.async(function *() {
 	const oldCommitHash = repoInfo.latestCommit;
 	const targets = repoInfo.targets;
 	const branch = argv._[2];
+	const base = argv._[3] || 'origin/master';
 	const changedFiles = [];
 	for (const targetName in targets) {
 		console.log("Processing " + targetName);
@@ -230,7 +232,7 @@ Promise.async(function *() {
 			firstTarget = false;
 		} catch (e) {
 			// cleanup
-			yield mwexec('git checkout master'.split(' '));
+			yield mwexec(`git checkout ${ base }`.split(' '));
 			yield mwexec(['git', 'branch', '-d', branch]);
 			throw e;
 		}
@@ -242,19 +244,19 @@ Promise.async(function *() {
 	// Note the --allow-empty, because sometimes there are no parsoid-side
 	// changes to merge. (We just need to get changes from upstream.)
 	yield mwexec(['git', 'add'].concat(changedFiles));
-	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty']);
+	yield mwexec(['git', 'commit', '--allow-empty', '-m', commitmsg]);
 
 	// ok, we were successful at making the commit.  Give further instructions.
 	console.log();
 	console.log('Success!  Now:');
 	console.log(' cd', mwpath);
-	console.log(' git rebase --keep-empty origin/master');
+	console.log(' git rebase --keep-empty', base);
 	console.log(' .. fix any conflicts .. ');
 	console.log(' php tests/parser/parserTests.php');
 	console.log(' git review');
 
 	// XXX to rebase semi-automatically, we might do something like:
-	//  yield mwexec('git rebase origin/master'.split(' '));
+	//  yield mwexec(`git rebase ${ base }`.split(' '));
 	// XXX but it seems rather confusing to do it this way, since the
 	// current working directory when we finish is still parsoid.
 
