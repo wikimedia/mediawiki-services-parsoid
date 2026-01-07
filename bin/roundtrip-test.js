@@ -25,7 +25,7 @@ var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var defaultContentVersion = '2.8.0';
 
-var MAX_RETRIES = 10;
+var MAX_RETRIES = 5;
 
 function displayDiff(type, count) {
 	var pad = (10 - type.length);  // Be positive!
@@ -729,6 +729,8 @@ var roundTripDiff = Promise.async(function *(profile, parsoidOptions, data) {
 var httpClient;
 
 var issueRequest = function(httpOptions) {
+	// Avoid hanging forever on very large pages =(
+	httpOptions.timeout = 120 * 1000;
 	if (httpClient) {
 		return httpClient.request(httpOptions);
 	} else {
