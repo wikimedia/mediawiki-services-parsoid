@@ -302,22 +302,23 @@ class DOMDataUtils {
 	 * @return DataParsoid
 	 */
 	public static function getDataParsoid( Element $node ): DataParsoid {
+		// Fast path
 		$data = self::getNodeData( $node );
 		$dp = $data->parsoid;
-		if ( !$dp instanceof DataParsoid ) {
-			$newDP = false;
-			$dp = self::getAttributeObject( $node, 'data-parsoid', self::getCodecHints()['data-parsoid'] );
-			if ( $dp === null ) {
-				$dp = new DataParsoid;
-				$newDP = true;
-			}
-			$data->parsoid = $dp;
+		if ( $dp instanceof DataParsoid ) {
+			return $dp;
+		}
+		// Fall back to generic case; special handling for "new" data-parsoid
+		$dp = self::getAttributeObject( $node, 'data-parsoid', self::getCodecHints()['data-parsoid'] );
+		if ( $dp === null ) {
+			$dp = new DataParsoid;
 			$codec = self::getCodec( $node );
 			if ( !empty( $codec->options['markNew'] ) ) {
-				$dp->setTempFlag( TempData::IS_NEW, $newDP );
+				$dp->setTempFlag( TempData::IS_NEW, true );
 			}
 		}
-		return $data->parsoid;
+		$data->parsoid = $dp;
+		return $dp;
 	}
 
 	/**
@@ -472,16 +473,13 @@ class DOMDataUtils {
 	 * @return DataMw
 	 */
 	public static function getDataMw( Element $node ): DataMw {
-		$data = self::getNodeData( $node );
-		$dmw = $data->mw;
-		if ( !$dmw instanceof DataMw ) {
-			$dmw = self::getAttributeObject( $node, 'data-mw', self::getCodecHints()['data-mw'] );
-			if ( $dmw === null ) {
-				$dmw = new DataMw;
-			}
-			$data->mw = $dmw;
+		// Fast path
+		$dmw = self::getNodeData( $node )->mw;
+		if ( $dmw instanceof DataMw ) {
+			return $dmw;
 		}
-		return $data->mw;
+		// Fall back to generic case
+		return self::getAttributeObjectDefault( $node, 'data-mw', self::getCodecHints()['data-mw'] );
 	}
 
 	/**
