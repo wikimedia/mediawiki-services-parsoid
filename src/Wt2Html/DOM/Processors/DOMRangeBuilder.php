@@ -325,7 +325,7 @@ class DOMRangeBuilder {
 	}
 
 	private static function findToplevelEnclosingRange(
-		array $nestingInfo, ?string $startId
+		array $nestingInfo, string $startId
 	): ?string {
 		// Walk up the implicit nesting tree to find the
 		// top-level range within which rId is nested.
@@ -339,7 +339,7 @@ class DOMRangeBuilder {
 			$visited[$rId] = true;
 			$rId = $nestingInfo[$rId];
 		}
-		return $rId;
+		return $rId === $startId ? null : $rId;
 	}
 
 	/**
@@ -573,8 +573,7 @@ class DOMRangeBuilder {
 			} );
 
 			$enclosingRangeId = self::findToplevelEnclosingRange(
-				$subsumedRanges,
-				$subsumedRanges[$r->id] ?? null
+				$subsumedRanges, $r->id
 			);
 			if ( $enclosingRangeId ) {
 				$this->env->trace( "{$this->traceType}/merge", '--nested in ', $enclosingRangeId, '--' );
