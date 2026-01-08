@@ -54,7 +54,7 @@ if ( $STANDALONE ) {
 	}
 }
 
-$cfg['minimum_target_php_version'] = '8.1';
+$cfg['minimum_target_php_version'] = '8.2';
 
 // If the optional wikimedia/langconv package isn't installed, ignore files
 // which require it.
