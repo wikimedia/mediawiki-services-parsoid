@@ -177,7 +177,6 @@ class TemplateEncapsulator {
 		);
 		'@phan-var false|array<string|PreprocTk> $targetContents';
 		[ $name, $colon, $arg0 ] = $targetContents !== false ? array_pad(
-			// @phan-suppress-next-line PhanInvalidFQSENInCallable
 			PreprocTk::splitContentsBy(
 				':',
 				PreprocTk::newContentsKV( $targetContents, $targetTsr ),
