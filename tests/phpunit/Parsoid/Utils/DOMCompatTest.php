@@ -146,13 +146,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 		DOMCompat::remove( $x );
 
-		// https://bugs.php.net/bug.php?id=77686
-		if ( DOMCompat::isStandardsMode( $doc ) || version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
-			$this->assertNull( $doc->getElementById( 'x' ) );
-		} else {
-			$this->assertSame( $x, $doc->getElementById( 'x' ) );
-			$this->assertNull( DOMCompat::getElementById( $doc, 'x' ) );
-		}
+		$this->assertNull( $doc->getElementById( 'x' ) );
 	}
 
 	/**
@@ -534,11 +528,8 @@ HTML;
 			DOMCompat::getOuterHTML( $doc->documentElement )
 		);
 
-		// https://bugs.php.net/bug.php?id=77686
-		if ( version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
-			$this->assertNull( $doc->getElementById( 'b' ) );
-			$this->assertNull( $doc->getElementById( 'c' ) );
-		}
+		$this->assertNull( $doc->getElementById( 'b' ) );
+		$this->assertNull( $doc->getElementById( 'c' ) );
 	}
 
 	/**
