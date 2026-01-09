@@ -609,7 +609,7 @@ class TokenUtils {
 	 * @param string|Token|array<Token|string> $tokens
 	 * @param bool $strict Whether to abort as soon as we find a token we
 	 *   can't stringify.
-	 * @param array<string,bool|Env> $opts
+	 * @param array<string,bool> $opts
 	 * @return string|list{string,array<Token|string>}
 	 *   The stringified tokens. If $strict is true, returns a two-element
 	 *   array containing string prefix and the remainder of the tokens as

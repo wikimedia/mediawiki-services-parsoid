@@ -1061,8 +1061,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 								// become mw:maybeContent that gets expanded
 								// below where $hasExpandableOpt is set.
 								'unpackDOMFragments' => true,
-								// FIXME: Sneaking in `env` to avoid changing the signature
-								'env' => $env
 							]
 						);
 						// Entity encode pipes since we wouldn't have split on

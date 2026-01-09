@@ -431,7 +431,6 @@ class AttributeExpander extends UniversalTokenHandler {
 							// These tokens haven't been expanded to DOM yet
 							// so unpacking them here is justifiable
 							'unpackDOMFragments' => true,
-							'env' => $env
 						] ) );
 						$rule = $nlTkOkay ? 'generic_newline_attributes' : 'table_attributes';
 						$kvs = str_contains( $kStr, '=' ) ?
