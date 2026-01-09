@@ -20,3 +20,15 @@ v}}
 v</p><table about="#mwt2" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"a","html":"&lt;span data-parsoid=&apos;{\"stx\":\"html\"}&apos;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\"}]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}&apos;>a&lt;/span>&lt;/span> k=","uneditable":true},{"html":""}]]}'>
 </table>
 !! end
+
+!! test
+Newline beginning with bullet in CSS style value
+!! wikitext
+<div {{1x|1=style="padding: 0.8em; border: 1px solid  
+#4d64cf; background: 
+#f3faff; color:black; text-align: left; margin: 0 0 1em;"}}>hmm</div>
+!! html/php
+<div style="padding: 0.8em; border: 1px solid #4d64cf; background: #f3faff; color:black; text-align: left; margin: 0 0 1em;">hmm</div>
+!! html/parsoid
+<div style="padding: 0.8em; border: 1px solid  #4d64cf; background: #f3faff; color:black; text-align: left; margin: 0 0 1em;" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html"}' data-mw='{"attribs":[[{"txt":"style","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\",\"named\":true}]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"style=\\\"padding: 0.8em; border: 1px solid  \\n#4d64cf; background: \\n#f3faff; color:black; text-align: left; margin: 0 0 1em;\\\"\"}},\"i\":0}}]}&apos;>style=\"padding: 0.8em; border: 1px solid  \n#4d64cf; background: \n#f3faff; color:black; text-align: left; margin: 0 0 1em;\"&lt;/span>"},{"html":""}]]}'>hmm</div>
+!! end

@@ -653,6 +653,8 @@ class TokenUtils {
 			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
 				$out .= $token->dataParsoid->src;
 				$i += 2; // Skip child and end tag.
+			} elseif ( $token instanceof TagTk && $token->getName() === 'listItem' ) {
+				$out .= $token->getAttributeKV( 'bullets' )->srcOffsets->value->substr();
 			} elseif ( $strict ) {
 				// If strict, return accumulated string on encountering first non-text token
 				return [ $out, array_slice( $tokens, $i ) ];
