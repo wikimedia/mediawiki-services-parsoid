@@ -522,6 +522,14 @@ var checkIfSignificant = function(offsets, data) {
 	normalizeDocumentHTML(oldBody.ownerDocument.body);
 	normalizeDocumentHTML(newBody.ownerDocument.body);
 
+	/*
+	console.log("---------NEW RAW HTML---------\n" + data.newHTML.body);
+	console.log("---------NEW DP---------------\n" + JSON.stringify(data.newDp.body));
+
+	console.log("---------OLD DOC HTML---------\n" + oldBody.ownerDocument.body.innerHTML);
+	console.log("---------NEW DOC HTML---------\n" + newBody.ownerDocument.body.innerHTML);
+	*/
+
 	var i, offset;
 	var results = [];
 	// Use the full tests for fostered content.
@@ -560,11 +568,6 @@ var checkIfSignificant = function(offsets, data) {
 			// console.log(Diff.diffLines(normalizedOld, normalizedNew));
 		}
 	}
-
-	/*
-	console.log("---------OLD DOC HTML---------\n" + oldBody.ownerDocument.body.innerHTML);
-	console.log("---------NEW DOC HTML---------\n" + newBody.ownerDocument.body.innerHTML);
-	*/
 
 	// FIXME: In this code path below, the returned diffs might
 	// underreport syntactic diffs since these are based on
@@ -693,6 +696,14 @@ var roundTripDiff = Promise.async(function *(profile, parsoidOptions, data) {
 	var normOpts = { preDiff: true, newlines: true };
 	data.oldLineLengths = genLineLengths(data.oldWt);
 	data.newLineLengths = genLineLengths(data.newWt);
+
+	/*
+	console.log("---------OLD WT---------\n" + data.oldWt);
+	console.log("---------NEW WT---------\n" + data.newWt);
+
+	console.log("---------OLD RAW HTML---------\n" + data.oldHTML.body);
+	console.log("---------OLD DP---------------\n" + JSON.stringify(data.oldDp.body));
+	*/
 
 	// Newline normalization to see if we can get to identical wt.
 	var wt1 = normalizeWikitext(data.oldWt, normOpts);
