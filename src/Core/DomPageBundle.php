@@ -140,7 +140,6 @@ class DomPageBundle extends BasePageBundle {
 				'loadFromPageBundle' => $this,
 			] + $options + [
 				'markNew' => true,
-				'validateXMLNames' => true,
 			];
 			DOMDataUtils::visitAndLoadDataAttribs(
 				$body, $options

@@ -718,7 +718,6 @@ class Env {
 			// Prepare and load.
 			// (Loading should be easy since the doc is expected to be empty.)
 			$options = [
-				'validateXMLNames' => true,
 				 // Don't mark the <body> tag as new!
 				'markNew' => false,
 			];

@@ -380,7 +380,7 @@ class TestRunner {
 		DOMDataUtils::prepareDoc( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [
-				'markNew' => true, 'validateXMLNames' => true,
+				'markNew' => true,
 			]
 		);
 		// Mark the document as loaded so we can try to catch errors which

@@ -121,7 +121,7 @@ class ContentModelHandler extends IContentModelHandler {
 		} else {
 			$doc = ContentUtils::createAndLoadDocument(
 				$selserData->revHTML,
-				[ 'markNew' => true, 'validateXMLNames' => true, ]
+				[ 'markNew' => true, ]
 			);
 		}
 
@@ -170,7 +170,6 @@ class ContentModelHandler extends IContentModelHandler {
 				$selectiveUpdateData->revHTML,
 				[
 					'markNew' => false, // !isSelectiveUpdate
-					'validateXMLNames' => true,
 				]
 			);
 			Assert::invariant(

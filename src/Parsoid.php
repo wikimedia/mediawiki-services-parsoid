@@ -810,7 +810,7 @@ class Parsoid {
 	 * @return Document
 	 */
 	private static function prepareAndLoadDocOrBundle( $topLevelDoc ): Document {
-		$options = [ 'markNew' => true, 'validateXMLNames' => true, ];
+		$options = [ 'markNew' => true, ];
 		// Recognize a "single document" page bundle.
 		if (
 			$topLevelDoc instanceof Document &&
