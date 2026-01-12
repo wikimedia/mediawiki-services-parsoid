@@ -134,11 +134,13 @@ class DOMDataUtils {
 		return self::isPrepared( $doc ) && self::getBag( $doc )->loaded;
 	}
 
-	public static function prepareDoc( Document $doc ): void {
+	public static function prepareDoc( Document $doc, bool $serializeNewEmptyDp = false ): void {
 		$bag = new DataBag();
 		$codec = new DOMDataCodec( $doc, [] );
 		self::setExtensionData( $doc, "bag", $bag );
 		self::setExtensionData( $doc, "codec", $codec );
+
+		$bag->serializeNewEmptyDp = $serializeNewEmptyDp;
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
@@ -312,10 +314,7 @@ class DOMDataUtils {
 		$dp = self::getAttributeObject( $node, 'data-parsoid', self::getCodecHints()['data-parsoid'] );
 		if ( $dp === null ) {
 			$dp = new DataParsoid;
-			$codec = self::getCodec( $node );
-			if ( !empty( $codec->options['markNew'] ) ) {
-				$dp->setTempFlag( TempData::IS_NEW, true );
-			}
+			$dp->setTempFlag( TempData::IS_NEW, true );
 		}
 		$data->parsoid = $dp;
 		return $dp;
@@ -697,9 +696,6 @@ class DOMDataUtils {
 		if ( $node === DOMCompat::getBody( $doc ) ) {
 			Assert::invariant( !self::getBag( $doc )->loaded, "redundant load" );
 		}
-		// If the 'markNew' flag is passed, it needs to be recorded in the
-		// Document codec's options, so that we can use this flag when
-		// loading embedded document fragments.
 		self::getCodec( $node )->setOptions( $options );
 
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
@@ -779,8 +775,8 @@ class DOMDataUtils {
 	 * @param array $options options
 	 */
 	public static function visitAndStoreDataAttribs( Node $node, array $options = [] ): void {
-		Assert::invariant( self::getBag( $node->ownerDocument ?? $node )->loaded,
-						  "store without load" );
+		$bag = self::getBag( $node->ownerDocument ?? $node );
+		Assert::invariant( $bag->loaded, "store without load" );
 		// PORT-FIXME: storeDataAttribs calls storeInPageBundle which calls getElementById.
 		// PHP's `getElementById` implementation is broken, and we work around that by
 		// using Zest which uses XPath. So, getElementById call can be O(n) and calling it
@@ -795,11 +791,12 @@ class DOMDataUtils {
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 
+		$options['serializeNewEmptyDp'] = $bag->serializeNewEmptyDp;
+
 		// Set the "storage options" and save the "loading options"
 		$codec = self::getCodec( $node );
 		$oldOptions = $codec->setOptions( $options );
 
-		$options['hasNewNodesMarked'] = !empty( $oldOptions['markNew'] );
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
 			self::storeDataAttribs( $node, $options );
 		}, $options );
@@ -1510,13 +1507,10 @@ class DOMDataUtils {
 		// * Partially loaded as a decoded JSON blob in $nodeData->parsoid.
 		// * Not loaded at all and available via the HTML data-parsoid attribute (string).
 		$dp = $nodeData->parsoid;
-		$discardDataParsoid =
-			!empty( $options['discardDataParsoid'] ) ||
-			// This hack ensures that a loadDataAttribs + storeDataAttribs pair
-			// don't dirty the node by introducing an empty data-parsoid attribute
-			// where one didn't exist before.
-			// Ideally, we'll find a better solution for this edge case later.
-			( $dp instanceof DataParsoid && $dp->getTempFlag( TempData::IS_NEW ) && $dp->isEmpty() );
+		$discardDataParsoid = !empty( $options['discardDataParsoid'] ) ||
+			( $dp instanceof DataParsoid && $dp->getTempFlag( TempData::DISCARDABLE_DP ) ) ||
+			( $dp instanceof DataParsoid && !$options['serializeNewEmptyDp'] &&
+				$dp->getTempFlag( TempData::IS_NEW ) && $dp->isEmpty() );
 
 		$pbData = null;
 		$hints = self::getCodecHints();
@@ -1528,7 +1522,7 @@ class DOMDataUtils {
 			// In all other cases, if an inline attribute is not loaded,
 			// we avoid the overhead of loading it from the inline attribute
 			// just to store it back into the inline attribute unchanged.
-			if ( $dp === null && ( !empty( $options['storeInPageBundle'] ) || !$options['hasNewNodesMarked'] ) ) {
+			if ( $dp === null && ( !empty( $options['storeInPageBundle'] ) || $options['serializeNewEmptyDp'] ) ) {
 				self::loadRichAttributes( $node, "data-parsoid" );
 				$dp = $nodeData->parsoid[0] ?? null; // undecoded json blob
 				if ( $dp === [] ) {
@@ -1536,7 +1530,7 @@ class DOMDataUtils {
 					// But since it is empty, create a new object to prevent
 					// serialization to [].
 					$dp = new DataParsoid;
-				} elseif ( $dp === null && !$options['hasNewNodesMarked'] ) {
+				} elseif ( $dp === null && $options['serializeNewEmptyDp'] ) {
 					// NOTE: We always create an empty data-parsoid for all nodes in the DOM
 					// to distinguish "original HTML" from "newly added nodes in edited HTML"
 					// to aid selser. But, if we were marking new nodes, we would have

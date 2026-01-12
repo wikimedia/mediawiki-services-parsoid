@@ -22,6 +22,15 @@ class DataBag {
 	private int $annotationId = 0;
 
 	/**
+	 * Should every Parsoid-generated node be serialized with a data-parsoid attribute?
+	 * This property is set per-transformation (whether wt2html, html2wt, or html2html)
+	 * and as such, we record it here in the top-level document's databag.
+	 * This is true everywhere except during wt2html transforms and is hence safe
+	 * to default to false.
+	 */
+	public bool $serializeNewEmptyDp = false;
+
+	/**
 	 * Track whether or not data attributes have been loaded for this
 	 * document. See DOMDataUtils::visitAndLoadDataAttribs().
 	 */

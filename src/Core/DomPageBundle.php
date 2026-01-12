@@ -136,14 +136,8 @@ class DomPageBundle extends BasePageBundle {
 			DOMDataUtils::prepareDoc( $doc );
 			$body = DOMCompat::getBody( $doc );
 			'@phan-var Element $body'; // assert non-null
-			$options = [
-				'loadFromPageBundle' => $this,
-			] + $options + [
-				'markNew' => true,
-			];
-			DOMDataUtils::visitAndLoadDataAttribs(
-				$body, $options
-			);
+			$options = [ 'loadFromPageBundle' => $this ] + $options;
+			DOMDataUtils::visitAndLoadDataAttribs( $body, $options );
 			foreach ( $this->fragments as $name => $f ) {
 				DOMDataUtils::visitAndLoadDataAttribs(
 					$f, $options

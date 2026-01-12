@@ -18,7 +18,7 @@ $mockState = (object)[
 	"selserMode" => true
 ];
 
-$doc = ContentUtils::createAndLoadDocument( $html, [ "markNew" => true ] );
+$doc = ContentUtils::createAndLoadDocument( $html );
 $body = DOMCompat::getBody( $doc );
 
 $norm = new DOMNormalizer( $mockState );

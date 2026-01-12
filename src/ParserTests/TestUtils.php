@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -96,7 +97,7 @@ class TestUtils {
 				$doc = ContentUtils::createAndLoadDocument( $domBody );
 				$domBody = DOMCompat::getBody( $doc );
 			} else {
-				DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
+				DOMDataUtils::visitAndLoadDataAttribs( $domBody );
 			}
 			( new DOMNormalizer( $mockState ) )->normalize( $domBody );
 			DOMDataUtils::visitAndStoreDataAttribs( $domBody );
@@ -466,9 +467,7 @@ class TestUtils {
 				self::filterNodeDsr( $child );
 			}
 		}
-		$ret = ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
-		$ret = preg_replace( '/\sdata-parsoid="{}"/', '', $ret );
-		return $ret;
+		return ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
 	}
 
 	/**
@@ -477,8 +476,10 @@ class TestUtils {
 	public static function filterNodeDsr( Element $el ): void {
 		$dp = DOMDataUtils::getDataParsoid( $el );
 		unset( $dp->dsr );
-		// XXX: could also set TempData::IS_NEW if $dp->isEmpty(),
-		// rather than using the preg_replace above.
+		if ( $dp->isEmpty() ) {
+			$dp->getTemp()->setFlag( TempData::DISCARDABLE_DP );
+		}
+
 		foreach ( DOMUtils::childNodes( $el ) as $child ) {
 			if ( $child instanceof Element ) {
 				self::filterNodeDsr( $child );

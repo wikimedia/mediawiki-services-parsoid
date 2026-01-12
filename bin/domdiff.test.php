@@ -15,8 +15,8 @@ $html2 = file_get_contents( $argv[2] );
 
 $mockEnv = new MockEnv( [] );
 
-$doc1 = ContentUtils::createAndLoadDocument( $html1, [ "markNew" => true ] );
-$doc2 = ContentUtils::createAndLoadDocument( $html2, [ "markNew" => true ] );
+$doc1 = ContentUtils::createAndLoadDocument( $html1 );
+$doc2 = ContentUtils::createAndLoadDocument( $html2 );
 
 $body1 = DOMCompat::getBody( $doc1 );
 $body2 = DOMCompat::getBody( $doc2 );

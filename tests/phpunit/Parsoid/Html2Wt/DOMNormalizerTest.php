@@ -39,7 +39,7 @@ class DOMNormalizerTest extends TestCase {
 		$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );
-		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$DOMNormalizer->normalize( $body );
 

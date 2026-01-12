@@ -442,7 +442,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	public function testRichAttributeDomPageBundle( bool $useFragmentBank ) {
 		$env = new MockEnv( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p>Hello, world</p>", [ 'markNew' => false, ]
+			"<p>Hello, world</p>", [ 'serializeNewEmptyDp' => true ]
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$dp = DOMDataUtils::getDataParsoid( $p );
@@ -512,7 +512,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	public function testCloneDocument() {
 		// Create a document with some data-parsoid and rich attributes
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p>Hello, world</p>", [ 'markNew' => false, ]
+			"<p>Hello, world</p>", [ 'serializeNewEmptyDp' => true ]
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$p_dp = DOMDataUtils::getDataParsoid( $p );

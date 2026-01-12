@@ -349,9 +349,9 @@ class TestRunner {
 			// Since this was set when serializing we need to setup a new doc
 			$env->setupTopLevelDoc();
 		}
-		$handler = $env->getContentHandler();
+		// ParserTests don't go through src/Parsoid.php and hence require this here
 		$extApi = new ParsoidExtensionAPI( $env );
-		$doc = $handler->toDOM( $extApi );
+		$doc = $env->getContentHandler()->toDOM( $extApi );
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
 			'storeInPageBundle' => false,
 		] );
@@ -378,11 +378,7 @@ class TestRunner {
 				"doc should not be prepared and loaded already"
 		);
 		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs(
-			DOMCompat::getBody( $doc ), [
-				'markNew' => true,
-			]
-		);
+		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
 		// Mark the document as loaded so we can try to catch errors which
 		// might try to reload this again later.
 		DOMDataUtils::getBag( $doc )->loaded = true;

@@ -21,7 +21,7 @@ class AddRedLinksTest extends TestCase {
 	public function testRun( string $html, string $expected, string $message ) {
 		$addRedLinks = new AddRedLinks();
 		$env = new MockEnv( [] );
-		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$addRedLinks->run( $env, $body, [], true );
 		$actual = ContentUtils::ppToXML( $body, [ 'innerXML' => true ] );

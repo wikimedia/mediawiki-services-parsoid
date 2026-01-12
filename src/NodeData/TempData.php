@@ -134,6 +134,15 @@ class TempData {
 	public const BOGUS_PX = 1 << 12;
 
 	/**
+	 * Tells the serializer to discard this data-parsoid attribute.
+	 * Removing the data-parsoid instead of marking it discardable is
+	 * not helpful because DOMDataUtils::getDataParsoid() will instantiate
+	 * a new one if code downstream of the cleanup calls it which defeats
+	 * the purpose of removal in the first place.
+	 */
+	public const DISCARDABLE_DP = 1 << 13;
+
+	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used
 	 * in findAutoInsertedTags() in conjunction with data-stag to identify
 	 * auto-inserted tags, and for debugging.

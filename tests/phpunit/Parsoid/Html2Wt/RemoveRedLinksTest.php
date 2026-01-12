@@ -19,7 +19,7 @@ class RemoveRedLinksTest extends TestCase {
 	 * @dataProvider provideRedLinks
 	 */
 	public function testRun( string $html, string $expected, string $message ) {
-		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$env = new MockEnv( [] );
 		$removeRedLinks = new RemoveRedLinks( $env );

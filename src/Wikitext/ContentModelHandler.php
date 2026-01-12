@@ -113,16 +113,15 @@ class ContentModelHandler extends IContentModelHandler {
 			// FIXME(T266838): Create a new Env for this parse?  Something is
 			// needed to avoid this rigmarole.
 			$topLevelDoc = $env->getTopLevelDoc();
-			$env->setupTopLevelDoc();
 			// This effectively parses $selserData->revText for us because
 			// $selserData->revText = $env->getPageconfig()->getPageMainContent()
+			$env->setupTopLevelDoc();
 			$doc = $this->toDOM( $extApi );
+
+			// Now set up doc again for html2wt
 			$env->setupTopLevelDoc( $topLevelDoc );
 		} else {
-			$doc = ContentUtils::createAndLoadDocument(
-				$selserData->revHTML,
-				[ 'markNew' => true, ]
-			);
+			$doc = ContentUtils::createAndLoadDocument( $selserData->revHTML );
 		}
 
 		$this->canonicalizeDOM( $env, $doc );
@@ -167,10 +166,7 @@ class ContentModelHandler extends IContentModelHandler {
 
 		if ( $selectiveUpdateData ) {
 			$doc = ContentUtils::createAndLoadDocument(
-				$selectiveUpdateData->revHTML,
-				[
-					'markNew' => false, // !isSelectiveUpdate
-				]
+				$selectiveUpdateData->revHTML, [ 'serializeNewEmptyDp' => true ] // isSelectiveUpdate
 			);
 			Assert::invariant(
 				!DomPageBundle::isSingleDocument( $doc ),

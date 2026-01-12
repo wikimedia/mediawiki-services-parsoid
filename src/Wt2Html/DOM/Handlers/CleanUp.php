@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
-use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -429,12 +428,8 @@ class CleanUp {
 		if ( $discardDataParsoid ) {
 			// We cannot unset data-parsoid because any code that runs after
 			// this that calls DOMDataUtils::getDataParsoid will reinitialize
-			// it to an empty object. So, we do that re-init here and set the
-			// IS_NEW flag to ensure DOMDataUtils::storeDataAttribs discards this
-			// if unmodified. The empty data-parsoid blob is considered unmodified.
-			$dp = new DataParsoid;
-			$dp->setTempFlag( TempData::IS_NEW );
-			DOMDataUtils::setDataParsoid( $node, $dp );
+			// it to an empty object.
+			$dp->setTempFlag( TempData::DISCARDABLE_DP );
 		}
 
 		return true;

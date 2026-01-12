@@ -185,7 +185,6 @@ class Parsoid {
 			$options['skipLanguageConversionPass'] ?? false;
 		$envOptions['nativeTemplateExpansion'] =
 			$options['nativeTemplateExpansion'] ?? false;
-
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
@@ -621,8 +620,7 @@ class Parsoid {
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
 				if ( isset( $pb->parsoid['counter'] ) ) {
-					$internalPB = $env->pageBundle;
-					$internalPB->parsoid['counter'] = $pb->parsoid['counter'];
+					$env->pageBundle->parsoid['counter'] = $pb->parsoid['counter'];
 				}
 				break;
 
@@ -810,7 +808,6 @@ class Parsoid {
 	 * @return Document
 	 */
 	private static function prepareAndLoadDocOrBundle( $topLevelDoc ): Document {
-		$options = [ 'markNew' => true, ];
 		// Recognize a "single document" page bundle.
 		if (
 			$topLevelDoc instanceof Document &&
@@ -826,7 +823,7 @@ class Parsoid {
 		// (without necessarily having to add attributes to the DOM)
 		if ( $topLevelDoc instanceof DomPageBundle ) {
 			// Skip preparation and loading, it's already done.
-			return $topLevelDoc->toDom( true, $options );
+			return $topLevelDoc->toDom();
 		}
 
 		// This is an unprepared/unloaded Document.
@@ -835,9 +832,7 @@ class Parsoid {
 			"toplevelDoc should not be prepared and loaded already"
 		);
 		DOMDataUtils::prepareDoc( $topLevelDoc );
-		DOMDataUtils::visitAndLoadDataAttribs(
-			DOMCompat::getBody( $topLevelDoc ), $options
-		);
+		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $topLevelDoc ) );
 		// Mark the document as loaded so we can try to catch errors which
 		// might try to reload this again later.
 		DOMDataUtils::getBag( $topLevelDoc )->loaded = true;

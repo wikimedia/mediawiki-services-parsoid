@@ -26,12 +26,8 @@ class DOMDiffTest extends TestCase {
 	public function testDOMDiff( array $test ) {
 		$mockEnv = new MockEnv( [] );
 
-		$oldDOM = ContentUtils::createAndLoadDocument(
-			$test['orig'], [ 'markNew' => true ]
-		);
-		$newDOM = ContentUtils::createAndLoadDocument(
-			$test['edit'], [ 'markNew' => true ]
-		);
+		$oldDOM = ContentUtils::createAndLoadDocument( $test['orig'] );
+		$newDOM = ContentUtils::createAndLoadDocument( $test['edit'] );
 
 		$oldBody = DOMCompat::getBody( $oldDOM );
 		$body = DOMCompat::getBody( $newDOM );

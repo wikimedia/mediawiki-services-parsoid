@@ -690,8 +690,7 @@ class Env {
 	 * When an environment is constructed, we initialize a document (and
 	 * RemexPipeline) to be used throughout the parse.
 	 *
-	 * @param ?Document $topLevelDoc if non-null,
-	 *  the document should be prepared and loaded.
+	 * @param ?Document $topLevelDoc if non-null, the document should be prepared and loaded.
 	 */
 	public function setupTopLevelDoc( ?Document $topLevelDoc = null ): void {
 		if ( $topLevelDoc ) {
@@ -702,6 +701,7 @@ class Env {
 				"toplevelDoc should be prepared and loaded already"
 			);
 			$this->topLevelDoc = $topLevelDoc;
+			DOMDataUtils::getBag( $this->topLevelDoc )->serializeNewEmptyDp = false;
 		} else {
 			$this->topLevelDoc = DOMCompat::newDocument( isHtml: true );
 			$documentElement = $this->topLevelDoc->documentElement;
@@ -717,14 +717,8 @@ class Env {
 			$this->remexPipeline = new RemexPipeline( $this );
 			// Prepare and load.
 			// (Loading should be easy since the doc is expected to be empty.)
-			$options = [
-				 // Don't mark the <body> tag as new!
-				'markNew' => false,
-			];
-			DOMDataUtils::prepareDoc( $this->topLevelDoc );
-			DOMDataUtils::visitAndLoadDataAttribs(
-				$body, $options
-			);
+			DOMDataUtils::prepareDoc( $this->topLevelDoc, true );
+			DOMDataUtils::visitAndLoadDataAttribs( $body );
 			// Mark the document as loaded so we can try to catch errors which
 			// might try to reload this again later.
 			DOMDataUtils::getBag( $this->topLevelDoc )->loaded = true;
