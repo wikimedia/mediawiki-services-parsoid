@@ -410,10 +410,10 @@ class WTUtils {
 	 * that outputs MediaWiki Core DOM Spec HTML (https://www.mediawiki.org/wiki/Specs/HTML)
 	 */
 	public static function isExtensionOutputtingCoreMwDomSpec( Node $node, Env $env ): bool {
-		if ( DOMUtils::matchTypeOf( $node, self::NON_EXTENSION_ENCAP_REGEXP ) !== null ) {
+		$extTagName = self::getExtTagName( $node );
+		if ( $extTagName === null ) {
 			return false;
 		}
-		$extTagName = self::getExtTagName( $node );
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extTagName );
 		$htmlType = $extConfig['options']['outputHasCoreMwDomSpecMarkup'] ?? null;
 		return $htmlType === true;
