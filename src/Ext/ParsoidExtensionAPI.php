@@ -739,10 +739,19 @@ class ParsoidExtensionAPI {
 	 * @return DocumentFragment
 	 */
 	public function htmlToDom(
-		string $html, ?Document $doc = null, ?array $options = []
+		string $html, ?Document $doc = null, ?array $options = null
 	): DocumentFragment {
+		/* These are deprecated, but still used by extensions.  The warnings
+		 * will be enabled in a follow-up patch.
+		if ( $doc !== null ) {
+			$this->env->getSiteConfig()->deprecated( __METHOD__ . ' with $doc', '0.23' );
+		}
+		if ( $options !== null ) {
+			$this->env->getSiteConfig()->deprecated( __METHOD__ . ' with $options', '0.23' );
+		}
+		*/
 		return ContentUtils::createAndLoadDocumentFragment(
-			$doc ?? $this->getTopLevelDoc(), $html, $options
+			$doc ?? $this->getTopLevelDoc(), $html
 		);
 	}
 

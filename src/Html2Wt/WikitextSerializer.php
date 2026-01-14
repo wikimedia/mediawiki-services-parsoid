@@ -165,7 +165,7 @@ class WikitextSerializer {
 
 	public function htmlToWikitext( array $opts, string $html ): string {
 		$domFragment = ContentUtils::createAndLoadDocumentFragment(
-			$this->env->getTopLevelDoc(), $html, [ 'markNew' => true ]
+			$this->env->getTopLevelDoc(), $html
 		);
 		return $this->domToWikitext( $opts, $domFragment );
 	}

@@ -90,13 +90,20 @@ class ContentUtils {
 	/**
 	 * @param Document $doc
 	 * @param string $html
-	 * @param array $options
+	 * @param ?array $options Not used
 	 * @return DocumentFragment
 	 */
 	public static function createAndLoadDocumentFragment(
-		Document $doc, string $html, array $options = []
+		Document $doc, string $html, ?array $options = null
 	): DocumentFragment {
+		if ( $options !== null ) {
+			// $options are deprecated and ignored
+			PHPUtils::deprecated( __METHOD__ . ' with $options', '0.23' );
+		}
 		$domFragment = $doc->createDocumentFragment();
+		// Ignore the provided options, and just use the options of the
+		// parent document.
+		$options = DOMDataUtils::getCodec( $doc )->options;
 		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
 		DOMDataUtils::visitAndLoadDataAttribs( $domFragment, $options );
 		return $domFragment;
@@ -161,8 +168,7 @@ class ContentUtils {
 		}
 		$str2df2str = static function ( string $html ) use ( $elt, $proc ): string {
 			$dom = ContentUtils::createAndLoadDocumentFragment(
-				$elt->ownerDocument, $html,
-				DOMDataUtils::getCodec( $elt->ownerDocument )->options
+				$elt->ownerDocument, $html
 			);
 			$ret = $proc( $dom );
 			if ( $ret ) {

@@ -80,9 +80,7 @@ class DomPFragmentTest extends PFragmentTestCase {
 			public function newFromJsonArray( string $className, array $json ) {
 				return ContentUtils::createAndLoadDocumentFragment(
 					$this->ext->getTopLevelDoc(),
-					$json['html'],
-					// If set to true, we will have to strip the data-parsoid from the output below
-					[ 'markNew' => false ]
+					$json['html']
 				);
 			}
 
