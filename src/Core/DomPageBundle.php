@@ -227,10 +227,7 @@ class DomPageBundle extends BasePageBundle {
 		// but as long as your extension content doesn't contain IDs beginning
 		// with 'mw' you'll be fine.
 		$siteConfig ??= $options['siteConfig'] ?? null;
-		if ( $siteConfig === null ) {
-			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.22' );
-			$siteConfig = new MockSiteConfig( [] );
-		}
+		Assert::invariant( $siteConfig !== null, "siteConfig is required" );
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->version,

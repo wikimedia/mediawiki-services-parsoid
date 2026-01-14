@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 /**
  * Class for helping us traverse the DOM.
@@ -164,8 +163,7 @@ class DOMTraverser {
 	 *   `$workNode->nextSibling` works even when workNode is a last child of its parent.
 	 * - `true`: continues regular processing on current node.
 	 *
-	 * @param SiteConfig|ParsoidExtensionAPI|null $siteConfig
-	 *   Passing ParsoidExtensionAPI here is deprecated.
+	 * @param ?SiteConfig $siteConfig
 	 * @param Node $workNode The starting node for the traversal.
 	 *   The traversal could go beyond the subtree rooted at $workNode if
 	 *   the handlers called during traversal return an arbitrary node elsewhere
@@ -174,11 +172,7 @@ class DOMTraverser {
 	 *   there is nothing in the traversal code to prevent that.
 	 * @param DTState|null $state
 	 */
-	public function traverse( $siteConfig, Node $workNode, ?DTState $state = null ): void {
-		if ( $siteConfig instanceof ParsoidExtensionAPI ) {
-			$siteConfig = $siteConfig->getSiteConfig();
-			$siteConfig->deprecated( __METHOD__ . ' with ParsoidExtensionAPI', '0.22' );
-		}
+	public function traverse( ?SiteConfig $siteConfig, Node $workNode, ?DTState $state = null ): void {
 		$this->traverseInternal( true, $siteConfig, $workNode, $state );
 	}
 
