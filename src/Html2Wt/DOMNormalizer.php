@@ -431,6 +431,13 @@ class DOMNormalizer {
 	 * possible simple-wiki-link scenarios that isSimpleWikiLink in link handler tackles
 	 */
 	private function hasMatchingContentAndTarget( Element $node ): bool {
+		// If it started out piped, don't bother, unless we're in edited content
+		// Normalization is skipped on unedited nodes in selser, so it's a good proxy
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		if ( !$this->state->selserMode && ( $dp->stx ?? null ) === 'piped' ) {
+			return false;
+		}
+
 		if ( !$node->hasAttribute( 'href' ) ) {
 			return false;
 		}

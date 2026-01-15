@@ -149,6 +149,10 @@
     "8. cats/langlinks: migrateTrailingSolTransparentLinks dom pass should not get tripped by intervening templates": {
         "html2wt": "* a\n\n{{1x|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]\n[[es:Baz]]"
     },
+    "9. T409669 Regression test: Don't move out format tags when originating as piped": {
+        "selser [[1]]": "''[[Foo bar baz|Foo bar baz]]''",
+        "selser [[[1]]]": "''[[Foo bar baz]]''"
+    },
     "<br> to <br />": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,3,0,0]}'>123</p>\n",
         "html2wt": "123\n"
