@@ -818,17 +818,23 @@ class ParsoidExtensionAPI {
 	 * @param array $opts
 	 *  - extName: (string) Name of the extension whose body we are serializing
 	 *  - inPHPBlock: (bool) FIXME: This needs to be removed
-	 * @param Element $node DOM to serialize
+	 * @param DocumentFragment|Element $df DOM to serialize
 	 * @param bool $releaseDom If $releaseDom is set to true, the DOM will be left in
 	 *  non-canonical form and is not safe to use after this call. This is primarily a
 	 *  performance optimization.  This flag defaults to false.
 	 * @return mixed
+	 * @note Passing an Element as $df is deprecated as of Parsoid 0.23.
 	 */
-	public function domToWikitext( array $opts, Element $node, bool $releaseDom = false ) {
-		// FIXME: WTS expects the input DOM to be a <body> element!
-		// Till that is fixed, we have to go through this round-trip!
-		// TODO: Move $node children to a fragment and call `$serializer->domToWikitext`
-		return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom ) );
+	public function domToWikitext( array $opts, Element|DocumentFragment $df, bool $releaseDom = false ) {
+		if ( $df instanceof Element ) {
+			$node = $df;
+			// Passing an element is deprecated and will emit warnings in the
+			// future.
+			return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom ) );
+		}
+		$state = $this->serializerState;
+		$opts['env'] = $this->env;
+		return $state->serializer->domToWikitext( $opts, $df );
 	}
 
 	/**
