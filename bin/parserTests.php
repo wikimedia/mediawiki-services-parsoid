@@ -366,11 +366,26 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			return;
 		}
 
+		if (
+			$file !== null &&
+			ScriptUtils::booleanOption( $options['quiet'] ?? null ) &&
+			$stats->allFailures() === 0 &&
+			!$knownFailuresChanged
+		) {
+			print 'SUMMARY:' .
+				TestUtils::colorString( $filename, $happiness ? 'green' : 'red' ) .
+				' --> ' . TestUtils::colorString( 'NO UNEXPECTED RESULTS', 'green' ) .
+				" (" . ( $stats->passedTests + $stats->failedTests ) . " tests)" .
+				"\n";
+				return;
+		}
+
 		if ( !$quieter ) {
 			print "==========================================================\n";
 			print 'SUMMARY:' . TestUtils::colorString( $filename, $happiness ? 'green' : 'red' ) .
 				"\n";
 		}
+
 		if ( $file !== null ) {
 			print 'Execution time: ' . round( ( hrtime( true ) - $stats->startTime ) / 1000000, 3 ) . "ms\n";
 		}

@@ -317,7 +317,10 @@ class TestRunner {
 		}
 		if ( !ScriptUtils::booleanOption( $options['quieter'] ?? '' ) ) {
 			if ( $this->knownFailuresPath ) {
-				error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
+				// Only report if we failed to find a known failures file.
+				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
+					error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
+				}
 			} else {
 				error_log( 'No known failures found.' );
 			}
