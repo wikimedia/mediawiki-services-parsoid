@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Utils\CounterType;
 
 class DataBag {
@@ -59,13 +60,32 @@ class DataBag {
 
 	/**
 	 * Stash the data and return an id for retrieving it later
-	 * @param NodeData $data
-	 * @return int
 	 */
 	public function stashObject( NodeData $data ): int {
 		$nodeId = $this->nodeId++;
 		$this->dataObject[$nodeId] = $data;
 		return $nodeId;
+	}
+
+	public function updateCountersFromPageBundle( BasePageBundle $pb ): void {
+		if ( $pb->counters !== null ) {
+			$this->annotationId = max( $this->annotationId, $pb->counters['annotation'] ?? -1 );
+			$this->aboutId = max( $this->aboutId, $pb->counters['transclusion'] ?? -1 );
+		}
+	}
+
+	public function updateCountersInPageBundle( BasePageBundle $pb ): void {
+		$pb->counters['annotation'] = $this->counterValue( CounterType::ANNOTATION_ABOUT );
+		$pb->counters['transclusion'] = $this->counterValue( CounterType::TRANSCLUSION_ABOUT );
+	}
+
+	public function counterValue( CounterType $type ): int {
+		return match ( $type ) {
+			CounterType::ANNOTATION_ABOUT => $this->annotationId,
+			CounterType::TRANSCLUSION_ABOUT => $this->aboutId,
+			// Id counter isn't stored in the DataBag class
+			CounterType::NODE_DATA_ID => throw new \LogicException( "Not stored here" )
+		};
 	}
 
 	public function newAboutId(): string {

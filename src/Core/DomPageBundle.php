@@ -9,7 +9,6 @@ use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -61,7 +60,7 @@ class DomPageBundle extends BasePageBundle {
 		Document $doc,
 		?string $version = null,
 		?array $headers = null,
-		?string $contentmodel = null
+		?string $contentmodel = null,
 	): self {
 		return new DomPageBundle(
 			$doc,
@@ -141,7 +140,6 @@ class DomPageBundle extends BasePageBundle {
 			$fragments = [];
 			DOMDataUtils::prepareDoc( $doc );
 			$body = DOMCompat::getBody( $doc );
-			'@phan-var Element $body'; // assert non-null
 			$options = [ 'loadFromPageBundle' => $this ] + $options;
 			DOMDataUtils::visitAndLoadDataAttribs( $body, $options );
 			foreach ( $this->fragments as $name => $f ) {
@@ -220,12 +218,9 @@ class DomPageBundle extends BasePageBundle {
 			$doc,
 			$metadata->version ?? $options['contentversion'] ?? null,
 			$metadata->headers ?? $options['headers'] ?? null,
-			$metadata->contentmodel ?? $options['contentmodel'] ?? null
+			$metadata->contentmodel ?? $options['contentmodel'] ?? null,
 		);
-		// We can't create a full idIndex unless we can traverse
-		// extension content, which requires a SiteConfig,
-		// but as long as your extension content doesn't contain IDs beginning
-		// with 'mw' you'll be fine.
+		// FIXME: Should we init $dpb->counters here using databag?
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->version,
@@ -383,7 +378,7 @@ class DomPageBundle extends BasePageBundle {
 			$options['contentversion'] ?? null,
 			$options['headers'] ?? null,
 			$options['contentmodel'] ?? null,
-			$fragments
+			$fragments,
 		);
 	}
 

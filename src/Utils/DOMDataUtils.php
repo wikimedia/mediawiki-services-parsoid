@@ -608,6 +608,9 @@ class DOMDataUtils {
 	private static function storeInPageBundle(
 		DomPageBundle $pb, Element $node, stdClass $data, array $idIndex
 	): void {
+		$bag = self::getBag( $node->ownerDocument );
+		$bag->updateCountersInPageBundle( $pb );
+
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$codec = self::getCodec( $node );
 		$pbCounters = &$pb->counters;
@@ -658,6 +661,14 @@ class DOMDataUtils {
 		}
 		self::getCodec( $node )->setOptions( $options );
 
+		// Init data bag
+		$bag = self::getBag( $doc );
+		$pb = $options['loadFromPageBundle'] ?? null;
+		'@phan-var BasePageBundle $pb'; // @var BasePageBundle $pb
+		if ( $pb ) {
+			$bag->updateCountersFromPageBundle( $pb );
+		}
+
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
 			self::loadDataAttribs( $node, $options );
 		}, $options );
@@ -683,14 +694,16 @@ class DOMDataUtils {
 		if ( $about !== null ) {
 			$bag->seenAboutId( $about );
 		}
-		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
-		// Force load of data-mw to lookup annotation range id.
-		// FIXME: This effectively makes data-mw an eagerly-loaded property.
-		// We will fix this in a followup patch by adding metadata about range ids
-		// to the page bundle.
-		$nodeData->getDataMw( $node );
-		if ( isset( $nodeData->mw->rangeId ) ) {
-			$bag->seenAnnotationId( $nodeData->mw->rangeId );
+		$pb = $options['loadFromPageBundle'] ?? null;
+		'@phan-var BasePageBundle $pb'; // @var BasePageBundle $pb
+		// FIXME: This is still an eager load of node data.
+		$nodeData = self::getNodeData( $node, $pb );
+		if ( !$pb || $pb->counters === null ) {
+			// Force load of data-mw to lookup annotation range id.
+			$nodeData->getDataMw( $node );
+			if ( isset( $nodeData->mw->rangeId ) ) {
+				$bag->seenAnnotationId( $nodeData->mw->rangeId );
+			}
 		}
 
 		// We don't load rich attributes or data-parsoid: that will be done

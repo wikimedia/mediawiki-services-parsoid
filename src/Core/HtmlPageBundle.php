@@ -47,7 +47,7 @@ class HtmlPageBundle extends BasePageBundle {
 		string $html,
 		?string $version = null,
 		?array $headers = null,
-		?string $contentmodel = null
+		?string $contentmodel = null,
 	): self {
 		return new self(
 			$html,
