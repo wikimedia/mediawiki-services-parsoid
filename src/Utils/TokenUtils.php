@@ -638,9 +638,6 @@ class TokenUtils {
 				throw new UnreachableException( "No KVs expected." );
 			} elseif ( is_string( $token ) ) {
 				$out .= $token;
-			} elseif ( is_array( $token ) ) {
-				Assert::invariant( !$strict, "strict case handled above" );
-				$out .= self::tokensToString( $token, $strict, $opts );
 			} elseif ( $token instanceof PreprocTk ) {
 				$out .= $token->print( pretty: false );
 			} elseif (
@@ -655,9 +652,6 @@ class TokenUtils {
 				$i += 2; // Skip child and end tag.
 			} elseif ( $token instanceof TagTk && $token->getName() === 'listItem' ) {
 				$out .= $token->getAttributeKV( 'bullets' )->srcOffsets->value->substr();
-			} elseif ( $strict ) {
-				// If strict, return accumulated string on encountering first non-text token
-				return [ $out, array_slice( $tokens, $i ) ];
 			} elseif (
 				// This option shouldn't be used if the tokens have been
 				// expanded to DOM
@@ -685,6 +679,12 @@ class TokenUtils {
 						"tag should be followed by endtag"
 					);
 				}
+			} elseif ( $strict ) {
+				// If strict, return accumulated string on encountering first non-text token
+				return [ $out, array_slice( $tokens, $i ) ];
+			} elseif ( is_array( $token ) ) {
+				Assert::invariant( !$strict, "strict case handled above" );
+				$out .= self::tokensToString( $token, $strict, $opts );
 			}
 		}
 		return $out;
