@@ -46,7 +46,8 @@ class ApiHelper {
 		$this->onlyCached = $opts['onlyCached'] ?? false;
 
 		$this->curlopt = [
-			CURLOPT_USERAGENT => trim( ( $opts['userAgent'] ?? '' ) . ' ApiEnv/1.0 Parsoid-PHP/0.1' ),
+			CURLOPT_USERAGENT => $opts['userAgent'] ??
+				'Parsoid-PHP/1.0 (https://mediawiki.org/wiki/Parsoid) ApiEnv/1.0',
 			CURLOPT_CONNECTTIMEOUT => $opts['apiTimeout'] ?? 60,
 			CURLOPT_TIMEOUT => $opts['apiTimeout'] ?? 60,
 			CURLOPT_FOLLOWLOCATION => false,
@@ -54,6 +55,10 @@ class ApiHelper {
 			CURLOPT_SAFE_UPLOAD => true,
 			CURLOPT_RETURNTRANSFER => true,
 		];
+		if ( $opts['apiToken'] ?? false ) {
+			$this->curlopt[CURLOPT_HTTPHEADER][] = 'Authorization: Bearer ' .
+				$opts['apiToken'];
+		}
 	}
 
 	/**
@@ -120,10 +125,18 @@ class ApiHelper {
 
 		$params['format'] = 'json';
 		$params['formatversion'] ??= '2';
+		$retryAfter = null;
 
 		$opts = [
 			CURLOPT_POST => true,
 			CURLOPT_POSTFIELDS => $params,
+			CURLOPT_HEADERFUNCTION => static function ( $curl, $header_line ) use ( &$retryAfter ) {
+				[ $key, $value ] = array_pad( explode( ': ', $header_line, 2 ), 2, null );
+				if ( strtolower( $key ) === 'retry-after' ) {
+					$retryAfter = trim( $value );
+				}
+				return strlen( $header_line );
+			},
 		] + $this->curlopt;
 		if ( !curl_setopt_array( $ch, $opts ) ) {
 			throw new \RuntimeException( "Error setting curl options: " . curl_error( $ch ) );
@@ -136,6 +149,15 @@ class ApiHelper {
 		}
 
 		$code = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+		if ( $code === 429 && $retryAfter !== null ) {
+			# sigh, rate limits: retry once
+			$seconds = (int)$retryAfter;
+			error_log( "HTTP 429: Sleeping for $seconds seconds" );
+			sleep( $seconds );
+			return $this->makeCurlRequest( $params );
+			# Make sure you're using the --record options, and try using
+			# --apiToken (see https://api.wikimedia.org/wiki/Rate_limits)
+		}
 		if ( $code !== 200 ) {
 			throw new \RuntimeException( "HTTP request failed: HTTP code $code" );
 		}

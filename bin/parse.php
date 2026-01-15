@@ -305,6 +305,13 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'apiToken',
+			# See https://api.wikimedia.org/wiki/Authentication#Personal_API_tokens
+			'Specify a personal API token; use @<filename> to load from a file',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -630,6 +637,14 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				// we'll throw an error if we're missing anything.
 				$configOpts['onlyCached'] = true;
 			}
+		}
+		if ( $this->hasOption( 'apiToken' ) ) {
+			$apiToken = $this->getOption( 'apiToken' );
+			// These tokens can be long, support loading from a file as well
+			if ( str_starts_with( $apiToken, '@' ) ) {
+				$apiToken = file_get_contents( substr( $apiToken, 1 ) );
+			}
+			$configOpts['apiToken'] = trim( $apiToken );
 		}
 
 		$parsoidOpts += [
