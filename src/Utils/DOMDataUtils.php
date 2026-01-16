@@ -1528,10 +1528,10 @@ class DOMDataUtils {
 			// In all other cases, if an inline attribute is not loaded,
 			// we avoid the overhead of loading it from the inline attribute
 			// just to store it back into the inline attribute unchanged.
-			if ( !$dp && ( !empty( $options['storeInPageBundle'] ) || !$options['hasNewNodesMarked'] ) ) {
+			if ( $dp === null && ( !empty( $options['storeInPageBundle'] ) || !$options['hasNewNodesMarked'] ) ) {
 				self::loadRichAttributes( $node, "data-parsoid" );
 				$dp = $nodeData->parsoid[0] ?? null; // undecoded json blob
-				if ( $dp ) {
+				if ( $dp !== null ) {
 					// json_decode in loadRichAttributes creates a stdClass
 					// So, tests that compare raw $pbData->parsoid blobs will fail
 					// without this conversion.
@@ -1549,7 +1549,7 @@ class DOMDataUtils {
 				$dp = $dp[0];
 			}
 
-			if ( $dp ) {
+			if ( $dp !== null ) {
 				if ( $dp instanceof DataParsoid ) {
 					if ( empty( $options['keepTmp'] ) ) {
 						// FIXME: $dp->toJsonArray drops tmp so it's discarded regardless
@@ -1581,7 +1581,7 @@ class DOMDataUtils {
 			Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' );
 
 		$dmw = $nodeData->mw;
-		if ( $dmw ) {
+		if ( $dmw !== null ) {
 			if ( $dmw instanceof DataMw ) {
 				// Strip empty data-mw attributes
 				$dmw = $dmw->isEmpty() ? null : $codec->toJsonArray( $dmw, $hints['data-mw'] );
@@ -1596,7 +1596,7 @@ class DOMDataUtils {
 			$dmw = $nodeData->mw[0] ?? null; // undecoded json blob OR null
 		}
 
-		if ( $dmw ) {
+		if ( $dmw !== null ) {
 			if ( $storeDmwInPb ) {
 				$pbData ??= new stdClass;
 				$pbData->mw = $dmw;
