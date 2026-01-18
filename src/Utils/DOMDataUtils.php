@@ -1531,12 +1531,12 @@ class DOMDataUtils {
 			if ( $dp === null && ( !empty( $options['storeInPageBundle'] ) || !$options['hasNewNodesMarked'] ) ) {
 				self::loadRichAttributes( $node, "data-parsoid" );
 				$dp = $nodeData->parsoid[0] ?? null; // undecoded json blob
-				if ( $dp !== null ) {
-					// json_decode in loadRichAttributes creates a stdClass
-					// So, tests that compare raw $pbData->parsoid blobs will fail
-					// without this conversion.
-					$dp = (array)$dp;
-				} elseif ( !$options['hasNewNodesMarked'] ) {
+				if ( $dp === [] ) {
+					// This $dp was lazily instantiated above and so is not new.
+					// But since it is empty, create a new object to prevent
+					// serialization to [].
+					$dp = new DataParsoid;
+				} elseif ( $dp === null && !$options['hasNewNodesMarked'] ) {
 					// NOTE: We always create an empty data-parsoid for all nodes in the DOM
 					// to distinguish "original HTML" from "newly added nodes in edited HTML"
 					// to aid selser. But, if we were marking new nodes, we would have
@@ -1547,6 +1547,13 @@ class DOMDataUtils {
 			} elseif ( is_array( $dp ) ) {
 				// Unwrap the array wrapper added by getNodeData
 				$dp = $dp[0];
+				if ( $dp === [] ) {
+					// Given that this is a json blob, this was previously loaded and
+					// as such is not new - it is only being instantiated lazily here.
+					// But since it is empty, create a new object to prevent
+					// serialization to [].
+					$dp = new DataParsoid;
+				}
 			}
 
 			if ( $dp !== null ) {

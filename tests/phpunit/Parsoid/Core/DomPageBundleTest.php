@@ -30,12 +30,10 @@ class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( 'script', DOMUtils::nodeName( $el ) );
 	}
 
-	/**
-	 * @covers ::fromSingleDocument
-	 * @covers ::toInlineAttributeHtml
-	 */
-	public function testExtractPageBundle() {
-		$html = <<<'EOF'
+	public static function provideExtractPageBundle() {
+		yield "simple" => [
+			'input' => <<<'EOF'
+<!DOCTYPE html>
 <html>
   <head>
     <script id="mw-pagebundle" type="application/x-mw-pagebundle">
@@ -45,19 +43,63 @@ class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
     </script>
   </head>
   <body><p id="mwAQ">Hello, world</p>
-EOF;
-		$doc = DOMUtils::parseHTML( $html );
-		$dpb = DomPageBundle::fromSingleDocument( $doc );
-		self::assertIsArray( $dpb->parsoid['ids'] );
-		$html2 = $dpb->toInlineAttributeHtml( siteConfig: new MockSiteConfig( [] ) );
-		$this->assertEquals( <<<'EOF'
+EOF
+,
+			'output' => <<<'EOF'
 <!DOCTYPE html>
 <html><head>
     
   </head>
   <body><p id="mwAQ" data-parsoid='{"dsr":[0,12,0,0]}'>Hello, world</p></body></html>
 EOF
-			   , $html2 );
+		];
+
+		yield 'complex' => [
+			'input' => <<< 'EOF'
+<!DOCTYPE html>
+<html>
+	<head>
+		<script id="mw-pagebundle" type="application/x-mw-pagebundle">
+		{"parsoid": {
+			"counter":4,
+			"ids":{
+				"mwAA":{"dsr":[0,70,0,0]},
+				"mwAQ":{"dsr":[0,69,0,0]},
+				"mwAg":{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"12px"},{"ck":"class","ak":"class=skin-invert"},{"ck":"link","ak":"link=Love Symbol"}],"dsr":[0,69,null,null]},
+				"mwAw":{},
+				"mwBA":{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}}
+			},
+			"offsetType":"byte"
+		},
+		"mw":{"ids":[]}}
+		</script>
+		</head>
+		<body><p id="mwAQ"><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg"><a href="./Love_Symbol" title="Love Symbol" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA"/></a></span></p>
+</body></html>
+EOF
+,
+			'output' => <<<'EOF'
+<!DOCTYPE html>
+<html><head>
+		
+		</head>
+		<body><p id="mwAQ" data-parsoid='{"dsr":[0,69,0,0]}'><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg" data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"12px"},{"ck":"class","ak":"class=skin-invert"},{"ck":"link","ak":"link=Love Symbol"}],"dsr":[0,69,null,null]}'><a href="./Love_Symbol" title="Love Symbol" id="mwAw" data-parsoid="{}"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+</body></html>
+EOF
+		];
+	}
+
+	/**
+	 * @covers ::fromSingleDocument
+	 * @covers ::toInlineAttributeHtml
+	 * @dataProvider provideExtractPageBundle
+	 */
+	public function testExtractPageBundle( $input, $output ) {
+		$doc = DOMUtils::parseHTML( $input );
+		$dpb = DomPageBundle::fromSingleDocument( $doc );
+		self::assertIsArray( $dpb->parsoid['ids'] );
+		$html2 = $dpb->toInlineAttributeHtml( siteConfig: new MockSiteConfig( [] ) );
+		$this->assertEquals( $output, $html2 );
 	}
 
 	/**
