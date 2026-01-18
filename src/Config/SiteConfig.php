@@ -450,7 +450,10 @@ abstract class SiteConfig {
 	 * @return string
 	 */
 	public function ucfirst( string $str ): string {
-		$o = ord( $str );
+		if ( $str === '' ) {
+			return '';
+		}
+		$o = ord( $str[0] );
 		if ( $o < 96 ) { // if already uppercase...
 			return $str;
 		} elseif ( $o < 128 ) {
