@@ -1368,7 +1368,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function lintTemplateArgInExtensionTag(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
-		if ( !WTUtils::isExtensionOutputtingCoreMwDomSpec( $node, $env ) ) {
+		if (
+			// disabled in template namespace
+			$env->getContextTitle()->inNamespace( $env->getSiteConfig()->canonicalNamespaceId( 'template' ) )
+			|| !WTUtils::isExtensionOutputtingCoreMwDomSpec( $node, $env )
+		) {
 			return;
 		}
 

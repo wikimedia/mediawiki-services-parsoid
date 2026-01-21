@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
 class LinterTest extends TestCase {
 
 	private function wtToLint(
-		string $wt, array $linterOverrides = [], ?string $title = null
+		string $wt, array $linterOverrides = [], ?string $title = null, ?int $namespace = null
 	): array {
 		$siteOptions = [
 			'linting' => true,
@@ -34,7 +34,7 @@ class LinterTest extends TestCase {
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig(
-			$siteConfig, [ 'title' => $title ], $content
+			$siteConfig, [ 'title' => $title, 'pagens' => $namespace ], $content
 		);
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );
@@ -1908,6 +1908,19 @@ class LinterTest extends TestCase {
 		$desc = "should not lint template argument in extension tag (extension without wikitext)";
 		$result = $this->wtToLint(
 			"text front <math>with {{{1|some}}} text</math> text behind"
+		);
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = "should not lint template argument in extension tag (template namespace)";
+		$siteOptions = [
+			'linting' => true,
+		];
+		$siteConfig = new MockSiteConfig( $siteOptions );
+		$result = $this->wtToLint(
+			"text front <gallery>File:{{{1|some}}}-{{{2|name}}}.jpg</gallery> text behind",
+			[],
+			null,
+			$siteConfig->canonicalNamespaceId( 'template' ) // Template namespace
 		);
 		$this->assertCount( 0, $result, $desc );
 
