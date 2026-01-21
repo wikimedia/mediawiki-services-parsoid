@@ -573,4 +573,17 @@ class OptsProcessor {
 	protected function output( string $out ): void {
 		print $out;
 	}
+
+	/**
+	 * Override to redirect opts processor fatal errors.
+	 *
+	 * @param string|StatusValue $msg Error message
+	 * @param int $exitCode PHP exit status. Should be in range 1-254.
+	 * @return never
+	 */
+	protected function fatalError( $msg, $exitCode = 1 ) {
+		$this->error( $msg );
+		exit( $exitCode );
+	}
+
 }
