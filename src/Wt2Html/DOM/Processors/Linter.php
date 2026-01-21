@@ -1371,8 +1371,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 		if ( !WTUtils::isExtensionOutputtingCoreMwDomSpec( $node, $env ) ) {
 			return;
 		}
-		// Skip regex work when source is missing/empty to avoid deprecated null input
-		if ( !isset( $dp->src ) || $dp->src === '' ) {
+
+		if ( !isset( $dp->src ) ) {
+			$env->log( 'warn', 'Expected src for node', WTUtils::getExtTagName( $node ) );
 			return;
 		}
 
