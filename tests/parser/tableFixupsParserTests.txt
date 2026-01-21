@@ -728,6 +728,12 @@ Template:Multi cell output
 n<sup>2</sup> || n<sup>3</sup> || style="background:#9F9;" class="table-yes" | Yes
 !! endarticle
 
+!! article
+Template:Multi cell output with empty cells
+!! text
+a |||| b
+!! endarticle
+
 !! test
 Template emitting multi-cell output as plain content should be reparsed as multiple cells
 !! wikitext
@@ -763,5 +769,24 @@ Attribute-suppressing content should not prevent multi-cell output split
 !! html/parsoid
 <table>
 <tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| [[Main Page]] ",{"template":{"target":{"wt":"multi cell output","href":"./Template:Multi_cell_output"},"params":{},"i":0}}]}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> n<sup>2</sup></td><td about="#mwt1">n<sup>3</sup></td><td about="#mwt1" style="background:#9F9;" class="table-yes" data-parsoid='{"stx":"row"}'>Yes</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Empty cells should not prevent multi-cell output split
+!! wikitext
+{|
+| [[Main Page]] {{multi cell output with empty cells}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> a</td>
+<td></td>
+<td>b
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| [[Main Page]] ",{"template":{"target":{"wt":"multi cell output with empty cells","href":"./Template:Multi_cell_output_with_empty_cells"},"params":{},"i":0}}]}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> a</td><td about="#mwt1"></td><td about="#mwt1" data-parsoid='{"stx":"row"}'>b</td></tr>
 </tbody></table>
 !! end

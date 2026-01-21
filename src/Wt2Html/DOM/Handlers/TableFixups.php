@@ -966,12 +966,12 @@ class TableFixups {
 				$match1 = $match2 = null;
 
 				// Find the first match of ||
-				preg_match( '/^((?:[^|]*(?:\|[^|])?)*)\|\|([^|].*)?$/D', $child->textContent, $match1 );
+				preg_match( '/^((?:[^|]*(?:\|[^|])?)*)\|\|(.*)$/D', $child->textContent, $match1 );
 				if ( $isTd ) {
 					$match = $match1;
 				} else {
 					// Find the first match !!
-					preg_match( '/^((?:[^!]*(?:\![^!])?)*)\!\!([^!].*)?$/D', $child->textContent, $match2 );
+					preg_match( '/^((?:[^!]*(?:\![^!])?)*)\!\!(.*)$/D', $child->textContent, $match2 );
 
 					// Pick the shortest match
 					if ( $match1 && $match2 ) {
