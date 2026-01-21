@@ -1,8 +1,13 @@
 <?php
+// phpcs:disable Universal.Operators.TypeSeparatorSpacing.UnionTypeSpacesAfter
 declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use DOMCharacterData;
+use DOMDocument;
+use DOMDocumentFragment;
+use DOMElement;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\DOM\CharacterData;
 use Wikimedia\Parsoid\DOM\Document;
@@ -262,14 +267,13 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid
 	 */
-	public static function getElementById( $node, string $id ) {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class
-			],
-			$node, '$node' );
+	public static function getElementById(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|
+		Document|DocumentFragment $node,
+		string $id
+	) {
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$elements = Zest::getElementsById( $node, $id, self::zestOptions() );
 		// @phan-suppress-next-line PhanTypeMismatchReturn
@@ -304,14 +308,12 @@ class DOMCompat {
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function getElementsByTagName( $node, string $tagName ): iterable {
-		Assert::parameterType( [
-				Document::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMElement::class
-			],
-			$node, '$node' );
+	public static function getElementsByTagName(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMElement|
+		Document|Element $node, string $tagName
+	): iterable {
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$result = Zest::getElementsByTagName( $node, $tagName, self::zestOptions() );
 		'@phan-var array<Element> $result'; // @var array<Element> $result
@@ -327,14 +329,12 @@ class DOMCompat {
 	 * @note This property was added to PHP in 8.0.0, and won't be needed
 	 *  once our minimum required version >= 8.0.0
 	 */
-	public static function getFirstElementChild( $node ) {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$node, '$node' );
+	public static function getFirstElementChild(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $node
+	) {
 		$firstChild = $node->firstChild;
 		while ( $firstChild && $firstChild->nodeType !== XML_ELEMENT_NODE ) {
 			$firstChild = $firstChild->nextSibling;
@@ -351,14 +351,12 @@ class DOMCompat {
 	 * @note This property was added to PHP in 8.0.0, and won't be needed
 	 *  once our minimum required version >= 8.0.0
 	 */
-	public static function getLastElementChild( $node ) {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$node, '$node' );
+	public static function getLastElementChild(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $node
+	) {
 		$lastChild = $node->lastChild;
 		while ( $lastChild && $lastChild->nodeType !== XML_ELEMENT_NODE ) {
 			$lastChild = $lastChild->previousSibling;
@@ -391,35 +389,32 @@ class DOMCompat {
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function querySelectorAll( $node, string $selector ): iterable {
+	public static function querySelectorAll(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $node,
+		string $selector
+	): iterable {
 		if ( self::isUsingDodo( $node ) ) {
 			return $node->querySelectorAll( $selector );
 		}
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
 		return Zest::find( $selector, $node, self::zestOptions() );
 	}
 
 	/**
 	 * Return the last preceding sibling of the node that is an element, or null otherwise.
-	 * @param Node $node
+	 * @param Element|CharacterData $node
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-previouselementsibling
 	 */
-	public static function getPreviousElementSibling( $node ) {
-		Assert::parameterType( [
-				Element::class, CharacterData::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMElement::class, \DOMCharacterData::class
-			],
-			$node, '$node' );
+	public static function getPreviousElementSibling(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMElement|DOMCharacterData|
+		Element|CharacterData $node
+	) {
 		$previousSibling = $node->previousSibling;
 		while ( $previousSibling && $previousSibling->nodeType !== XML_ELEMENT_NODE ) {
 			$previousSibling = $previousSibling->previousSibling;
@@ -430,18 +425,16 @@ class DOMCompat {
 
 	/**
 	 * Return the first following sibling of the node that is an element, or null otherwise.
-	 * @param Node $node
+	 * @param Element|CharacterData $node
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-nextelementsibling
 	 */
-	public static function getNextElementSibling( $node ) {
-		Assert::parameterType( [
-				Element::class, CharacterData::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMElement::class, \DOMCharacterData::class
-			],
-			$node, '$node' );
+	public static function getNextElementSibling(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMElement|DOMCharacterData|
+		Element|CharacterData $node
+	) {
 		$nextSibling = $node->nextSibling;
 		while ( $nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE ) {
 			$nextSibling = $nextSibling->nextSibling;
@@ -456,15 +449,14 @@ class DOMCompat {
 	 * @param Node|string ...$nodes
 	 * @note This method was added in PHP 8.0.0
 	 */
-	public static function append( $parentNode, ...$nodes ): void {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$parentNode, '$parentNode'
-		);
+	public static function append(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $parentNode,
+		DOMNode|
+		Node|string ...$nodes
+	): void {
 		foreach ( $nodes as $node ) {
 			if ( is_string( $node ) ) {
 				$node = $parentNode->ownerDocument->createTextNode( $node );
@@ -477,18 +469,18 @@ class DOMCompat {
 	 * Append a child node to the parent node.
 	 * @param Document|DocumentFragment|Element $parentNode
 	 * @param Node $node
+	 * @return Node
 	 * @note From T411228 et al, appending an empty Document Fragment results
 	 * in a PHP warning.  No longer necessary when isUsing84Dom is true.
 	 */
-	public static function appendChild( $parentNode, $node ): Node {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$parentNode, '$parentNode'
-		);
+	public static function appendChild(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $parentNode,
+		DOMNode|
+		Node $node
+	) {
 		if ( !( $node instanceof DocumentFragment ) || $node->hasChildNodes() ) {
 			$parentNode->appendChild( $node );
 		}
@@ -500,14 +492,12 @@ class DOMCompat {
 	 * @param Element|CharacterData $node
 	 * @see https://dom.spec.whatwg.org/#dom-childnode-remove
 	 */
-	public static function remove( $node ): void {
-		Assert::parameterType( [
-				Element::class, CharacterData::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMElement::class, \DOMCharacterData::class
-			],
-			$node, '$node' );
+	public static function remove(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMElement|DOMCharacterData|
+		Element|CharacterData $node
+	): void {
 		if ( $node->parentNode ) {
 			$node->parentNode->removeChild( $node );
 		}
@@ -675,19 +665,16 @@ class DOMCompat {
 	 * https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/replaceChildren
 	 *
 	 * @param Document|DocumentFragment|Element $parentNode
-	 * @param string|Node ...$nodes
+	 * @param Node|string ...$nodes
 	 */
 	public static function replaceChildren(
-		$parentNode, ...$nodes
+		// For compatibility with code which might call this from
+		// outside Parsoid
+		DOMDocument|DOMDocumentFragment|DOMElement|
+		Document|DocumentFragment|Element $parentNode,
+		DOMNode|
+		Node|string ...$nodes
 	): void {
-		Assert::parameterType( [
-				Document::class, DocumentFragment::class, Element::class,
-				// For compatibility with code which might call this from
-				// outside Parsoid.
-				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			],
-			$parentNode, '$parentNode'
-		);
 		while ( $parentNode->firstChild ) {
 			$parentNode->removeChild( $parentNode->firstChild );
 		}

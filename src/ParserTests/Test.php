@@ -469,6 +469,7 @@ class Test extends Item {
 					$wrapperName = 'dd';
 					break;
 				case 'tr':
+					'@phan-var Element $n'; // @var Element $n
 					$prev = DOMCompat::getPreviousElementSibling( $n );
 					if ( $prev ) {
 						// TH or TD

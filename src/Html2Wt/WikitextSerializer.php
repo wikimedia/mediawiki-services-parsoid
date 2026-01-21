@@ -1579,12 +1579,8 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function serializeDOM(
-		Node $node, bool $selserMode = false
+		Document|DocumentFragment $node, bool $selserMode = false
 	): string {
-		Assert::parameterType(
-			[ Document::class, DocumentFragment::class ],
-			$node, '$node' );
-
 		if ( $node instanceof Document ) {
 			$node = DOMCompat::getBody( $node );
 		}
