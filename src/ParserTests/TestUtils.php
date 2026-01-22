@@ -190,7 +190,7 @@ class TestUtils {
 	 * @return string
 	 */
 	public static function stripParsoidIds( string $s ): string {
-		return preg_replace( '/ id="mw([-\w]{2,})"/u', '', $s );
+		return preg_replace( '/ id=\\\\*"mw([-\w]{2,})\\\\*"/u', '', $s );
 	}
 
 	private static function cleanSpans(
