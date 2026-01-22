@@ -14574,6 +14574,18 @@ T72867: Don't block XML namespace declaration
 #
 # All these tests are marked Parsoid html2wt and html2html only
 # ----------------------------------------------------------------
+!! test
+Serializer shouldn't blindly user dataParsoid.srcTagName
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><font class="x" data-parsoid='{"stx":"html","srcTagName":"FONT"}'>boo</font></p>
+<p><span class="x" data-parsoid='{"stx":"html","srcTagName":"FONT"}'>boo</span></p>
+!! wikitext
+<FONT class="x">boo</FONT>
+
+<span class="x">boo</span>
+!! end
 
 !! test
 Ignore rel attribute in a-tags during serialization to url-links

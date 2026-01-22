@@ -308,7 +308,11 @@ class WikitextSerializer {
 		}
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
-		$name = $da->srcTagName ?? DOMUtils::nodeName( $node );
+		if ( strtolower( $da->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
+			$name = $da->srcTagName;
+		} else {
+			$name = DOMUtils::nodeName( $node );
+		}
 		$inner = "{$name}{$sAttribs}{$close}";
 		return $this->wrapAngleBracket( $node, $inner );
 	}
@@ -322,7 +326,11 @@ class WikitextSerializer {
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
-		$name = $dataParsoid->srcTagName ?? DOMUtils::nodeName( $node );
+		if ( strtolower( $dataParsoid->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
+			$name = $dataParsoid->srcTagName;
+		} else {
+			$name = DOMUtils::nodeName( $node );
+		}
 		$ret = '';
 
 		if ( empty( $dataParsoid->autoInsertedEnd )
