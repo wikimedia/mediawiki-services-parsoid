@@ -336,7 +336,6 @@ class ContentUtils {
 			// they want and so may be returned in subpipelines which could
 			// subsequently be shifted
 			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment/sealed/\w+$#D' ) ) {
-				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $dp->html ?? null ) {
 					DOMPostOrder::traverse( $dp->html, $convertNode );
 				}

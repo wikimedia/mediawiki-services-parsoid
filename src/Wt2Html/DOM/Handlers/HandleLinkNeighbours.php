@@ -187,7 +187,6 @@ class HandleLinkNeighbours {
 		}
 
 		// Find link trail neighbors
-		$dp = DOMDataUtils::getDataParsoid( $node );
 		$trailNbrs = self::getLinkTrail( $env, $node );
 		if ( $trailNbrs ) {
 			$trail = '';
