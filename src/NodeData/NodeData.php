@@ -87,4 +87,43 @@ class NodeData {
 
 		return $nd;
 	}
+
+	/**
+	 * Get data meta wiki info from a node.
+	 *
+	 * @param Element $node node
+	 * @return DataMw
+	 */
+	public function getDataMw( Element $node ): DataMw {
+		// Fast path
+		$dmw = $this->mw;
+		if ( $dmw instanceof DataMw ) {
+			return $dmw;
+		}
+
+		// Fall back to generic case
+		return DOMDataUtils::getAttributeObjectDefault( $node, 'data-mw', DOMDataUtils::getCodecHints()['data-mw'] );
+	}
+
+	/**
+	 * Get data parsoid info from a node.
+	 *
+	 * @param Element $node node
+	 * @return DataParsoid
+	 */
+	public function getDataParsoid( Element $node ): DataParsoid {
+		// Fast path
+		$dp = $this->parsoid;
+		if ( $dp instanceof DataParsoid ) {
+			return $dp;
+		}
+		// Fall back to generic case; special handling for "new" data-parsoid
+		$dp = DOMDataUtils::getAttributeObject( $node, 'data-parsoid', DOMDataUtils::getCodecHints()['data-parsoid'] );
+		if ( $dp === null ) {
+			$dp = new DataParsoid;
+			$dp->setTempFlag( TempData::IS_NEW, true );
+		}
+		$this->parsoid = $dp;
+		return $dp;
+	}
 }

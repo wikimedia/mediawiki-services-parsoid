@@ -304,20 +304,7 @@ class DOMDataUtils {
 	 * @return DataParsoid
 	 */
 	public static function getDataParsoid( Element $node ): DataParsoid {
-		// Fast path
-		$data = self::getNodeData( $node );
-		$dp = $data->parsoid;
-		if ( $dp instanceof DataParsoid ) {
-			return $dp;
-		}
-		// Fall back to generic case; special handling for "new" data-parsoid
-		$dp = self::getAttributeObject( $node, 'data-parsoid', self::getCodecHints()['data-parsoid'] );
-		if ( $dp === null ) {
-			$dp = new DataParsoid;
-			$dp->setTempFlag( TempData::IS_NEW, true );
-		}
-		$data->parsoid = $dp;
-		return $dp;
+		return self::getNodeData( $node )->getDataParsoid( $node );
 	}
 
 	/**
@@ -478,13 +465,7 @@ class DOMDataUtils {
 	 * @return DataMw
 	 */
 	public static function getDataMw( Element $node ): DataMw {
-		// Fast path
-		$dmw = self::getNodeData( $node )->mw;
-		if ( $dmw instanceof DataMw ) {
-			return $dmw;
-		}
-		// Fall back to generic case
-		return self::getAttributeObjectDefault( $node, 'data-mw', self::getCodecHints()['data-mw'] );
+		return self::getNodeData( $node )->getDataMw( $node );
 	}
 
 	/**
@@ -728,7 +709,7 @@ class DOMDataUtils {
 		// FIXME: This effectively makes data-mw an eagerly-loaded property.
 		// We will fix this in a followup patch by adding metadata about range ids
 		// to the page bundle.
-		self::getDataMw( $node );
+		$nodeData->getDataMw( $node );
 		if ( isset( $nodeData->mw->rangeId ) ) {
 			$bag->seenAnnotationId( $nodeData->mw->rangeId );
 		}
@@ -1157,18 +1138,15 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Helper function for code clarity: test whether there is
-	 * an existing data-mw value on a node which has already had
-	 * loadDataAttribs called on it.
+	 * Helper function to only fetch node-data if it exists
 	 */
-	private static function nodeHasDataMw( Element $node ): bool {
+	private static function getNodeDataIfExists( Element $node ): ?NodeData {
 		// If data-mw were present, loadDataAttribs would have created
 		// the DATA_OBJECT_ATTR_NAME attribute for associated NodeData
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			return false;
+			return null;
 		}
-		$data = self::getNodeData( $node );
-		return $data->mw !== null;
+		return self::getNodeData( $node );
 	}
 
 	/**
@@ -1182,7 +1160,8 @@ class DOMDataUtils {
 		Element $node, string $name
 	): void {
 		// Don't create a new data-mw yet if we don't need one.
-		if ( !self::nodehasDataMw( $node ) ) {
+		$nodeData = self::getNodeDataIfExists( $node );
+		if ( ( $nodeData->mw ?? null ) === null ) {
 			return;
 		}
 		if ( !self::isHtmlAttributeWithSpecialSemantics( $node->tagName, $name ) ) {
@@ -1190,7 +1169,7 @@ class DOMDataUtils {
 		}
 		// If there was a data-mw.attribs for this attribute, remove it
 		// (it will be rewritten during serialization later)
-		$dataMw = self::getDataMw( $node );
+		$dataMw = $nodeData->getDataMw( $node );
 		$dataMw->attribs = array_values( array_filter(
 			$dataMw->attribs ?? [],
 			static function ( $a ) use ( $name ) {
@@ -1340,11 +1319,12 @@ class DOMDataUtils {
 
 		if ( self::isHtmlAttributeWithSpecialSemantics( $node->tagName, $name ) ) {
 			// Look aside at data-mw for attributes with special semantics
-			if ( !self::nodeHasDataMw( $node ) ) {
+			$nodeData = self::getNodeDataIfExists( $node );
+			if ( ( $nodeData->mw ?? null ) === null ) {
 				// No data-mw, so no rich value for this attribute
 				return;
 			}
-			$dataMw = self::getDataMw( $node );
+			$dataMw = $nodeData->getDataMw( $node );
 			// Load all attribute values from $dataMw->attribs to avoid O(N^2)
 			// loading of list
 			if ( $dataMw->attribs ?? false ) {
