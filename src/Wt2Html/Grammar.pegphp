@@ -883,7 +883,7 @@ ipv6urladdr =
 
 /*
  * Precedence: template arguments win over templates. See
- * http://www.mediawiki.org/wiki/Preprocessor_ABNF#Ideal_precedence
+ * https://www.mediawiki.org/wiki/Preprocessor_ABNF#Ideal_precedence
  * 4: {{{{·}}}} → {·{{{·}}}·}
  * 5: {{{{{·}}}}} → {{·{{{·}}}·}}
  * 6: {{{{{{·}}}}}} → {{{·{{{·}}}·}}}
@@ -1729,7 +1729,7 @@ preproc_piece_template =
 	}
 
 // These lookahead rules are used to ensure rightward precedence
-// http://www.mediawiki.org/wiki/Preprocessor_ABNF#Ideal_precedence
+// https://www.mediawiki.org/wiki/Preprocessor_ABNF#Ideal_precedence
 // parsoid_fragment_marker has highest precedence
 
 triple_brace = $( "{" !parsoid_fragment_marker_literal "{{" )
@@ -2231,7 +2231,7 @@ nowiki_text =
  * parsed as regular inline, but the source positions of the tag are added
  * to allow reconstructing the unparsed text from the input. */
 
-// See http://www.w3.org/TR/html5/syntax.html#tag-open-state and the following
+// See https://html.spec.whatwg.org/multipage/parsing.html#tag-open-state and the following
 // paragraphs.  Note that we don't enforce ascii alpha for the first character
 // here because we need to be more permissive for extension tag names.  That
 // happens in xmlish_tag below.
@@ -2354,7 +2354,7 @@ less_than = !html_or_empty @"<"
 
 // The arrangement of chars is to emphasize the split between what's disallowed
 // by html5 and what's necessary to give directive a chance.
-// See: http://www.w3.org/TR/html5/syntax.html#attributes-0
+// See: https://html.spec.whatwg.org/multipage/syntax.html#attributes-2
 generic_attribute_name =
 	first:(
 	  // From #before-attribute-name-state, < is omitted for directive
