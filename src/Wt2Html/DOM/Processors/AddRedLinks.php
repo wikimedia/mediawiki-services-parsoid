@@ -238,7 +238,10 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		bool $isDefaultCaptionLinks
 	): array {
 		// Optimize for the common case where the page language has no variants
-		if ( !$env->langConverterEnabled() ) {
+		if (
+			$env->getSkipLanguageConversionPass() ||
+			!$env->langConverterEnabled()
+		) {
 			return [];
 		}
 
