@@ -308,7 +308,7 @@ class WikitextSerializer {
 		}
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
-		if ( strtolower( $da->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
+		if ( mb_strtolower( $da->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
 			$name = $da->srcTagName;
 		} else {
 			$name = DOMUtils::nodeName( $node );
@@ -326,7 +326,7 @@ class WikitextSerializer {
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
-		if ( strtolower( $dataParsoid->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
+		if ( mb_strtolower( $dataParsoid->srcTagName ?? '' ) === DOMUtils::nodeName( $node ) ) {
 			$name = $dataParsoid->srcTagName;
 		} else {
 			$name = DOMUtils::nodeName( $node );
@@ -1478,7 +1478,7 @@ class WikitextSerializer {
 		$nonHtmlTag = null;
 		for ( $j = 1;  $j < $n;  $j += 2 ) {
 			// For HTML tags, pull out just the tag name for clearer code below.
-			preg_match( '#^<(/?\w+)#', $p[$j], $matches );
+			preg_match( '#^<(/?[^\t\n\v />\0]+)#', $p[$j], $matches );
 			$tag = mb_strtolower( $matches[1] ?? $p[$j] );
 			$tagLen = strlen( $tag );
 			$selfClose = false;
