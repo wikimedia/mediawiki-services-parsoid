@@ -314,14 +314,7 @@ class DOMDataUtils {
 	 * @param DataParsoid $dp data-parsoid
 	 */
 	public static function setDataParsoid( Element $node, DataParsoid $dp ): void {
-		// Fast path
-		$data = self::getNodeData( $node );
-		if ( $data->parsoid instanceof DataParsoid ) {
-			$data->parsoid = $dp;
-			return;
-		}
-		// Generic case
-		self::setAttributeObject( $node, 'data-parsoid', $dp, DataParsoid::hint() );
+		self::getNodeData( $node )->setDataParsoid( $node, $dp );
 	}
 
 	/**
@@ -475,18 +468,7 @@ class DOMDataUtils {
 	 * @param ?DataMw $dmw data-mw
 	 */
 	public static function setDataMw( Element $node, ?DataMw $dmw ): void {
-		// Fast path
-		$data = self::getNodeData( $node );
-		if ( $data->mw instanceof DataMw ) {
-			$data->mw = $dmw;
-			return;
-		}
-		// Generic case
-		if ( $dmw === null ) {
-			self::removeAttributeObject( $node, 'data-mw' );
-		} else {
-			self::setAttributeObject( $node, 'data-mw', $dmw, DataMw::hint() );
-		}
+		self::getNodeData( $node )->setDataMw( $node, $dmw );
 	}
 
 	/**
