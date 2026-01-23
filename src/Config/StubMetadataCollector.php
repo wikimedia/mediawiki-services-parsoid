@@ -443,9 +443,9 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/**
 	 * @param string $name
-	 * @return ?string
+	 * @return null|int|float|string
 	 */
-	public function getPageProperty( string $name ): ?string {
+	public function getPageProperty( string $name ) {
 		return $this->get( 'properties', $name, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
 
