@@ -309,12 +309,19 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 
 	/** @return Hint<DataParsoid> */
 	public static function hint(): Hint {
-		return Hint::build( self::class, Hint::ALLOW_OBJECT );
+		static $hint = null;
+		if ( $hint === null ) {
+			$hint = Hint::build( self::class, Hint::ALLOW_OBJECT );
+		}
+		return $hint;
 	}
 
 	/** @inheritDoc */
 	public static function defaultValue(): ?self {
-		return new DataParsoid;
+		$dp = new DataParsoid;
+		// Mark data parsoid created as a default value.
+		$dp->setTempFlag( TempData::IS_NEW, true );
+		return $dp;
 	}
 
 	/** @inheritDoc */

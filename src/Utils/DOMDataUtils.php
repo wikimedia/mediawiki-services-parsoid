@@ -321,7 +321,7 @@ class DOMDataUtils {
 			return;
 		}
 		// Generic case
-		self::setAttributeObject( $node, 'data-parsoid', $dp, self::getCodecHints()['data-parsoid'] );
+		self::setAttributeObject( $node, 'data-parsoid', $dp, DataParsoid::hint() );
 	}
 
 	/**
@@ -485,7 +485,7 @@ class DOMDataUtils {
 		if ( $dmw === null ) {
 			self::removeAttributeObject( $node, 'data-mw' );
 		} else {
-			self::setAttributeObject( $node, 'data-mw', $dmw, self::getCodecHints()['data-mw'] );
+			self::setAttributeObject( $node, 'data-mw', $dmw, DataMw::hint() );
 		}
 	}
 
@@ -648,21 +648,6 @@ class DOMDataUtils {
 		if ( isset( $data->mw ) ) {
 			$pb->mw['ids'][$uid] = $data->mw;
 		}
-	}
-
-	/**
-	 * Helper function to create static Hint objects for JsonCodec.
-	 * @return array<Hint>
-	 */
-	public static function getCodecHints(): array {
-		static $hints = null;
-		if ( $hints === null ) {
-			$hints = [
-				'data-parsoid' => DataParsoid::hint(),
-				'data-mw' => DataMw::hint()
-			];
-		}
-		return $hints;
 	}
 
 	/**
@@ -1493,7 +1478,6 @@ class DOMDataUtils {
 				$dp->getTempFlag( TempData::IS_NEW ) && $dp->isEmpty() );
 
 		$pbData = null;
-		$hints = self::getCodecHints();
 		if ( !$discardDataParsoid ) {
 			// Force a load of data-parsoid if:
 			// * we have to migrate it from an inline-attribute to the pagebundle.
@@ -1538,7 +1522,7 @@ class DOMDataUtils {
 						// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 						unset( $dp->tmp );
 					}
-					$dp = $codec->toJsonArray( $dp, $hints['data-parsoid'] );
+					$dp = $codec->toJsonArray( $dp, DataParsoid::hint() );
 				}
 
 				if ( !empty( $options['storeInPageBundle'] ) ) {
@@ -1565,7 +1549,7 @@ class DOMDataUtils {
 		if ( $dmw !== null ) {
 			if ( $dmw instanceof DataMw ) {
 				// Strip empty data-mw attributes
-				$dmw = $dmw->isEmpty() ? null : $codec->toJsonArray( $dmw, $hints['data-mw'] );
+				$dmw = $dmw->isEmpty() ? null : $codec->toJsonArray( $dmw, DataMw::hint() );
 			} elseif ( is_array( $dmw ) ) {
 				// Unwrap the array wrapper added by getNodeData
 				$dmw = $dmw[0];

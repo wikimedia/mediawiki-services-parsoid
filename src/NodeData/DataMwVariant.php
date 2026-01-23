@@ -81,7 +81,11 @@ class DataMwVariant implements RichCodecable {
 
 	/** @return Hint<DataMwVariant> */
 	public static function hint(): Hint {
-		return Hint::build( self::class, Hint::ALLOW_OBJECT );
+		static $hint = null;
+		if ( $hint === null ) {
+			$hint = Hint::build( self::class, Hint::ALLOW_OBJECT );
+		}
+		return $hint;
 	}
 
 	/** @inheritDoc */

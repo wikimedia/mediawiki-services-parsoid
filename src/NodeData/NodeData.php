@@ -102,7 +102,7 @@ class NodeData {
 		}
 
 		// Fall back to generic case
-		return DOMDataUtils::getAttributeObjectDefault( $node, 'data-mw', DOMDataUtils::getCodecHints()['data-mw'] );
+		return DOMDataUtils::getAttributeObjectDefault( $node, 'data-mw', DataMw::hint() );
 	}
 
 	/**
@@ -117,13 +117,7 @@ class NodeData {
 		if ( $dp instanceof DataParsoid ) {
 			return $dp;
 		}
-		// Fall back to generic case; special handling for "new" data-parsoid
-		$dp = DOMDataUtils::getAttributeObject( $node, 'data-parsoid', DOMDataUtils::getCodecHints()['data-parsoid'] );
-		if ( $dp === null ) {
-			$dp = new DataParsoid;
-			$dp->setTempFlag( TempData::IS_NEW, true );
-		}
-		$this->parsoid = $dp;
-		return $dp;
+		// Fall back to generic case
+		return DOMDataUtils::getAttributeObjectDefault( $node, 'data-parsoid', DataParsoid::hint() );
 	}
 }

@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -59,8 +58,8 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyName ) {
 		return match ( $keyName ) {
-			'dataParsoid' => DOMDataUtils::getCodecHints()['data-parsoid'],
-			'dataMw' => DOMDataUtils::getCodecHints()['data-mw'],
+			'dataParsoid' => DataParsoid::hint(),
+			'dataMw' => DataMw::hint(),
 			'attribs' => Hint::build( KV::class, Hint::LIST ),
 			'nestedTokens' => new Hint( self::hint(), Hint::LIST ),
 			default => null
