@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Ext\Arguments;
+use Wikimedia\Parsoid\Ext\EmptyArguments;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -21,8 +22,15 @@ class TemplateHandlerArguments implements Arguments {
 
 	public function __construct(
 		/** @var list<KV> Where keys and values are list<string|PreprocTk> */
-		private array $args
+		private array $args,
+		/** @var ?DomSourceRange The region corresponding to this transclusion. */
+		private ?DomSourceRange $srcOffsets,
 	) {
+	}
+
+	/** @inheritDoc */
+	public function getSrcOffsets(): ?DomSourceRange {
+		return $this->srcOffsets;
 	}
 
 	/** @inheritDoc */
@@ -134,38 +142,28 @@ class TemplateHandlerArguments implements Arguments {
 	 */
 	private static function checkSpread( ParsoidExtensionAPI $extApi, KV $kv ): ?Arguments {
 		if ( !self::isNamed( $kv ) ) {
+			// Not a named argument.
 			return null;
 		}
 		$k = self::stringify( $kv->k );
 		if ( trim( $k ) !== '...' ) {
+			// Not a "spread" argument.
 			return null;
 		}
+		$srcOffsets = DomSourceRange::fromTsr( $kv->srcOffsets->value );
 		$v = WikitextPFragment::newFromWt(
-			self::stringify( $kv->v ),
-			DomSourceRange::fromTsr( $kv->srcOffsets->value )
+			self::stringify( $kv->v ), $srcOffsets
 		)->expand( $extApi )->trim();
-		if ( $v instanceof Arguments ) {
-			return $v;
+		if ( !( $v instanceof Arguments ) ) {
+			// The value we're trying to spread doesn't actually
+			// implement Arguments.  This is an error, but return an
+			// empty arguments array so this isn't re-interpreted as a
+			// valid named or positional argument.
+			return new EmptyArguments( $srcOffsets );
 		}
-		// Return an empty arguments array, so this isn't interpreted
-		// as a named or positional argument
-		return new class implements Arguments {
-			/** @inheritDoc */
-			public function getOrderedArgs(
-				ParsoidExtensionAPI $extApi,
-				$expandAndTrim = true
-			): array {
-				return [];
-			}
-
-			/** @inheritDoc */
-			public function getNamedArgs(
-				ParsoidExtensionAPI $extApi,
-				$expandAndTrim = true
-			): array {
-				return [];
-			}
-		};
+		// This is a correct spread.
+		// (covered by #f7_kv test function in ParserTestsPFragmentHandlers)
+		return $v;
 	}
 
 	/**

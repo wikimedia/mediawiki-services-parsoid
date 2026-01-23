@@ -886,7 +886,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 			}
 			// discard the target
 			array_shift( $args );
-			$arguments = new TemplateHandlerArguments( $args );
+			$arguments = new TemplateHandlerArguments(
+				$args, DomSourceRange::fromTsr( $token->dataParsoid->tsr )
+			);
 			$hasAsyncContent = $tgt['handlerOptions']['hasAsyncContent'] ?? false;
 			if ( $hasAsyncContent ) {
 				// The HAS_ASYNC_CONTENT flag needs to be set by the fragment
