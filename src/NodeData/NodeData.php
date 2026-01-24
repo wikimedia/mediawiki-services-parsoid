@@ -106,7 +106,7 @@ class NodeData {
 	 */
 	public function setDataMw( Element $node, ?DataMw $dmw ): void {
 		// Fast path
-		if ( $this->mw instanceof DataMw ) {
+		if ( $dmw !== null && $this->mw instanceof DataMw ) {
 			$this->mw = $dmw;
 			return;
 		}
