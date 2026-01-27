@@ -36,7 +36,7 @@
 		"wikimedia/ip-utils": "^5.0.0",
 		"wikimedia/json-codec": "^3.0.1",
 		"wikimedia/object-factory": "^5.0.1",
-		"wikimedia/remex-html": "4.1.1",
+		"wikimedia/remex-html": "4.1.1 || 4.1.2",
 		"wikimedia/wikipeg": "^4.0.0",
 		"wikimedia/zest-css": "^3.0.1",
 		"ext-dom": "*",
