@@ -485,8 +485,10 @@ class DOMDataUtils {
 	 * @param string $name name
 	 * @param mixed $defaultVal
 	 * @return mixed
+	 * @deprecated since 0.23; use getAttributeObject()
 	 */
 	public static function getJSONAttribute( Element $node, string $name, $defaultVal ) {
+		PHPUtils::deprecated( __METHOD__, '0.23' );
 		$attVal = DOMCompat::getAttribute( $node, $name );
 		if ( $attVal === null ) {
 			return $defaultVal;
@@ -507,8 +509,10 @@ class DOMDataUtils {
 	 * @param Element $node node
 	 * @param string $name Name of the attribute.
 	 * @param mixed $obj value of the attribute to
+	 * @deprecated since 0.23; use setAttributeObject()
 	 */
 	public static function setJSONAttribute( Element $node, string $name, $obj ): void {
+		PHPUtils::deprecated( __METHOD__, '0.23' );
 		$val = $obj === [] ? '{}' : PHPUtils::jsonEncode( $obj );
 		$node->setAttribute( $name, $val );
 	}
