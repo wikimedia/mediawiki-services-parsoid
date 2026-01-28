@@ -1271,18 +1271,22 @@ class TestRunner {
 	}
 
 	private function shouldSkipTest( Test $test, array $testOpts ): bool {
-		// ensure that test is not skipped if it has a wikitext/edited or
-		// html/parsoid+langconv section (but not a parsoid html section)
+		// ensure that test is not skipped if it has a wikitext/edited
+		// section (but not a parsoid html section)
 		$haveHtml =
 			( $test->parsoidHtml !== null ) || isset( $test->sections['wikitext/edited'] ) ||
 			isset( $test->sections['html/parsoid+standalone'] ) ||
-			isset( $test->sections['html/parsoid+langconv'] ) ||
 			self::getStandaloneMetadataSection( $test ) !== null;
 		$hasHtmlParsoid =
 			isset( $test->sections['html/parsoid'] ) || isset( $test->sections['html/parsoid+standalone'] );
+		// Skip tests using the langconv option, as that implementation is
+		// being moved to core.
+		if ( $testOpts['langconv'] ?? null ) {
+			return true;
+		}
 
 		// Skip test whose title does not match --filter
-		// or which is disabled or php-only
+		// or which is disabled or php-only or uses langconv
 		return ( $test->wikitext === null || !$haveHtml || ( isset( $testOpts['disabled'] ) && !$this->runDisabled ) ||
 			( isset( $testOpts['php'] ) && !( $hasHtmlParsoid || $this->runPHP ) ) ||
 			!$test->matchesFilter( $this->testFilter ) );
