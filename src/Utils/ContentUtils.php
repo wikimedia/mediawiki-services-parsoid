@@ -229,7 +229,7 @@ class ContentUtils {
 			$extConfig = $siteConfig->getExtTagConfig( $extTagName );
 			if ( $extConfig['options']['wt2html']['embedsDomInAttributes'] ?? false ) {
 				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
-				$extAPI = self::extApiWrapper( $siteConfig );
+				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
 				$tagHandler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}
@@ -238,7 +238,7 @@ class ContentUtils {
 			$config = $siteConfig->getPFragmentHandlerConfig( $key );
 			if ( $config['options']['embedsDomInAttributes'] ?? false ) {
 				$handler = $siteConfig->getPFragmentHandlerImpl( $key );
-				$extAPI = self::extApiWrapper( $siteConfig );
+				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
 				$handler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}
@@ -257,7 +257,7 @@ class ContentUtils {
 			$extConfig = $siteConfig->getExtTagConfig( $extTagName );
 			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
 				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
-				$extAPI = self::extApiWrapper( $siteConfig );
+				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
 				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
 			}
 		}
@@ -268,11 +268,12 @@ class ContentUtils {
 	 * a ParsoidExtensionAPI.
 	 */
 	private static function extApiWrapper(
-		SiteConfig $siteConfig
+		SiteConfig $siteConfig, Document $topLevelDoc
 	): ParsoidExtensionAPI {
 		// This is a backward-compatibility hack!
 		return new ParsoidExtensionAPI( new MockEnv( [
 			'siteConfig' => $siteConfig,
+			'topLevelDoc' => $topLevelDoc,
 		] ) );
 	}
 
