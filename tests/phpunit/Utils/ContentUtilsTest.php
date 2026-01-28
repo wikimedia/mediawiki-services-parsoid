@@ -5,6 +5,7 @@ namespace Test\Utils;
 
 use Closure;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -44,10 +45,8 @@ class ContentUtilsTest extends TestCase {
 				return true;
 			}
 		);
-		$res = ContentUtils::ppToXML( $doc->body, [
-			'innerXML' => true,
-			'fragment' => true,
-		] );
+		$dpb = DomPageBundle::fromLoadedDocument( $doc, siteConfig: $siteConfig );
+		$res = $dpb->toInlineAttributeHtml( [ 'body_only' => true ], siteConfig: $siteConfig );
 
 		// Adding data-parsoid which didn't exist in the original can cause bugs, see T411238
 		self::assertEquals( $html, $res );
