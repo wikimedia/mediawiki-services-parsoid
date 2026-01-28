@@ -3,7 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\DataParsoidDiff;
@@ -86,12 +88,30 @@ class DOMDataUtils {
 
 	/**
 	 * Clones a node and its data bag
+	 * @param Node $node
+	 * @param bool $deep
+	 * @return Node
+	 */
+	public static function cloneNode( Node $node, bool $deep ): Node {
+		return DDU::cloneNode( $node, $deep );
+	}
+
+	/**
+	 * Clones an element and its data bag
 	 * @param Element $elt
 	 * @param bool $deep
 	 * @return Element
 	 */
-	public static function cloneNode( Element $elt, bool $deep ): Element {
-		// The Ext version of this is slightly misnamed.
+	public static function cloneElement( Element $elt, bool $deep ): Element {
 		return DDU::cloneElement( $elt, $deep );
+	}
+
+	/**
+	 * Clones a document fragment and its data bag
+	 * @param DocumentFragment $df
+	 * @return DocumentFragment
+	 */
+	public static function cloneDocumentFragment( DocumentFragment $df ): DocumentFragment {
+		return DDU::cloneDocumentFragment( $df );
 	}
 }
