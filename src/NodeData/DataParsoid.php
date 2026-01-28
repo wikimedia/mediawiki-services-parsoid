@@ -331,6 +331,16 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 		return null;
 	}
 
+	/**
+	 * @inheritDoc
+	 * @suppress PhanEmptyYieldFrom this is deliberate
+	 */
+	public function embeddedDocumentFragments(): \Iterator {
+		// There are internal DocumentFragments here, but they are transient
+		// internal data and should not be exposed.
+		yield from [];
+	}
+
 	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyname ) {
 		static $hints = null;

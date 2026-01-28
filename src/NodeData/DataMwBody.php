@@ -78,6 +78,13 @@ class DataMwBody implements JsonCodecable {
 		}
 	}
 
+	/** @return \Iterator<DocumentFragment> */
+	public function embeddedDocumentFragments(): \Iterator {
+		if ( $this->html !== null ) {
+			yield $this->html;
+		}
+	}
+
 	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyname ) {
 		// 'html' is not hinted as DocumentFragment because we manually

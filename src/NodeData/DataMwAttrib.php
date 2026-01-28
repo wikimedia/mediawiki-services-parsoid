@@ -47,6 +47,15 @@ class DataMwAttrib implements JsonCodecable {
 		return $key;
 	}
 
+	/** @return \Iterator<DocumentFragment> */
+	public function embeddedDocumentFragments(): \Iterator {
+		foreach ( [ 'key', 'value' ] as $prop ) {
+			if ( isset( $this->$prop['html'] ) ) {
+				yield $this->$prop['html'];
+			}
+		}
+	}
+
 	public function __clone() {
 		// Deep clone non-primitive properties
 		foreach ( [ 'key', 'value' ] as $prop ) {

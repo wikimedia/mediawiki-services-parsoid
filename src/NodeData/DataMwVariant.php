@@ -94,6 +94,25 @@ class DataMwVariant implements RichCodecable {
 	}
 
 	/** @inheritDoc */
+	public function embeddedDocumentFragments(): \Iterator {
+		if ( $this->disabled !== null ) {
+			yield $this->disabled;
+		}
+		if ( $this->name !== null ) {
+			yield $this->name;
+		}
+		foreach ( ( $this->twoway ?? [] ) as $vtw ) {
+			yield from $vtw->embeddedDocumentFragments();
+		}
+		foreach ( ( $this->oneway ?? [] ) as $vow ) {
+			yield from $vow->embeddedDocumentFragments();
+		}
+		if ( $this->filter !== null ) {
+			yield from $this->filter->embeddedDocumentFragments();
+		}
+	}
+
+	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyName ) {
 		static $hints = null;
 		if ( $hints === null ) {

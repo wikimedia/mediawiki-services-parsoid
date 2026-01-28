@@ -36,6 +36,11 @@ class VariantTwoWay implements JsonCodecable {
 		$this->text = DOMDataUtils::cloneDocumentFragment( $this->text );
 	}
 
+	/** @return \Iterator<DocumentFragment> */
+	public function embeddedDocumentFragments(): \Iterator {
+		yield $this->text;
+	}
+
 	/** @inheritDoc */
 	public function toJsonArray( JsonCodecInterface $codec ): array {
 		$json = [

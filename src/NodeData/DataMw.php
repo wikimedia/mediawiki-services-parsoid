@@ -164,6 +164,23 @@ class DataMw implements JsonCodecable, RichCodecable {
 	}
 
 	/** @inheritDoc */
+	public function embeddedDocumentFragments(): \Iterator {
+		foreach ( ( $this->attribs ?? [] ) as $a ) {
+			yield from $a->embeddedDocumentFragments();
+		}
+		if ( isset( $this->caption ) ) {
+			yield $this->caption;
+		}
+		// 'html' is also a DocumentFragment, but it is never set by core;
+		// instead the Indicator extension enumerates it for us.
+		// T416397: this should be unified with body->html, used by Cite.
+
+		// 'body.html' is a DocumentFragment; again it is used by the
+		// Cite extension and the Cite extension enumerates is.
+		// T416397: this should be unified with ->html, used by Indicator
+	}
+
+	/** @inheritDoc */
 	public static function jsonClassHintFor( string $keyname ) {
 		static $hints = null;
 		if ( $hints === null ) {

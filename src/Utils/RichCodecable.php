@@ -23,6 +23,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 
 /**
  * This is an extension of JsonCodecable which adds some properties useful
@@ -57,4 +58,10 @@ interface RichCodecable extends JsonCodecable {
 	 *  attribute
 	 */
 	public function flatten(): ?string;
+
+	/**
+	 * Iterate over any DocumentFragments embedded in this attribute.
+	 * @return \Iterator<DocumentFragment>
+	 */
+	public function embeddedDocumentFragments(): \Iterator;
 }

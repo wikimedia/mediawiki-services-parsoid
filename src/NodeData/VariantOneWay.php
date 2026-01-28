@@ -40,6 +40,12 @@ class VariantOneWay implements JsonCodecable {
 		$this->to = DOMDataUtils::cloneDocumentFragment( $this->to );
 	}
 
+	/** @return \Iterator<DocumentFragment> */
+	public function embeddedDocumentFragments(): \Iterator {
+		yield $this->from;
+		yield $this->to;
+	}
+
 	/** @inheritDoc */
 	public function toJsonArray( JsonCodecInterface $codec ): array {
 		// compatibility with MediaWiki DOM Spec 2.8.0

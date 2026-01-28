@@ -159,52 +159,20 @@ class ContentUtils {
 	public static function processAttributeEmbeddedDom(
 		SiteConfig $siteConfig, Element $elt, callable $proc
 	): void {
-		// Expanded attributes
-		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
-			$dmw = DOMDataUtils::getDataMw( $elt );
-			if ( $dmw->attribs ?? null ) {
-				foreach ( $dmw->attribs as $a ) {
-					// Look in both key and value of the DataMwAttrib
-					foreach ( [ 'key', 'value' ] as $part ) {
-						if ( isset( $a->$part['html'] ) ) {
-							$proc( $a->$part['html'] );
-						}
-					}
-				}
+		// Expanded attributes and media captions
+		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ||
+			 WTUtils::isInlineMedia( $elt ) ) {
+			$dmw = DOMDataUtils::getDataMwIfExists( $elt );
+			foreach ( $dmw?->embeddedDocumentFragments() ?? [] as $df ) {
+				$proc( $df );
 			}
 		}
 
 		// Language variant markup
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
 			$dmwv = DOMDataUtils::getDataMwVariant( $elt );
-			if ( $dmwv !== null ) {
-				if ( $dmwv->disabled instanceof DocumentFragment ) {
-					$proc( $dmwv->disabled );
-				}
-				if ( $dmwv->name instanceof DocumentFragment ) {
-					$proc( $dmwv->name );
-				}
-				if ( $dmwv->twoway !== null ) {
-					foreach ( $dmwv->twoway as $l ) {
-						$proc( $l->text );
-					}
-				}
-				if ( $dmwv->oneway !== null ) {
-					foreach ( $dmwv->oneway as $l ) {
-						$proc( $l->from );
-						$proc( $l->to );
-					}
-				}
-				if ( $dmwv->filter !== null ) {
-					$proc( $dmwv->filter->text );
-				}
-			}
-		}
-
-		if ( WTUtils::isInlineMedia( $elt ) ) {
-			$caption = DOMDataUtils::getDataMw( $elt )->caption ?? null;
-			if ( $caption !== null ) {
-				$proc( $caption );
+			foreach ( $dmwv?->embeddedDocumentFragments() ?? [] as $df ) {
+				$proc( $df );
 			}
 		}
 

@@ -99,6 +99,15 @@ class DataMwI18n implements RichCodecable {
 		return null;
 	}
 
+	/**
+	 * @inheritDoc
+	 * @suppress PhanEmptyYieldFrom this is deliberate
+	 */
+	public function embeddedDocumentFragments(): \Iterator {
+		// no embedded documents
+		yield from [];
+	}
+
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		return $this->i18nInfo;

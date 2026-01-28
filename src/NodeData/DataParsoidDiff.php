@@ -68,6 +68,14 @@ class DataParsoidDiff implements JsonCodecable, RichCodecable {
 		return null;
 	}
 
+	/**
+	 * @inheritDoc
+	 * @suppress PhanEmptyYieldFrom this is deliberate
+	 */
+	public function embeddedDocumentFragments(): \Iterator {
+		yield from [];
+	}
+
 	// JsonCodecable
 
 	/** @inheritDoc */

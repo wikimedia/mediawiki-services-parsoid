@@ -49,6 +49,11 @@ class SampleRichData implements RichCodecable {
 	}
 
 	/** @inheritDoc */
+	public function embeddedDocumentFragments(): \Iterator {
+		yield from [];
+	}
+
+	/** @inheritDoc */
 	public function toJsonArray(): array {
 		// Rename 'foo' field to 'bar' just to verify that custom serialization
 		// works.
