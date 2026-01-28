@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMUtils as DU;
@@ -11,6 +13,40 @@ use Wikimedia\Parsoid\Utils\DOMUtils as DU;
  * This class provides DOM helpers useful for extensions.
  */
 class DOMUtils {
+	/**
+	 * Parse HTML, return the tree.
+	 *
+	 * @note The resulting document is not "prepared and loaded"; use
+	 * ContentUtils::prepareAndLoadDocument() instead if that's what
+	 * you need.
+	 */
+	public static function parseHTML(
+		string $html, bool $validateXMLNames = false
+	): Document {
+		return DU::parseHTML( $html, $validateXMLNames );
+	}
+
+	/**
+	 * innerHTML and outerHTML are not defined on DocumentFragment.
+	 *
+	 * Defined similarly to DOMCompat::getInnerHTML()
+	 */
+	public static function getFragmentInnerHTML( DocumentFragment $frag ): string {
+		return DU::getFragmentInnerHTML( $frag );
+	}
+
+	/**
+	 * innerHTML and outerHTML are not defined on DocumentFragment.
+	 * @see DOMCompat::setInnerHTML() for the Element version
+	 */
+	public static function setFragmentInnerHTML( DocumentFragment $frag, string $html ): void {
+		DU::setFragmentInnerHTML( $frag, $html );
+	}
+
+	public static function parseHTMLToFragment( Document $doc, string $html ): DocumentFragment {
+		return DU::parseHTMLToFragment( $doc, $html );
+	}
+
 	/**
 	 * Test if a node matches a given typeof.
 	 * @param Node $node node
