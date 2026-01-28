@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use Closure;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -159,21 +158,6 @@ class ContentUtils {
 	public static function processAttributeEmbeddedDom(
 		SiteConfig $siteConfig, Element $elt, callable $proc
 	): void {
-		$str2df2str = static function ( string $html ) use ( $elt, $proc ): string {
-			$dom = ContentUtils::createAndLoadDocumentFragment(
-				$elt->ownerDocument, $html
-			);
-			$ret = $proc( $dom );
-			if ( $ret ) {
-				$html = ContentUtils::ppToXML( $dom, [
-					'innerXML' => true,
-					'fragment' => true,
-				] );
-			}
-			return $html;
-		};
-		self::processAttributeEmbeddedHTMLInternal( $siteConfig, $elt, $str2df2str );
-
 		// Expanded attributes
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
 			$dmw = DOMDataUtils::getDataMw( $elt );
@@ -240,25 +224,6 @@ class ContentUtils {
 				$handler = $siteConfig->getPFragmentHandlerImpl( $key );
 				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
 				$handler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
-			}
-		}
-	}
-
-	private static function processAttributeEmbeddedHTMLInternal(
-		SiteConfig $siteConfig, Element $elt, Closure $proc
-	): void {
-		if ( !$elt->hasAttribute( 'typeof' ) ) {
-			return;
-		}
-
-		// Process extension-specific embedded HTML
-		$extTagName = WTUtils::getExtTagName( $elt );
-		if ( $extTagName ) {
-			$extConfig = $siteConfig->getExtTagConfig( $extTagName );
-			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
-				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
-				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
-				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
 			}
 		}
 	}

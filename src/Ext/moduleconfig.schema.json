@@ -94,9 +94,6 @@
 								"embedsDomInAttributes": {
 									"type": "boolean"
 								},
-								"embedsHTMLInAttributes": {
-									"type": "boolean"
-								},
 								"attributeWSNormalizationDefault": {
 									"$ref": "#/definitions/AttributeWSEnum"
 								},
