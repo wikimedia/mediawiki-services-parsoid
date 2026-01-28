@@ -1,11 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Utils\DOMCompat;
+namespace Wikimedia\Parsoid\Core;
 
 use Iterator;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
  * Implements the parts of DOMTokenList interface which are used by Parsoid.
@@ -13,7 +12,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
  *   with the real class list if that is changed from elsewhere.
  * @see https://dom.spec.whatwg.org/#interface-domtokenlist
  */
-class TokenList implements Iterator {
+class DOMCompatTokenList implements Iterator {
 
 	/** @var Element The node whose classes are listed. */
 	protected $node;
@@ -144,3 +143,4 @@ class TokenList implements Iterator {
 	}
 
 }
+class_alias( DOMCompatTokenList::class, "Wikimedia\\Parsoid\\Utils\\DOMCompat\\TokenList" );

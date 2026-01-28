@@ -1,19 +1,19 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Test\Parsoid\Utils;
+namespace Test\Parsoid\Core;
 
+use Wikimedia\Parsoid\Core\DOMCompat;
+use Wikimedia\Parsoid\Core\DOMCompatTokenList as TokenList;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\TestingAccessWrapper;
 
 /**
- * @coversDefaultClass \Wikimedia\Parsoid\Utils\DOMCompat
+ * @coversDefaultClass \Wikimedia\Parsoid\Core\DOMCompat
  */
 class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
@@ -599,7 +599,7 @@ HTML;
 
 	/**
 	 * @covers ::getClassList()
-	 * @covers \Wikimedia\Parsoid\Utils\DOMCompat\TokenList
+	 * @covers \Wikimedia\Parsoid\Core\DOMCompatTokenList
 	 */
 	public function testGetClassList() {
 		$html = '<html><body><div id="x" class=" a  b&#9;c "></div></body></html>';
