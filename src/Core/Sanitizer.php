@@ -1134,6 +1134,7 @@ class Sanitizer {
 	 * @param string $title
 	 * @param bool $isInterwiki
 	 * @return string
+	 * @note This is a Parsoid-only method
 	 */
 	public static function sanitizeTitleURI( string $title, bool $isInterwiki = false ): string {
 		$idx = strpos( $title, '#' );
@@ -1143,7 +1144,7 @@ class Sanitizer {
 			$title = substr( $title, 0, $idx );
 		}
 		$title = preg_replace_callback(
-			'/[%? \[\]#|<>]/', static function ( $matches ) {
+			'/[%? \[\]#|<>\\\\]/', static function ( $matches ) {
 				return PHPUtils::encodeURIComponent( $matches[0] );
 			}, $title );
 		if ( $anchor !== null ) {

@@ -1733,6 +1733,18 @@ C]]
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[ Foo\nB\nC]]"}},"i":0}}]}'>[[ Foo B C]]</span></p>
 !! end
 
+# browsers try to convert \ to / unless we urlencode it.
+!! test
+Wikilinks with backslashes should be urlencoded in href (T415315)
+!! wikitext
+[[foo\bar]]
+!! html/php
+<p><a href="/index.php?title=Foo%5Cbar&amp;action=edit&amp;redlink=1" class="new" title="Foo\bar (page does not exist)">foo\bar</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo%5Cbar?action=edit&amp;redlink=1" title="Foo\bar" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo\\bar"]}}'>foo\bar</a></p>
+!! end
+
 !! test
 Broken templates
 !! options
