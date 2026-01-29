@@ -45,7 +45,7 @@ class ContentUtilsTest extends TestCase {
 			}
 		);
 		$dpb = DomPageBundle::fromLoadedDocument( $doc, siteConfig: $siteConfig );
-		$res = $dpb->toInlineAttributeHtml( [ 'body_only' => true ], siteConfig: $siteConfig );
+		$res = $dpb->toInlineAttributeHtml( siteConfig: $siteConfig, options: [ 'body_only' => true ] );
 
 		// Adding data-parsoid which didn't exist in the original can cause bugs, see T411238
 		self::assertEquals( $html, $res );

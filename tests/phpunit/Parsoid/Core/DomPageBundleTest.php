@@ -150,8 +150,9 @@ EOF
 		);
 		// Serialialize back to DomPageBundle.
 		$dpb = DomPageBundle::fromLoadedDocument(
-			$doc, fragments: [ 'hello' => $df ],
+			$doc,
 			siteConfig: new MockSiteConfig( [] ),
+			fragments: [ 'hello' => $df ],
 		);
 		// And check that it looks right!
 		$this->assertEquals( $data['pageBundleAfter'], $dpb->toJsonArray(), "pageBundleAfter" );
@@ -167,7 +168,8 @@ EOF
 		$dpb = DomPageBundle::newFromJsonArray(
 			$data['pageBundleAfter']
 		);
-		$html = $dpb->toInlineAttributeHtml( [], $fragments, siteConfig: new MockSiteConfig( [] ) );
+		$siteConfig = new MockSiteConfig( [] );
+		$html = $dpb->toInlineAttributeHtml( siteConfig: $siteConfig, options: [], fragments: $fragments );
 		$this->assertEquals( $data['inlineHtmlAfter'], $html, "inlineHtmlAfter" );
 		$this->assertEquals( $data['fragmentsAfter'], $fragments, "fragmentsAfter" );
 	}

@@ -165,7 +165,7 @@ class HtmlPageBundle extends BasePageBundle {
 		?SiteConfig $siteConfig = null
 	): string {
 		return DomPageBundle::fromHtmlPageBundle( $this )
-			->toInlineAttributeHtml( $options, $fragments, $siteConfig );
+			->toInlineAttributeHtml( siteConfig: $siteConfig, options: $options, fragments: $fragments );
 	}
 
 	// JsonCodecable -------------

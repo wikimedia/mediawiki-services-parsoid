@@ -304,10 +304,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
-				'siteConfig' => $siteConfig,
 			];
-			$html = DomPageBundle::fromLoadedDocument( $doc, $options )
-				->toInlineAttributeHtml( $options );
+			$html = DomPageBundle::fromLoadedDocument( $doc, siteConfig: $siteConfig, options: $options )
+				->toInlineAttributeHtml( siteConfig: $siteConfig, options: $options );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
@@ -393,10 +392,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
-				'siteConfig' => $siteConfig,
 			];
-			$html = DomPageBundle::fromLoadedDocument( $doc, $options )
-				->toInlineAttributeHtml( $options );
+			$html = DomPageBundle::fromLoadedDocument( $doc, siteConfig: $siteConfig, options: $options )
+				->toInlineAttributeHtml( siteConfig: $siteConfig, options: $options );
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
@@ -477,10 +475,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$dp2->src = "test2";
 
 		// Serialize
-		$html = DomPageBundle::fromLoadedDocument( $doc, [
-			'useFragmentBank' => $useFragmentBank,
-			'siteConfig' => new MockSiteConfig( [] ),
-		] )->toSingleDocumentHtml();
+		$html = DomPageBundle::fromLoadedDocument(
+			$doc, siteConfig: new MockSiteConfig( [] ), options: [
+				'useFragmentBank' => $useFragmentBank,
+			] )->toSingleDocumentHtml();
 		$this->assertSame(
 			$useFragmentBank ?
 			"<!DOCTYPE html>\n<html><head>" .

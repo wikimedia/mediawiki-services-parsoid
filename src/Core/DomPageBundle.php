@@ -147,7 +147,7 @@ class DomPageBundle extends BasePageBundle {
 		} else {
 			PHPUtils::deprecated( __METHOD__ . ' with $load=false', '0.23' );
 			$doc = $this->toInlineAttributeDocument(
-				$options, $fragments
+				siteConfig: new MockSiteConfig( [] ), options: $options, fragments: $fragments
 			);
 		}
 		$this->invalid = true;
@@ -219,6 +219,9 @@ class DomPageBundle extends BasePageBundle {
 		// extension content, which requires a SiteConfig,
 		// but as long as your extension content doesn't contain IDs beginning
 		// with 'mw' you'll be fine.
+		if ( $siteConfig === null ) {
+			PHPUtils::deprecated( __METHOD__ . ' with siteConfig in $options array', '0.23' );
+		}
 		$siteConfig ??= $options['siteConfig'] ?? null;
 		Assert::invariant( $siteConfig !== null, "siteConfig is required" );
 		$options = [
@@ -276,6 +279,9 @@ class DomPageBundle extends BasePageBundle {
 	): Document {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toDom( true, null, $fragments );
+		if ( $siteConfig === null ) {
+			PHPUtils::deprecated( __METHOD__ . ' with siteConfig in $options array', '0.23' );
+		}
 		$siteConfig ??= $options['siteConfig'] ?? null;
 		if ( $siteConfig === null ) {
 			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
@@ -312,9 +318,10 @@ class DomPageBundle extends BasePageBundle {
 		?SiteConfig $siteConfig = null
 	): string {
 		$doc = $this->toInlineAttributeDocument(
-			$options, $fragments, $siteConfig
+			siteConfig: $siteConfig, options: $options, fragments: $fragments
 		);
 		foreach ( $fragments as $name => $f ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgument phan confused
 			$fragments[$name] = XHtmlSerializer::serialize( $f, $options )['html'];
 		}
 		if ( $options['body_only'] ?? false ) {

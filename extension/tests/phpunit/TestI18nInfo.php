@@ -8,6 +8,7 @@ use Wikimedia\Message\MessageValue;
 use Wikimedia\Message\ParamType;
 use Wikimedia\Message\ScalarParam;
 use Wikimedia\Parsoid\Core\DomPageBundle;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -33,7 +34,10 @@ class TestI18nInfo extends \PHPUnit\Framework\TestCase {
 			$doc, 'testkey', $msg->getParams()
 		);
 		DOMCompat::getBody( $doc )->append( $frag );
-		$html = DomPageBundle::fromLoadedDocument( $doc )->toInlineAttributeHtml( [
+		$siteConfig = new MockSiteConfig( [] );
+		$html = DomPageBundle::fromLoadedDocument(
+			$doc, siteConfig: $siteConfig
+		)->toInlineAttributeHtml( siteConfig: $siteConfig, options: [
 			'body_only' => true,
 		] );
 		// Verify that the 'params' list in data-mw-i18n doesn't have
