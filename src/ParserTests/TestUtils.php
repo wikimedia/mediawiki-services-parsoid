@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\CounterType;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -56,7 +57,11 @@ class TestUtils {
 	 * @return string
 	 */
 	public static function normalizeAbout( string $str ): string {
-		return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $str );
+		return preg_replace(
+			"/(about=\\\\?[\"'])" . CounterType::TRANSCLUSION_ABOUT->getRE() . "/",
+			'$1' . CounterType::TRANSCLUSION_ABOUT->value,
+			$str
+		);
 	}
 
 	/**
@@ -185,12 +190,16 @@ class TestUtils {
 	}
 
 	/**
-	 * Strip Parsoid ID attributes (id="mwXX", used to associate NodeData) from an HTML string
+	 * Strip Parsoid ID attributes used to associate NodeData from an HTML string
 	 * @param string $s
 	 * @return string
 	 */
 	public static function stripParsoidIds( string $s ): string {
-		return preg_replace( '/ id=\\\\*"mw([-\w]{2,})\\\\*"/u', '', $s );
+		return preg_replace(
+			'/ id=\\\\*"' . CounterType::NODE_DATA_ID->getRE() . '\\\\*"/u',
+			'',
+			$s
+		);
 	}
 
 	private static function cleanSpans(

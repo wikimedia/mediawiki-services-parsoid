@@ -278,7 +278,7 @@ class WTUtils {
 	public static function isEncapsulatedDOMForestRoot( Node $node ): bool {
 		$about = $node instanceof Element ? DOMCompat::getAttribute( $node, 'about' ) : null;
 		// FIXME: Ensure that our DOM spec clarifies this expectation
-		return $about !== null && Utils::isParsoidObjectId( $about );
+		return $about !== null && CounterType::TRANSCLUSION_ABOUT->matches( $about );
 	}
 
 	/**

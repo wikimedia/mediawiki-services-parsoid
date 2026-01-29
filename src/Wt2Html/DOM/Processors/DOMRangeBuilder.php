@@ -938,11 +938,11 @@ class DOMRangeBuilder {
 			// {{1x|<table>}}
 			// {{1x|<div>}}
 			//
-			// Here, #mwt1 leaves a table open and the end meta from #mwt2 is
-			// fostered, since it gets closed into the div.  The range for #mwt1
-			// is the entire table, which thankfully contains #mwt2, so we still
+			// Here, range-1 leaves a table open and the end meta from range-2 is
+			// fostered, since it gets closed into the div.  The range for range-1
+			// is the entire table, which thankfully contains range-2, so we still
 			// have the expected entire nesting.  Any tricks to extend the range
-			// of #mwt2 beyond the table (so that we have an overlapping range) will
+			// of range-2 beyond the table (so that we have an overlapping range) will
 			// inevitably result in the end meta not being fostered, and we avoid
 			// this situation altogether.
 			//

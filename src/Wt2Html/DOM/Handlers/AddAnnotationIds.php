@@ -23,9 +23,6 @@ class AddAnnotationIds {
 		if ( $t !== null ) {
 			$about = null;
 			if ( $isStart ) {
-				// The 'mwa' prefix is specific to annotations;
-				// if other DOM ranges are to use this mechanism, another prefix
-				// should be used.
 				$about = $state->env->newAnnotationId();
 				if ( !array_key_exists( $t, $abouts ) ) {
 					$abouts[$t] = [];

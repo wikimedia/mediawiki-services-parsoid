@@ -41,17 +41,6 @@ class Utils {
 	}
 
 	/**
-	 * Check for Parsoid id prefix in an aboutID string
-	 *
-	 * @param string $aboutId aboud ID string
-	 * @return bool
-	 */
-	public static function isParsoidObjectId( string $aboutId ): bool {
-		// 'mwt' is the prefix used for new ids
-		return str_starts_with( $aboutId, '#mwt' );
-	}
-
-	/**
 	 * Determine if the named tag is void (can not have content).
 	 *
 	 * @param string $name tag name

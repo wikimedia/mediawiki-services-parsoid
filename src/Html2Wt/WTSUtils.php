@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
+use Wikimedia\Parsoid\Utils\CounterType;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -367,7 +368,7 @@ class WTSUtils {
 			if (
 				!preg_match( '/^data-parsoid/', $k ) &&
 				( $k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
-				!( $k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $v ) )
+				!( $k === 'id' && CounterType::NODE_DATA_ID->matches( $v ) )
 			) {
 				return true;
 			}

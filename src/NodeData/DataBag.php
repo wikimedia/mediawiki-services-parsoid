@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\Parsoid\Utils\CounterType;
+
 class DataBag {
 	/**
 	 * @var NodeData[] A map of node data-object-id ids to data objects.
@@ -67,12 +69,13 @@ class DataBag {
 	}
 
 	public function newAboutId(): string {
-		return '#mwt' . ( $this->aboutId++ );
+		return CounterType::TRANSCLUSION_ABOUT->counterToId( $this->aboutId++ );
 	}
 
 	public function seenAboutId( string $id ): void {
-		if ( str_starts_with( $id, '#mwt' ) ) {
-			$val = intval( substr( $id, 4 ) );
+		$val = CounterType::TRANSCLUSION_ABOUT->idToCounter( $id );
+		if ( $val !== null ) {
+			$val = intval( $val );
 			if ( $this->aboutId <= $val ) {
 				$this->aboutId = $val + 1;
 			}
@@ -80,12 +83,13 @@ class DataBag {
 	}
 
 	public function newAnnotationId(): string {
-		return "mwa" . ( $this->annotationId++ );
+		return CounterType::ANNOTATION_ABOUT->counterToId( $this->annotationId++ );
 	}
 
 	public function seenAnnotationId( string $id ): void {
-		if ( str_starts_with( $id, 'mwa' ) ) {
-			$val = intval( substr( $id, 3 ) );
+		$val = CounterType::ANNOTATION_ABOUT->idToCounter( $id );
+		if ( $val !== null ) {
+			$val = intval( $val );
 			if ( $this->annotationId <= $val ) {
 				$this->annotationId = $val + 1;
 			}

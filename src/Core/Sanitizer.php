@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
+use Wikimedia\Parsoid\Utils\CounterType;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -866,7 +867,7 @@ class Sanitizer {
 		// strings in the rest of the attribute
 		return ( in_array( $k, [ 'typeof', 'property', 'rel' ], true )
 				&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', $v ) )
-			|| ( $k === 'about' && preg_match( '/^#mwt\d+$/D', $v ) )
+			|| ( $k === 'about' && CounterType::TRANSCLUSION_ABOUT->matches( $v ) )
 			|| ( $k === 'content'
 				&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', KV::lookup( $attrs, 'property' ) ?? '' ) );
 	}

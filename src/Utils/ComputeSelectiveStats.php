@@ -102,7 +102,9 @@ class ComputeSelectiveStats {
 			// that to <span id='mw-different-thing'> and with this attribute
 			// handler DOM diff wouldn't flag the change.  In theory we should
 			// be using shadow attributes to record when an id was synthetic.
-			if ( str_starts_with( $vA, 'mw' ) && str_starts_with( $vB, 'mw' ) ) {
+			if ( CounterType::NODE_DATA_ID->matches( $vA ) &&
+				CounterType::NODE_DATA_ID->matches( $vB )
+			) {
 				return true; // equal enough
 			}
 			return $vA === $vB;

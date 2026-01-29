@@ -595,11 +595,7 @@ class DOMDataUtils {
 
 	/**
 	 * Removes the `data-*` attribute from a node, and migrates the data to the
-	 * given DomPageBundle. Generates a unique id with the following format:
-	 * ```
-	 * mw<base64-encoded counter>
-	 * ```
-	 * but attempts to keep user defined ids.
+	 * given DomPageBundle. Generates a unique id but attempts to keep user defined ids.
 	 *
 	 * TODO: Note that $data is effective a partial PageBundle containing
 	 * only the 'parsoid' and 'mw' properties.
@@ -634,7 +630,7 @@ class DOMDataUtils {
 				// doesn't conflict with an existing ID, and (b) by
 				// construction, none of our new UIDs will conflict with each
 				// other.
-				$uid = 'mw' . PHPUtils::counterToBase64( $docDp['counter'] );
+				$uid = CounterType::NODE_DATA_ID->counterToId( $docDp['counter'] );
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}

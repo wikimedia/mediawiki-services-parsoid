@@ -12,22 +12,6 @@ use Wikimedia\Assert\UnreachableException;
  */
 class PHPUtils {
 	/**
-	 * Convert a counter to a Base64 encoded string.
-	 * Padding is stripped. /,+ are replaced with _,- respectively.
-	 * Warning: Max integer is 2^31 - 1 for bitwise operations.
-	 * @param int $n
-	 * @return string
-	 */
-	public static function counterToBase64( int $n ): string {
-		$str = '';
-		do {
-			$str = chr( $n & 0xff ) . $str;
-			$n >>= 8;
-		} while ( $n > 0 );
-		return rtrim( strtr( base64_encode( $str ), '+/', '-_' ), '=' );
-	}
-
-	/**
 	 * FIXME: Copied from FormatJson.php in core
 	 *
 	 * Characters problematic in JavaScript.

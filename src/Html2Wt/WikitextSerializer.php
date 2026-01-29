@@ -21,6 +21,7 @@ use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
 use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\CounterType;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -71,12 +72,6 @@ class WikitextSerializer {
 		DOMDataUtils::DATA_OBJECT_ATTR_NAME => true,
 	];
 
-	/** @var string[] attribute name => value regexp */
-	private const PARSOID_ATTRIBUTES = [
-		'about' => '/^#mwt\d+$/D',
-		'typeof' => '/(^|\s)mw:\S+/',
-	];
-
 	/** @var string Regexp */
 	private const TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
 		= '/\n(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
@@ -96,6 +91,8 @@ class WikitextSerializer {
 		'sepSuffixWithNlsRE' => '/\n[ \t\r\n]*$/D',
 	];
 
+	/** @var string[] attribute name => value regexp */
+	private array $parsoidAttributes;
 	public Env $env;
 	private SerializerState $state;
 	public WikitextEscapeHandlers $wteHandlers;
@@ -111,11 +108,15 @@ class WikitextSerializer {
 	 *   - extName: (string)
 	 */
 	public function __construct( Env $env, $options ) {
+		// This is non-static because we cannot init it statically
+		$this->parsoidAttributes = [
+			'about' => "/^" . CounterType::TRANSCLUSION_ABOUT->getRE() . "$/D",
+			'typeof' => '/(^|\s)mw:\S+/',
+		];
 		$this->env = $env;
 		$this->logType = $options['logType'] ?? 'wts';
 		$this->state = new SerializerState( $this, $options );
 		$this->wteHandlers = new WikitextEscapeHandlers( $env, $options['extName'] ?? null );
-
 		$annotationTags = $env->getSiteConfig()->getAnnotationTags();
 		$this->commentsOrAnnotationsRE = "#(" .
 			Utils::COMMENT_REGEXP_FRAGMENT .
@@ -369,7 +370,7 @@ class WikitextSerializer {
 			// by clients and shouldn't be serialized. This can also happen
 			// in v2/v3 API when there is no matching data-parsoid entry found
 			// for this id.
-			if ( $k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $v ) ) {
+			if ( $k === 'id' && CounterType::NODE_DATA_ID->matches( $v ) ) {
 				if ( WTUtils::isNewElt( $node ) ) {
 					// Parsoid id found on element without a matching data-parsoid. Drop it!
 				} else {
@@ -413,7 +414,7 @@ class WikitextSerializer {
 			// FIXME: Given that we are currently escaping about/typeof keys
 			// that show up in wikitext, we could unconditionally strip these
 			// away right now.
-			$parsoidValueRegExp = self::PARSOID_ATTRIBUTES[$k] ?? null;
+			$parsoidValueRegExp = $this->parsoidAttributes[$k] ?? null;
 			if ( $parsoidValueRegExp && preg_match( $parsoidValueRegExp, $v ) ) {
 				$rv = preg_replace( $parsoidValueRegExp, '', $v );
 				if ( $rv ) {
