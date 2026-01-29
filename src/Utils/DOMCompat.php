@@ -92,8 +92,8 @@ class DOMCompat {
 		if ( $node !== null ) {
 			return is_a( $node, '\Dom\Node', false );
 		}
-		// Defaults to using \Dom\Document on PHP 8.4 (unless we're using Dodo)
-		return !self::isUsingDodo() && class_exists( '\Dom\Document' );
+		// Don't use PHP 8.4 DOM before MW 1.46
+		return false;
 	}
 
 	/**
