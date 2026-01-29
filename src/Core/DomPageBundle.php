@@ -199,14 +199,14 @@ class DomPageBundle extends BasePageBundle {
 	 * page bundle.
 	 *
 	 * @param Document $doc Should be "prepared and loaded"
+	 * @param SiteConfig $siteConfig
 	 * @param array $options store options
 	 * @param array<string,DocumentFragment> $fragments
-	 * @param ?SiteConfig $siteConfig
 	 * @return DomPageBundle
 	 */
 	public static function fromLoadedDocument(
-		Document $doc, array $options = [], array $fragments = [],
-		?SiteConfig $siteConfig = null,
+		Document $doc, SiteConfig $siteConfig,
+		array $options = [], array $fragments = [],
 	): DomPageBundle {
 		$metadata = $options['pageBundle'] ?? null;
 		$dpb = self::newEmpty(
@@ -219,11 +219,6 @@ class DomPageBundle extends BasePageBundle {
 		// extension content, which requires a SiteConfig,
 		// but as long as your extension content doesn't contain IDs beginning
 		// with 'mw' you'll be fine.
-		if ( $siteConfig === null ) {
-			PHPUtils::deprecated( __METHOD__ . ' with siteConfig in $options array', '0.23' );
-		}
-		$siteConfig ??= $options['siteConfig'] ?? null;
-		Assert::invariant( $siteConfig !== null, "siteConfig is required" );
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->version,
@@ -264,29 +259,21 @@ class DomPageBundle extends BasePageBundle {
 	/**
 	 * Convert this DomPageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
+	 * @param SiteConfig $siteConfig
 	 * @param array $options XHtmlSerializer options
 	 * @param array<string,DocumentFragment>|null &$fragments Additional fragments from the
 	 *  page bundle which will also be converted to "inline attribute" form.
 	 *  This is an output parameter.
-	 * @param ?SiteConfig $siteConfig
 	 * @return Document a standalone document with page bundle information
 	 *  represented as inline JSON-valued attributes.
 	 */
 	public function toInlineAttributeDocument(
+		SiteConfig $siteConfig,
 		array $options = [],
 		?array &$fragments = null,
-		?SiteConfig $siteConfig = null
 	): Document {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toDom( true, null, $fragments );
-		if ( $siteConfig === null ) {
-			PHPUtils::deprecated( __METHOD__ . ' with siteConfig in $options array', '0.23' );
-		}
-		$siteConfig ??= $options['siteConfig'] ?? null;
-		if ( $siteConfig === null ) {
-			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.23' );
-			$siteConfig = new MockSiteConfig( [] );
-		}
 		$options = [
 			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 		] + $options;
@@ -305,17 +292,17 @@ class DomPageBundle extends BasePageBundle {
 	/**
 	 * Convert this DomPageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
+	 * @param SiteConfig $siteConfig
 	 * @param array $options XHtmlSerializer options
 	 * @param array<string,string>|null &$fragments Additional fragments from the
 	 *  page bundle which will also be serialized to HTML strings.
 	 *  This is an output parameter.
-	 * @param ?SiteConfig $siteConfig
 	 * @return string an HTML string
 	 */
 	public function toInlineAttributeHtml(
+		SiteConfig $siteConfig,
 		array $options = [],
 		?array &$fragments = null,
-		?SiteConfig $siteConfig = null
 	): string {
 		$doc = $this->toInlineAttributeDocument(
 			siteConfig: $siteConfig, options: $options, fragments: $fragments

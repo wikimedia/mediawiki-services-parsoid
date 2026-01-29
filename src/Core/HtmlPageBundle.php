@@ -152,17 +152,17 @@ class HtmlPageBundle extends BasePageBundle {
 	/**
 	 * Convert this HtmlPageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
+	 * @param SiteConfig $siteConfig
 	 * @param array $options XHtmlSerializer options
 	 * @param array<string,string>|null &$fragments Additional fragments from the
 	 *  page bundle which will also be serialized to HTML strings.
 	 *  This is an output parameter.
-	 * @param ?SiteConfig $siteConfig
 	 * @return string an HTML string
 	 */
 	public function toInlineAttributeHtml(
+		SiteConfig $siteConfig,
 		array $options = [],
 		?array &$fragments = null,
-		?SiteConfig $siteConfig = null
 	): string {
 		return DomPageBundle::fromHtmlPageBundle( $this )
 			->toInlineAttributeHtml( siteConfig: $siteConfig, options: $options, fragments: $fragments );
