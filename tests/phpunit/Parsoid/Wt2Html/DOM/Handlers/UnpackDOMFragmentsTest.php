@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Title;
 
 class UnpackDOMFragmentsTest extends TestCase {
 	/** @var array */
@@ -28,7 +29,8 @@ class UnpackDOMFragmentsTest extends TestCase {
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$content = new MockPageContent( [ 'main' => $wt ] );
+		$title = Title::newFromText( 'TestPage', $siteConfig );
+		$content = new MockPageContent( [ 'main' => $wt ], $title );
 		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 

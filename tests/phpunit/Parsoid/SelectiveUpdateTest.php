@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Test selective updates
@@ -50,7 +51,8 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 			} );
 
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
-		$pageContent = new MockPageContent( [ 'main' => $revData->revText ] );
+		$title = Title::newFromText( 'TestPage', $siteConfig );
+		$pageContent = new MockPageContent( [ 'main' => $revData->revText ], $title );
 		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 
 		$parserOpts = [

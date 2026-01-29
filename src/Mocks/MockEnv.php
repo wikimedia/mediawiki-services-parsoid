@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Mocks;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
+use Wikimedia\Parsoid\Utils\Title;
 
 class MockEnv extends Env {
 	/**
@@ -24,9 +25,10 @@ class MockEnv extends Env {
 			$pageConfig = $opts['pageConfig'];
 		} else {
 			$content = $opts['pageContent'] ?? 'Some dummy source wikitext for testing.';
+			$title = Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
 			$pageContent = $content instanceof PageContent
 				? $content
-				: new MockPageContent( [ 'main' => $content ] );
+				: new MockPageContent( [ 'main' => $content ], $title );
 			$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		}
 		$dataAccess = $opts['dataAccess'] ?? new MockDataAccess( $siteConfig, $opts );

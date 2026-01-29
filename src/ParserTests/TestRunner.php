@@ -232,7 +232,10 @@ class TestRunner {
 		$this->dummyEnv = new Env(
 			$this->siteConfig,
 			// Unused; needed to satisfy Env signature requirements
-			new MockPageConfig( $this->siteConfig, [], new MockPageContent( [ 'main' => '' ] ) ),
+			new MockPageConfig(
+				$this->siteConfig, [],
+				new MockPageContent( [ 'main' => '' ], Title::newFromText( 'Parser Test', $this->siteConfig ) ),
+			),
 			// Unused; needed to satisfy Env signature requirements
 			$this->dataAccess,
 			// Unused; needed to satisfy Env signature requirements

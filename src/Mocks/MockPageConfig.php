@@ -20,7 +20,7 @@ class MockPageConfig extends PageConfig {
 	/** @var int */
 	private $pageid;
 
-	private Title $title;
+	private LinkTarget $title;
 
 	private Bcp47Code $pagelanguage;
 
@@ -36,7 +36,8 @@ class MockPageConfig extends PageConfig {
 	public function __construct( SiteConfig $siteConfig, array $opts, ?PageContent $content ) {
 		$this->siteConfig = $siteConfig;
 		$this->content = $content;
-		$this->title = Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
+		$this->title = $content?->getLinkTarget() ??
+			Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
 		$this->pageid = $opts['pageid'] ?? -1;
 		$this->pagelanguage = $opts['pageLanguage'] ?? new Bcp47CodeValue( 'en' );
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;

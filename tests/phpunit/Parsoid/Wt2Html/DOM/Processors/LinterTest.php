@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
 
 /**
@@ -32,9 +33,10 @@ class LinterTest extends TestCase {
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$content = new MockPageContent( [ 'main' => $wt ] );
+		$title = Title::newFromText( $title ?? 'TestPage', $siteConfig, $namespace );
+		$content = new MockPageContent( [ 'main' => $wt ], $title );
 		$pageConfig = new MockPageConfig(
-			$siteConfig, [ 'title' => $title, 'pagens' => $namespace ], $content
+			$siteConfig, [], $content
 		);
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );

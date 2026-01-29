@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Test CleanUp, the tests used for validating CleanUp class port from JS to PHP
@@ -32,7 +33,8 @@ class CleanUpTest extends TestCase {
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$content = new MockPageContent( [ 'main' => $wt ] );
+		$title = Title::newFromText( 'TestPage', $siteConfig );
+		$content = new MockPageContent( [ 'main' => $wt ], $title );
 		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 

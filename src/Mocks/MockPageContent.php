@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Mocks;
 
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Utils\TitleValue;
 
 class MockPageContent extends PageContent {
 
@@ -24,10 +26,15 @@ class MockPageContent extends PageContent {
 	 *   - redirect: (string, optional) The redirect target (same format as PageConfig::getTitle),
 	 *     if this content is a redirect.
 	 */
-	public function __construct( array $data ) {
+	public function __construct( array $data, private ?LinkTarget $title = null ) {
 		foreach ( $data as $role => $v ) {
 			$this->data[$role] = is_string( $v ) ? [ 'content' => $v ] : $v;
 		}
+	}
+
+	/** @inheritDoc */
+	public function getLinkTarget(): LinkTarget {
+		return $this->title ?? TitleValue::tryNew( -1 /* NS_SPECIAL */, 'Badtitle/missing' );
 	}
 
 	/** @inheritDoc */

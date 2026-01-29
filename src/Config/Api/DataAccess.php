@@ -414,6 +414,8 @@ class DataAccess extends IDataAccess {
 				'rvslots' => '*',
 				'titles' => $title,
 				'rvlimit' => 1,
+				'redirects' => 1,
+				'formatversion' => 2,
 			];
 
 			$data = $this->api->makeRequest( $params );
@@ -421,12 +423,16 @@ class DataAccess extends IDataAccess {
 			if ( isset( $pageData['missing'] ) ) {
 				return null;
 			} else {
-				$ret = $pageData['revisions'][0]['slots'];
-				// PORT-FIXME set the redirect field if needed
+				$ret = [
+					'data' => $pageData['revisions'][0]['slots'],
+					'title' => Title::newFromText(
+						$pageData['title'], $this->siteConfig
+					),
+				];
 				$this->setCache( $key, $ret );
 			}
 		}
-		return new MockPageContent( $ret );
+		return new MockPageContent( $ret['data'], $ret['title'] );
 	}
 
 	/** @inheritDoc */
