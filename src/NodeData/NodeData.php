@@ -24,6 +24,8 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 #[\AllowDynamicProperties]
 class NodeData {
+	public const PERSISTENT_ATTR_NAMES = [ 'parsoid', 'mw' ];
+
 	/**
 	 * The unserialized data-parsoid attribute
 	 * @var array|DataParsoid|null
