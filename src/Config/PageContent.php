@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Config;
 
 use InvalidArgumentException;
 use Wikimedia\Parsoid\Core\LinkTarget;
-use Wikimedia\Parsoid\Utils\TitleValue;
 
 /**
  * Page content data object
@@ -14,10 +13,7 @@ abstract class PageContent {
 	/**
 	 * Return the title of this page.
 	 */
-	public function getLinkTarget(): LinkTarget {
-		// Default implementation to break cyclic dependency with core.
-		return TitleValue::tryNew( -1 /* NS_SPECIAL */, 'Badtitle/missing' );
-	}
+	abstract public function getLinkTarget(): LinkTarget;
 
 	/**
 	 * Return the roles available in this page

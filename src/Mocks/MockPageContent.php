@@ -9,6 +9,8 @@ use Wikimedia\Parsoid\Utils\TitleValue;
 
 class MockPageContent extends PageContent {
 
+	private LinkTarget $title;
+
 	/**
 	 * Alas, this is public because parserTests is reaching in and altering
 	 * the main content when various modes are run.
@@ -26,7 +28,8 @@ class MockPageContent extends PageContent {
 	 *   - redirect: (string, optional) The redirect target (same format as PageConfig::getTitle),
 	 *     if this content is a redirect.
 	 */
-	public function __construct( array $data, private ?LinkTarget $title = null ) {
+	public function __construct( array $data, ?LinkTarget $title = null ) {
+		$this->title = $title ?? TitleValue::tryNew( 0, 'TestPage' );
 		foreach ( $data as $role => $v ) {
 			$this->data[$role] = is_string( $v ) ? [ 'content' => $v ] : $v;
 		}
@@ -34,7 +37,7 @@ class MockPageContent extends PageContent {
 
 	/** @inheritDoc */
 	public function getLinkTarget(): LinkTarget {
-		return $this->title ?? TitleValue::tryNew( -1 /* NS_SPECIAL */, 'Badtitle/missing' );
+		return $this->title;
 	}
 
 	/** @inheritDoc */
