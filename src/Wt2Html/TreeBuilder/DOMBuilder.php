@@ -13,8 +13,8 @@ class DOMBuilder extends RemexDOMBuilder {
 	public function __construct() {
 		parent::__construct( [
 			'suppressHtmlNamespace' => true,
+			'domImplementationClass' => \DOMImplementation::class,
 			# 'suppressIdAttribute' => true,
-			#'domExceptionClass' => \Wikimdedia\Dodo\DOMException::class,
 		] );
 	}
 
