@@ -520,7 +520,7 @@ class ParserPipelineFactory {
 			$proc = self::DOM_PROCESSOR_CONFIG[$name];
 			if ( !is_array( $proc ) ) {
 				$proc = [
-					'name' => Utils::stripNamespace( $proc ),
+					'name' => Utils::stripPHPNamespace( $proc ),
 					'Processor' => $proc,
 				];
 			}

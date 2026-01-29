@@ -32,22 +32,11 @@ class Utils {
 	public const COMMENT_OR_WS_REGEXP = '/^(\s|' . self::COMMENT_REGEXP_FRAGMENT . ')*$/D';
 
 	/**
-	 * Strip Parsoid id prefix from aboutID
-	 *
-	 * @param string $aboutId aboud ID string
-	 * @return string
-	 */
-	public static function stripParsoidIdPrefix( string $aboutId ): string {
-		// 'mwt' is the prefix used for new ids
-		return preg_replace( '/^#?mwt/', '', $aboutId );
-	}
-
-	/**
 	 * Strip PHP namespace from the fully qualified class name
 	 * @param string $className
 	 * @return string
 	 */
-	public static function stripNamespace( string $className ): string {
+	public static function stripPHPNamespace( string $className ): string {
 		return preg_replace( '/.*\\\\/', '', $className );
 	}
 

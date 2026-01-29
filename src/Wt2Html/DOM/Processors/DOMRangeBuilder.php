@@ -1397,7 +1397,7 @@ class DOMRangeBuilder {
 		Element $startMeta, Element $endMeta, ?Element $endElem = null
 	): DOMRangeInfo {
 		$range = new DOMRangeInfo(
-			Utils::stripParsoidIdPrefix( $this->getRangeId( $startMeta ) ),
+			$this->getRangeId( $startMeta ),
 			DOMDataUtils::getDataParsoid( $startMeta )->tsr->start,
 			$startMeta,
 			$endMeta
