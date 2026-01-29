@@ -1098,7 +1098,11 @@ class DOMDataUtils {
 		if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			$nodeData = self::getNodeData( $node );
 			$propName = self::nodeDataPropName( $name );
-			unset( $nodeData->$propName );
+			if ( in_array( $propName, NodeData::PERSISTENT_ATTR_NAMES, true ) ) {
+				$nodeData->$propName = null;
+			} else {
+				unset( $nodeData->$propName );
+			}
 			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
 			unset( $nodeData->$hintName );
 		}

@@ -9,6 +9,8 @@ use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -117,6 +119,27 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'>Hello, world</p>',
 			$html
 		);
+	}
+
+	/**
+	 * @covers ::removeAttributeObject
+	 * @return void
+	 * Persistent attributes should not be removed, only set to null
+	 */
+	public function testRemovalOfPersistentDataAttributes() {
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>"
+		);
+		$p = DOMCompat::querySelector( $doc, 'p' );
+		$data = DOMDataUtils::getNodeData( $p );
+		$data->mw = new DataMw();
+		$data->parsoid = new DataParsoid();
+		DOMDataUtils::removeAttributeObject( $p, "data-mw" );
+		$this->assertNull( $data->mw );
+		$this->assertNotNull( $data->parsoid );
+		DOMDataUtils::removeAttributeObject( $p, "data-parsoid" );
+		$this->assertNull( $data->parsoid );
+		$this->assertNull( $data->mw );
 	}
 
 	/**
