@@ -120,6 +120,7 @@ class ContentModelHandler extends IContentModelHandler {
 
 			// Now set up doc again for html2wt
 			$env->setupTopLevelDoc( $topLevelDoc );
+			DOMDataUtils::getBag( $topLevelDoc )->serializeNewEmptyDp = false;
 		} else {
 			$doc = ContentUtils::createAndLoadDocument( $selserData->revHTML );
 		}
