@@ -6,7 +6,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\DOM;
 
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Core\DOMCompat;
 
 function _registerDomAliasClasses( $doc, string $prefix ): void {
 	# Register our alias classes. Notes:

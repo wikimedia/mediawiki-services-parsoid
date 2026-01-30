@@ -6,9 +6,9 @@ namespace Test\Parsoid\Language;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class KuTest extends TestCase {
 

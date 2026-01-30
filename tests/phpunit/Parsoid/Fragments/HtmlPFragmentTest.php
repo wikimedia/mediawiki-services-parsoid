@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Fragments;
 
 use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Fragments\HtmlPFragment;
 use Wikimedia\Parsoid\Fragments\PFragment;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Fragments\HtmlPFragment

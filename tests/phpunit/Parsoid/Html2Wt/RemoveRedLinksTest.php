@@ -4,10 +4,10 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Html2Wt\RemoveRedLinks;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\RemoveRedLinks

@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**

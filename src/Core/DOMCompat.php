@@ -735,5 +735,5 @@ class DOMCompat {
 		}, $str, -1, $ignore, PREG_UNMATCHED_AS_NULL );
 	}
 }
-// This used to live in Utils.
+// @deprecated since 0.23; moved from Utils to Core
 class_alias( DOMCompat::class, 'Wikimedia\\Parsoid\\Utils\\DOMCompat' );

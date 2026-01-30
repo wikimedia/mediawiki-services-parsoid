@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Utils;
 
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;

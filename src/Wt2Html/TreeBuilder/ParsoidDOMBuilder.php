@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\DOMException;
 use Wikimedia\Parsoid\DOM\DOMImplementation;
 use Wikimedia\Parsoid\DOM\HTMLDocument;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
 
 /**

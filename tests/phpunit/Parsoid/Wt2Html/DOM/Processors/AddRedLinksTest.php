@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Wt2Html\DOM\Processors;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 
 /**

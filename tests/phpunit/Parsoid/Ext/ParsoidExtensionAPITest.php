@@ -6,13 +6,13 @@ namespace Test\Parsoid\Ext;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\TestingAccessWrapper;
 
 /** @coversDefaultClass \Wikimedia\Parsoid\Ext\ParsoidExtensionAPI */

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Utils;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\Core\SourceString;
