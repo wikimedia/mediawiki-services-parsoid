@@ -141,6 +141,7 @@ $cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
 // Exclude aliases
 $cfg['exclude_file_list'][] = "src/Wt2Html/XMLSerializer.php";
 $cfg['exclude_file_list'][] = "src/Core/PageBundle.php";
+$cfg['exclude_file_list'][] = "src/Tokens/SourceRange.php";
 $cfg['exclude_file_list'][] = "src/Utils/DOMCompat.php";
 
 // FIXME: Temporary?
