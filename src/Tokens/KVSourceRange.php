@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Core\Source;
+use Wikimedia\Parsoid\Core\SourceRange;
 
 /**
  * Represents a source offset range for a key-value pair.

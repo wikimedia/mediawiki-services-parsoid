@@ -6,11 +6,11 @@ namespace Test\Parsoid\Html2Wt;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Zest\Zest;
 

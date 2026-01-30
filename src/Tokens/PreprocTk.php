@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Tokens;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Core\SourceRange;
 
 /**
  * Represents a preprocessor "piece".  Contents of this token are

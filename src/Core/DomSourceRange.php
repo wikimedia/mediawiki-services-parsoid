@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\Hint;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**

@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Text;
@@ -20,7 +21,6 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
 use Wikimedia\Parsoid\NodeData\DataMwBody;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
  * Implements the php parser's `renderImageGallery` natively.

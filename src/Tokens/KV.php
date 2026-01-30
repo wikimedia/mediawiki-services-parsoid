@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Tokens;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**

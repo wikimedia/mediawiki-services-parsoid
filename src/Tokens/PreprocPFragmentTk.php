@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Tokens;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 
 /**

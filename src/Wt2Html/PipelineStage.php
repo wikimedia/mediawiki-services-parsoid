@@ -5,9 +5,9 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 

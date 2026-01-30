@@ -5,11 +5,11 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Wt2Html;
 
 use Wikimedia\JsonCodec\Hint;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\Fragments\HtmlPFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\PreprocTk;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
 use Wikimedia\Parsoid\Utils\DOMDataCodec;

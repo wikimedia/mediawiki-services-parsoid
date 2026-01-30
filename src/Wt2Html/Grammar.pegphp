@@ -30,7 +30,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Tokens\PreprocTk;
 	use Wikimedia\Parsoid\Tokens\PreprocType;
 	use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
-	use Wikimedia\Parsoid\Tokens\SourceRange;
+	use Wikimedia\Parsoid\Core\SourceRange;
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
 	use Wikimedia\Parsoid\Tokens\VariantInfo;

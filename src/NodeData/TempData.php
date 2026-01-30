@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Tokens\VariantInfo;
 use Wikimedia\Parsoid\Utils\Utils;
 

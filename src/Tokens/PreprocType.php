@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Tokens;
 
 use InvalidArgumentException;
+use Wikimedia\Parsoid\Core\SourceRange;
 
 /**
  * Types of preprocessor pieces.

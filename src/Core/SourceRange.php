@@ -177,5 +177,5 @@ class SourceRange implements JsonCodecable {
 		return Hint::build( self::class, Hint::USE_SQUARE );
 	}
 }
-// This used to live in Tokens.
+// @deprecated since 0.23; moved from Tokens to Core
 class_alias( SourceRange::class, 'Wikimedia\\Parsoid\\Tokens\\SourceRange' );

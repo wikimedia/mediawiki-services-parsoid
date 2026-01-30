@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Tokens;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\SourceRange;
 
 /**
  * Represents an "extension tag" preprocessor piece.
