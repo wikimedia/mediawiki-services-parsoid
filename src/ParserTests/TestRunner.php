@@ -382,6 +382,7 @@ class TestRunner {
 		// Mark the document as loaded so we can try to catch errors which
 		// might try to reload this again later.
 		DOMDataUtils::getBag( $doc )->loaded = true;
+		DOMDataUtils::getBag( $doc )->serializeNewEmptyDp = false;
 
 		$env->setupTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );

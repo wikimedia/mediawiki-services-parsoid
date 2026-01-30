@@ -701,7 +701,8 @@ class Env {
 				"toplevelDoc should be prepared and loaded already"
 			);
 			$this->topLevelDoc = $topLevelDoc;
-			DOMDataUtils::getBag( $this->topLevelDoc )->serializeNewEmptyDp = false;
+			// if it is already prepared and loaded, then serializeNewEmptyDp
+			// is already set as well; leave it alone.
 		} else {
 			$this->topLevelDoc = DOMCompat::newDocument( isHtml: true );
 			$documentElement = $this->topLevelDoc->documentElement;
