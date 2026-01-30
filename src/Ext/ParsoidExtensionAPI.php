@@ -824,8 +824,9 @@ class ParsoidExtensionAPI {
 	 */
 	public function domToWikitext( array $opts, Element|DocumentFragment $df, bool $releaseDom = false ) {
 		if ( $df instanceof Element ) {
-			$this->env->getSiteConfig()->deprecated( __METHOD__ . ' with Element', '0.23' );
 			$node = $df;
+			// Passing an element is deprecated and will emit warnings in the
+			// future.
 			return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom ) );
 		}
 		$state = $this->serializerState;
