@@ -143,6 +143,7 @@ $cfg['exclude_file_list'][] = "src/Wt2Html/XMLSerializer.php";
 $cfg['exclude_file_list'][] = "src/Core/PageBundle.php";
 $cfg['exclude_file_list'][] = "src/Tokens/SourceRange.php";
 $cfg['exclude_file_list'][] = "src/Utils/DOMCompat.php";
+$cfg['exclude_file_list'][] = "src/Utils/DOMCompat/TokenList.php";
 
 // FIXME: Temporary?
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
