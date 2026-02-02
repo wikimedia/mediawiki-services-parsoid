@@ -27,6 +27,7 @@ class HtmlPageBundle extends BasePageBundle {
 		/** The document, as an HTML string. */
 		public string $html,
 		?array $parsoid = null, ?array $mw = null,
+		?array $counters = null,
 		?string $version = null, ?array $headers = null,
 		?string $contentmodel = null,
 		/** @var array<string,string> Additional named HTML fragments. */
@@ -35,6 +36,7 @@ class HtmlPageBundle extends BasePageBundle {
 		parent::__construct(
 			parsoid: $parsoid,
 			mw: $mw,
+			counters: $counters,
 			version: $version,
 			headers: $headers,
 			contentmodel: $contentmodel,
@@ -50,11 +52,15 @@ class HtmlPageBundle extends BasePageBundle {
 		return new self(
 			$html,
 			[
-				'counter' => -1,
 				'ids' => [],
 			],
 			[
 				'ids' => [],
+			],
+			[
+				'nodedata' => -1,
+				'annotation' => -1,
+				'transclusion' => -1,
 			],
 			$version,
 			$headers,
@@ -127,6 +133,7 @@ class HtmlPageBundle extends BasePageBundle {
 			$out,
 			$dpb->parsoid,
 			$dpb->mw,
+			$dpb->counters,
 			$dpb->version ?? $options['contentversion'] ?? null,
 			$dpb->headers ?? $options['headers'] ?? null,
 			$dpb->contentmodel ?? $options['contentmodel'] ?? null,

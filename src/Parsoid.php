@@ -412,6 +412,7 @@ class Parsoid {
 			$newPb = new HtmlPageBundle(
 				$out['html'],
 				$out['pb']->parsoid ?? null, $out['pb']->mw ?? null,
+				$out['pb']->counters ?? null,
 				$env->getOutputContentVersion(),
 				$headers,
 				$contentmodel
@@ -619,8 +620,8 @@ class Parsoid {
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
-				if ( isset( $pb->parsoid['counter'] ) ) {
-					$env->pageBundle->parsoid['counter'] = $pb->parsoid['counter'];
+				if ( isset( $pb->counters['nodedata'] ) ) {
+					$env->pageBundle->counters['nodedata'] = $pb->counters['nodedata'];
 				}
 				break;
 
@@ -789,7 +790,8 @@ class Parsoid {
 		$newHtmlPageBundle = new HtmlPageBundle(
 			$pageBundle->html,
 			null,
-			$pageBundle->mw
+			$pageBundle->mw,
+			$pageBundle->counters
 		);
 		$pageBundle->html = $newHtmlPageBundle->toInlineAttributeHtml( siteConfig: $siteConfig );
 

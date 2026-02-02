@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
+use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
@@ -42,17 +43,21 @@ class BasePageBundle implements JsonCodecable {
 		 */
 		public ?array $mw = null,
 		/**
-		 * @var ?string
+		 * Records the max counter values for different counter types
+		 * @var ?array{nodedata?:int,annotation?:int,transclusion?:int}
 		 */
+		public ?array $counters = null,
 		public ?string $version = null,
 		/**
 		 * A map of HTTP headers: both name and value should be strings.
 		 * @var ?array<string,string>
 		 */
 		public ?array $headers = null,
-		/** @var ?string */
 		public ?string $contentmodel = null,
 	) {
+		Assert::invariant(
+			!isset( $parsoid['counter'] ), "counter removed in Parsoid 0.23"
+		);
 	}
 
 	/**
@@ -89,6 +94,7 @@ class BasePageBundle implements JsonCodecable {
 			fragments: $fragments,
 			parsoid: $this->parsoid,
 			mw: $this->mw,
+			counters: $this->counters,
 			version: $this->version,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
@@ -109,6 +115,7 @@ class BasePageBundle implements JsonCodecable {
 			fragments: $fragments,
 			parsoid: $this->parsoid,
 			mw: $this->mw,
+			counters: $this->counters,
 			version: $this->version,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
@@ -122,6 +129,7 @@ class BasePageBundle implements JsonCodecable {
 		return new BasePageBundle(
 			parsoid: $this->parsoid,
 			mw: $this->mw,
+			counters: $this->counters,
 			version: $this->version,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
@@ -132,9 +140,14 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
+		// Roll-back compatibility with Parsoid < 0.23
+		$parsoid = $this->parsoid + [
+			'counter' => $this->counters['nodedata'],
+		];
 		return [
-			'parsoid' => $this->parsoid,
+			'parsoid' => $parsoid,
 			'mw' => $this->mw,
+			'counters' => $this->counters,
 			'version' => $this->version,
 			'headers' => $this->headers,
 			'contentmodel' => $this->contentmodel,
@@ -143,13 +156,19 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): BasePageBundle {
-		// Forward-compatibility with Parsoid 0.23
-		if ( isset( $json['counters']['nodedata'] ) ) {
-			$json['parsoid']['counter'] = $json['counters']['nodedata'];
+		// Backward compatibility with Parsoid < 0.23
+		$json['counters'] ??= [
+			'nodedata' => $json['parsoid']['counter'] ?? -1,
+			'annotation' => -1,
+			'transclusion' => -1,
+		];
+		if ( isset( $json['parsoid']['counter'] ) ) {
+			unset( $json['parsoid']['counter'] );
 		}
 		return new BasePageBundle(
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
+			counters: $json['counters'] ?? null,
 			version: $json['version'] ?? null,
 			headers: $json['headers'] ?? null,
 			contentmodel: $json['contentmodel'] ?? null

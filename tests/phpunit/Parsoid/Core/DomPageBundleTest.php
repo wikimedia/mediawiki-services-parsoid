@@ -123,7 +123,7 @@ EOF;
 		$html2 = $dpb->toSingleDocumentHtml();
 		$this->assertEquals( <<<'EOF'
 <!DOCTYPE html>
-<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"counter":0,"ids":{"mwAA":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]}}</script></head><body>
+<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,12,0,0]}},"counter":0},"mw":{"ids":[]},"counters":{"nodedata":0,"annotation":-1,"transclusion":-1}}</script></head><body>
   <p id="mwAA">Hello, world</p>
  
 </body></html>
@@ -240,6 +240,11 @@ HTML
 				'version' => null,
 				'headers' => null,
 				'contentmodel' => null,
+				'counters' => [
+					'nodedata' => 6,
+					'annotation' => -1,
+					'transclusion' => -1,
+				],
 			],
 			'newFragment' => '<p data-parsoid=\'{"dsr":[0,12,0,0]}\'>Hello, world</p>',
 			'pageBundleAfter' => [
@@ -296,6 +301,7 @@ HTML
 				'mw' => [
 					'ids' => [],
 				],
+				'counters' => [ 'nodedata' => 7, 'annotation' => -1, 'transclusion' => -1 ],
 				'version' => null,
 				'headers' => null,
 				'contentmodel' => null,
@@ -320,7 +326,7 @@ HTML
 			//   | php bin/parse.php --pageBundle --body_only=false
 			'singleDocumentBefore' => <<<'EOF'
 <!DOCTYPE html>
-<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"counter":5,"ids":{"mwAA":{"dsr":[0,29,0,0]},"mwAQ":{"dsr":[0,28,0,0]},"mwAg":{"pi":[[{"k":"1"}]],"dsr":[7,26,null,null]},"mwAw":{"optList":[],"dsr":[0,28,null,null]},"mwBA":{"_type_":"stdClass"},"mwBQ":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:{{1x | Foobar.jpg}}"}}},"offsetType":"byte"},"mw":{"ids":[]}}</script></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos; id=\"mwAg\"> Foobar.jpg&lt;/span>"}]]}' id="mwAw"><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>
+<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"counter":5,"ids":{"mwAA":{"dsr":[0,29,0,0]},"mwAQ":{"dsr":[0,28,0,0]},"mwAg":{"pi":[[{"k":"1"}]],"dsr":[7,26,null,null]},"mwAw":{"optList":[],"dsr":[0,28,null,null]},"mwBA":{"_type_":"stdClass"},"mwBQ":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:{{1x | Foobar.jpg}}"}}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":5,"annotation":-1,"transclusion":-1}}</script></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos; id=\"mwAg\"> Foobar.jpg&lt;/span>"}]]}' id="mwAw"><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>
 </body></html>
 EOF
 			,
@@ -365,6 +371,7 @@ HTML
 				'mw' => [
 					'ids' => [],
 				],
+				'counters' => [ 'nodedata' => 5, 'annotation' => -1, 'transclusion' => -1 ],
 				'version' => null,
 				'headers' => null,
 				'contentmodel' => null,
@@ -413,6 +420,7 @@ HTML
 				'mw' => [
 					'ids' => [],
 				],
+				'counters' => [ 'nodedata' => 6, 'annotation' => -1, 'transclusion' => -1 ],
 				'version' => null,
 				'headers' => null,
 				'contentmodel' => null,

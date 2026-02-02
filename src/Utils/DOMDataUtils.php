@@ -610,9 +610,9 @@ class DOMDataUtils {
 	): void {
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$codec = self::getCodec( $node );
-		$docDp = &$pb->parsoid;
+		$pbCounters = &$pb->counters;
 		$origId = $uid;
-		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
+		if ( $uid !== null && array_key_exists( $uid, $pb->parsoid['ids'] ) ) {
 			// Forcibly reset the ID if there's a conflict
 			$uid = null;
 		}
@@ -622,7 +622,7 @@ class DOMDataUtils {
 		}
 		if ( $uid === null ) {
 			do {
-				$docDp['counter'] += 1;
+				$pbCounters['nodedata'] += 1;
 				// The idIndex maps all *existing* ids from the original
 				// document, so that we can ensure than any *newly assigned*
 				// UIDs don't happen to step on them.  We don't need to update
@@ -630,11 +630,11 @@ class DOMDataUtils {
 				// doesn't conflict with an existing ID, and (b) by
 				// construction, none of our new UIDs will conflict with each
 				// other.
-				$uid = CounterType::NODE_DATA_ID->counterToId( $docDp['counter'] );
+				$uid = CounterType::NODE_DATA_ID->counterToId( $pbCounters['nodedata'] );
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
-		$docDp['ids'][$uid] = $data->parsoid;
+		$pb->parsoid['ids'][$uid] = $data->parsoid;
 		if ( isset( $data->mw ) ) {
 			$pb->mw['ids'][$uid] = $data->mw;
 		}

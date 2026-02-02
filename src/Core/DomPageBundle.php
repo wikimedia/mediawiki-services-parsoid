@@ -37,6 +37,7 @@ class DomPageBundle extends BasePageBundle {
 		/** The document, as a DOM. */
 		public Document $doc,
 		?array $parsoid = null, ?array $mw = null,
+		?array $counters = null,
 		?string $version = null, ?array $headers = null,
 		?string $contentmodel = null,
 		/** @var array<string,DocumentFragment> Additional named DocumentFragments. */
@@ -45,6 +46,7 @@ class DomPageBundle extends BasePageBundle {
 		parent::__construct(
 			parsoid: $parsoid,
 			mw: $mw,
+			counters: $counters,
 			version: $version,
 			headers: $headers,
 			contentmodel: $contentmodel,
@@ -64,11 +66,15 @@ class DomPageBundle extends BasePageBundle {
 		return new DomPageBundle(
 			$doc,
 			[
-				'counter' => -1,
 				'ids' => [],
 			],
 			[
 				'ids' => [],
+			],
+			[
+				'nodedata' => -1,
+				'annotation' => -1,
+				'transclusion' => -1,
 			],
 			$version,
 			$headers,
@@ -92,6 +98,7 @@ class DomPageBundle extends BasePageBundle {
 			$doc,
 			$pb->parsoid,
 			$pb->mw,
+			$pb->counters,
 			$pb->version,
 			$pb->headers,
 			$pb->contentmodel,
@@ -328,7 +335,7 @@ class DomPageBundle extends BasePageBundle {
 		// Note that $this->parsoid and $this->mw are already serialized arrays
 		// so a naive jsonEncode is sufficient.  We use a JsonCodec to ensure
 		// that objects stay objects and arrays stay arrays, though.
-		$json = [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ];
+		$json = [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [], 'counters' => $this->counters ?? [] ];
 		if ( $this->fragments ) {
 			// Preserve fragments in the <head>
 			$json['fragments'] = array_map(
@@ -336,6 +343,8 @@ class DomPageBundle extends BasePageBundle {
 				$this->fragments
 			);
 		}
+		// Rollback compatibility for Parsoid < 0.23
+		$json['parsoid']['counter'] = $json['counters']['nodedata'];
 		$codec = new JsonCodec();
 		return $codec->toJsonString( $json, self::headElementHint() );
 	}
@@ -355,14 +364,22 @@ class DomPageBundle extends BasePageBundle {
 			static fn ( $html ) => DOMUtils::parseHTMLToFragment( $doc, $html ),
 			$decoded['fragments'] ?? []
 		);
-		// Forward-compatibility with Parsoid 0.23
-		if ( isset( $decoded['counters']['nodedata'] ) ) {
-			$decoded['parsoid']['counter'] = $decoded['counters']['nodedata'];
+		// Backward compatibility with Parsoid < 0.23
+		if ( !isset( $decoded['counters'] ) ) {
+			$decoded['counters'] = [
+				'nodedata' => $decoded['parsoid']['counter'] ?? -1,
+				'annotation' => -1,
+				'transclusion' => -1,
+			];
+		}
+		if ( isset( $decoded['parsoid']['counter'] ) ) {
+			unset( $decoded['parsoid']['counter'] );
 		}
 		return new DomPageBundle(
 			$doc,
 			$decoded['parsoid'] ?? null,
 			$decoded['mw'] ?? null,
+			$decoded['counters'] ?? null,
 			$options['contentversion'] ?? null,
 			$options['headers'] ?? null,
 			$options['contentmodel'] ?? null,
