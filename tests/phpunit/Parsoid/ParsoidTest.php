@@ -64,6 +64,24 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'pageBundle' => true,
 				]
 			],
+			[
+				"<div id='test'>abc</div><div id='test'>123</div>",
+				'<div id="test">abc</div><div id="mwAQ" data-x-id="test">123</div>',
+				[
+					'body_only' => true,
+					'wrapSections' => false,
+					'pageBundle' => true,
+				]
+			],
+			[
+				"<div id='mwtest'>abc</div><div id='mwtest'>123</div>",
+				'<div id="mwtest">abc</div><div id="mwAQ" data-x-id="mwtest">123</div>',
+				[
+					'body_only' => true,
+					'wrapSections' => false,
+					'pageBundle' => true,
+				]
+			],
 		];
 	}
 
@@ -485,8 +503,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			],
 			[
 				"<div id='mwtest'>abc</div><div id='mwtest'>123</div>",
-				// FIXME: The deduplicated id is lost
-				'<div id="mwtest">abc</div><div>123</div>',
+				'<div id="mwtest">abc</div><div id="mwtest">123</div>',
 				[
 					'body_only' => true,
 					'wrapSections' => false,

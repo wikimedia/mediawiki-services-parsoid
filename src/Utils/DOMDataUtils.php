@@ -613,10 +613,15 @@ class DOMDataUtils {
 		$pbCounters = &$pb->counters;
 		if ( $uid !== null && array_key_exists( $uid, $pb->parsoid['ids'] ) ) {
 			// Forcibly reset the ID if there's a conflict
+			// T415477: Preserve the original id as in TokenizerUtils::protectAttrs()
+			// so that it's still present in the HTML
+			$node->setAttribute( 'data-x-id', $uid );
 			$uid = null;
 		}
 		if ( $uid === '' ) {
 			// Forcibly reset the ID if it is invalid
+			// Don't bother with a data-x-id here, the sanitizer will have
+			// already stripped and shadowed an empty id coming from source
 			$uid = null;
 		}
 		if ( $uid === null ) {
