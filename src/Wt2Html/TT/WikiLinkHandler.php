@@ -42,7 +42,6 @@ use Wikimedia\Parsoid\Wt2Html\PipelineContentCache;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends XMLTagBasedHandler {
-	/** Disable caching till we fix cloning of DOM fragments in data-parsoid */
 	private static bool $cachingEnabled = true;
 
 	/**
@@ -301,7 +300,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 */
 	private function onWikiLink( Token $token ): array {
 		$env = $this->env;
-		$tsrStart = $token->dataParsoid->tsr->start ?? null;
+		$tsr = $token->dataParsoid->tsr ?? null;
+		$tsrStart = $tsr->start ?? null;
 
 		// Check if we have cached output for this wikilink source.
 		// Given wikilink-syntax source, token output is deterministic
@@ -309,11 +309,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$src = $token->dataParsoid->src ?? '';
 		$isCacheable = ( $this->wikilinkCache && $tsrStart !== null && strlen( $src ) > 0 );
 		if ( $isCacheable ) {
+			$newSource = $tsr->source;
 			$cachedOutput = $this->wikilinkCache->lookup( $src );
 			if ( $cachedOutput !== null ) {
 				$offset = $tsrStart - $cachedOutput['start'];
 				$toks = $cachedOutput['tokens'];
-				TokenUtils::shiftTokenTSR( $toks, $offset );
+				TokenUtils::shiftTokenTSR( $toks, $offset, $newSource );
 				TokenUtils::dedupeAboutIds( $env, $toks );
 				return $toks;
 			}

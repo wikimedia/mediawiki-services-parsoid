@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EmptyLineTk;
@@ -294,14 +295,35 @@ class TokenUtils {
 	}
 
 	/**
-	 * Shift TSR of a token by the requested $offset value.
+	 * Shift TSR of a token by the requested $offset value and
+	 * optionally, update its TSR source.
+	 *
+	 * At a basic level, "f(wt) = tokens" should be memoizable within the
+	 * parser pipeline (since the config, env, etc. are fixed for the request)
+	 * no matter where "wt" originated from (top-level or templates). But, embedded
+	 * state like tsr offsets, and additional nested state like source ranges
+	 * interfere with that memoizability. This method attempts to migrate over
+	 * such embedded state reliably.
+	 *
+	 * NOTE about $offset
+	 * ------------------
 	 * A null value of $offset resets TSR on all tokens since we cannot
 	 * compute a reliable new value of $tsr and the old value of $tsr
 	 * should not be used either.
+	 *
+	 * NOTE about $tsrSource param
+	 * ---------------------------
+	 * In memoization scenarios where tokens are reused across source frames,
+	 * we also need to reset the source objects to the target frame. Doing so
+	 * effectively marks all SourceRange objects as belonging to the target frame.
+	 * Note that the SourceRange design allows more fine-grained tracking across
+	 * nested templates. Parsoid doesn't support that yet => the logic below is correct.
+	 * But in a fine-grained tracking scenario, we'll need to either null offsets OR
+	 * disable cross-frame memoization OR do more complicated state migration.
 	 */
-	public static function shiftTokenTSR( array $tokens, ?int $offset ): void {
+	public static function shiftTokenTSR( array $tokens, ?int $offset, ?Source $tsrSource = null ): void {
 		// Bail early if we can
-		if ( $offset === 0 ) {
+		if ( $offset === 0 && $tsrSource === null ) {
 			return;
 		}
 
@@ -319,11 +341,17 @@ class TokenUtils {
 			$tsr = $da->tsr ?? null;
 			if ( $tsr ) {
 				$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
+				if ( $tsrSource ) {
+					$da->tsr->source = $tsrSource;
+				}
 			}
 
 			if ( $offset !== null ) {
 				if ( isset( $da->extTagOffsets ) ) {
 					$da->extTagOffsets = $da->extTagOffsets->offset( $offset );
+					if ( $tsrSource ) {
+						$da->extTagOffsets->source = $tsrSource;
+					}
 				}
 
 				// SSS FIXME: offset will always be available in
@@ -341,16 +369,19 @@ class TokenUtils {
 				if ( isset( $da->tmp->extLinkContentOffsets ) ) {
 					$da->tmp->extLinkContentOffsets =
 						$da->tmp->extLinkContentOffsets->offset( $offset );
+					if ( $tsrSource ) {
+						$da->tmp->extLinkContentOffsets->source = $tsrSource;
+					}
 				}
 			}
 
 			// Process attributes
 			foreach ( $t->attribs ?? [] as $a ) {
 				if ( is_array( $a->k ) ) {
-					self::shiftTokenTSR( $a->k, $offset );
+					self::shiftTokenTSR( $a->k, $offset, $tsrSource );
 				}
 				if ( is_array( $a->v ) ) {
-					self::shiftTokenTSR( $a->v, $offset );
+					self::shiftTokenTSR( $a->v, $offset, $tsrSource );
 				}
 
 				// src offsets used to set mw:TemplateParams
@@ -358,6 +389,10 @@ class TokenUtils {
 					$a->srcOffsets = null;
 				} elseif ( $a->srcOffsets !== null ) {
 					$a->srcOffsets = $a->srcOffsets->offset( $offset );
+					if ( $tsrSource ) {
+						$a->srcOffsets->key->source = $tsrSource;
+						$a->srcOffsets->value->source = $tsrSource;
+					}
 				}
 			}
 		}
