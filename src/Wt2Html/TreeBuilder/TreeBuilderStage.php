@@ -180,8 +180,9 @@ class TreeBuilderStage extends PipelineStage {
 			$data->mw = $dataMw;
 		}
 		if ( isset( $dataParsoid->tmp->variantData ) ) {
+			$codec = DOMDataUtils::getCodec( $this->env->getTopLevelDoc() );
 			DOMDataUtils::setAttributeObjectNodeData(
-				$data, 'data-mw-variant', $dataParsoid->tmp->variantData
+				$data, $codec, 'data-mw-variant', $dataParsoid->tmp->variantData
 			);
 			unset( $dataParsoid->tmp->variantData );
 		}

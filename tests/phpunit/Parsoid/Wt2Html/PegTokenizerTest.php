@@ -30,7 +30,7 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testTokenizeAs( $input, $expected, $options = [] ) {
 		$env = new MockEnv( [] );
-		$codec = new DOMDataCodec( $env->getTopLevelDoc(), [] );
+		$codec = new DOMDataCodec( $env->getTopLevelDoc(), $env->getSiteConfig(), [] );
 		if ( $options['pFragmentMap'] ?? false ) {
 			$env->addToPFragmentMap( $options['pFragmentMap'] );
 		}

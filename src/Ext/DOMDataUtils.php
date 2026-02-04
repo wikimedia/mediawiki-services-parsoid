@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -16,6 +17,76 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils as DDU;
  * These helpers support fetching / updating attributes of DOM nodes.
  */
 class DOMDataUtils {
+	/**
+	 * Return the value of a rich attribute as a live (by-reference) object.
+	 * This also serves as an assertion that there are not conflicting types.
+	 *
+	 * @template T
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @param class-string<T>|Hint<T>|null $classHint
+	 *   If the hint is null, will use the registered abbreviation.
+	 * @return T|null The attribute value, or null if not present.
+	 */
+	public static function getAttributeObject(
+		Element $node, string $name, $classHint = null
+	): ?object {
+		return DDU::getAttributeObject( $node, $name, $classHint );
+	}
+
+	/**
+	 * Return the value of a rich attribute as a live (by-reference)
+	 * object.  This also serves as an assertion that there are not
+	 * conflicting types.  If the value is not present, a default value
+	 * will be created using `$codec->defaultValue()` falling back to
+	 * `$className::defaultValue()` and stored as the value of the
+	 * attribute.
+	 *
+	 * @note The $className should have be JsonCodecable (either directly
+	 *  or via a custom JsonClassCodec).
+	 *
+	 * @template T
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @param class-string<T>|Hint<T>|null $classHint
+	 *   If the hint is null, will use the registered abbreviation.
+	 * @return T The attribute value, or a default value if not present.
+	 */
+	public static function getAttributeObjectDefault(
+		Element $node, string $name, $classHint = null
+	): object {
+		return DDU::getAttributeObjectDefault( $node, $name, $classHint );
+	}
+
+	/**
+	 * Set the value of a rich attribute, overwriting any previous
+	 * value.  Generally mutating the result returned by the
+	 * `::getAttribute*Default()` methods should be done instead of
+	 * using this method, since the objects returned are live.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @param object $value The new (object) value for the attribute
+	 * @param class-string|Hint|null $classHint Optional serialization hint
+	 */
+	public static function setAttributeObject(
+		Element $node, string $name, object $value, $classHint = null
+	): void {
+		DDU::setAttributeObject( $node, $name, $value, $classHint );
+	}
+
+	/**
+	 * Remove a rich attribute.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 */
+	public static function removeAttributeObject(
+		Element $node, string $name
+	): void {
+		DDU::removeAttributeObject( $node, $name );
+	}
+
 	/**
 	 * Get data parsoid info from DOM element
 	 * @param Element $elt
@@ -37,6 +108,13 @@ class DOMDataUtils {
 	 */
 	public static function getDataMw( Element $elt ): DataMw {
 		return DDU::getDataMw( $elt );
+	}
+
+	/**
+	 * Get data meta wiki info, but don't create it if it doesn't exist.
+	 */
+	public static function getDataMwIfExists( Element $node ): ?DataMw {
+		return DDU::getDataMwIfExists( $node );
 	}
 
 	/**

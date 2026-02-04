@@ -165,20 +165,18 @@ class ContentUtils {
 	public static function processAttributeEmbeddedDom(
 		SiteConfig $siteConfig, Element $elt, callable $proc
 	): void {
-		// Expanded attributes and media captions
-		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ||
-			 WTUtils::isInlineMedia( $elt ) ) {
-			$dmw = DOMDataUtils::getDataMwIfExists( $elt );
-			foreach ( $dmw?->embeddedDocumentFragments() ?? [] as $df ) {
-				$proc( $df );
-			}
-		}
-
-		// Language variant markup
-		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
-			$dmwv = DOMDataUtils::getDataMwVariant( $elt );
-			foreach ( $dmwv?->embeddedDocumentFragments() ?? [] as $df ) {
-				$proc( $df );
+		// Generic case, which handles:
+		// * expanded attributes and media captions
+		// * language variant markup
+		// * custom rich attributes added by extensions
+		foreach ( $siteConfig->getRichAttributes( onlyEmbeddedHtml:true ) as $name => $hint ) {
+			$val = DOMDataUtils::getAttributeObject( $elt, $name, $hint );
+			if ( $val instanceof DocumentFragment ) {
+				$proc( $val );
+			} elseif ( $val instanceof RichCodecable ) {
+				foreach ( $val->embeddedDocumentFragments() as $df ) {
+					$proc( $df );
+				}
 			}
 		}
 
@@ -189,6 +187,7 @@ class ContentUtils {
 			if ( $extConfig['options']['wt2html']['embedsDomInAttributes'] ?? false ) {
 				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
 				$extAPI = self::extApiWrapper( $siteConfig, $elt->ownerDocument );
+				// @phan-suppress-next-line PhanDeprecatedFunction
 				$tagHandler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}

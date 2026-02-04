@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\JsonCodec\JsonClassCodec;
 use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -115,10 +116,17 @@ class DOMDataCodec extends JsonCodec {
 	/**
 	 * Create a new DOMDataCodec.
 	 * @param Document $ownerDoc
+	 * @param SiteConfig $siteConfig
 	 * @param array $options
 	 */
-	public function __construct( public Document $ownerDoc, public array $options ) {
+	public function __construct(
+		public readonly Document $ownerDoc,
+		public readonly SiteConfig $siteConfig,
+		public array $options
+	) {
 		parent::__construct();
+		// Add abbreviations from SiteConfig
+		$siteConfig->registerAttributesInCodec( $this );
 		// Add codec for DocumentFragment
 		/** @implements JsonClassCodec<DocumentFragment> */
 		$this->addCodecFor( DocumentFragment::class, new class( $this ) implements JsonClassCodec {

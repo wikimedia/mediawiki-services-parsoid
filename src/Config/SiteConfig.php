@@ -19,12 +19,15 @@ use Psr\Log\NullLogger;
 use UtfNormal\Validator as UtfNormalValidator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\AnnotationStripper;
+use Wikimedia\Parsoid\Ext\BuiltInAttributes;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
@@ -36,6 +39,7 @@ use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\RichCodecable;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -103,6 +107,8 @@ abstract class SiteConfig {
 	 * @var class-string<ExtensionModule>[]
 	 */
 	private static $coreExtModules = [
+		// built-in rich attributes
+		BuiltInAttributes::class,
 		// content modules
 		JSON::class,
 		// extension tags
@@ -1718,6 +1724,51 @@ abstract class SiteConfig {
 		foreach ( $extConfig['PFragmentTypes'] ?? [] as $pfClass ) {
 			PFragment::registerFragmentClass( $pfClass );
 		}
+		// Extension modules can register new rich attribute types
+		foreach ( $extConfig['richAttributes'] ?? [] as $richAttr ) {
+			$name = $richAttr['name'];
+			$hint = $richAttr['hint'];
+			$containsEmbeddedHtml = $richAttr['containsEmbeddedHtml'] ?? true;
+			if ( !is_string( $hint ) ) {
+				if (
+					( $hint['factory'] ?? false ) &&
+					!( $hint['services'] ?? false )
+				) {
+					// evaluate simple factories ourselves,
+					// to allow them to return 'class-string'
+					// (ObjectFactory generally wants an object aka a Hint)
+					$args = array_merge(
+						$hint['extraArgs'] ?? [],
+						$hint['args'] ?? [],
+					);
+					$hint = $hint['factory']( ...$args );
+				} else {
+					$hint = $this->getObjectFactory()->createObject( $hint, [
+						'allowClassName' => false,
+						'assertClass' => Hint::class,
+					] );
+				}
+			}
+			// Validate that this is a string or a Hint, and that the base
+			// type is RichCodecable.
+			if ( is_string( $hint ) || $hint instanceof Hint ) {
+				$parent = $hint;
+				while ( !is_string( $parent ) ) {
+					$parent = $parent->parent;
+				}
+				if ( !is_a( $parent, RichCodecable::class, true ) ) {
+					throw new \InvalidArgumentException(
+						"Bad hint for {$name}: {$parent} is not RichCodecable"
+					);
+				}
+			} else {
+				throw new \InvalidArgumentException(
+					"Bad hint for {$name}: " . get_debug_type( $hint )
+				);
+			}
+			// Store this for later use by the codec.
+			$this->extConfig['richAttributes'][$name] = [ $hint, $containsEmbeddedHtml ];
+		}
 	}
 
 	protected function getExtConfig(): array {
@@ -1857,6 +1908,50 @@ abstract class SiteConfig {
 		}
 
 		return $this->pFragmentHandlerCache[$key];
+	}
+
+	/**
+	 * Register the list of rich attribute hints with the given codec.
+	 */
+	public function registerAttributesInCodec( JsonCodec $codec ) {
+		/* These abbreviations shouldn't be used in practice, since Parsoid
+		 * will always give a proper codec hint when encoding an attribute
+		 * value.  But if you wanted to decouple the codec from the SiteConfig,
+		 * you could use `$codec->getAbbrev( "attr-{$name}" )?->hint` instead
+		 * of `$siteConfig->getRichAttributes()` to retrieve the appropriate
+		 * hint for a given HTML attribute.  The abbreviations will also
+		 * appear in logging output if (eg) you log a rich attribute value
+		 * out of context.  In generally describing the rich type of
+		 * DataParsoid as `@attr-data-parsoid` is more platform-independent
+		 * than describing it as `\Wikimedia\Parsoid\NodeData\DataParsoid`
+		 * (and terser, too). */
+		foreach ( $this->getRichAttributes() as $name => $hint ) {
+			$codec->addAbbrev( "attr-{$name}", $hint );
+		}
+	}
+
+	/**
+	 * Enumerate the set of rich attributes.
+	 * @param bool $onlyEmbeddedHtml If true, only return those attributes
+	 *  which contain embedded html
+	 * @return \Generator<string,string|Hint>
+	 */
+	public function getRichAttributes( bool $onlyEmbeddedHtml = false ): \Generator {
+		$extConfig = $this->getExtConfig();
+		foreach ( $extConfig['richAttributes'] ?? [] as $name => [ $hint, $containsEmbeddedHtml ] ) {
+			if ( $onlyEmbeddedHtml && !$containsEmbeddedHtml ) {
+				continue;
+			}
+			yield $name => $hint;
+		}
+	}
+
+	/**
+	 * Return the hint for a given rich attribute.
+	 */
+	public function getRichAttributeHint( string $name ): string|Hint|null {
+		$extConfig = $this->getExtConfig();
+		return $extConfig['richAttributes'][$name][0] ?? null;
 	}
 
 	/**

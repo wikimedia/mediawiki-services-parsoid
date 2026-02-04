@@ -275,6 +275,7 @@ class Env {
 			'dumpFlags' => $this->dumpFlags,
 			'traceFlags' => $this->traceFlags,
 			'ownerDoc' => $this->getTopLevelDoc(),
+			'siteConfig' => $this->siteConfig,
 		] );
 		if ( $this->hasTraceFlag( 'time' ) ) {
 			$this->profiling = true;

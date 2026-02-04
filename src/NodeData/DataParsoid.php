@@ -59,6 +59,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property list<list<ParamInfo>>|null $pi
  *
  * DocumentFragment content tunneled through for DOMFragment Token.
+ * (This could move to DataMw:$html to keep DataParsoid free of embedded HTML)
  * @property DocumentFragment|null $html
  *
  * On mw:Entity spans this is set to the decoded entity value.

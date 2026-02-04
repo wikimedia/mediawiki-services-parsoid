@@ -8,6 +8,7 @@ use Psr\Log\LogLevel;
 use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\DOMDataCodec;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
@@ -69,6 +70,7 @@ class ParsoidLogger {
 		$this->backendLogger = $backendLogger;
 		$this->codec = new DOMDataCodec(
 			$options['ownerDoc'] ?? DOMCompat::newDocument( true ),
+			$options['siteConfig'] ?? new MockSiteConfig( [] ),
 			[ 'noSideEffects' => true, ]
 		);
 

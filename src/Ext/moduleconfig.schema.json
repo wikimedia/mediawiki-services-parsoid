@@ -255,6 +255,32 @@
 				"$ref": "#/definitions/PFragmentHandler"
 			}
 		},
+		"richAttributes": {
+			"description": "A list of HTML attribute names and the rich attribute type for each, expressed as a JsonCodec Hint",
+			"type": "array",
+			"items": {
+				"type": "object",
+				"required": [
+					"name",
+					"hint"
+				],
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Attribute name"
+					},
+					"containsEmbeddedHtml": {
+						"type": "boolean",
+						"description": "For efficiency (lazy loading), set this to false if this rich attribute can *not* contain embedded HTML (defaults to true)"
+					},
+					"hint": {
+						"description": "An object factory spec for a codec Hint",
+						"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+					}
+				}
+			}
+		},
 		"tags": {
 			"description": "A list of extension tag handlers",
 			"type": "array",

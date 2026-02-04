@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Utils;
 
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomPageBundle;
@@ -1087,5 +1088,71 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
 		$html3 = preg_replace( '/"x":"y"/', '"a":"b"', $html1 );
 		$this->assertSame( $html3, $out['html'] );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 */
+	public function testLazyLoadDataMw(): void {
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument( '<div></div>', siteConfig: $siteConfig );
+		$divOuter = DOMCompat::querySelector( $doc, 'div' );
+		$df = ContentUtils::createAndLoadDocumentFragment( $doc, '<span></span>' );
+		$spanInner = DOMCompat::querySelector( $df, 'span' );
+		DOMDataUtils::getDataMw( $divOuter )->caption = $df;
+		DOMDataUtils::getDataMw( $spanInner )->src = "text";
+		$spanInner->setAttribute( 'about', DOMDataUtils::getBag( $doc )->newAnnotationId() );
+
+		// Serialize to HTML page bundle.
+		$pb = HtmlPageBundle::fromDomPageBundle(
+			DomPageBundle::fromLoadedDocument( $doc, $siteConfig, [
+				'contentversion' => '999.0.0',
+			] )
+		);
+		$expectedPb = [
+			'html' => <<<HTML
+<!DOCTYPE html>
+<html><head></head><body><div id="mwAQ"></div></body></html>
+HTML
+,
+			'parsoid' => [
+				'ids' => [],
+			],
+			'mw' => [
+				'ids' => [
+					'mwAA' => [ 'src' => 'text' ],
+					'mwAQ' => [ 'caption' => '<span about="mwa0" id="mwAA"></span>' ],
+				]
+			],
+			'counters' => [
+				'nodedata' => 1,
+				'annotation' => 1, /* due to nested about id */
+				'transclusion' => 1,
+			],
+			'version' => '999.0.0',
+			'headers' => null,
+			'contentmodel' => null,
+		];
+		$this->assertSame( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb, HtmlPageBundle::class ) );
+
+		// Now convert from page bundle to page bundle!
+		$doc2 = DomPageBundle::fromHtmlPageBundle( $pb )->toDom( siteConfig: $siteConfig );
+		$pb2 = HtmlPageBundle::fromDomPageBundle(
+			DomPageBundle::fromLoadedDocument( $doc2, $siteConfig, [
+				'contentversion' => '999.0.0',
+			] )
+		);
+		$pb2->counters['nodedata'] = 1; // XXX round trip loses counters
+		$this->assertSame( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb2, HtmlPageBundle::class ) );
+
+		// Convert from page bundle to inline HTML
+		$html2 = DomPageBundle::fromHtmlPageBundle( $pb )->toInlineAttributeHtml( $siteConfig, [ 'body_only' => true ] );
+		$expectedHtml = <<<HTML
+<div id="mwAQ" data-mw='{"caption":"&lt;span about=\"mwa0\" id=\"mwAA\" data-mw=&apos;{\"src\":\"text\"}&apos;>&lt;/span>"}'></div>
+HTML;
+		$this->assertSame( $expectedHtml, $html2 );
 	}
 }

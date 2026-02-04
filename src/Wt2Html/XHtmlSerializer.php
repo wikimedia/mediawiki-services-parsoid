@@ -77,11 +77,9 @@ class XHtmlSerializer {
 				if ( $noSideEffects ) {
 					// Ensure that embedded HTML is properly dumped --
 					// note that this isn't *exactly* "no side effects" (sigh)
-					DOMDataUtils::eagerlyLoadRichAttributes( $node );
-				}
-				$attrs = DOMCompat::attributes( $node );
-				if ( $noSideEffects ) {
-					DOMDataUtils::dumpRichAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );
+					$attrs = DOMDataUtils::dumpRichAttribs( $node, $options['keepTmp'], $options['storeDiffMark'] );
+				} else {
+					$attrs = DOMCompat::attributes( $node );
 				}
 				if ( $options['sortAttrs'] ) {
 					# sort on attribute name to reduce test case dependency on

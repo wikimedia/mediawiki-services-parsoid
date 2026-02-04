@@ -54,6 +54,8 @@ abstract class ExtensionTagHandler {
 	 *        The processor that will process the embedded HTML.
 	 *        This processor will be provided a DocumentFragment
 	 *        and is expected to return true if that fragment was modified.
+	 * @deprecated since 0.24; register extension-specific rich attribute
+	 *   instead
 	 */
 	public function processAttributeEmbeddedDom(
 		ParsoidExtensionAPI $extApi, Element $elt, callable $proc

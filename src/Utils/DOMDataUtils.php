@@ -9,6 +9,7 @@ use LogicException;
 use stdClass;
 use WeakMap;
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\Abbrev;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\BasePageBundle;
@@ -139,7 +140,7 @@ class DOMDataUtils {
 		Document $doc, SiteConfig $siteConfig, array $options = []
 	): void {
 		$bag = new DataBag();
-		$codec = new DOMDataCodec( $doc, [] );
+		$codec = new DOMDataCodec( $doc, $siteConfig, [] );
 		self::setExtensionData( $doc, "bag", $bag );
 		self::setExtensionData( $doc, "codec", $codec );
 
@@ -186,39 +187,49 @@ class DOMDataUtils {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
-	/** @internal */
-	public static function eagerlyLoadRichAttributes( Element $node ): void {
-		// This is a list of all the attributes which could have embedded
-		// HTML, which we should ensure are loaded before serialization in
-		// certain circumstances so that format conversion is performed.
-		// XXX: it would be best if these attributes were marked as
-		// proposed in [[mw:Parsoid/MediaWiki_DOM_spec/Rich_Attributes]]
-		// Phase 3 so this wasn't so ad-hoc
-		if ( $node->hasAttribute( 'data-mw' ) ) {
-			self::getDataMw( $node );
+	/**
+	 * Load all rich attributes for the given Element.
+	 * @param Element $elt
+	 * @param bool $onlyInline skip loading any attribute which is not present
+	 *   as an inline attribute on the element (performance optimisation)
+	 * @param bool $fullDecode don't just load the JSON value into NodeData,
+	 *   fully construct the object
+	 * @param bool $onlyEmbeddedHtml only load attributes which contain
+	 *   embedded HTML (whether fully decoded or not, inline or not)
+	 * @internal
+	 */
+	public static function eagerlyLoadRichAttributes(
+		Element $elt,
+		bool $onlyInline = false,
+		bool $fullDecode = false,
+		bool $onlyEmbeddedHtml = false,
+	): void {
+		// Use the SiteConfig to enumerate all of the rich attributes
+		$codec = self::getCodec( $elt );
+		foreach ( $codec->siteConfig->getRichAttributes( onlyEmbeddedHtml:$onlyEmbeddedHtml ) as $name => $hint ) {
+			if ( $onlyInline && !$elt->hasAttribute( $name ) ) {
+				continue;
+			}
+			if ( $fullDecode ) {
+				self::getAttributeObject( $elt, $name, $hint );
+			} else {
+				// We don't need to decode this object, just load it
+				// (performance optimization)
+				self::getAttributeObjectInternal( $elt, $name, $hint );
+			}
 		}
-		if ( $node->hasAttribute( 'data-mw-variant' ) ) {
-			// DataMwVariant::$twoway,$oneway,$filter,$disabled,$name etc
-			self::getDataMwVariant( $node );
-		}
-		if ( $node->hasAttribute( 'data-mw-i18n' ) ) {
-			// I18nInfo::$params could potentially contain embedded HTML
-			self::getDataNodeI18n( $node );
-		}
-		if ( $node->hasAttribute( 'data-parsoid' ) ) {
-			// embedded HTML in DataParsoid::$html
-			self::getDataParsoid( $node );
-		}
-		// data-parsoid-diff is a rich attribute, but it doesn't contain HTML
 	}
 
-	public static function hasInlineRichAttributes( Element $node ): bool {
-		return $node->hasAttribute( 'data-parsoid' ) ||
-			$node->hasAttribute( 'data-mw' ) ||
-			$node->hasAttribute( 'data-mw-variant' ) ||
-			$node->hasAttribute( 'data-mw-i18n' ) ||
-			// data-parsoid-diff is a rich attribute, but it doesn't contain HTML
-			false;
+	public static function hasInlineRichAttributes(
+		Element $elt, bool $onlyEmbeddedHtml = false,
+	): bool {
+		$codec = self::getCodec( $elt );
+		foreach ( $codec->siteConfig->getRichAttributes( onlyEmbeddedHtml:$onlyEmbeddedHtml ) as $name => $hint ) {
+			if ( $elt->hasAttribute( $name ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static function dedupeNodeData( Node $clonedRoot ): void {
@@ -235,10 +246,10 @@ class DOMDataUtils {
 			if ( $nd ) {
 				// All we are doing here is cloning the node-data object
 				// and reassigning it to the same node. So, any unloaded
-				// data continues to be available. But, we eagerly load
+				// data continues to be available. But, we fully load
 				// all rich attributes to ensure that embedded HTML fragments
 				// get their (about,annotation,node) ids deduplicated correctly.
-				self::eagerlyLoadRichAttributes( $node );
+				self::eagerlyLoadRichAttributes( $node, onlyEmbeddedHtml: true, fullDecode: true );
 
 				$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 				$nd = $nd->cloneNodeData();
@@ -700,7 +711,9 @@ class DOMDataUtils {
 			} while ( isset( $idIndex[$uid] ) );
 			DOMCompat::setIdAttribute( $node, $uid );
 		}
-		$pb->parsoid['ids'][$uid] = $data->parsoid;
+		if ( isset( $data->parsoid ) ) {
+			$pb->parsoid['ids'][$uid] = $data->parsoid;
+		}
 		if ( isset( $data->mw ) ) {
 			$pb->mw['ids'][$uid] = $data->mw;
 		}
@@ -771,6 +784,7 @@ class DOMDataUtils {
 			}
 			return true;
 		} );
+		// XXX: This loads all rich attributes containing HTML
 		$t->traverse( $siteConfig, DOMCompat::getBody( $doc ) );
 		foreach ( $fragments as $name => $f ) {
 			$t->traverse( $siteConfig, $f );
@@ -900,10 +914,14 @@ class DOMDataUtils {
 		}
 		// But now we need to duplicate the extension data.
 		if ( self::isPrepared( $doc ) ) {
-			$codec = new DOMDataCodec( $clone, [
-				// No loading options needed; any info needed for
-				// lazy-loading will come from the (cloned) DataBag
-			] );
+			$codec = new DOMDataCodec(
+				$clone,
+				self::getCodec( $doc )->siteConfig,
+				[
+					// No loading options needed; any info needed for
+					// lazy-loading will come from the (cloned) DataBag
+				]
+			);
 			self::setExtensionData( $clone, "codec", $codec );
 
 			// Overwrite the empty Bag with a clone, after setting up
@@ -1011,7 +1029,7 @@ class DOMDataUtils {
 	/**
 	 * @param DOMDataCodec $codec
 	 * @param object|array $value
-	 * @param Hint $classHint
+	 * @param string|Hint|Abbrev $classHint
 	 * @return object
 	 */
 	private static function decodeAttribute( DOMDataCodec $codec, $value, $classHint ) {
@@ -1039,29 +1057,28 @@ class DOMDataUtils {
 	 * @template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
-	 * @param class-string<T>|Hint<T> $classHint
+	 * @param class-string<T>|Hint<T>|null $classHint
+	 *   If the hint is null, will use the registered abbreviation.
 	 * @return T|null The attribute value, or null if not present.
 	 */
 	public static function getAttributeObject(
-		Element $node, string $name, $classHint
+		Element $node, string $name, $classHint = null
 	): ?object {
-		self::loadRichAttributes( $node, $name ); // lazy load
-		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			// Don't create an empty node data object if we don't need to.
-			$value = null;
-		} else {
+		// ::getAttributeObjectInternal() loads but doesn't decode
+		$value = self::getAttributeObjectInternal( $node, $name, $classHint );
+		// We lazily decode rich values, because we need to know the $classHint
+		// before we decode.  Undecoded values are wrapped with an array so
+		// we can tell whether the value has been decoded already or not.
+		if ( is_array( $value ) ) {
+			$codec = self::getCodec( $node );
+			$classHint ??= $codec->siteConfig->getRichAttributeHint( $name );
+			Assert::invariant( $classHint !== null, "Hint is required to decode rich attribute value" );
+			$value = self::decodeAttribute( $codec, $value[0], $classHint );
 			$nodeData = self::getNodeData( $node );
 			$propName = self::nodeDataPropName( $name );
-			$value = $nodeData->$propName ?? null;
-			// We lazily decode rich values, because we need to know the $classHint
-			// before we decode.  Undecoded values are wrapped with an array so
-			// we can tell whether the value has been decoded already or not.
-			if ( is_array( $value ) ) {
-				$value = self::decodeAttribute( self::getCodec( $node ), $value[0], $classHint );
-				$nodeData->$propName = $value;
-				$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
-				$nodeData->$hintName = $classHint;
-			}
+			$nodeData->$propName = $value;
+			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
+			$nodeData->$hintName = $classHint;
 		}
 		// Special case handling for DocumentFragments with plain-text
 		// values.
@@ -1073,6 +1090,34 @@ class DOMDataUtils {
 			$value = $node->ownerDocument->createDocumentFragment();
 			DOMCompat::append( $value, DOMCompat::getAttribute( $node, $name ) );
 			self::setAttributeDom( $node, $name, $value );
+		}
+		return $value;
+	}
+
+	/**
+	 * Return the possibly-undecoded value of a rich attribute.
+	 * This is an internal performance optimization to avoid decoding
+	 * objects unnecessarily when doing HTML->HTML conversions.
+	 *
+	 * @template T
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @param class-string<T>|Hint<T>|null $classHint
+	 *   If the hint is null, will use the registered abbreviation.
+	 * @return T|array|null The attribute value (an object), an
+	 *   array (an undecoded JSON value), or null if not present.
+	 */
+	private static function getAttributeObjectInternal(
+		Element $node, string $name, $classHint = null
+	): object|array|null {
+		self::loadRichAttributes( $node, $name ); // lazy load
+		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			// Don't create an empty node data object if we don't need to.
+			$value = null;
+		} else {
+			$nodeData = self::getNodeData( $node );
+			$propName = self::nodeDataPropName( $name );
+			$value = $nodeData->$propName ?? null;
 		}
 		return $value;
 	}
@@ -1091,14 +1136,18 @@ class DOMDataUtils {
 	 * @template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
-	 * @param class-string<T>|Hint<T> $classHint
-	 * @return T|null The attribute value, or null if not present.
+	 * @param class-string<T>|Hint<T>|null $classHint
+	 *   If the hint is null, will use the registered abbreviation.
+	 * @return T The attribute value, or a default value if not present.
 	 */
 	public static function getAttributeObjectDefault(
-		Element $node, string $name, $classHint
-	): ?object {
+		Element $node, string $name, $classHint = null
+	): object {
 		$value = self::getAttributeObject( $node, $name, $classHint );
 		if ( $value === null ) {
+			$codec = self::getCodec( $node );
+			$classHint ??= $codec->siteConfig->getRichAttributeHint( $name );
+			Assert::invariant( $classHint !== null, "Hint is required to decode rich attribute value" );
 			$className = $classHint;
 			while ( $className instanceof Hint ) {
 				Assert::invariant(
@@ -1108,8 +1157,7 @@ class DOMDataUtils {
 				);
 				$className = $className->parent;
 			}
-			'@phan-var string $className';
-			$codec = self::getCodec( $node );
+			'@phan-var class-string $className';
 			$value = $codec->defaultValue( $className );
 			$value ??= new $className;
 			self::setAttributeObject( $node, $name, $value, $classHint );
@@ -1141,21 +1189,28 @@ class DOMDataUtils {
 		// serialization.
 		self::removeAttributeObject( $node, $name );
 		$nodeData = self::getNodeData( $node );
-		self::setAttributeObjectNodeData( $nodeData, $name, $value, $classHint );
+		$codec = self::getCodec( $node );
+		self::setAttributeObjectNodeData(
+			self::getNodeData( $node ),
+			self::getCodec( $node ),
+			$name, $value, $classHint
+		);
 	}
 
 	/**
 	 * @internal For use by TreeBuilderStage only
 	 * @param NodeData $nodeData
+	 * @param DOMDataCodec $codec
 	 * @param string $name The name of the attribute.
 	 * @param object $value The new (object) value for the attribute
 	 * @param class-string|Hint|null $classHint Optional serialization hint
 	 */
 	public static function setAttributeObjectNodeData(
-		NodeData $nodeData, string $name, object $value, $classHint = null
+		NodeData $nodeData, DOMDataCodec $codec, string $name, object $value, $classHint = null
 	): void {
 		$propName = self::nodeDataPropName( $name );
 		$nodeData->$propName = $value;
+		$classHint ??= $codec->siteConfig->getRichAttributeHint( $name );
 		if ( $classHint === null && is_a( $value, RichCodecable::class ) ) {
 			$className = get_class( $value );
 			$classHint = $className::hint();
@@ -1523,6 +1578,7 @@ class DOMDataUtils {
 	 */
 	private static function storeRichAttributes( Element $node, array $options ): ?stdClass {
 		$bag = self::getBag( $node->ownerDocument ); // FIXME: Pass this in as arg?
+		$loadFromPageBundle = ( $bag->inputPageBundle !== null );
 		$storeInPageBundle = !empty( $options['storeInPageBundle'] );
 		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		if ( $nodeId === null ) {
@@ -1562,18 +1618,31 @@ class DOMDataUtils {
 			// attributes. But, eager load data-mw and everything else
 			// to ensure all embedded attributes are properly handled.
 		}
+		// Let inline attributes override values from the page bundle
+		self::eagerlyLoadRichAttributes( $node, onlyInline: true );
 
-		// loadRichAttributes only "loads" the attributes but leaves them
-		// in decoded array form. But, eagerlyLoadRichAttributes loads *and*
-		// decodes the attributes. Especially for data-parsoid, that is wasted
-		// work most of the time in the OutputTransformPipeline passes in core.
-		// So, we call loadRichAttributes first to prevent eagerlyLoadRichAttributes
-		// from decoding the attribute. Ideally, we would do this or all the rich
-		// attributes, but the code below doesn't handle undecoded rich attribute
-		// correctly except for data-parsoid & data-mw. That can be a future perf opt
-		// if deemed useful / necessary.
-		self::loadRichAttributes( $node, "data-parsoid" );
-		self::eagerlyLoadRichAttributes( $node );
+		// If the input and output formats are the same (pb->pb or
+		// inline->inline) or the attribute doesn't contain embedded
+		// HTML we can save time by skipping the decode: we can just
+		// reserialize the JSON array (or copy the array value to the
+		// page bundle).
+		// If the formats are different, we do need to do a full decode
+		// of attributes containing embedded HTML because it needs to be
+		// reserialized in a different way (we can't just copy it through
+		// blindly).
+		$fullDecode = ( $loadFromPageBundle !== $storeInPageBundle );
+		// In addition, since we don't currently initialize the
+		// destination page bundle from the source page bundle, if the
+		// output format is a page bundle we also need to do a full
+		// decode of attributes containing embedded HTML, since
+		// otherwise we won't copy page bundle information from nested
+		// HTML into the output page bundle.
+		if ( $storeInPageBundle ) {
+			$fullDecode = true;
+		}
+		if ( $fullDecode ) {
+			self::eagerlyLoadRichAttributes( $node, onlyEmbeddedHtml: true, fullDecode: true );
+		}
 		$nodeData = self::getNodeData( $node );
 
 		$codec = self::getCodec( $node );
@@ -1723,14 +1792,25 @@ class DOMDataUtils {
 	 * versions of attributes.
 	 *
 	 * @param Element $node
-	 * @param array &$attrs
 	 * @param bool $keepTmp
 	 * @param bool $storeDiffMark
+	 * @return array<string,string> Attributes
 	 */
-	public static function dumpRichAttribs( Element $node, array &$attrs, bool $keepTmp, bool $storeDiffMark ): void {
+	public static function dumpRichAttribs( Element $node, bool $keepTmp, bool $storeDiffMark ): array {
+		// We're effectively serializing as inline HTML, so fully decode
+		// embedded HTML if we are loading from a page bundle; if we're
+		// going from inline->inline we can just use the existing attributes
+		$bag = self::getBag( $node->ownerDocument );
+		if ( $bag->inputPageBundle !== null ) {
+			// resolve any conflicts between inline attributes and page bundle
+			self::eagerlyLoadRichAttributes( $node, onlyInline: true );
+			// fully load attributes with embedded HTML
+			self::eagerlyLoadRichAttributes( $node, onlyEmbeddedHtml: true, fullDecode: true );
+		}
+		$attrs = DOMCompat::attributes( $node );
 		$nodeData = self::getNodeData( $node, init: false );
 		if ( $nodeData === null ) {
-			return; // No rich attributes here
+			return $attrs; // No rich attributes here
 		}
 
 		$codec = self::getCodec( $node );
@@ -1777,11 +1857,21 @@ class DOMDataUtils {
 			}
 		}
 
+		// XXX T428526: dumpRichAttribs doesn't implement the full "rich
+		// attribute" semantics from ::storeAttribute().  In particular,
+		// we don't implement (1) the "special semantics" of attributes that
+		// don't start with data- (storing a flattened version
+		// in the HTML attribute and the rich version in data-mw.attrs),
+		// (2) the special discardDataParsoid/serializeNewEmptyDp options
+		// having to do with data-parsoid, and (3) page bundle storage
+		// of data-parsoid and/or data-mw.
+
 		if ( !$storeDiffMark ) {
 			unset( $attrs['data-parsoid-diff'] );
 		}
 		unset( $attrs[self::DATA_OBJECT_ATTR_NAME] );
 		// Restore codec options
 		$codec->setOptions( $oldOptions );
+		return $attrs;
 	}
 }
