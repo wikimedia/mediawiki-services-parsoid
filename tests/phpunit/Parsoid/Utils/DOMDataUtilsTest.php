@@ -235,8 +235,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$html
 		);
 
-		DOMDataUtils::visitAndLoadDataAttribs( $p );
-
 		// Values should be preserved!
 		$rd3 = DOMDataUtils::getAttributeObject( $p, 'data-mw-foo', SampleNestedRichData::class );
 		$this->assertInstanceOf( SampleNestedRichData::class, $rd3 );
@@ -246,8 +244,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$rd4 = DOMDataUtils::getAttributeObject( $p, 'data-mw-bar', SampleNestedRichData::class );
 		$this->assertInstanceOf( SampleNestedRichData::class, $rd4 );
 		$this->assertInstanceOf( DocumentFragment::class, $rd4->df );
-		$this->assertMatchesRegularExpression(
-			"|Nested and <b data-object-id=\"\d\">bold</b>!|",
+		$this->assertSame(
+			"Nested and <b>bold</b>!",
 			DOMUtils::getFragmentInnerHTML( $rd4->df )
 		);
 		// (although object identity is not)
@@ -346,10 +344,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				$frag5 = DOMDataUtils::getAttributeDom( $p, $attr );
 				$this->assertInstanceOf( DocumentFragment::class, $frag5 );
 				$this->assertNotNull( $frag5->firstChild );
-				$this->assertSame( 1, preg_match(
-					"|This is pretty <b data-object-id=\"\\d+\">bold</b>!|",
-					DOMUtils::getFragmentInnerHTML( $frag5 )
-				) );
+				$this->assertSame( "This is pretty <b>bold</b>!", DOMUtils::getFragmentInnerHTML( $frag5 ) );
 				// (although object identity is not)
 				$this->assertNotSame( $f[$attr], $frag5 );
 				// "Upgrade" of plain string value.
@@ -446,10 +441,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				foreach ( $attrNames as $attr2 ) {
 					$f2 = DOMDataUtils::getAttributeDOM( $b, $attr2 );
 					$this->assertNotNull( $f2 );
-					$this->assertSame( 1, preg_match(
-						"|<b data-object-id=\"\\d+\">be bold</b>|",
-						DOMUtils::getFragmentInnerHTML( $f2 )
-					) );
+					$this->assertSame( "<b>be bold</b>", DOMUtils::getFragmentInnerHTML( $f2 ) );
 				}
 			}
 		}
@@ -876,8 +868,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::prepareAndLoadDoc
-	 * @covers ::visitAndLoadDataAttribs
-	 * @covers ::loadDataAttribs
 	 * @covers ::visitAndStoreDataAttribs
 	 * @covers ::storeRichAttributes
 	 * @covers ::storeDataAttribs
@@ -899,15 +889,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$bag = DOMDataUtils::getBag( $doc );
 		$reflection = new \ReflectionClass( $bag );
 		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
-		// Two nodes: <body>, <p>
-		$this->assertCount( 2, $bagData );
-		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
-		// because the inPb provided counters (NOTE: current lazy loading code doesn't
-		// check that annotation counter has been provided.)
-		$this->assertNull( $bagData[0]->parsoid );
-		$this->assertNull( $bagData[0]->mw );
-		$this->assertNull( $bagData[1]->parsoid );
-		$this->assertNull( $bagData[1]->mw );
+		// Since we have counter information, no dom walk, and hence nothing loaded
+		$this->assertCount( 0, $bagData );
 
 		// pagebundle -> pagebundle
 		$outPb = new DomPageBundle( $doc, counters: $inPb->counters );
@@ -925,8 +908,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::prepareAndLoadDoc
-	 * @covers ::visitAndLoadDataAttribs
-	 * @covers ::loadDataAttribs
 	 * @covers ::visitAndStoreDataAttribs
 	 * @covers ::storeRichAttributes
 	 * @covers ::storeDataAttribs
@@ -950,21 +931,14 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$bag = DOMDataUtils::getBag( $doc );
 		$reflection = new \ReflectionClass( $bag );
 		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
-		// Two nodes: <body>, <p>
-		$this->assertCount( 2, $bagData );
-		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
-		// because the inPb provided counters (NOTE: current lazy loading code doesn't
-		// check that annotation counter has been provided.)
-		$this->assertNull( $bagData[0]->parsoid );
-		$this->assertNull( $bagData[0]->mw );
-		$this->assertNull( $bagData[1]->parsoid );
-		$this->assertNull( $bagData[1]->mw );
-		$this->assertSame( '{"a":"b"}', DOMCompat::getAttribute( $p, "data-parsoid" ) );
-		$this->assertSame( '{"c":"d"}', DOMCompat::getAttribute( $p, "data-mw" ) );
+		// Since we have counter information, no dom walk, and hence nothing loaded
+		$this->assertCount( 0, $bagData );
 		// Now load $p's data-mw and assert loaded state
 		DOMDataUtils::getDataMw( $p );
 		$this->assertFalse( $p->hasAttribute( "data-mw" ) );
-		$this->assertSame( DataMw::class, get_class( $bagData[1]->mw ) );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		$this->assertCount( 1, $bagData );
+		$this->assertSame( DataMw::class, get_class( $bagData[0]->mw ) );
 
 		// pagebundle -> inline attributes
 		DOMDataUtils::visitAndStoreDataAttribs( $doc );
@@ -974,8 +948,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::prepareAndLoadDoc
-	 * @covers ::visitAndLoadDataAttribs
-	 * @covers ::loadDataAttribs
 	 * @covers ::visitAndStoreDataAttribs
 	 * @covers ::storeRichAttributes
 	 * @covers ::storeDataAttribs
@@ -999,25 +971,76 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$bag = DOMDataUtils::getBag( $doc );
 		$reflection = new \ReflectionClass( $bag );
 		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
-		// Two nodes: <body>, <p>
-		$this->assertCount( 2, $bagData );
-		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
-		// because the inPb provided counters (NOTE: current lazy loading code doesn't
-		// check that annotation counter has been provided.)
-		$this->assertNull( $bagData[0]->parsoid );
-		$this->assertNull( $bagData[0]->mw );
-		$this->assertNull( $bagData[1]->mw );
-		// Partial lazy load (i.e. cheap transfer from pagebundle),
-		// but DataParsoid class isn't intialized
-		$this->assertIsArray( $bagData[1]->parsoid );
+		// Since we have counter information, no dom walk, and hence nothing loaded
+		$this->assertCount( 0, $bagData );
 		// Load data-parsoid and assert that it is fully initialized
 		DOMDataUtils::getDataParsoid( $p );
-		$this->assertSame( DataParsoid::class, get_class( $bagData[1]->parsoid ) );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		$this->assertSame( DataParsoid::class, get_class( $bagData[0]->parsoid ) );
 
 		// pagebundle -> inline attributes
 		DOMDataUtils::visitAndStoreDataAttribs( $doc );
 		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
 		// FIXME: id attribute is left behind even if we are serializing to inline attrs format
-		$this->assertSame( '<p id="mwAA" data-mw=\'{"c":"d"}\' data-parsoid=\'{"a":"b"}\'>Hello, world</p>', $out['html'] );
+		$this->assertSame( '<p id="mwAA" data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>', $out['html'] );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 */
+	public function testInlineAttrsOverrideOfPageBundleAttrs(): void {
+		// pagebundle -> pagebundle
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
+			mw: [ 'ids' => [] ],
+		);
+		// NOTE: <p> has inline data-parsoid that overrides the pagebundle value
+		$origHtml = '<p id="mwAA" data-parsoid=\'{"x":"y"}\'><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>';
+		$doc = ContentUtils::createAndLoadDocument( $origHtml, [ 'loadFromPageBundle' => $inPb ] );
+
+		$body = DOMCompat::getBody( $doc );
+		$p = $body->firstChild;
+
+		// Verify laziness
+		$bag = DOMDataUtils::getBag( $doc );
+		$reflection = new \ReflectionClass( $bag );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		// Since we have counter information, no dom walk, and hence nothing loaded
+		$this->assertCount( 0, $bagData );
+
+		// pagebundle -> inline attributes
+		DOMDataUtils::visitAndStoreDataAttribs( $doc );
+		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
+		$html1 = '<p id="mwAA" data-parsoid=\'{"x":"y"}\'><span id="mwAB" typeof="mw:LanguageVariant" data-parsoid=\'{"c":"d"}\' ' .
+			'data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\" ' .
+			"data-parsoid=&apos;{" . '\"e\":\"f\"}&apos;>foo&lt;/span>"}}\'></span></p>';
+		$this->assertSame( $html1, $out['html'] );
+
+		// Given laziness, we can call visitAndStore a second time on the same doc
+		// (which still has $inPb attached to it) and transfer the inline attributes
+		// to an output pagebundle.
+		$outPb = new DomPageBundle( $doc, parsoid: [ "ids" => [] ], counters: $inPb->counters );
+		DOMDataUtils::visitAndStoreDataAttribs( $doc, [
+			'idIndex' => [],
+			'storeInPageBundle' => $outPb,
+		] );
+		$this->assertSame( [ "mwAA" => [ "x" => "y" ], "mwAC" => [ "e" => "f" ], "mwAB" => [ "c" => "d" ] ], $outPb->parsoid['ids'] );
+		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
+		$html2 = '<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>';
+		$this->assertSame( $html2, $out['html'] );
+
+		// Call visitAndStore* a third time and transfer the pagebundle attrs
+		// to inline attributes. But, since we've now removed the inline attribute
+		// with the pagebundle store above and $doc is still associated with the
+		// original input pagebundle, there is no overriding involved anymore
+		// and we get the $inPb's data-parsoid in the output below.
+		DOMDataUtils::visitAndStoreDataAttribs( $doc );
+		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
+		$html3 = preg_replace( '/"x":"y"/', '"a":"b"', $html1 );
+		$this->assertSame( $html3, $out['html'] );
 	}
 }

@@ -754,14 +754,17 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Serialize DOM element to string (inner/outer HTML is controlled by flag).
-	 * If $releaseDom is set to true, the DOM will not be "prepared and loaded"
-	 * and is not safe to use after this call. This is primarily a performance optimization.
+	 * Callers should be aware that this call mutates the DOM in a couple ways:
+	 * (a) It drops any dom-diff markers (only used in html2wt transformations)
+	 * (b) It drops data-parsoid.tmp data from $node (used in wt2html transformations)
+	 * So, this method is not safe to be used as a debugging aid since it has
+	 * side effects on the DOM.
 	 *
 	 * @param Node $node
 	 * @param bool $innerHTML if true, inner HTML of the element will be returned
 	 *    This flag defaults to false
 	 * @param bool $releaseDom if true, the DOM will not be in canonical form after this call
-	 *    This flag defaults to false
+	 *    This flag defaults to false. This is now a dead argument and no longer used.
 	 * @return string
 	 */
 	public function domToHtml(
@@ -772,11 +775,7 @@ class ParsoidExtensionAPI {
 		// none should exist anyways.
 		// FIXME: This roundtrip discards data-parsoid.tmp data from $node.
 		// Maybe it meant to set keepTmp, but that flag is currently broken.
-		$html = ContentUtils::ppToXML( $node, [ 'innerXML' => $innerHTML, 'fragment' => true ] );
-		if ( !$releaseDom ) {
-			DOMDataUtils::visitAndLoadDataAttribs( $node );
-		}
-		return $html;
+		return ContentUtils::ppToXML( $node, [ 'innerXML' => $innerHTML, 'fragment' => true ] );
 	}
 
 	/**

@@ -62,7 +62,9 @@ class XHtmlSerializer {
 	 */
 	private static function serializeToString( Node $node, array $options, callable $accum ): void {
 		$smartQuote = $options['smartQuote'];
-		$noSideEffects = $options['noSideEffects'];
+		$noSideEffects = $options['noSideEffects'] &&
+			// Don't bother dumping rich attributes if this isn't a prepare document
+			DOMDataUtils::isPreparedAndLoaded( $node->ownerDocument );
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				'@phan-var Element $node'; // @var Element $node
@@ -72,6 +74,11 @@ class XHtmlSerializer {
 					$node->firstChild;
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
+				if ( $noSideEffects ) {
+					// Ensure that embedded HTML is properly dumped --
+					// note that this isn't *exactly* "no side effects" (sigh)
+					DOMDataUtils::eagerlyLoadRichAttributes( $node );
+				}
 				$attrs = DOMCompat::attributes( $node );
 				if ( $noSideEffects ) {
 					DOMDataUtils::dumpRichAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );

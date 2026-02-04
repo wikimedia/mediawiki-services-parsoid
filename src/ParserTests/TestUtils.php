@@ -101,8 +101,6 @@ class TestUtils {
 				// Careful about the lifetime of this document
 				$doc = ContentUtils::createAndLoadDocument( $domBody );
 				$domBody = DOMCompat::getBody( $doc );
-			} else {
-				DOMDataUtils::visitAndLoadDataAttribs( $domBody );
 			}
 			( new DOMNormalizer( $mockState ) )->normalize( $domBody );
 			DOMDataUtils::visitAndStoreDataAttribs( $domBody );

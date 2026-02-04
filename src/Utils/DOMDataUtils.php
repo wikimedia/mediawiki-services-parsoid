@@ -141,18 +141,18 @@ class DOMDataUtils {
 		self::setExtensionData( $doc, "bag", $bag );
 		self::setExtensionData( $doc, "codec", $codec );
 
-		// Init data bag
 		$pb = $options['loadFromPageBundle'] ?? null;
 		'@phan-var ?BasePageBundle $pb'; // @var ?BasePageBundle $pb
-		if ( $pb ) {
-			$bag->inputPageBundle = $pb;
-			$bag->updateCountersFromPageBundle( $pb );
-		}
+		$bag->inputPageBundle = $pb;
 		$bag->serializeNewEmptyDp = $options['serializeNewEmptyDp'] ?? false;
 
-		self::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
-		foreach ( $options['fragments'] ?? [] as $f ) {
-			self::visitAndLoadDataAttribs( $f );
+		if ( $bag->inputPageBundle?->hasValidCounters() ) {
+			$bag->updateCountersFromPageBundle( $bag->inputPageBundle );
+		} else {
+			self::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
+			foreach ( $options['fragments'] ?? [] as $f ) {
+				self::visitAndLoadDataAttribs( $f );
+			}
 		}
 
 		// Mark the document as loaded so we can try to catch errors which
@@ -210,6 +210,15 @@ class DOMDataUtils {
 		// data-parsoid-diff is a rich attribute, but it doesn't contain HTML
 	}
 
+	public static function hasInlineRichAttributes( Element $node ): bool {
+		return $node->hasAttribute( 'data-parsoid' ) ||
+			$node->hasAttribute( 'data-mw' ) ||
+			$node->hasAttribute( 'data-mw-variant' ) ||
+			$node->hasAttribute( 'data-mw-i18n' ) ||
+			// data-parsoid-diff is a rich attribute, but it doesn't contain HTML
+			false;
+	}
+
 	public static function dedupeNodeData( Node $clonedRoot ): void {
 		$bag = self::getBag( $clonedRoot->ownerDocument );
 		$aboutMap = [];
@@ -220,14 +229,8 @@ class DOMDataUtils {
 		DataBag $bag, array &$aboutMap, Node $node
 	): void {
 		if ( $node instanceof Element ) {
-			if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-				$id = (int)DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
-				// Object IDs should always be unique, so we don't have
-				// to remember what the new ID is.
-				// (Note that UnpackDOMFragments may call us with nodes which
-				// don't have unique ids, though!)
-				$nd = $bag->getObject( $id );
-
+			$nd = self::getNodeData( $node, init: false );
+			if ( $nd ) {
 				// All we are doing here is cloning the node-data object
 				// and reassigning it to the same node. So, any unloaded
 				// data continues to be available. But, we eagerly load
@@ -252,16 +255,17 @@ class DOMDataUtils {
 					}
 					$nd->mw->rangeId = $aboutMap[$oldAbout] ?? $oldAbout;
 				}
-			}
-			if ( $node->hasAttribute( 'about' ) ) {
-				// Deduplicate transclusion ids
-				// As with annotation ranges, these can occur multiple times
-				// in a given subtree, so we need to record the mapping used.
-				$oldAbout = DOMCompat::getAttribute( $node, 'about' );
-				if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-					$aboutMap[$oldAbout] = $bag->newAboutId();
+
+				if ( $node->hasAttribute( 'about' ) ) {
+					// Deduplicate transclusion ids
+					// As with annotation ranges, these can occur multiple times
+					// in a given subtree, so we need to record the mapping used.
+					$oldAbout = DOMCompat::getAttribute( $node, 'about' );
+					if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+						$aboutMap[$oldAbout] = $bag->newAboutId();
+					}
+					$node->setAttribute( 'about', $aboutMap[$oldAbout] ?? $oldAbout );
 				}
-				$node->setAttribute( 'about', $aboutMap[$oldAbout] ?? $oldAbout );
 			}
 		}
 		foreach ( DOMUtils::childNodes( $node ) as $child ) {
@@ -284,33 +288,48 @@ class DOMDataUtils {
 			( $numAttrs === 1 && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) );
 	}
 
+	public static function loadFromPageBundle( Element $node ): ?NodeData {
+		$bag = self::getBag( $node->ownerDocument );
+		$pb = $bag->inputPageBundle;
+		if ( $pb === null ) {
+			return null;
+		}
+
+		$id = DOMCompat::getAttribute( $node, 'id' );
+		if ( $id === null ) {
+			return null;
+		}
+
+		$nodeData = new NodeData;
+		// See if there is data-parsoid or data-mw in the page bundle
+		if ( isset( $pb->parsoid['ids'][$id] ) ) {
+			$nodeData->parsoid = [ $pb->parsoid['ids'][$id] ]; // Undecoded JSON blob
+		}
+		if ( isset( $pb->mw['ids'][$id] ) ) {
+			$nodeData->mw = [ $pb->mw['ids'][$id] ]; // Undecoded JSON blob
+		}
+		self::setNodeData( $node, $nodeData );
+		return $nodeData;
+	}
+
 	/**
-	 * Get data object from a node.
-	 *
-	 * @param Element $node node
-	 * @param ?BasePageBundle $pb Optional source for node data
-	 * @return NodeData
+	 * Fetch node data from the data-bag OR pagebundle.
+	 * Initialize if not found (unless disabled via the $init param)
 	 */
-	public static function getNodeData( Element $node, ?BasePageBundle $pb = null ): NodeData {
+	public static function getNodeData( Element $node, bool $init = true ): ?NodeData {
 		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
+		$bag = self::getBag( $node->ownerDocument );
 		if ( $nodeId === null ) {
-			// Initialized on first request
-			$nodeData = new NodeData;
-			$id = DOMCompat::getAttribute( $node, 'id' );
-			if ( $id !== null && $pb !== null ) {
-				// See if there is data-parsoid or data-mw in the page bundle
-				if ( isset( $pb->parsoid['ids'][$id] ) ) {
-					$nodeData->parsoid = [ $pb->parsoid['ids'][$id] ]; // Undecoded JSON blob
-				}
-				if ( isset( $pb->mw['ids'][$id] ) ) {
-					$nodeData->mw = [ $pb->mw['ids'][$id] ]; // Undecoded JSON blob
-				}
+			$nodeData = self::loadFromPageBundle( $node );
+			if ( $nodeData === null && $init ) {
+				// Initialized on first request
+				$nodeData = new NodeData;
+				self::setNodeData( $node, $nodeData );
 			}
-			self::setNodeData( $node, $nodeData );
 			return $nodeData;
 		}
 
-		$nodeData = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
+		$nodeData = $bag->getObject( (int)$nodeId );
 		Assert::invariant( $nodeData !== null, 'Bogus nodeId given!' );
 		if ( isset( $nodeData->storedId ) ) {
 			throw new LogicException(
@@ -686,9 +705,8 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Walk DOM from node downward calling loadDataAttribs
-	 *
-	 * @param Node $node node
+	 * Walk DOM from $node downward calling loadDataAttribs.
+	 * This forces full eager loading of this subtree.
 	 */
 	public static function visitAndLoadDataAttribs( Node $node ): void {
 		$doc = $node->ownerDocument;
@@ -715,15 +733,12 @@ class DOMDataUtils {
 		if ( $about !== null ) {
 			$bag->seenAboutId( $about );
 		}
-		$pb = $bag->inputPageBundle;
-		// FIXME: This is still an eager load of node data.
-		$nodeData = self::getNodeData( $node, $pb );
-		if ( !$pb || $pb->counters === null ) {
-			// Force load of data-mw to lookup annotation range id.
-			$nodeData->getDataMwIfExists( $node );
-			if ( isset( $nodeData->mw->rangeId ) ) {
-				$bag->seenAnnotationId( $nodeData->mw->rangeId );
-			}
+		$nodeData = self::getNodeData( $node );
+
+		// Force load of data-mw to lookup annotation range id.
+		$nodeData->getDataMwIfExists( $node );
+		if ( isset( $nodeData->mw->rangeId ) ) {
+			$bag->seenAnnotationId( $nodeData->mw->rangeId );
 		}
 
 		// We don't load rich attributes or data-parsoid: that will be done
@@ -1335,6 +1350,15 @@ class DOMDataUtils {
 			// rich attribute.  If the attribute is not in the DOM either
 			// there is no attribute of this name or it has already been
 			// loaded.
+
+			// Since we are lazy-loading node data, if we are missing a flat-value
+			// look in the pagebundle and load from there, if necessary.
+			if ( ( $name === 'data-parsoid' || $name === 'data-mw' ) &&
+				!$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME )
+			) {
+				self::loadFromPageBundle( $node );
+			}
+
 			return;
 		}
 
@@ -1496,11 +1520,60 @@ class DOMDataUtils {
 	 * @param array $options The options provided to ::storeDataAttribs()
 	 */
 	private static function storeRichAttributes( Element $node, array $options ): ?stdClass {
-		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			return null; // No rich attributes here
+		$bag = self::getBag( $node->ownerDocument ); // FIXME: Pass this in as arg?
+		$storeInPageBundle = !empty( $options['storeInPageBundle'] );
+		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
+		if ( $nodeId === null ) {
+			// The node data hasn't been loaded.
+			// Handle four possible (PB, Inline) --> (PB, Inline) scenarios
+			$pb = $bag->inputPageBundle;
+			if ( $pb === null ) {
+				if ( !$storeInPageBundle ) {
+					// Inline --> Inline. Nothing else to do.
+					return null;
+				}
+			} else {
+				$id = DOMCompat::getAttribute( $node, 'id' );
+				if ( $id === null && !$storeInPageBundle ) {
+					// PB --> Inline.
+					// No id => no source pb-data => leave any
+					// existing inline attribute as is and return.
+					return null;
+				}
+
+				if ( $storeInPageBundle && !self::hasInlineRichAttributes( $node ) ) {
+					// PB -> PB but no local data, leave page bundle as-is and return.
+
+					// FIXME: we *should* only need to copy entries from the source
+					// page bundle to the destination page bundle, but we don't know
+					// which ones they are.  If we initialized the destination page
+					// bundle from the source page bundle this wouldn't be an issue
+					// and we could `return null` here.
+					//
+					// return null;
+				}
+			}
+
+			// Inline -> PB or PB -> PB/Inline
+			// In all cases, load data-parsoid via loadRichAttributes
+			// which has precedence logic there between inline & pagebundle
+			// attributes. But, eager load data-mw and everything else
+			// to ensure all embedded attributes are properly handled.
 		}
 
+		// loadRichAttributes only "loads" the attributes but leaves them
+		// in decoded array form. But, eagerlyLoadRichAttributes loads *and*
+		// decodes the attributes. Especially for data-parsoid, that is wasted
+		// work most of the time in the OutputTransformPipeline passes in core.
+		// So, we call loadRichAttributes first to prevent eagerlyLoadRichAttributes
+		// from decoding the attribute. Ideally, we would do this or all the rich
+		// attributes, but the code below doesn't handle undecoded rich attribute
+		// correctly except for data-parsoid & data-mw. That can be a future perf opt
+		// if deemed useful / necessary.
+		self::loadRichAttributes( $node, "data-parsoid" );
+		self::eagerlyLoadRichAttributes( $node );
 		$nodeData = self::getNodeData( $node );
+
 		$codec = self::getCodec( $node );
 
 		// At present, rich attributes may be serialized into the data-mw attributes
@@ -1541,7 +1614,7 @@ class DOMDataUtils {
 			// In all other cases, if an inline attribute is not loaded,
 			// we avoid the overhead of loading it from the inline attribute
 			// just to store it back into the inline attribute unchanged.
-			if ( $dp === null && ( !empty( $options['storeInPageBundle'] ) || $options['serializeNewEmptyDp'] ) ) {
+			if ( $dp === null && ( $storeInPageBundle || $options['serializeNewEmptyDp'] ) ) {
 				self::loadRichAttributes( $node, "data-parsoid" );
 				$dp = $nodeData->parsoid[0] ?? null; // undecoded json blob
 				if ( $dp === [] ) {
@@ -1580,7 +1653,7 @@ class DOMDataUtils {
 					$dp = $codec->toJsonArray( $dp, DataParsoid::hint() );
 				}
 
-				if ( !empty( $options['storeInPageBundle'] ) ) {
+				if ( $storeInPageBundle ) {
 					$pbData ??= new stdClass;
 					$pbData->parsoid = $dp;
 				} else {
@@ -1595,8 +1668,7 @@ class DOMDataUtils {
 		// (b) eventually we can remove support for output content version
 		//    older than 999.x.
 
-		$storeDmwInPb =
-			!empty( $options['storeInPageBundle'] ) &&
+		$storeDmwInPb = $storeInPageBundle &&
 			// The pagebundle didn't have data-mw before 999.x
 			Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' );
 
@@ -1654,10 +1726,11 @@ class DOMDataUtils {
 	 * @param bool $storeDiffMark
 	 */
 	public static function dumpRichAttribs( Element $node, array &$attrs, bool $keepTmp, bool $storeDiffMark ): void {
-		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+		$nodeData = self::getNodeData( $node, init: false );
+		if ( $nodeData === null ) {
 			return; // No rich attributes here
 		}
-		$nodeData = self::getNodeData( $node );
+
 		$codec = self::getCodec( $node );
 		// Reset to a default set of codec options
 		// (in particular, make sure 'useFragmentBank' is not set)

@@ -127,7 +127,7 @@ class DomPageBundle extends BasePageBundle {
 	 * process is less efficient than preparing and loading the document
 	 * directly from the DOM and should be avoided if possible.
 	 * @param ?array $options Additional options to
-	 *  DOMDataUtils::visitAndLoadDataAttribs, used when $load is true.
+	 *  DOMDataUtils::prepareAndLoadDoc, used when $load is true.
 	 * @param ?array<string,DocumentFragment> &$fragments Additional fragments
 	 *  present in the page bundle, which will also be loaded as necessary.
 	 *  This is an output parameter.

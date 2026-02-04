@@ -68,7 +68,7 @@ class BasePageBundle implements JsonCodecable {
 	 */
 	public function validate(
 		string $contentVersion, ?string &$errorMessage = null
-	) {
+	): bool {
 		if ( !$this->parsoid || !isset( $this->parsoid['ids'] ) ) {
 			$errorMessage = 'Invalid data-parsoid was provided.';
 			return false;
@@ -79,6 +79,31 @@ class BasePageBundle implements JsonCodecable {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Does this pagebundle have valid counters?
+	 *
+	 * If initialized from ParserCache or from the <head> element
+	 * in the HTML, annotation & transclusion values will both be >= 0.
+	 * But, it is not necessary to test for both because either both are
+	 * valid are neither one is.
+	 */
+	public function hasValidCounters(): bool {
+		$counters = $this->counters;
+		if ( $counters !== null ) {
+			// Temporary assertion in the initial stages of lazy loading implementation
+			// which we'll remove once things are stable. This verifies the claim in the
+			// function doc comment above.
+			Assert::invariant(
+				( $counters['annotation'] >= 0 && $counters['transclusion'] >= 0 ) ||
+				( $counters['annotation'] === -1 && $counters['transclusion'] === -1 ),
+				"Invalid counters state: " . json_encode( $counters )
+			);
+			return $counters['annotation'] >= 0;
+		} else {
+			return false;
+		}
 	}
 
 	/**

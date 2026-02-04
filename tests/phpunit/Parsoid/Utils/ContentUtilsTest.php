@@ -20,7 +20,7 @@ class ContentUtilsTest extends TestCase {
 	 */
 	public function testProcessAttributeEmbeddedDomShouldNotAddDataParsoid() {
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$html = '<sup typeof="mw:Extension/ref" class="mw-ref reference" about="#mwt1" id="cite_ref-1" rel="dc:references" data-mw=\'{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1","html":"&lt;a href=\"./Not_exists\" rel=\"mw:WikiLink\" title=\"Not exists\" class=\"new\" typeof=\"mw:LocalizedAttrs\" data-mw-i18n=&apos;{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Not exists\"]}}&apos; id=\"mwDA\">Not exists&lt;/a>"}}\'><a href="./Refs#cite_note-1" id="mwAw"><span class="mw-reflink-text" id="mwBA"><span class="cite-bracket" id="mwBQ">[</span>1<span class="cite-bracket" id="mwBg">]</span></span></a></sup>';
+		$html = '<sup typeof="mw:Extension/ref" class="mw-ref reference" about="#mwt1" id="cite_ref-1" rel="dc:references" data-mw=\'{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1","html":"&lt;a href=\"./Not_exists\" rel=\"mw:WikiLink\" title=\"Not exists\" class=\"new\" typeof=\"mw:LocalizedAttrs\" id=\"mwDA\" data-mw-i18n=&apos;{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Not exists\"]}}&apos;>Not exists&lt;/a>"}}\'><a href="./Refs#cite_note-1" id="mwAw"><span class="mw-reflink-text" id="mwBA"><span class="cite-bracket" id="mwBQ">[</span>1<span class="cite-bracket" id="mwBg">]</span></span></a></sup>';
 
 		$siteConfig = new MockSiteConfig( [] );
 		$siteConfig->registerExtensionModule( [

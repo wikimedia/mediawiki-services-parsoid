@@ -97,6 +97,10 @@ class ContentUtils {
 		}
 		$domFragment = $doc->createDocumentFragment();
 		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
+		// This non-lazy loading is primarily to ensure that $doc's counters
+		// are updated based on $domFragment. This is needed since $domFragment
+		// could be a newly-constructed fragment that didn't originally exist
+		// in $doc, the parent DOM, and we want global unique ids within it.
 		DOMDataUtils::visitAndLoadDataAttribs( $domFragment );
 		return $domFragment;
 	}

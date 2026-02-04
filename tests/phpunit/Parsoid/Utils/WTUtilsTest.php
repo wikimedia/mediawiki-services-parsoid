@@ -135,7 +135,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 			'}\'>hello</span>';
 		self::assertEquals( $expectedHtml, $actualHtml );
 
-		DOMDataUtils::visitAndLoadDataAttribs( $body );
 		$span = $body->firstChild;
 		$attrI18n = DOMDataUtils::getDataAttrI18n( $span, '0' );
 		self::assertNotNull( $attrI18n );
