@@ -340,7 +340,9 @@ class TokenUtils {
 			$da = $t->dataParsoid;
 			$tsr = $da->tsr ?? null;
 			if ( $tsr ) {
-				$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
+				if ( $offset !== 0 ) {
+					$da->tsr = ( $offset === null ) ? null : $tsr->offset( $offset );
+				}
 				if ( $tsrSource ) {
 					$da->tsr->source = $tsrSource;
 				}
@@ -348,7 +350,9 @@ class TokenUtils {
 
 			if ( $offset !== null ) {
 				if ( isset( $da->extTagOffsets ) ) {
-					$da->extTagOffsets = $da->extTagOffsets->offset( $offset );
+					if ( $offset !== 0 ) {
+						$da->extTagOffsets = $da->extTagOffsets->offset( $offset );
+					}
 					if ( $tsrSource ) {
 						$da->extTagOffsets->source = $tsrSource;
 					}
@@ -367,8 +371,10 @@ class TokenUtils {
 
 				// content offsets for ext-links
 				if ( isset( $da->tmp->extLinkContentOffsets ) ) {
-					$da->tmp->extLinkContentOffsets =
-						$da->tmp->extLinkContentOffsets->offset( $offset );
+					if ( $offset !== 0 ) {
+						$da->tmp->extLinkContentOffsets =
+							$da->tmp->extLinkContentOffsets->offset( $offset );
+					}
 					if ( $tsrSource ) {
 						$da->tmp->extLinkContentOffsets->source = $tsrSource;
 					}
@@ -388,7 +394,9 @@ class TokenUtils {
 				if ( $offset === null ) {
 					$a->srcOffsets = null;
 				} elseif ( $a->srcOffsets !== null ) {
-					$a->srcOffsets = $a->srcOffsets->offset( $offset );
+					if ( $offset !== 0 ) {
+						$a->srcOffsets = $a->srcOffsets->offset( $offset );
+					}
 					if ( $tsrSource ) {
 						$a->srcOffsets->key->source = $tsrSource;
 						$a->srcOffsets->value->source = $tsrSource;
@@ -396,6 +404,10 @@ class TokenUtils {
 				}
 			}
 		}
+	}
+
+	public static function resetSource( array $tokens, Source $tsrSource ): void {
+		self::shiftTokenTSR( $tokens, 0, $tsrSource );
 	}
 
 	/**

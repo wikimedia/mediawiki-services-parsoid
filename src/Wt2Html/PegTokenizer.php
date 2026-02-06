@@ -224,7 +224,10 @@ class PegTokenizer extends PipelineStage {
 			"|" . ( $this->options['enableOnlyInclude'] ?? false );
 		$res = $this->cache->lookup( $cacheKey, $text );
 		if ( $res !== null ) {
-			return $res;
+			$tokens = $res['value'];
+			// NOTE: Since $args['source'] is part of the cache key,
+			// we don't need to reset source in SourceRange properties in $tokens.
+			return $tokens;
 		}
 
 		if ( $this->tracing ) {
@@ -282,7 +285,7 @@ class PegTokenizer extends PipelineStage {
 		}
 
 		if ( is_array( $toks ) ) {
-			$this->cache->cache( $cacheKey, $toks, $text );
+			$this->cache->cache( $cacheKey, $toks, $this->frame?->getSource(), $text );
 		}
 
 		return $toks;

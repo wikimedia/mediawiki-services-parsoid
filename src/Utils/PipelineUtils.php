@@ -447,11 +447,12 @@ class PipelineUtils {
 			if ( $isCacheable ) {
 				$cachedOutput = $attrCache->lookup( $cacheKey );
 				if ( $cachedOutput !== null ) {
-					$offset = $tsrStart - $cachedOutput['start'];
-					$domFragment = $cachedOutput['fragment'];
+					$offset = $tsrStart - $cachedOutput['value']['start'];
+					$domFragment = $cachedOutput['value']['fragment'];
 					ContentUtils::shiftDSR(
 						$env, $domFragment,
-						static function ( DomSourceRange $dsr ) use ( $offset ) {
+						static function ( DomSourceRange $dsr ) use ( $offset, $frame ) {
+							$dsr->source = $frame->getSource();
 							return $dsr->offset( $offset );
 						}
 					);
@@ -476,10 +477,14 @@ class PipelineUtils {
 					]
 				);
 				if ( $isCacheable ) {
-					$attrCache->cache( $cacheKey, [
-						'start' => $tsrStart,
-						'fragment' => $domFragment
-					] );
+					$attrCache->cache(
+						$cacheKey,
+						[
+							'start' => $tsrStart,
+							'fragment' => $domFragment
+						],
+						$frame->getSource()
+					);
 				}
 			}
 

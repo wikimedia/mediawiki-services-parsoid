@@ -301,6 +301,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	private function onWikiLink( Token $token ): array {
 		$env = $this->env;
 		$tsr = $token->dataParsoid->tsr ?? null;
+		$tsrSource = $tsr->source ?? null;
 		$tsrStart = $tsr->start ?? null;
 
 		// Check if we have cached output for this wikilink source.
@@ -309,12 +310,14 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$src = $token->dataParsoid->src ?? '';
 		$isCacheable = ( $this->wikilinkCache && $tsrStart !== null && strlen( $src ) > 0 );
 		if ( $isCacheable ) {
-			$newSource = $tsr->source;
 			$cachedOutput = $this->wikilinkCache->lookup( $src );
 			if ( $cachedOutput !== null ) {
-				$offset = $tsrStart - $cachedOutput['start'];
-				$toks = $cachedOutput['tokens'];
-				TokenUtils::shiftTokenTSR( $toks, $offset, $newSource );
+				$toks = $cachedOutput['value']['tokens'];
+				TokenUtils::shiftTokenTSR(
+					$toks,
+					$tsrStart - $cachedOutput['value']['start'],
+					$tsrSource === $cachedOutput['source'] ? null : $tsrSource
+				);
 				TokenUtils::dedupeAboutIds( $env, $toks );
 				return $toks;
 			}
@@ -368,7 +371,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$isRedirect = (bool)$token->getAttributeV( 'redirect' );
 		$toks = $this->wikiLinkHandler( $token, $target, $isRedirect );
 		if ( $isCacheable ) {
-			$this->wikilinkCache->cache( $src, [ 'start' => $tsrStart, 'tokens' => $toks ] );
+			$this->wikilinkCache->cache( $src, [ 'start' => $tsrStart, 'tokens' => $toks ], $tsrSource );
 		}
 
 		return $toks;
