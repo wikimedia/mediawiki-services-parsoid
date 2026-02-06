@@ -930,7 +930,7 @@ class Sanitizer {
 	 * @param ?XMLTagTk $token
 	 * @param array $attrs
 	 *
-	 * @return array<string, list{?string, mixed, mixed}>
+	 * @return array<string, list{?string, mixed, mixed, bool}>
 	 */
 	public static function sanitizeTagAttrs(
 		SiteConfig $siteConfig, ?string $tagName, ?XMLTagTk $token, array $attrs
@@ -976,16 +976,16 @@ class Sanitizer {
 			// that or about ids that don't resemble Parsoid tokens/about ids.
 			if ( !$psdAttr ) {
 				if ( !preg_match( self::GET_ATTRIBS_RE, $k ) ) {
-					$newAttrs[$k] = [ null, $origV, $origK ];
+					$newAttrs[$k] = [ null, $origV, $origK, false ];
 					continue;
 				}
 
 				# Allow XML namespace declaration to allow RDFa
 				if ( preg_match( self::XMLNS_ATTRIBUTE_PATTERN, $k ) ) {
 					if ( !preg_match( self::EVIL_URI_PATTERN, $v ) ) {
-						$newAttrs[$k] = [ $v, $origV, $origK ];
+						$newAttrs[$k] = [ $v, $origV, $origK, false ];
 					} else {
-						$newAttrs[$k] = [ null, $origV, $origK ];
+						$newAttrs[$k] = [ null, $origV, $origK, false ];
 					}
 					continue;
 				}
@@ -1001,7 +1001,7 @@ class Sanitizer {
 				if ( ( !preg_match( '|^data-[^:= \t\r\n/>\0]*$|iD', $k ) && !isset( $list[$k] ) )
 					 || self::isReservedDataAttribute( $k )
 				) {
-					$newAttrs[$k] = [ null, $origV, $origK ];
+					$newAttrs[$k] = [ null, $origV, $origK, false ];
 					continue;
 				}
 			}
@@ -1016,7 +1016,12 @@ class Sanitizer {
 			if ( $k === 'id' ) {
 				$v = self::escapeIdForAttribute( $v, self::ID_PRIMARY );
 				if ( $v === '' ) {
-					$newAttrs[$k] = [ null, $origV, $origK ];
+					$newAttrs[$k] = [ null, $origV, $origK, false ];
+					continue;
+				} elseif ( CounterType::NODE_DATA_ID->matches( $v ) ) {
+					// Force shadowing for Parsoid-like ids so we can distinguish
+					// them from ones added for the pagebundle
+					$newAttrs[$k] = [ $v, $origV, $origK, true ];
 					continue;
 				}
 			}
@@ -1046,7 +1051,7 @@ class Sanitizer {
 				if ( preg_match( self::EVIL_URI_PATTERN, $v ) ) {
 					// Retain the Parsoid typeofs for Parsoid attrs
 					$newV = $psdAttr ? trim( preg_replace( '/(?:^|\s)(?!mw:\w)\S*/', '', $origV ) ) : null;
-					$newAttrs[$k] = [ $newV, $origV, $origK ];
+					$newAttrs[$k] = [ $newV, $origV, $origK, false ];
 					continue;
 				}
 			}
@@ -1066,7 +1071,7 @@ class Sanitizer {
 				$origHref = $token->getAttributeShadowInfo( $k )['value'];
 				$newHref = self::cleanUrl( $siteConfig, $v, $mode );
 				if ( $newHref !== $v ) {
-					$newAttrs[$k] = [ $newHref, $origHref, $origK ];
+					$newAttrs[$k] = [ $newHref, $origHref, $origK, false ];
 					continue;
 				}
 			}
@@ -1079,7 +1084,7 @@ class Sanitizer {
 			// SSS FIXME: This logic is not RT-friendly.
 			// If this attribute was previously set, override it.
 			// Output should only have one attribute of each name.
-			$newAttrs[$k] = [ $v, $origV, $origK ];
+			$newAttrs[$k] = [ $v, $origV, $origK, false ];
 		}
 
 		# itemtype, itemid, itemref don't make sense without itemscope

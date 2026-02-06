@@ -117,7 +117,7 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	 */
 	public function addNormalizedAttribute( string $name, $value, $origValue ): void {
 		$this->addAttribute( $name, $value );
-		$this->setShadowInfo( $name, $value, $origValue );
+		$this->setShadowInfoIfModified( $name, $value, $origValue );
 	}
 
 	/**
@@ -179,12 +179,23 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	 * @param mixed $origValue
 	 */
 	public function setShadowInfo( string $name, $value, $origValue ): void {
+		$this->dataParsoid->a ??= [];
+		$this->dataParsoid->a[$name] = $value;
+		$this->dataParsoid->sa ??= [];
+		$this->dataParsoid->sa[$name] = $origValue;
+	}
+
+	/**
+	 * Store the original value of an attribute in a token's dataParsoid.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @param mixed $origValue
+	 */
+	public function setShadowInfoIfModified( string $name, $value, $origValue ): void {
 		// Don't shadow if value is the same or the orig is null
 		if ( $value !== $origValue && $origValue !== null ) {
-			$this->dataParsoid->a ??= [];
-			$this->dataParsoid->a[$name] = $value;
-			$this->dataParsoid->sa ??= [];
-			$this->dataParsoid->sa[$name] = $origValue;
+			$this->setShadowInfo( $name, $value, $origValue );
 		}
 	}
 

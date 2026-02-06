@@ -611,7 +611,6 @@ class DOMDataUtils {
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$codec = self::getCodec( $node );
 		$pbCounters = &$pb->counters;
-		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $pb->parsoid['ids'] ) ) {
 			// Forcibly reset the ID if there's a conflict
 			$uid = null;
@@ -632,7 +631,7 @@ class DOMDataUtils {
 				// other.
 				$uid = CounterType::NODE_DATA_ID->counterToId( $pbCounters['nodedata'] );
 			} while ( isset( $idIndex[$uid] ) );
-			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
+			DOMCompat::setIdAttribute( $node, $uid );
 		}
 		$pb->parsoid['ids'][$uid] = $data->parsoid;
 		if ( isset( $data->mw ) ) {
@@ -793,6 +792,7 @@ class DOMDataUtils {
 		$nd = self::getNodeData( $node );
 		$id = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		$nd->storedId = $id !== null ? intval( $id ) : null;
+
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
 
