@@ -121,6 +121,10 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): BasePageBundle {
+		// Forward-compatibility with Parsoid 0.23
+		if ( isset( $json['counters']['nodedata'] ) ) {
+			$json['parsoid']['counter'] = $json['counters']['nodedata'];
+		}
 		return new BasePageBundle(
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,

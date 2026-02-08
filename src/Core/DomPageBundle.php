@@ -379,6 +379,10 @@ class DomPageBundle extends BasePageBundle {
 			static fn ( $html ) => DOMUtils::parseHTMLToFragment( $doc, $html ),
 			$decoded['fragments'] ?? []
 		);
+		// Forward-compatibility with Parsoid 0.23
+		if ( isset( $decoded['counters']['nodedata'] ) ) {
+			$decoded['parsoid']['counter'] = $decoded['counters']['nodedata'];
+		}
 		return new DomPageBundle(
 			$doc,
 			$decoded['parsoid'] ?? null,
