@@ -325,6 +325,10 @@ class DomPageBundle implements JsonCodecable {
 		// Note that only 'parsoid' and 'mw' are encoded, so these will be
 		// the only fields set in the decoded DomPageBundle
 		$decoded = PHPUtils::jsonDecode( $s );
+		// Forward-compatibility with Parsoid 0.23
+		if ( isset( $decoded['counters']['nodedata'] ) ) {
+			$decoded['parsoid']['counter'] = $decoded['counters']['nodedata'];
+		}
 		return new DomPageBundle(
 			$doc,
 			$decoded['parsoid'] ?? null,
