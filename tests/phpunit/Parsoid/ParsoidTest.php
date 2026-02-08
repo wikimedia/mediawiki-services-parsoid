@@ -4,7 +4,8 @@ declare( strict_types = 1 );
 namespace Test\Parsoid;
 
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
@@ -37,7 +38,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$out = $parsoid->wikitext2html( $pageConfig, $parserOpts );
 		if ( !empty( $parserOpts['pageBundle'] ) ) {
-			$this->assertTrue( $out instanceof PageBundle );
+			$this->assertTrue( $out instanceof HtmlPageBundle );
 			$this->assertEquals( $expected, $out->html );
 		} else {
 			$this->assertEquals( $expected, $out );
@@ -146,22 +147,24 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, [
 			'pageLanguage' => $testOpts['pageLanguage'] ?? new Bcp47CodeValue( 'en' ),
 		], $pageContent );
-		$pb = new PageBundle(
-			$input['html'],
-			PHPUtils::jsonDecode( $input['parsoid'] ?? 'null' ),
-			PHPUtils::jsonDecode( $input['mw'] ?? 'null' ),
-			$input['version'] ?? null,
-			$input['headers'] ?? null,
-			$input['contentmodel'] ?? null
-		);
+		if ( isset( $input['parsoid'] ) ) {
+			$input['parsoid'] = PHPUtils::jsonDecode( $input['parsoid'] );
+		}
+		if ( isset( $input['mw'] ) ) {
+			$input['mw'] = PHPUtils::jsonDecode( $input['mw'] );
+		}
+		$codec = new JsonCodec();
+		$pb = $codec->newFromJsonArray( $input, HtmlPageBundle::class );
+		$this->assertTrue( $pb instanceof HtmlPageBundle );
 		$out = $parsoid->pb2pb( $pageConfig, $update, $pb, $testOpts );
-		$this->assertTrue( $out instanceof PageBundle );
-		$this->assertEquals( $expected['html'], $out->html );
-		$this->assertEquals( $expected['parsoid'] ?? 'null', PHPUtils::jsonEncode( $out->parsoid ) );
-		$this->assertEquals( $expected['mw'] ?? 'null', PHPUtils::jsonEncode( $out->mw ) );
-		$this->assertEquals( $expected['version'] ?? null, $out->version );
+		$this->assertTrue( $out instanceof HtmlPageBundle );
+		$encoded = $out->toJsonArray( $out, HtmlPageBundle::class );
+		$this->assertEquals( $expected['html'], $encoded['html'] );
+		$this->assertEquals( PHPUtils::jsonDecode( $expected['parsoid'] ?? 'null' ), $encoded['parsoid'] ?? null );
+		$this->assertEquals( PHPUtils::jsonDecode( $expected['mw'] ?? 'null' ), $encoded['mw'] ?? null );
+		$this->assertEquals( $expected['version'] ?? null, $encoded['version'] );
 		if ( isset( $expected['headers'] ) ) {
-			$this->assertEquals( $expected['headers'] ?? null, $out->headers );
+			$this->assertEquals( $expected['headers'] ?? null, $encoded['headers'] );
 		}
 	}
 
