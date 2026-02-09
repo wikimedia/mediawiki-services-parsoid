@@ -228,8 +228,12 @@ class ParserPipelineFactory {
 		'gen-anchors', # depends on lang-converter
 		'linter', 'strip-metas',
 		'dedupe-heading-ids',
-		'sections', 'convertoffsets', 'cleanup',
+		'sections', 'convertoffsets',
 		'embedded-docs',
+		// Cleanup after traversing embedded docs
+		// This is mainly an issue when linting the Cite extension since
+		// content for nodes in embedded docs may be stored in the top level doc.
+		'cleanup',
 		'markDiscardableDP', 'addmetadata'
 	];
 
@@ -246,8 +250,8 @@ class ParserPipelineFactory {
 		'dedupe-styles',
 		'linter',
 		'strip-metas',
-		'cleanup',
 		'embedded-docs', // Need to run this recursively
+		'cleanup',
 		'markDiscardableDP'
 	];
 
