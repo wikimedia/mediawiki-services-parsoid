@@ -766,7 +766,7 @@ class DOMDataUtils {
 	 * each node, or the page bundle, erasing the data-object-id attributes.
 	 *
 	 * @param Node $node node
-	 * @param ?array $options options
+	 * @param array $options options
 	 *   - discardDataParsoid: Discard DataParsoid objects instead of storing them
 	 *   - keepTmp: Preserve DataParsoid::$tmp
 	 *   - storeInPageBundle: If set to a DomPageBundle, data will be stored
@@ -775,8 +775,7 @@ class DOMDataUtils {
 	 *     didn't have data-mw before 999.x
 	 *   - idIndex: Array of used ID attributes
 	 */
-	private static function storeDataAttribs( Node $node, ?array $options = null ): void {
-		$options ??= [];
+	private static function storeDataAttribs( Node $node, array $options ): void {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
