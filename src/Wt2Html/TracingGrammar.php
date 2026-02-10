@@ -15062,7 +15062,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {
@@ -15156,7 +15156,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {
@@ -15250,7 +15250,7 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {

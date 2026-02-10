@@ -3140,7 +3140,7 @@ attribute_preprocessor_text_double =
 table_attribute_preprocessor_text =
 	r:(
 		$[^{}&<\-!\[ \t\n\r\x0c|]+
-		/ !inline_breaks @( directive / [{}&<\-!\[] )
+		/ !inline_breaks @( directive / [{}&<\-!\[|] )
 	)+ {
 		return TokenizerUtils::flattenString( $r );
 	}
@@ -3149,7 +3149,7 @@ table_attribute_preprocessor_text =
 table_attribute_preprocessor_text_single =
 	r:(
 		$[^{}&<\-!\['\r\n|]+
-		/ !inline_breaks @( directive / [{}&<\-!\[] )
+		/ !inline_breaks @( directive / [{}&<\-!\[|] )
 	)* {
 		return TokenizerUtils::flattenString( $r );
 	}
@@ -3158,7 +3158,7 @@ table_attribute_preprocessor_text_single =
 table_attribute_preprocessor_text_double =
 	r:(
 		$[^{}&<\-!\["\r\n|]+
-		/ !inline_breaks @( directive / [{}&<\-!\[] )
+		/ !inline_breaks @( directive / [{}&<\-!\[|] )
 	)* {
 		return TokenizerUtils::flattenString( $r );
 	}

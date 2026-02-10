@@ -14598,7 +14598,7 @@ private function parsetable_attribute_preprocessor_text_single($boolParams, $par
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {
@@ -14689,7 +14689,7 @@ private function parsetable_attribute_preprocessor_text_double($boolParams, $par
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {
@@ -14780,7 +14780,7 @@ private function parsetable_attribute_preprocessor_text($boolParams, $param_tagT
     if ($r7!==self::$FAILED) {
       goto choice_2;
     }
-    if (strspn($this->input, "!&-<[{}", $this->currPos, 1) !== 0) {
+    if (strspn($this->input, "!&-<[{|}", $this->currPos, 1) !== 0) {
       $r7 = $this->input[$this->currPos];
       $this->currPos++;
     } else {
