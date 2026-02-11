@@ -2433,13 +2433,13 @@ generic_att_value =
 // Missing end quote: accept |, !!, \r, and \n look-ahead as heuristic.
 // These need to be kept in sync with the table_attribute_preprocessor_text_*
 table_att_value =
-	s:$(space* "'") t:table_attribute_preprocessor_text_single? q:$("'" / &('!!' / [|\r\n])) {
+	s:$(space* "'") t:table_attribute_preprocessor_text_single? q:$("'" / &('!!' / [|\r\n] / '{{!}}')) {
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ), $this->source );
 	}
-	/ s:$(space* '"') t:table_attribute_preprocessor_text_double? q:$('"' / &('!!' / [|\r\n])) {
+	/ s:$(space* '"') t:table_attribute_preprocessor_text_double? q:$('"' / &('!!' / [|\r\n] / '{{!}}')) {
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ), $this->source );
 	}
-	/ s:$space* t:table_attribute_preprocessor_text &(space_or_newline/ eof / '!!' / '|') {
+	/ s:$space* t:table_attribute_preprocessor_text &(space_or_newline/ eof / '!!' / '|' / '{{!}}') {
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset(), $this->source );
 	}
 

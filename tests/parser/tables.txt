@@ -1196,6 +1196,39 @@ Build table with {{!}}
 </tbody></table>
 !! end
 
+# When quotes are not used around attribute values, {{!}} should not
+# prevent attribute detection when there is no preceding whitespace
+!! test
+Edge cases with use of {{!}}
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+| width=60{{!}} foo
+| width=60 {{!}} foo
+| width="60{{!}}0" foo
+| width="60 {{!}}0" foo
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td width="60">foo
+</td>
+<td width="60">foo
+</td>
+<td width="60">0" foo
+</td>
+<td width="60">0" foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td width="60">foo</td>
+<td width="60">foo</td>
+<td width="60">0" foo</td>
+<td width="60 ">0" foo</td></tr>
+</tbody></table>
+!! end
+
 !! test
 Build table with pipe as data
 !! wikitext

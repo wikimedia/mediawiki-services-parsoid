@@ -9218,6 +9218,12 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   }
   if (strspn($this->input, "\x0a\x0d|", $this->currPos, 1) !== 0) {
     $r8 = true;
+    goto choice_3;
+  } else {
+    $r8 = self::$FAILED;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+    $r8 = true;
   } else {
     $r8 = self::$FAILED;
   }
@@ -9307,6 +9313,12 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   }
   if (strspn($this->input, "\x0a\x0d|", $this->currPos, 1) !== 0) {
     $r12 = true;
+    goto choice_5;
+  } else {
+    $r12 = self::$FAILED;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
+    $r12 = true;
   } else {
     $r12 = self::$FAILED;
   }
@@ -9383,6 +9395,12 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
     $r14 = self::$FAILED;
   }
   if (($this->input[$this->currPos] ?? null) === "|") {
+    $r14 = true;
+    goto choice_6;
+  } else {
+    $r14 = self::$FAILED;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
     $r14 = true;
   } else {
     $r14 = self::$FAILED;
