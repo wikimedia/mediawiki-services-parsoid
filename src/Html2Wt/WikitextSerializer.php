@@ -1256,8 +1256,6 @@ class WikitextSerializer {
 	/**
 	 * Internal worker. Recursively serialize a DOM subtree.
 	 * @private
-	 * @param Node $node
-	 * @return ?Node
 	 */
 	public function serializeNode( Node $node ): ?Node {
 		$nodeName = DOMUtils::nodeName( $node );

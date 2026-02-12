@@ -257,10 +257,10 @@ class SerializerState {
 	/** @var Env */
 	private $env;
 
-	/** @var Element */
+	/** @var Node */
 	public $currNode;
 
-	/** @var Element */
+	/** @var Node */
 	private $prevNode;
 
 	/** @var array */
@@ -474,7 +474,7 @@ class SerializerState {
 
 	/**
 	 * Like it says on the tin.
-	 * @param Node $node
+	 * @param Element|DocumentFragment $node
 	 */
 	public function updateModificationFlags( Node $node ): void {
 		$this->prevNodeUnmodified = $this->currNodeUnmodified;

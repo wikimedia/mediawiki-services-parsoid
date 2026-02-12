@@ -8,9 +8,9 @@ namespace Wikimedia\Parsoid\Tokens;
  */
 class VariantInfo {
 	public function __construct(
-		/** @var array<string,true> Flag set (short names) */
+		/** @var list<string> Flag set (short names) */
 		public readonly array $flags,
-		/** @var array<string,true> Variant set */
+		/** @var list<string> Variant set */
 		public readonly array $variants,
 		/** @var list<string> The original ordered list of flags (or variants) */
 		public readonly array $original,

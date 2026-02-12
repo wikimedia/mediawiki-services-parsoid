@@ -523,6 +523,7 @@ class Separators {
 				}
 			}
 
+			// @phan-suppress-next-line PhanUndeclaredVariable false positive
 			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
 				$nodeB && !WTUtils::isLiteralHTMLNode( $nodeB ) &&
 				isset( Consts::$HTMLTagsRequiringSOLContext[DOMUtils::nodeName( $nodeB )] );

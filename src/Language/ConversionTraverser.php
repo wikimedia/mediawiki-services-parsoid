@@ -237,7 +237,7 @@ class ConversionTraverser extends DOMTraverser {
 		if ( $dmv->disabled ?? false ) {
 			$df = DOMDataUtils::cloneDocumentFragment( $dmv->disabled );
 			while ( $el->firstChild !== null ) {
-				DOMCompat::remove( $el->firstChild );
+				$el->removeChild( $el->firstChild );
 			}
 			DOMCompat::appendChild( $el, $df );
 			return $el->nextSibling;

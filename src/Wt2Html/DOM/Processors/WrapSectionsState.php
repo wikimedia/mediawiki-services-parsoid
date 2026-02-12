@@ -58,6 +58,11 @@ class WrapSectionsState {
 	private array $tplsAndExtsToExamine = [];
 	private int $oldLevel = 0;
 
+	/**
+	 * @param Env $env
+	 * @param Frame $frame
+	 * @param Element|DocumentFragment $rootNode
+	 */
 	public function __construct(
 		Env $env,
 		Frame $frame,

@@ -173,6 +173,7 @@ class DOMCompat {
 			$nodeName = DOMUtils::nodeName( $element );
 			if ( $nodeName === 'body' || $nodeName === 'frameset' ) {
 				// Caching!
+				// @phan-suppress-next-line PhanTypeMismatchProperty
 				$document->body = $element;
 				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
@@ -204,6 +205,7 @@ class DOMCompat {
 		foreach ( DOMUtils::childNodes( $document->documentElement ) as $element ) {
 			/** @var Element $element */
 			if ( DOMUtils::nodeName( $element ) === 'head' ) {
+				// @phan-suppress-next-line PhanTypeMismatchProperty
 				$document->head = $element; // Caching!
 				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
@@ -703,7 +705,6 @@ class DOMCompat {
 	 *  or the DocumentFragment which is the template's "content"
 	 */
 	public static function getTemplateElementContent( $node ) {
-		// @phan-suppress-next-line PhanUndeclaredProperty only in IDLeDOM
 		if ( isset( $node->content ) ) {
 			// @phan-suppress-next-line PhanUndeclaredProperty only in IDLeDOM
 			return $node->content;

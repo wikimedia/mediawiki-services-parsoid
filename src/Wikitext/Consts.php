@@ -16,6 +16,7 @@ class Consts {
 	public static array $Output;
 	public static array $WtTagWidths;
 	public static array $ZeroWidthWikitextTags;
+	/** @var array<string,string> */
 	public static array $LCFlagMap;
 	public static array $LCNameMap;
 	public static array $blockElems;

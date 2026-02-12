@@ -1358,6 +1358,7 @@ class DOMRangeBuilder {
 					'The startMeta cannot be the common ancestor.'
 				);
 			} elseif ( $i > 0 ) {
+				// @phan-suppress-next-line PhanTypeMismatchPropertyReal
 				$range->start = $startAncestors[$i - 1];
 				$range->end = $elem;
 				break;

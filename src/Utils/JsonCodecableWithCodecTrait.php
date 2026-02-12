@@ -48,6 +48,7 @@ trait JsonCodecableWithCodecTrait {
 	public static function jsonClassCodec(
 		JsonCodecInterface $codec, ContainerInterface $serviceContainer
 	): JsonClassCodec {
+		/** @implements JsonClassCodec<JsonCodecableWithCodecTrait> */
 		return new class( $codec ) implements JsonClassCodec {
 
 			public function __construct( private JsonCodecInterface $codec ) {

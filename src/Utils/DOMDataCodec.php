@@ -120,6 +120,7 @@ class DOMDataCodec extends JsonCodec {
 	public function __construct( public Document $ownerDoc, public array $options ) {
 		parent::__construct();
 		// Add codec for DocumentFragment
+		/** @implements JsonClassCodec<DocumentFragment> */
 		$this->addCodecFor( DocumentFragment::class, new class( $this ) implements JsonClassCodec {
 			private DOMDataCodec $codec;
 
@@ -195,7 +196,7 @@ class DOMDataCodec extends JsonCodec {
 					DOMUtils::setFragmentInnerHTML( $df, $json['_h'] );
 				}
 				DOMDataUtils::visitAndLoadDataAttribs( $df, $this->codec->options );
-				return $df; // @phan-suppress-current-line PhanTypeMismatchReturn
+				return $df;
 			}
 
 			/** @inheritDoc */

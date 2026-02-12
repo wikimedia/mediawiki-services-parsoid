@@ -831,6 +831,7 @@ class MockApiHelper extends ApiHelper {
 						$normFileName . '.' . $derivative['transcodekey'],
 					'type' => $derivative['type'],
 					'transcodekey' => $derivative['transcodekey'],
+					// @phan-suppress-next-line PhanTypeInvalidDimOffset
 					'width' => strval( $derivative['width'] ),
 					'height' => strval( $derivative['height'] ),
 				];
