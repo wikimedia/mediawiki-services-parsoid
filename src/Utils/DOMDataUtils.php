@@ -5,10 +5,10 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Composer\Semver\Semver;
 use InvalidArgumentException;
+use LogicException;
 use stdClass;
 use WeakMap;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\BasePageBundle;
@@ -275,7 +275,7 @@ class DOMDataUtils {
 		$nodeData = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
 		Assert::invariant( $nodeData !== null, 'Bogus nodeId given!' );
 		if ( isset( $nodeData->storedId ) ) {
-			throw new UnreachableException(
+			throw new LogicException(
 				'Trying to fetch node data without loading! ' .
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
@@ -786,17 +786,17 @@ class DOMDataUtils {
 
 		$pbData = self::storeRichAttributes( $node, $options );
 
-		// Store pagebundle
-		if ( $pbData !== null ) {
-			self::storeInPageBundle( $options['storeInPageBundle'], $node, $pbData, $options['idIndex'] );
-		}
-
 		// Indicate that this node's data has been stored so that if we try
 		// to access it after the fact we're aware and remove the attribute
 		// since it's no longer needed.
 		$nd = self::getNodeData( $node );
 		$id = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		$nd->storedId = $id !== null ? intval( $id ) : null;
+
+		// Store pagebundle
+		if ( $pbData !== null ) {
+			self::storeInPageBundle( $options['storeInPageBundle'], $node, $pbData, $options['idIndex'] );
+		}
 
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
