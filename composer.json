@@ -42,7 +42,7 @@
 		"wikimedia/object-factory": "^5.0.1",
 		"wikimedia/remex-html": "^5.1.0 || ^6.0.0",
 		"wikimedia/utfnormal": "^4.0",
-		"wikimedia/wikipeg": "^5.0.1 || ^6.0.0",
+		"wikimedia/wikipeg": "^6.0.0",
 		"wikimedia/zest-css": "^4.1.0",
 		"ext-dom": "*",
 		"ext-json": "*"
