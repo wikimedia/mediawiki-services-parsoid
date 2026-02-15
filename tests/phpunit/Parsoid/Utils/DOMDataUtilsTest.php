@@ -487,8 +487,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'{"parsoid":{"ids":{' .
 			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
-			'"mwAg":{"src":"test1"}},' .
-			'"counter":2' .
+			'"mwAg":{"src":"test1"}}' .
 			'},"mw":{"ids":[]},' .
 			'"counters":{"nodedata":2,"annotation":0,"transclusion":1}}</script></head>' .
 			'<body id="mwAA"><p ' .
@@ -502,8 +501,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'{"parsoid":{"ids":{' .
 			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
-			'"mwAg":{"src":"test1"}},' .
-			'"counter":2' .
+			'"mwAg":{"src":"test1"}}' .
 			'},"mw":{"ids":[]},' .
 			'"counters":{"nodedata":2,"annotation":0,"transclusion":1}}</script></head>' .
 			'<body id="mwAA"><p ' .

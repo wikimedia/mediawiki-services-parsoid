@@ -123,7 +123,7 @@ EOF;
 		$html2 = $dpb->toSingleDocumentHtml();
 		$this->assertEquals( <<<'EOF'
 <!DOCTYPE html>
-<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,12,0,0]}},"counter":0},"mw":{"ids":[]},"counters":{"nodedata":0,"annotation":0,"transclusion":1}}</script></head><body>
+<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]},"counters":{"nodedata":0,"annotation":0,"transclusion":1}}</script></head><body>
   <p id="mwAA">Hello, world</p>
  
 </body></html>
@@ -192,7 +192,6 @@ EOF
 HTML
 		  ,
 				'parsoid' => [
-					'counter' => 6,
 					'ids' => [
 						'mwAA' => [
 							'dsr' => [ 0, 59, 0, 0 ],
@@ -254,7 +253,6 @@ HTML
 HTML
 		  ,
 				'parsoid' => [
-					'counter' => 7,
 					'ids' => [
 						'mwAA' => [
 							'dsr' => [ 0, 59, 0, 0 ],
@@ -338,7 +336,6 @@ EOF
 HTML
 		  ,
 				'parsoid' => [
-					'counter' => 5,
 					'ids' => [
 						'mwAA' => [
 							'dsr' => [ 0, 29, 0, 0 ],
@@ -385,7 +382,6 @@ HTML
 HTML
 		  ,
 				'parsoid' => [
-					'counter' => 6,
 					'ids' => [
 						'mwAA' => [
 							'dsr' => [ 0, 29, 0, 0 ],

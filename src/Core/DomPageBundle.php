@@ -326,8 +326,6 @@ class DomPageBundle extends BasePageBundle {
 				$this->fragments
 			);
 		}
-		// Rollback compatibility for Parsoid < 0.23
-		$json['parsoid']['counter'] = $json['counters']['nodedata'];
 		$codec = new JsonCodec();
 		return $codec->toJsonString( $json, self::headElementHint() );
 	}

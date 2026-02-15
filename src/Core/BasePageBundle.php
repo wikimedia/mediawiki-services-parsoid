@@ -140,15 +140,8 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
-		$parsoid = $this->parsoid;
-		if ( $parsoid !== null ) {
-			// Roll-back compatibility with Parsoid < 0.23
-			$parsoid += [
-				'counter' => $this->counters['nodedata'] ?? -1,
-			];
-		}
 		return [
-			'parsoid' => $parsoid,
+			'parsoid' => $this->parsoid,
 			'mw' => $this->mw,
 			'counters' => $this->counters,
 			'version' => $this->version,
