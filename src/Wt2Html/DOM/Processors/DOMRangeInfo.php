@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 
 class DOMRangeInfo {
 	public string $id;
@@ -18,8 +17,8 @@ class DOMRangeInfo {
 	 */
 	public Element $startElem;
 	public Element $endElem;
-	public ?Node $start;
-	public ?Node $end;
+	public ?Element $start;
+	public ?Element $end;
 
 	/**
 	 * In foster-parenting situations, the end-meta tag can show up before the

@@ -104,53 +104,7 @@ class DOMRangeBuilder {
 	 * Get the DSR of the end of a DOMRange
 	 */
 	private static function getRangeEndDSR( DOMRangeInfo $range ): ?DomSourceRange {
-		$endNode = $range->end;
-		if ( $endNode instanceof Element ) {
-			return DOMDataUtils::getDataParsoid( $endNode )->dsr ?? null;
-		} else {
-			// In the rare scenario where the last element of a range is not an ELEMENT,
-			// extrapolate based on DSR of first leftmost sibling that is an ELEMENT.
-			// We don't try any harder than this for now.
-			$offset = 0;
-			$n = $endNode->previousSibling;
-			while ( $n && !( $n instanceof Element ) ) {
-				if ( $n instanceof Text ) {
-					$offset += strlen( $n->nodeValue );
-				} else {
-					// A comment
-					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
-					$offset += WTUtils::decodedCommentLength( $n );
-				}
-				$n = $n->previousSibling;
-			}
-
-			$dsr = null;
-			if ( $n ) {
-				/**
-				 * The point of the above loop is to ensure we're working
-				 * with a Element if there is an $n.
-				 */
-				'@phan-var Element $n'; // @var Element $n
-				$dsr = DOMDataUtils::getDataParsoid( $n )->dsr ?? null;
-			}
-
-			if ( $dsr && is_int( $dsr->end ?? null ) ) {
-				$len = $endNode instanceof Text
-					? strlen( $endNode->nodeValue )
-					// A comment
-					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
-					: WTUtils::decodedCommentLength( $endNode );
-				$dsr = new DomSourceRange(
-					$dsr->end + $offset,
-					$dsr->end + $offset + $len,
-					null,
-					null,
-					source: $dsr->source
-				);
-			}
-
-			return $dsr;
-		}
+		return DOMDataUtils::getDataParsoid( $range->end )->dsr ?? null;
 	}
 
 	/**
@@ -192,10 +146,8 @@ class DOMRangeBuilder {
 			// *after* the DOM has been built which is why they can show up in
 			// fosterable positions in the DOM.
 		} elseif ( $startsInFosterablePosn &&
-			( !( $range->start instanceof Element ) ||
-				( WTUtils::isTplMarkerMeta( $range->start ) &&
-					( !( $next instanceof Element ) || WTUtils::isTplMarkerMeta( $next ) ) )
-			)
+			WTUtils::isTplMarkerMeta( $range->start ) &&
+			( !( $next instanceof Element ) || WTUtils::isTplMarkerMeta( $next ) )
 		) {
 			$rangeStartParent = $range->start->parentNode;
 
@@ -204,16 +156,14 @@ class DOMRangeBuilder {
 			// the first table content node.
 			$noWS = true;
 			$nodesToMigrate = [];
-			$newStart = $range->start;
-			$n = $range->start instanceof Element ? $next : $range->start;
-			while ( !( $n instanceof Element ) ) {
-				if ( $n instanceof Text ) {
+			while ( !( $next instanceof Element ) ) {
+				if ( $next instanceof Text ) {
 					$noWS = false;
 				}
-				$nodesToMigrate[] = $n;
-				$n = $n->nextSibling;
-				$newStart = $n;
+				$nodesToMigrate[] = $next;
+				$next = $next->nextSibling;
 			}
+			$newStart = $next;
 
 			// As long as $newStart is a tr/tbody or we don't have whitespace
 			// migrate $nodesToMigrate into $newStart. Pushing whitespace into
@@ -237,16 +187,6 @@ class DOMRangeBuilder {
 				// If not, we are forced to expand the template range.
 				$range->start = $range->end = $rangeStartParent;
 			}
-		}
-
-		// Ensure range->start is an element node since we want to
-		// add/update the data-parsoid attribute to it.
-		if ( !( $range->start instanceof Element ) ) {
-			$span = $this->document->createElement( 'span' );
-			$range->start->parentNode->insertBefore( $span, $range->start );
-			$span->appendChild( $range->start );
-			$range->start = $span;
-			$this->updateDSRForFirstRangeNode( $range->start, $range->startElem );
 		}
 
 		$range->start = $this->getStartConsideringFosteredContent( $range->start );
@@ -297,7 +237,7 @@ class DOMRangeBuilder {
 	 * Returns the current node if it's not just after fostered content, the first node
 	 * of fostered content otherwise.
 	 */
-	protected function getStartConsideringFosteredContent( Node $node ): Node {
+	protected function getStartConsideringFosteredContent( Element $node ): Element {
 		if ( DOMUtils::nodeName( $node ) === 'table' ) {
 			// If we have any fostered content, include it as well.
 			for ( $previousSibling = $node->previousSibling;
@@ -753,8 +693,10 @@ class DOMRangeBuilder {
 	/**
 	 * Encapsulation requires adding about attributes on the top-level
 	 * nodes of the range. This requires them to all be Elements.
+	 * Since start/end are always Elements, this only needs to examine
+	 * and update intermediate nodes between them.
 	 */
-	private function ensureElementsInRange( DOMRangeInfo $range ): void {
+	private function ensureElementsInRangeAndAddAboutIds( DOMRangeInfo $range ): void {
 		$n = $range->start;
 		$e = $range->end;
 		$about = DOMCompat::getAttribute( $range->startElem, 'about' );
@@ -958,7 +900,7 @@ class DOMRangeBuilder {
 
 			// FIXME: The code below needs to be aware of flipped ranges.
 
-			$this->ensureElementsInRange( $range );
+			$this->ensureElementsInRangeAndAddAboutIds( $range );
 
 			$tplArray = $this->compoundTpls[$range->id] ?? null;
 			Assert::invariant( (bool)$tplArray, 'No parts for template range!' );
@@ -1404,6 +1346,8 @@ class DOMRangeBuilder {
 		);
 
 		// Find common ancestor of startMeta and endElem
+		// NOTE: $startMeta is an Element and all its ancestors
+		// will be Elements. So, all array entries are Elements.
 		$startAncestors = DOMUtils::pathToRoot( $startMeta );
 		$elem = $endElem ?? $endMeta;
 		$parentNode = $elem->parentNode;
