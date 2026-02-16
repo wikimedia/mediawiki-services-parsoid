@@ -159,13 +159,13 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): BasePageBundle {
-		// Backward compatibility with Parsoid < 0.23
-		$json['counters'] ??= [
-			'nodedata' => $json['parsoid']['counter'] ?? -1,
-			'annotation' => -1,
-			'transclusion' => -1,
-		];
 		if ( isset( $json['parsoid']['counter'] ) ) {
+			// Backward compatibility with Parsoid < 0.23
+			$json['counters'] ??= [
+				'nodedata' => $json['parsoid']['counter'],
+				'annotation' => -1,
+				'transclusion' => -1,
+			];
 			unset( $json['parsoid']['counter'] );
 		}
 		return new BasePageBundle(
