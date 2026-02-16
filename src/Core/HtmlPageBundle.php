@@ -93,6 +93,22 @@ class HtmlPageBundle extends BasePageBundle {
 				'body' => $this->parsoid,
 			],
 		];
+		if ( $this->counters !== null ) {
+			$responseData['counters'] = [
+				'headers' => [
+					'content-type' => 'application/json; charset=utf-8; '
+						. 'profile="https://www.mediawiki.org/wiki/Specs/counters/'
+						. $version . '"',
+				],
+				'body' => $this->counters,
+			];
+		}
+		if ( isset( $this->counters['nodedata'] ) && $this->parsoid !== null ) {
+			// Backward compatibility with Parsoid < 0.23
+			$responseData['data-parsoid']['body'] += [
+				'counter' => $this->counters['nodedata'],
+			];
+		}
 		if ( Semver::satisfies( $version, '^999.0.0' ) ) {
 			$responseData['data-mw'] = [
 				'headers' => [
