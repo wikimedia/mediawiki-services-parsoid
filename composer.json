@@ -34,7 +34,7 @@
 		"wikimedia/bcp-47-code": "^2.0.0",
 		"wikimedia/idle-dom": "2.0.1",
 		"wikimedia/ip-utils": "^5.0.0",
-		"wikimedia/json-codec": "^3.0.1",
+		"wikimedia/json-codec": "^3.0.2 || ^4.0.0 || ^5.0.0",
 		"wikimedia/object-factory": "^5.0.1",
 		"wikimedia/remex-html": "^4.1.2",
 		"wikimedia/wikipeg": "^4.0.0",
