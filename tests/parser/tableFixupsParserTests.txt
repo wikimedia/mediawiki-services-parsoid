@@ -790,3 +790,32 @@ Empty cells should not prevent multi-cell output split
 <tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| [[Main Page]] ",{"template":{"target":{"wt":"multi cell output with empty cells","href":"./Template:Multi_cell_output_with_empty_cells"},"params":{},"i":0}}]}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> a</td><td about="#mwt1"></td><td about="#mwt1" data-parsoid='{"stx":"row"}'>b</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Cells using attribute syntax should prevent attribute-reparsing
+!! wikitext
+{|
+|x
+{{1x|1={{!}}class='x'{{!}} a{{!}}b}}
+{{1x|1={{!}}{{!}} a{{!}}b}}
+{{1x|1={{!}} {{!}} a{{!}}b}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>x
+</td>
+<td class="x">a|b
+</td>
+<td>a|b
+</td>
+<td>a|b
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td>x</td>
+<td class="x" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}} a{{!}}b"}},"i":0}}]}'>a|b</td>
+<td about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}{{!}} a{{!}}b"}},"i":0}}]}'>a|b</td>
+<td about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}} {{!}} a{{!}}b"}},"i":0}}]}'>a|b</td></tr>
+</tbody></table>
+!! end

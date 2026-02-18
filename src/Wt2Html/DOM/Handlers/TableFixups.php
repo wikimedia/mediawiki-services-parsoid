@@ -841,7 +841,17 @@ class TableFixups {
 		$inTplContent = $dtState->tplInfo !== null &&
 			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
 		$testRE = DOMUtils::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
-		return self::pipeStatusInContent( $cell, $testRE, $inTplContent );
+		$noAttrReparsing = !$dp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) ||
+			// In TokenizerUtils::buildTableTokens(), we have a special case to add the
+			// no attribute syntax flag to || found in SOL position, since, coming from a
+			// template, we don't have the context of whether the cell is truly at SOL
+			// or if this should be interpreted as row syntax
+			( $dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
+				// Alternatively, we can check for SOL
+				// ( $cell->previousSibling instanceof Text &&
+				// 	preg_match( '/\n/', $cell->previousSibling->nodeValue ?? '' ) ) );
+				( $dp->stx ?? '' ) !== 'row' );
+		return self::pipeStatusInContent( $cell, $testRE, $inTplContent, $noAttrReparsing );
 	}
 
 	/**
