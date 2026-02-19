@@ -401,6 +401,10 @@ class TestRunner {
 	private function runTest( Test $test, string $mode, array $options ): void {
 		$test->time = [];
 		$testOpts = $test->options;
+		if ( $testOpts['langconv'] ?? null ) {
+			// Variant conversion is moving to core
+			return;
+		}
 
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
