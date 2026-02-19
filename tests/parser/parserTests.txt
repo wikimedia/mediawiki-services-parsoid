@@ -13316,6 +13316,31 @@ language=ar
 !! end
 
 !! test
+Language parser function (Japanese localization, double-wide hash)
+!! options
+language=ja
+!! wikitext
+{{#language:ja}}
+
+{{#言語:ja}}
+
+{{＃言語:ja}}
+
+{{＃言語：ja}}
+!! html/php
+<p>日本語
+</p><p>日本語
+</p><p>日本語
+</p><p>日本語
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:ja","function":"language"},"params":{},"i":0}}]}'>日本語</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#言語:ja","function":"language"},"params":{},"i":0}}]}'>日本語</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"＃言語:ja","function":"language"},"params":{},"i":0}}]}'>日本語</span></p>
+<p><span typeof="mw:Transclusion" data-parsoid='{"colon":"："}' data-mw='{"parts":[{"template":{"target":{"wt":"＃言語:ja","function":"language"},"params":{},"i":0}}]}'>日本語</span></p>
+!! end
+
+!! test
 Dir parser function (valid codes)
 !! wikitext
 Persian: {{#dir:fa}}

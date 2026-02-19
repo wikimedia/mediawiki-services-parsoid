@@ -1,5 +1,8 @@
-!! Version 2
 # LanguageConverter and language variants parser tests
+!! options
+version=2
+parsoid-compatible=wt2html
+!! end
 
 # This is the standard article assumed to exist.
 !! article
@@ -47,7 +50,7 @@ abvg
 !! html/parsoid
 <p>abvg</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el">абвг</p>
+<p>абвг</p>
 !! end
 
 !! test
@@ -62,7 +65,7 @@ language=sr htmlVariantLanguage=sr-Cyrl
 !! html/parsoid
 <p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'></span>аб<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'></span>вг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'></span></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-ec"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span>аб<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span>вг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span>аб<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span>вг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
 !! end
 
 !! test
@@ -77,7 +80,7 @@ language=sr htmlVariantLanguage=sr-Cyrl
 !! html/parsoid
 <p>абвгšđžčć</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-ec"><span typeof="mw:LanguageVariant" data-mw-variant-lang="sr-el" data-mw-variant='{"rt":true,"twoway":[{"l":"sr-el","t":"абвгšđžčć"},{"l":"sr-ec","t":"абвгшђжчћ"}]}'>абвгшђжчћ</span></p>
+<p>абвгшђжчћ</p>
 !! end
 
 !! test
@@ -92,7 +95,7 @@ language=sr htmlVariantLanguage=sr-Cyrl
 !! html/parsoid
 <p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'></span>абвг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'></span>šđžčć<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'></span></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span><span typeof="mw:LanguageVariant" data-mw-variant='{"rt":true,"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}]}'>абвг</span><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span>шђжчћ<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
+<p><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"lj"}}'>lj</span>абвг<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"nj"}}'>nj</span>шђжчћ<span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"dž"}}'>dž</span></p>
 !! end
 
 !! test
@@ -107,7 +110,7 @@ a I b II v III g IV šđžčć
 !! html/parsoid
 <p>a I b II v III g IV šđžčć</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el">а I б II в III г IV шђжчћ</p>
+<p>а I б II в III г IV шђжчћ</p>
 !! end
 
 ## sr-el ##
@@ -124,7 +127,7 @@ abcd
 !! html/parsoid
 <p>abcd</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el">abcd</p>
+<p>abcd</p>
 !! end
 
 !! test
@@ -139,7 +142,7 @@ language=sr htmlVariantLanguage=sr-Latn
 !! html/parsoid
 <p>абцд</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-ec">abcd</p>
+<p>abcd</p>
 !! end
 
 !! test
@@ -154,7 +157,7 @@ abcdшђжчћ
 !! html/parsoid
 <p>abcdшђжчћ</p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-ec"><span typeof="mw:LanguageVariant" data-mw-variant='{"rt":true,"twoway":[{"l":"sr-ec","t":"abcdшђжчћ"},{"l":"sr-el","t":"abcdšđžčć"}]}'>abcdšđžčć</span></p>
+<p>abcdšđžčć</p>
 !! end
 
 !! test
@@ -181,10 +184,10 @@ http://example.com
 <p><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a></p>
 <p><a rel="mw:ExtLink" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'></span></a></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" href="http://example.com" class="external text">абцд</a></p>
-<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" href="http://example.com" class="external text">http://foo.com</a></p>
-<p data-mw-variant-lang="sr-el"><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a></p>
-<p data-mw-variant-lang="sr-ec"><a rel="mw:ExtLink" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'>abcd</span></a></p>
+<p><a rel="mw:ExtLink" href="http://example.com" class="external text">абцд</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com" class="external text">http://foo.com</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a></p>
+<p><a rel="mw:ExtLink" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'>abcd</span></a></p>
 !! end
 
 !! test
@@ -243,8 +246,8 @@ Both [[Dunav]] and [[Дунав]] are names for this river.
 !! html/php
 <p>Both <a class="mw-selflink selflink">Dunav</a> and <a class="mw-selflink selflink">Дунав</a> are names for this river.
 </p>
-!! html/parsoid
-<p>Both <a rel="mw:WikiLink" href="./Dunav" class="mw-selflink selflink">Dunav</a> and <a rel="mw:WikiLink" href="./Dunav" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Dunav","title":"Dunav"},"sa":{"href":"Дунав","title":"Дунав"}}'>Дунав</a> are names for this river.</p>
+!! html/parsoid+langconv
+<p>Both <a rel="mw:WikiLink" href="./Dunav" class="mw-selflink selflink">Dunav</a> and <a rel="mw:WikiLink" href="/wiki/Dunav" class="mw-selflink selflink">Дунав</a> are names for this river.</p>
 !! end
 
 !! article
@@ -262,8 +265,8 @@ title=[[Duna]] language=sr
 !! html/php
 <p><a href="/wiki/%D0%94%D1%83%D0%BD%D0%B0" title="Дуна">Дуна</a> is not a self-link while <a class="mw-selflink selflink">Duna</a> and <a class="mw-selflink selflink">Dуна</a> are still self-links.
 </p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Дуна" title="Дуна">Дуна</a> is not a self-link while <a rel="mw:WikiLink" href="./Duna" class="mw-selflink selflink">Duna</a> and <a rel="mw:WikiLink" href="./Duna" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Duna","title":"Duna"},"sa":{"href":"Dуна","title":"Dуна"}}'>Dуна</a> are still self-links.</p>
+!! html/parsoid+langconv
+<p><a rel="mw:WikiLink" href="./Дуна" title="Дуна">Дуна</a> is not a self-link while <a rel="mw:WikiLink" href="./Duna" class="mw-selflink selflink">Duna</a> and <a rel="mw:WikiLink" href="/wiki/Duna" class="mw-selflink selflink">Dуна</a> are still self-links.</p>
 !! end
 
 !! test
@@ -275,8 +278,8 @@ title=[[Duna]] language=sr
 !! html/php
 <p><a class="mw-selflink selflink">Dуна</a> is a self-link while <a class="mw-selflink-fragment" href="#Foo">Duna#Foo</a> and <a class="mw-selflink-fragment" href="#Foo">Dуна#Foo</a> are mw-selflink-fragments.
 </p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Duna" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Duna","title":"Duna"},"sa":{"href":"Dуна","title":"Dуна"}}'>Dуна</a> is a self-link while <a rel="mw:WikiLink" href="./Duna#Foo" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Duna#Foo","title":"Duna"},"sa":{"href":"Duna#Foo","title":"Duna"}}'>Duna#Foo</a> and <a rel="mw:WikiLink" href="./Duna#Foo" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Duna#Foo","title":"Duna"},"sa":{"href":"Dуна#Foo","title":"Dуна"}}'>Dуна#Foo</a> are mw-selflink-fragments.</p>
+!! html/parsoid+langconv
+<p><a rel="mw:WikiLink" href="/wiki/Duna" class="mw-selflink selflink">Dуна</a> is a self-link while <a rel="mw:WikiLink" href="./Duna#Foo" class="mw-selflink-fragment">Duna#Foo</a> and <a rel="mw:WikiLink" href="#Foo" class="mw-selflink-fragment">Dуна#Foo</a> are mw-selflink-fragments.</p>
 !! end
 
 !! test
@@ -288,8 +291,8 @@ Main Page can be written as [[Маин Паге]]
 !! html/php
 <p>Main Page can be written as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a>
 </p>
-!! html/parsoid
-<p>Main Page can be written as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a></p>
+!! html/parsoid+langconv
+<p>Main Page can be written as <a rel="mw:WikiLink" href="/wiki/Main_Page" title="Main Page">Маин Паге</a></p>
 !! end
 
 !! test
@@ -301,8 +304,8 @@ language=sr
 !! html/php
 <p><a href="/wiki/Main_Page" title="Main Page">Main Page</a> can be written as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a> same as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a>.
 </p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page"},"sa":{"href":"Main Page"}}'>Main Page</a> can be written as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a> same as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a>.</p>
+!! html/parsoid+langconv
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> can be written as <a rel="mw:WikiLink" href="/wiki/Main_Page" title="Main Page">Маин Паге</a> same as <a rel="mw:WikiLink" href="/wiki/Main_Page" title="Main Page">Маин Паге</a>.</p>
 !! end
 
 !! article
@@ -658,7 +661,6 @@ COUNTRY is Taiwan or China.
 <p>COUNTRY is Taiwan or China.</p>
 !! end
 
-## Note that parsoid test runner does not support 'showtitle' option.
 !! test
 Adding explicit conversion rule for title (T flag)
 !! options
@@ -667,13 +669,17 @@ language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 Should be stripped-{T|zh:China;zh-tw:Taiwan}-!
 
 Taiwan is China.
-!! html/php
+!! metadata+langconv
 Taiwan
+!! html/php
 <p>Should be stripped!
 </p><p>Taiwan is China.
 </p>
 !! html/parsoid
 <p>Should be stripped<meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
+<p>Taiwan is China.</p>
+!! html/parsoid+langconv
+<p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
 <p>Taiwan is China.</p>
 !! end
 
@@ -685,14 +691,18 @@ language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 Should be stripped-{T;H|zh:China; zh-tw:Taiwan}-!
 
 Taiwan is China.
-!! html/php
+!! metadata+langconv
 Taiwan
+!! html/php
 <p>Should be stripped!
 </p><p>Taiwan is Taiwan.
 </p>
 !! html/parsoid
 <p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
 <p>Taiwan is China.</p>
+!! html/parsoid+langconv
+<p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
+<p>Taiwan is Taiwan.</p>
 !! end
 
 !! test
@@ -702,12 +712,37 @@ language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 !! wikitext
 -{H|zh:China; zh-tw:Taiwan}-
 Taiwan is China.-{T|Taiwan is China}-
-!! html/php
+!! metadata+langconv
 Taiwan is China
+!! html/php
 <p>
 Taiwan is Taiwan.
 </p>
 !! html/parsoid
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>
+Taiwan is China.<meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"Taiwan is China"},"title":true}'/></p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>
+Taiwan is Taiwan.<meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"Taiwan is China"},"title":true}'/></p>
+!! end
+
+!! test
+Code coverage: T with no variants (default variant)
+!! options
+language=zh htmlVariantLanguage=zh showtitle
+!! wikitext
+-{H|zh:China; zh-tw:Taiwan}-
+Taiwan is China.-{T|Taiwan is China}-
+!! metadata+langconv
+<span class="mw-page-title-main">Parser test</span>
+!! html/php
+<p>
+Taiwan is China.
+</p>
+!! html/parsoid
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>
+Taiwan is China.<meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"Taiwan is China"},"title":true}'/></p>
+!! html/parsoid+langconv
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>
 Taiwan is China.<meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"Taiwan is China"},"title":true}'/></p>
 !! end
@@ -814,11 +849,14 @@ Testing that changing the language variant here in the tests actually works
 language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 Should be stripped-{T|zh:China; zh-tw:Taiwan}-!
-!! html/php
+!! metadata+langconv
 China
+!! html/php
 <p>Should be stripped!
 </p>
 !! html/parsoid
+<p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
+!! html/parsoid+langconv
 <p>Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
 !! end
 
@@ -829,11 +867,17 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <i style="color:red">with</i> HTML&amp;Entities}-
 Should be stripped!
-!! html/php
+!! metadata/php
 Title <i style="color:red">with</i> HTML&amp;Entities
+!! metadata/parsoid+langconv
+Title <i style="color:red">with</i> HTML<span typeof="mw:Entity">&amp;</span>Entities
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &lt;i style=\"color:red\">with&lt;/i> HTML&lt;span typeof=\"mw:Entity\">&amp;amp;&lt;/span>Entities"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -843,11 +887,17 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title ''with'' Wiki's s&uuml;ntax&copy}-
 Should be stripped!
-!! html/php
+!! metadata/php
 Title <i>with</i> Wiki's süntax&amp;copy
+!! metadata/parsoid+langconv
+Title <i>with</i> Wiki's s<span typeof="mw:Entity">ü</span>ntax&amp;copy
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &lt;i>with&lt;/i> Wiki&apos;s s&lt;span typeof=\"mw:Entity\">ü&lt;/span>ntax&amp;amp;copy"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -857,11 +907,15 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <i onclick="alert(42)">click me</i> <script>alert(43)</script>}-
 Should be stripped!
-!! html/php
+!! metadata+langconv
 Title <i>click me</i> &lt;script&gt;alert(43)&lt;/script&gt;
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &lt;i>click me&lt;/i> &amp;lt;script>alert(43)&amp;lt;/script>"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -871,11 +925,17 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <script>a</script>&amp;<i>b</i>}-
 Should be stripped!
-!! html/php
+!! metadata/php
 Title &lt;script&gt;a&lt;/script&gt;&amp;<i>b</i>
+!! metadata/parsoid+langconv
+Title &lt;script&gt;a&lt;/script&gt;<span typeof="mw:Entity">&amp;</span><i>b</i>
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &amp;lt;script>a&amp;lt;/script>&lt;span typeof=\"mw:Entity\">&amp;amp;&lt;/span>&lt;i>b&lt;/i>"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -885,11 +945,15 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <code style="display:none">}-
 Should be stripped!
-!! html/php
+!! metadata+langconv
 Title <code style="display:none"></code>
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &lt;code style=\"display:none\">&lt;/code>"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -899,11 +963,15 @@ language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <b>Foo bar<b>}-
 Should be stripped!
-!! html/php
+!! metadata+langconv
 Title <b>Foo bar<b></b></b>
+!! html/php
 <p>
 Should be stripped!
 </p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"Title &lt;b>Foo bar&lt;b>&lt;/b>&lt;/b>"}]}'/>
+Should be stripped!</p>
 !! end
 
 !! test
@@ -914,14 +982,18 @@ showtitle
 !! wikitext
 -{H|zh-cn:Exclamation; zh-tw:exclamation}-
 Should be stripped-{T|zh-cn:China; zh-tw:Taiwan}-<span title="exclamation">!</span>
-!! html/php
+!! metadata+langconv
 China
+!! html/php
 <p>
 Should be stripped<span title="Exclamation">!</span>
 </p>
 !! html/parsoid
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"Exclamation"},{"l":"zh-tw","t":"exclamation"}]}'/>
 Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh-cn","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/><span title="exclamation">!</span></p>
+!! html/parsoid+langconv
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh-cn","t":"Exclamation"},{"l":"zh-tw","t":"exclamation"}]}'/>
+Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh-cn","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/><span title="Exclamation">!</span></p>
 !! end
 
 !! test
@@ -932,12 +1004,16 @@ language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 This should be stripped-{T|zh:China; zh-tw:Taiwan}-!
 
 This won't take interferes with the title rule-{H|zh:Beijing; zh-tw:Taipei}-.
-!! html/php
+!! metadata+langconv
 Taiwan
+!! html/php
 <p>This should be stripped!
 </p><p>This won't take interferes with the title rule.
 </p>
 !! html/parsoid
+<p>This should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
+<p>This won't take interferes with the title rule<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"Beijing"},{"l":"zh-tw","t":"Taipei"}]}'/>.</p>
+!! html/parsoid+langconv
 <p>This should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh","t":"China"},{"l":"zh-tw","t":"Taiwan"}]}'/>!</p>
 <p>This won't take interferes with the title rule<meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"zh","t":"Beijing"},{"l":"zh-tw","t":"Taipei"}]}'/>.</p>
 !! end
@@ -948,12 +1024,15 @@ Partly disable title conversion if variant == main language code
 language=zh htmlVariantLanguage=zh title=[[ZH]] showtitle
 !! wikitext
 -{T|zh-cn:CN;zh-tw:TW}-
-!! html/php
+!! metadata+langconv
 <span class="mw-page-title-main">ZH</span>
+!! html/php
 <p class="mw-empty-elt">
 </p>
 !! html/parsoid
 <p class="mw-empty-elt"><meta typeof="mw:LanguageVariant" data-parsoid='{"tSp":[6]}' data-mw-variant='{"title":true,"twoway":[{"l":"zh-cn","t":"CN"},{"l":"zh-tw","t":"TW"}]}'/></p>
+!! html/parsoid+langconv
+<p class="mw-empty-elt"><meta typeof="mw:LanguageVariant" data-mw-variant='{"title":true,"twoway":[{"l":"zh-cn","t":"CN"},{"l":"zh-tw","t":"TW"}]}'/></p>
 !! end
 
 !! test
@@ -962,11 +1041,14 @@ Partly disable title conversion if variant == main language code, more
 language=zh htmlVariantLanguage=zh title=[[ZH]] showtitle
 !! wikitext
 -{T|TW}-
-!! html/php
+!! metadata+langconv
 <span class="mw-page-title-main">ZH</span>
+!! html/php
 <p class="mw-empty-elt">
 </p>
 !! html/parsoid
+<p class="mw-empty-elt"><meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"TW"},"title":true}'/></p>
+!! html/parsoid+langconv
 <p class="mw-empty-elt"><meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"TW"},"title":true}'/></p>
 !! end
 
@@ -1704,9 +1786,8 @@ parsoid=html2wt
 -{H|}-
 !! end
 
-## Legacy parser inconsistency in the title attribute
 !! test
-Nonexistent internal link targets should be resolved using variants (T258856)
+Rewrite redlinks to point to variant title
 !! options
 language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
@@ -1714,10 +1795,22 @@ language=sr htmlVariantLanguage=sr-Cyrl
 !! html/php
 <p><a href="/wiki/%D0%A2%D0%B5%D1%81%D1%82" title="Тест">Тест</a>
 </p>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Тест" title="Тест" data-parsoid='{"stx":"simple","a":{"href":"./Тест","title":"Тест"},"sa":{"href":"Test","title":"Test"}}'>Test</a></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="sr-el"><a rel="mw:WikiLink" href="./Тест" title="Тест">Тест</a></p>
+<p><a rel="mw:WikiLink" href="/wiki/%D0%A2%D0%B5%D1%81%D1%82" title="Тест">Тест</a></p>
+!! end
+
+## Legacy parser inconsistency in the title attribute
+!! test
+Nonexistent internal link targets should be resolved using variants (T258856)
+!! options
+language=sr htmlVariantLanguage=sr-Cyrl
+!! wikitext
+[[DoesNotExist]]
+!! html/php
+<p><a href="/index.php?title=DoesNotExist&amp;action=edit&amp;redlink=1" class="new" title="ДоесНотЕxист (страница не постоји)">ДоесНотЕxист</a>
+</p>
+!! html/parsoid+langconv
+<p><a rel="mw:WikiLink" href="./DoesNotExist?action=edit&amp;redlink=1" title="ДоесНотЕxист" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["DoesNotExist"]}}'>ДоесНотЕxист</a></p>
 !! end
 
 # Bugs found via rt testing (T417533)
