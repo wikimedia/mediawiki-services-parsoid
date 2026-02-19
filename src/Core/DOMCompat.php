@@ -484,7 +484,7 @@ class DOMCompat {
 		DOMNode|
 		Node $node
 	) {
-		if ( !( $node instanceof DocumentFragment ) || $node->hasChildNodes() ) {
+		if ( !( $node->nodeType === XML_DOCUMENT_FRAG_NODE ) || $node->hasChildNodes() ) {
 			$parentNode->appendChild( $node );
 		}
 		return $node;
@@ -684,6 +684,9 @@ class DOMCompat {
 		foreach ( $nodes as $node ) {
 			if ( is_string( $node ) ) {
 				$node = $parentNode->ownerDocument->createTextNode( $node );
+			}
+			if ( $node->nodeType === XML_DOCUMENT_FRAG_NODE && !$node->hasChildNodes() ) {
+				continue; // (work around bug in PHP 8.3)
 			}
 			$parentNode->insertBefore( $node, null );
 		}

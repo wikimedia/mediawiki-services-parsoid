@@ -506,6 +506,26 @@ HTML;
 	}
 
 	/**
+	 * @covers ::replaceChildren()
+	 */
+	public function testReplaceChildren() {
+		$html0 = '<html><head></head><body><div id="a"></div></body></html>';
+		$html = '<html><head></head><body><div id="a">foo<b>bar</b></div></body></html>';
+		$doc = DOMUtils::parseHTML( $html );
+		$a = $doc->getElementById( 'a' );
+
+		// Replace with an empty fragment
+		$df = $doc->createDocumentFragment();
+		$df = DOMCompat::replaceChildren( $a, $df );
+		$this->assertSame( $html0, DOMCompat::getOuterHTML( $doc->documentElement ) );
+
+		$b = $doc->createElement( 'b' );
+		DOMCompat::replaceChildren( $b, "bar" );
+		DOMCompat::replaceChildren( $a, "foo", $b );
+		$this->assertSame( $html, DOMCompat::getOuterHTML( $doc->documentElement ) );
+	}
+
+	/**
 	 * @covers ::remove()
 	 */
 	public function testRemove() {
