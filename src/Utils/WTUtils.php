@@ -33,13 +33,6 @@ class WTUtils {
 		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/\S+)))(?=$|\s)#D';
 
 	/**
-	 * Regex corresponding to FIRST_ENCAP_REGEXP, but excluding extensions. If FIRST_ENCAP_REGEXP is
-	 * updated, this one should be as well.
-	 */
-	private const NON_EXTENSION_ENCAP_REGEXP =
-		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant))(?=$|\s)#D';
-
-	/**
 	 * Regexp for checking marker metas typeofs representing
 	 * transclusion markup or template param markup.
 	 */
