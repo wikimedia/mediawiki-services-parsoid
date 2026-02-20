@@ -31,4 +31,8 @@ class WTUtils {
 	public static function fromEncapsulatedContent( Node $node ): bool {
 		return WTU::fromEncapsulatedContent( $node );
 	}
+
+	public static function fromTemplatedContent( Node $node ): bool {
+		return WTU::fromTemplatedContent( $node );
+	}
 }

@@ -178,34 +178,6 @@ class WTUtils {
 	}
 
 	/**
-	 * Find the first wrapper element of encapsulated content.
-	 */
-	public static function findFirstEncapsulationWrapperNode( Node $node ): ?Element {
-		if ( !self::isEncapsulatedDOMForestRoot( $node ) ) {
-			return null;
-		}
-		'@phan-var Element $node'; // @var ?Element $elt
-		$about = DOMCompat::getAttribute( $node, 'about' );
-		$prev = $node;
-		do {
-			$node = $prev;
-			$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
-		} while (
-			$prev instanceof Element &&
-			DOMCompat::getAttribute( $prev, 'about' ) === $about
-		);
-		// NOTE: findFirstEncapsulationWrapperNode can be called by code
-		// even before templates have been fully encapsulated everywhere.
-		// ProcessTreeBuilderFixups::removeAutoInsertedEmptyTags is the main
-		// culprit here and it makes the contract for this helper murky
-		// by hiding potential brokenness since this should never return null
-		// once all templates have been encapsulated!
-		$elt = self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
-		'@phan-var ?Element $elt'; // @var ?Element $elt
-		return $elt;
-	}
-
-	/**
 	 * This tests whether a DOM node is a new node added during an edit session
 	 * or an existing node from parsed wikitext.
 	 *
@@ -451,15 +423,42 @@ class WTUtils {
 	}
 
 	/**
-	 * Is the $node from extension content?
-	 * @param Node $node
-	 * @param ?string $extType If non-null, checks for that specific extension
-	 * @return bool
+	 * Find the first wrapper element of encapsulated content.
 	 */
-	public static function fromExtensionContent( Node $node, ?string $extType = null ): bool {
-		$re = $extType ? "#mw:Extension/$extType#" : "#mw:Extension/\w+#";
-		while ( $node && !DOMUtils::atTheTop( $node ) ) {
-			if ( DOMUtils::matchTypeOf( $node, $re ) ) {
+	public static function findFirstEncapsulationWrapperNode(
+		Node $node,
+		string $encapTypeofRE = self::FIRST_ENCAP_REGEXP
+	): ?Element {
+		if ( !$node instanceof Element ) {
+			return null;
+		}
+		$about = DOMCompat::getAttribute( $node, 'about' );
+		// No need to check if this is the right about id.
+		// We are validated by the typeof below.
+		if ( $about === null ) {
+			return null;
+		}
+		$prev = $node;
+		do {
+			$node = $prev;
+			$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
+		} while (
+			$prev instanceof Element &&
+			DOMCompat::getAttribute( $prev, 'about' ) === $about
+		);
+		'@phan-var ?Element $node'; // @var ?Element $node
+		return DOMUtils::matchTypeOf( $node, $encapTypeofRE ) ? $node : null;
+	}
+
+	/**
+	 * Is $node from encapsulated (template, extension, etc.) content?
+	 */
+	public static function fromEncapsulatedContentHelper( Node $node, string $typeofRE ): bool {
+		if ( !( $node instanceof Element ) ) {
+			$node = $node->parentNode;
+		}
+		while ( !DOMUtils::atTheTop( $node ) ) {
+			if ( self::findFirstEncapsulationWrapperNode( $node, $typeofRE ) !== null ) {
 				return true;
 			}
 			$node = $node->parentNode;
@@ -468,16 +467,30 @@ class WTUtils {
 	}
 
 	/**
+	 * Is the $node from templated content?
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function fromTemplatedContent( Node $node ): bool {
+		return self::fromEncapsulatedContentHelper( $node, "#mw:Transclusion#" );
+	}
+
+	/**
+	 * Is the $node from extension content?
+	 * @param Node $node
+	 * @param ?string $extType If non-null, checks for that specific extension
+	 * @return bool
+	 */
+	public static function fromExtensionContent( Node $node, ?string $extType = null ): bool {
+		$re = $extType ? "#mw:Extension/$extType#" : "#mw:Extension/\w+#";
+		return self::fromEncapsulatedContentHelper( $node, $re );
+	}
+
+	/**
 	 * Is $node from encapsulated (template, extension, etc.) content?
 	 */
 	public static function fromEncapsulatedContent( Node $node ): bool {
-		while ( $node && !DOMUtils::atTheTop( $node ) ) {
-			if ( self::findFirstEncapsulationWrapperNode( $node ) !== null ) {
-				return true;
-			}
-			$node = $node->parentNode;
-		}
-		return false;
+		return self::fromEncapsulatedContentHelper( $node, self::FIRST_ENCAP_REGEXP );
 	}
 
 	/**
