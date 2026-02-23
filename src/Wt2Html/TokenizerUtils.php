@@ -155,13 +155,13 @@ class TokenizerUtils {
 				// Add a flag that indicates that the tokenizer didn't
 				// encounter a "|...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
-				$dp->setTempFlag( TempData::NO_ATTRS );
+				$dp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 			} else {
 				if ( !$attrInfo[0] && $attrInfo[1] === "" ) {
 					// FIXME: Skip comments between the two "|" chars
 					// [ [], "", "|"] => "||" syntax for first <td> on line
 					$dp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
-					$dp->setTempFlag( TempData::NO_ATTRS );
+					$dp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 				}
 			}
 		} elseif ( $tagName === 'th' ) {
@@ -169,7 +169,7 @@ class TokenizerUtils {
 				// Add a flag that indicates that the tokenizer didn't
 				// encounter a "!...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
-				$dp->setTempFlag( TempData::NO_ATTRS );
+				$dp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 
 				// FIXME: Skip comments between the two "!" chars
 				// "!!foo" in sol context parses as <th>!foo</th>

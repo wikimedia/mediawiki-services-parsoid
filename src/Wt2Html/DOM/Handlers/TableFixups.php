@@ -356,7 +356,7 @@ class TableFixups {
 		// Reparsed cells start off as non-mergeable-table cells
 		// and preserve that property after reparsing
 		$cellDp->setTempFlag( TempData::MERGED_TABLE_CELL );
-		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
+		$cellDp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX, false );
 
 		// If the transclusion node was embedded within the td node,
 		// lift up the about group to the td node.
@@ -480,7 +480,7 @@ class TableFixups {
 		// Combined cells don't merge further
 		$tgtDp = DOMDataUtils::getDataParsoid( $tgt );
 		$tgtDp->setTempFlag( TempData::MERGED_TABLE_CELL );
-		$tgtDp->setTempFlag( TempData::NO_ATTRS, false );
+		$tgtDp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX, false );
 	}
 
 	/**
@@ -579,7 +579,7 @@ class TableFixups {
 		}
 
 		// This has no attributes now
-		$cellDp->setTempFlag( TempData::NO_ATTRS );
+		$cellDp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 	}
 
 	/**
@@ -606,11 +606,11 @@ class TableFixups {
 
 		$prevIsTd = DOMUtils::nodeName( $prev ) === 'td';
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
-		$prevHasAttrs = !$prevDp->getTempFlag( TempData::NO_ATTRS );
+		$prevHasAttrs = !$prevDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 
 		$cellIsTd = DOMUtils::nodeName( $cell ) === 'td';
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
-		$cellHasAttrs = !$cellDp->getTempFlag( TempData::NO_ATTRS );
+		$cellHasAttrs = !$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 
 		// Even though we have valid dsr for $prev as a condition of entering
 		// here, use tsr start because dsr computation may have expanded the range
@@ -883,7 +883,7 @@ class TableFixups {
 		if ( DOMUtils::nodeName( $cell ) === 'th' &&
 			DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) &&
 			// The ! wouldn't be the first content char if attrs were present
-			$cellDp->getTempFlag( TempData::NO_ATTRS ) &&
+			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) &&
 			// This is checking that previous sibling is not "\n" which would
 			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
 			// If this weren't template output, we would check for "stx" === 'row'.
@@ -920,7 +920,10 @@ class TableFixups {
 		}
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
-		if ( $reparseType === ReparseScenario::MAYBE_REPARSE_ATTRS && $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
+		if (
+			$reparseType === ReparseScenario::MAYBE_REPARSE_ATTRS &&
+			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX )
+		) {
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
 			self::reparseTemplatedAttributes( $dtState, $cell, $templateWrapper );
 		}
@@ -993,7 +996,7 @@ class TableFixups {
 					$newCellDp = new DataParsoid;
 					// This new cell has 'row' stx (would be set if the tokenizer had parsed it)
 					$newCellDp->stx = 'row';
-					$newCellDp->setTempFlag( TempData::NO_ATTRS );
+					$newCellDp->setTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX );
 					// It is important to set this so that when $newCell is processed by this pass,
 					// it won't accidentally recombine again with the previous cell!
 					$newCellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );

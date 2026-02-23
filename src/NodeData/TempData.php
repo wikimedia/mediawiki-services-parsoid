@@ -65,7 +65,7 @@ class TempData {
 	 * The tokenizer sets this on table cells originating in wikitext-style syntax
 	 * with no attributes set in the input.
 	 */
-	public const NO_ATTRS = 1 << 1;
+	public const TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX = 1 << 1;
 
 	/**
 	 * The tokenizer sets this on table cells that use "||" or "!!" style syntax for
