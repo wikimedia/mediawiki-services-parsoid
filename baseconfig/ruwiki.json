@@ -6,8 +6,8 @@
             "sitename": "Википедия",
             "mainpageisdomainroot": false,
             "logo": "//ru.wikipedia.org/static/images/project-logos/ruwiki.png",
-            "generator": "MediaWiki 1.45.0-wmf.25",
-            "phpversion": "8.1.33",
+            "generator": "MediaWiki 1.46.0-wmf.16",
+            "phpversion": "8.3.30",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
             "dbversion": "10.11.11-MariaDB-log",
@@ -21,8 +21,8 @@
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:>=",
             "allunicodefixes": false,
-            "git-hash": "172a69ef4ad48c2999e951ed17c82613019073a9",
-            "git-branch": "wmf/1.45.0-wmf.25",
+            "git-hash": "70367793e255d59c40c5f5533987a32c4bd06bda",
+            "git-branch": "wmf/1.46.0-wmf.16",
             "case": "first-letter",
             "lang": "ru",
             "fallback": [
@@ -44,7 +44,7 @@
             "server": "//ru.wikipedia.org",
             "servername": "ru.wikipedia.org",
             "wikiid": "ruwiki",
-            "time": "2025-10-31T14:15:34Z",
+            "time": "2026-02-23T18:59:15Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 5368709120,
@@ -130,10 +130,10 @@
             "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "codfw",
-                "wmfEtcdLastModifiedIndex": 6111476
+                "wmfEtcdLastModifiedIndex": 6208437
             },
             "citeresponsivereferences": false,
-            "max-page-id": 11288149,
+            "max-page-id": 11425325,
             "linter": {
                 "high": [
                     "deletable-table-tag",
@@ -144,6 +144,7 @@
                     "multiple-unclosed-formatting-tags",
                     "pwrap-bug-workaround",
                     "self-closed-tag",
+                    "template-arg-in-extension-tag",
                     "tidy-font-bug",
                     "tidy-whitespace-bug",
                     "unclosed-quotes-in-heading"
@@ -2445,6 +2446,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "keeptitle",
+                "aliases": [
+                    "__KEEPTITLE__"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "assessment",
                 "aliases": [
                     "assessment"
@@ -2546,13 +2554,6 @@
                 "name": "usertestwiki",
                 "aliases": [
                     "USERTESTWIKI"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "infopage",
-                "aliases": [
-                    "infopage"
                 ],
                 "case-sensitive": false
             },
@@ -2711,6 +2712,13 @@
                 "case-sensitive": true
             },
             {
+                "name": "isbn",
+                "aliases": [
+                    "#isbn"
+                ],
+                "case-sensitive": true
+            },
+            {
                 "name": "language_option_bcp47",
                 "aliases": [
                     "bcp47"
@@ -2817,6 +2825,12 @@
             {
                 "prefix": "arborwiki",
                 "url": "https://localwiki.org/ann-arbor/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "arbcom-zh",
+                "local": true,
+                "url": "https://wikipedia-zh-arbcom.wikimedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3905,6 +3919,11 @@
             {
                 "prefix": "sourceforge",
                 "url": "https://sourceforge.net/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "spamcheck",
+                "url": "https://spamcheck.toolforge.org/by-domain?q=$1",
                 "protorel": false
             },
             {
@@ -6133,6 +6152,14 @@
                 "protorel": false
             },
             {
+                "prefix": "kaj",
+                "local": true,
+                "language": "Jju",
+                "bcp47": "kaj",
+                "url": "https://kaj.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "kbd",
                 "local": true,
                 "language": "адыгэбзэ",
@@ -6981,6 +7008,14 @@
                 "protorel": false
             },
             {
+                "prefix": "ppl",
+                "local": true,
+                "language": "Nawat",
+                "bcp47": "ppl",
+                "url": "https://ppl.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "ps",
                 "local": true,
                 "language": "پښتو",
@@ -7508,6 +7543,14 @@
                 "language": "lea faka-Tonga",
                 "bcp47": "to",
                 "url": "https://to.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "tok",
+                "local": true,
+                "language": "toki pona",
+                "bcp47": "tok",
+                "url": "https://tok.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -8335,6 +8378,7 @@
             "searchpreview-tutorial-enabled": 1,
             "parsermigration": "0",
             "parsermigration-parsoid-readviews": "0",
+            "wp25eastereggs-enable": "0",
             "ccmeonemails": 0,
             "date": "default",
             "diffonly": 0,
@@ -8471,11 +8515,11 @@
             "gadget-collapserefs": 1,
             "gadget-directLinkToCommons": 1,
             "gadget-referenceTooltips": 1,
-            "gadget-logo": 1,
             "gadget-edittop": 1,
             "gadget-navboxDefaultGadgets": 1,
             "gadget-navboxNavigation": 0,
             "gadget-navboxFeaturedArticles": 0,
+            "gadget-markadmins": 1,
             "gadget-urldecoder": 0,
             "gadget-HotCat": 0,
             "gadget-refToolbar": 0,
@@ -8492,7 +8536,6 @@
             "gadget-OpaqueInfoboxReferences": 0,
             "gadget-shiftrefs": 0,
             "gadget-wdRedLinks": 0,
-            "gadget-markadmins": 0,
             "gadget-markothers": 0,
             "gadget-markblocked": 0,
             "gadget-watchlist": 0,
@@ -8506,7 +8549,6 @@
             "gadget-DelKeepVis": 0,
             "gadget-hideSandboxLinkFromPersonalToolbar": 0,
             "gadget-osm": 0,
-            "gadget-search-extraTooltips": 0,
             "gadget-instantDiffs": 0,
             "gadget-wfTypos": 0,
             "gadget-wfIsbnLite": 0,
@@ -8515,6 +8557,7 @@
             "gadget-wikidataInfoboxExport": 0,
             "gadget-wefcore": 0,
             "gadget-wikidataHeaderLink": 0,
+            "gadget-shortdesc-helper-loader": 0,
             "gadget-iwlocalnames": 0,
             "gadget-relatedIcons": 0,
             "gadget-iwen": 0,
@@ -8537,6 +8580,8 @@
             "gadget-iwrm": 0,
             "gadget-mobile-sidebar": 0,
             "gadget-dark-mode": 0,
+            "gadget-test": 0,
+            "gadget-test2": 0,
             "gadget-yandex-tts": 0,
             "gadget-yandex-speechrecognition": 0,
             "gadget-GeoBox": 0,
@@ -9071,6 +9116,12 @@
                 "aliases": [
                     "Список_наблюдения",
                     "Watchlist"
+                ]
+            },
+            {
+                "realname": "WatchlistLabels",
+                "aliases": [
+                    "WatchlistLabels"
                 ]
             },
             {
@@ -9899,6 +9950,12 @@
                 ]
             },
             {
+                "realname": "AccountRecovery",
+                "aliases": [
+                    "AccountRecovery"
+                ]
+            },
+            {
                 "realname": "AbuseLog",
                 "aliases": [
                     "Журнал_злоупотреблений",
@@ -9928,12 +9985,6 @@
                 "realname": "GloballyWantedFiles",
                 "aliases": [
                     "GloballyWantedFiles"
-                ]
-            },
-            {
-                "realname": "GloballyUnusedFiles",
-                "aliases": [
-                    "GloballyUnusedFiles"
                 ]
             },
             {
@@ -9974,10 +10025,23 @@
                 ]
             },
             {
+                "realname": "LintTemplateErrors",
+                "aliases": [
+                    "LintTemplateErrors"
+                ]
+            },
+            {
                 "realname": "CollabPad",
                 "aliases": [
                     "CollabPad",
                     "Collab_Pad"
+                ]
+            },
+            {
+                "realname": "EditChecks",
+                "aliases": [
+                    "EditChecks",
+                    "Edit_checks"
                 ]
             },
             {
@@ -10194,6 +10258,19 @@
                 ]
             },
             {
+                "realname": "OAuthConsumerRegistration",
+                "aliases": [
+                    "OAuthConsumerRegistration",
+                    "OAuthRegistration"
+                ]
+            },
+            {
+                "realname": "OAuthManageConsumers",
+                "aliases": [
+                    "OAuthManageConsumers"
+                ]
+            },
+            {
                 "realname": "DisableOATHForUser",
                 "aliases": [
                     "DisableOATHForUser"
@@ -10209,6 +10286,12 @@
                     "OATH",
                     "Two-factor_authentication",
                     "OATHAuth"
+                ]
+            },
+            {
+                "realname": "Recover2FAForUser",
+                "aliases": [
+                    "Recover2FAForUser"
                 ]
             },
             {
@@ -10587,6 +10670,7 @@
             "interwikilink",
             "interlanguagelink",
             "contentmodel",
+            "isbn",
             "int",
             "special",
             "speciale",
@@ -10707,6 +10791,7 @@
             "contentmodel",
             "dir",
             "language",
+            "isbn",
             "numberofwikis",
             "noexternallanglinks",
             "wbreponame"
