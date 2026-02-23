@@ -72,8 +72,32 @@ if [ ! -d "$coreRepo" ]; then
 	exit 1
 fi
 
+# lower-case tag names
+oldTag=${1,,}
+newTag=${2,,}
+
+if [[ $1 == V* ]]; then
+	echo "Lowercased tag from $1 to $oldTag"
+	echo ""
+fi
+
+if [[ $oldTag != v* ]]; then
+	echo "Tag names should start with 'v' which $oldTag does not."
+	exit 1
+fi
+
+if [[ $2 == V* ]]; then
+	echo "Lowercased tag from $2 to $newTag"
+	echo ""
+fi
+
+if [[ $newTag != v* ]]; then
+	echo "Tag names should start with 'v' which $newTag does not."
+	exit 1
+fi
+
 # Generate deploy log
-deployLog=$(bash ./tools/gen_deploy_log.sh "$1" "$newTagSha")
+deployLog=$(bash ./tools/gen_deploy_log.sh "$oldTag" "$newTagSha")
 
 echo "{{tracked|$3}}
 $deployLog" > deploy.log.txt
@@ -84,28 +108,28 @@ echo "^^^ These patches will be part of the new tag."
 waitForConfirmation
 echo
 
-tagCount=$(git tag -l "$2" | wc -l | xargs)
+tagCount=$(git tag -l "$newTag" | wc -l | xargs)
 if [ "$tagCount" != "0" ]; then
-	existingTagSha=$(git rev-list -n 1 "$2")
+	existingTagSha=$(git rev-list -n 1 "$newTag")
 	if [[ "$existingTagSha" != "$newTagSha"* ]]; then
-		echo "Tag $2 already exists but does not point to $newTagSha."
+		echo "Tag $newTag already exists but does not point to $newTagSha."
 		exit 1
 	fi
 else
 	# Tag & push new version
-	echo "Creating new tag $2"
-	git tag "$2" "$newTagSha"
+	echo "Creating new tag $newTag"
+	git tag "$newTag" "$newTagSha"
 fi
 
-echo "Ready to push tag $2 (commit $newTagSha) to origin"
+echo "Ready to push tag $newTag (commit $newTagSha) to origin"
 waitForConfirmation
 echo
-git push origin "$2"
-echo "Pushed new tag $2 to origin"
+git push origin "$newTag"
+echo "Pushed new tag $newTag to origin"
 echo
 
 # Identify fixed bugs
-fixedbugs=$(git log "$1".."$2" | (grep -E "^\s*Bug:" || echo "") | sed 's/^[[:blank:]]*//g;' | sort | uniq)
+fixedbugs=$(git log "$oldTag".."$newTag" | (grep -E "^\s*Bug:" || echo "") | sed 's/^[[:blank:]]*//g;' | sort | uniq)
 
 # --- Prepare vendor patch ---
 # Update composer.json
@@ -114,7 +138,7 @@ cd "$vendorRepo"
 ## checkout master branch and update
 git checkout master
 git pull origin master --rebase
-vstring=$(echo "$2" | sed 's/v//g;')
+vstring=$(echo "$newTag" | sed 's/v//g;')
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
 
