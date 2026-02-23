@@ -1,6 +1,6 @@
 {
     "sitematrix": {
-        "count": 1017,
+        "count": 1065,
         "0": {
             "code": "aa",
             "name": "Qafár af",
@@ -63,7 +63,7 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Achinese"
+            "localname": "Acehnese"
         },
         "3": {
             "code": "ady",
@@ -144,7 +144,7 @@
             "name": "Alemannisch",
             "site": [],
             "dir": "ltr",
-            "localname": "Alemannisch"
+            "localname": "Alemannic"
         },
         "7": {
             "code": "alt",
@@ -263,6 +263,20 @@
             "localname": "Old English"
         },
         "12": {
+            "code": "ann",
+            "name": "Obolo",
+            "site": [
+                {
+                    "url": "https://ann.wikipedia.org",
+                    "dbname": "annwiki",
+                    "code": "wiki",
+                    "sitename": "Wìkìpedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Obolo"
+        },
+        "13": {
             "code": "anp",
             "name": "अंगिका",
             "site": [
@@ -276,7 +290,7 @@
             "dir": "ltr",
             "localname": "Angika"
         },
-        "13": {
+        "14": {
             "code": "ar",
             "name": "العربية",
             "site": [
@@ -296,7 +310,7 @@
                     "url": "https://ar.wikibooks.org",
                     "dbname": "arwikibooks",
                     "code": "wikibooks",
-                    "sitename": "ويكي الكتب"
+                    "sitename": "ويكي كتب"
                 },
                 {
                     "url": "https://ar.wikinews.org",
@@ -326,7 +340,7 @@
             "dir": "rtl",
             "localname": "Arabic"
         },
-        "14": {
+        "15": {
             "code": "arc",
             "name": "ܐܪܡܝܐ",
             "site": [
@@ -340,7 +354,7 @@
             "dir": "rtl",
             "localname": "Aramaic"
         },
-        "15": {
+        "16": {
             "code": "ary",
             "name": "الدارجة",
             "site": [
@@ -354,7 +368,7 @@
             "dir": "rtl",
             "localname": "Moroccan Arabic"
         },
-        "16": {
+        "17": {
             "code": "arz",
             "name": "مصرى",
             "site": [
@@ -368,7 +382,7 @@
             "dir": "rtl",
             "localname": "Egyptian Arabic"
         },
-        "17": {
+        "18": {
             "code": "as",
             "name": "অসমীয়া",
             "site": [
@@ -408,7 +422,7 @@
             "dir": "ltr",
             "localname": "Assamese"
         },
-        "18": {
+        "19": {
             "code": "ast",
             "name": "asturianu",
             "site": [
@@ -442,7 +456,7 @@
             "dir": "ltr",
             "localname": "Asturian"
         },
-        "19": {
+        "20": {
             "code": "atj",
             "name": "Atikamekw",
             "site": [
@@ -456,7 +470,7 @@
             "dir": "ltr",
             "localname": "Atikamekw"
         },
-        "20": {
+        "21": {
             "code": "av",
             "name": "авар",
             "site": [
@@ -477,7 +491,7 @@
             "dir": "ltr",
             "localname": "Avaric"
         },
-        "21": {
+        "22": {
             "code": "avk",
             "name": "Kotava",
             "site": [
@@ -491,7 +505,7 @@
             "dir": "ltr",
             "localname": "Kotava"
         },
-        "22": {
+        "23": {
             "code": "awa",
             "name": "अवधी",
             "site": [
@@ -505,7 +519,7 @@
             "dir": "ltr",
             "localname": "Awadhi"
         },
-        "23": {
+        "24": {
             "code": "ay",
             "name": "Aymar aru",
             "site": [
@@ -532,7 +546,7 @@
             "dir": "ltr",
             "localname": "Aymara"
         },
-        "24": {
+        "25": {
             "code": "az",
             "name": "azərbaycanca",
             "site": [
@@ -546,7 +560,7 @@
                     "url": "https://az.wiktionary.org",
                     "dbname": "azwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Vikilüğət"
                 },
                 {
                     "url": "https://az.wikibooks.org",
@@ -570,7 +584,7 @@
             "dir": "ltr",
             "localname": "Azerbaijani"
         },
-        "25": {
+        "26": {
             "code": "azb",
             "name": "تۆرکجه",
             "site": [
@@ -584,7 +598,7 @@
             "dir": "rtl",
             "localname": "South Azerbaijani"
         },
-        "26": {
+        "27": {
             "code": "ba",
             "name": "башҡортса",
             "site": [
@@ -604,7 +618,7 @@
             "dir": "ltr",
             "localname": "Bashkir"
         },
-        "27": {
+        "28": {
             "code": "ban",
             "name": "Basa Bali",
             "site": [
@@ -624,7 +638,7 @@
             "dir": "ltr",
             "localname": "Balinese"
         },
-        "28": {
+        "29": {
             "code": "bar",
             "name": "Boarisch",
             "site": [
@@ -638,14 +652,14 @@
             "dir": "ltr",
             "localname": "Bavarian"
         },
-        "29": {
+        "30": {
             "code": "bat-smg",
             "name": "žemaitėška",
             "site": [],
             "dir": "ltr",
             "localname": "Samogitian"
         },
-        "30": {
+        "31": {
             "code": "bbc",
             "name": "Batak Toba",
             "site": [
@@ -659,7 +673,7 @@
             "dir": "ltr",
             "localname": "Batak Toba"
         },
-        "31": {
+        "32": {
             "code": "bcl",
             "name": "Bikol Central",
             "site": [
@@ -680,12 +694,32 @@
                     "dbname": "bclwikiquote",
                     "code": "wikiquote",
                     "sitename": "Wikiquote"
+                },
+                {
+                    "url": "https://bcl.wikisource.org",
+                    "dbname": "bclwikisource",
+                    "code": "wikisource",
+                    "sitename": "Wikisource"
                 }
             ],
             "dir": "ltr",
             "localname": "Central Bikol"
         },
-        "32": {
+        "33": {
+            "code": "bdr",
+            "name": "Bajau Sama",
+            "site": [
+                {
+                    "url": "https://bdr.wikipedia.org",
+                    "dbname": "bdrwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipidia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "West Coast Bajau"
+        },
+        "34": {
             "code": "be",
             "name": "беларуская",
             "site": [
@@ -723,7 +757,7 @@
             "dir": "ltr",
             "localname": "Belarusian"
         },
-        "33": {
+        "35": {
             "code": "be-tarask",
             "name": "беларуская (тарашкевіца)",
             "site": [
@@ -737,14 +771,34 @@
             "dir": "ltr",
             "localname": "Belarusian (Taraškievica orthography)"
         },
-        "34": {
+        "36": {
             "code": "be-x-old",
             "name": "беларуская (тарашкевіца)",
             "site": [],
             "dir": "ltr",
             "localname": "Belarusian (Taraškievica orthography)"
         },
-        "35": {
+        "37": {
+            "code": "bew",
+            "name": "Betawi",
+            "site": [
+                {
+                    "url": "https://bew.wikipedia.org",
+                    "dbname": "bewwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipédi"
+                },
+                {
+                    "url": "https://bew.wiktionary.org",
+                    "dbname": "bewwiktionary",
+                    "code": "wiktionary",
+                    "sitename": "Wikikamus"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Betawi"
+        },
+        "38": {
             "code": "bg",
             "name": "български",
             "site": [
@@ -789,7 +843,7 @@
             "dir": "ltr",
             "localname": "Bulgarian"
         },
-        "36": {
+        "39": {
             "code": "bh",
             "name": "भोजपुरी",
             "site": [
@@ -810,7 +864,7 @@
             "dir": "ltr",
             "localname": "Bhojpuri"
         },
-        "37": {
+        "40": {
             "code": "bi",
             "name": "Bislama",
             "site": [
@@ -838,7 +892,7 @@
             "dir": "ltr",
             "localname": "Bislama"
         },
-        "38": {
+        "41": {
             "code": "bjn",
             "name": "Banjar",
             "site": [
@@ -864,7 +918,7 @@
             "dir": "ltr",
             "localname": "Banjar"
         },
-        "39": {
+        "42": {
             "code": "blk",
             "name": "ပအိုဝ်ႏဘာႏသာႏ",
             "site": [
@@ -884,7 +938,7 @@
             "dir": "ltr",
             "localname": "Pa'O"
         },
-        "40": {
+        "43": {
             "code": "bm",
             "name": "bamanankan",
             "site": [
@@ -919,7 +973,7 @@
             "dir": "ltr",
             "localname": "Bambara"
         },
-        "41": {
+        "44": {
             "code": "bn",
             "name": "বাংলা",
             "site": [
@@ -963,7 +1017,7 @@
             "dir": "ltr",
             "localname": "Bangla"
         },
-        "42": {
+        "45": {
             "code": "bo",
             "name": "བོད་ཡིག",
             "site": [
@@ -991,7 +1045,7 @@
             "dir": "ltr",
             "localname": "Tibetan"
         },
-        "43": {
+        "46": {
             "code": "bpy",
             "name": "বিষ্ণুপ্রিয়া মণিপুরী",
             "site": [
@@ -1005,7 +1059,7 @@
             "dir": "ltr",
             "localname": "Bishnupriya"
         },
-        "44": {
+        "47": {
             "code": "br",
             "name": "brezhoneg",
             "site": [
@@ -1037,7 +1091,7 @@
             "dir": "ltr",
             "localname": "Breton"
         },
-        "45": {
+        "48": {
             "code": "bs",
             "name": "bosanski",
             "site": [
@@ -1081,10 +1135,16 @@
             "dir": "ltr",
             "localname": "Bosnian"
         },
-        "46": {
+        "49": {
             "code": "btm",
             "name": "Batak Mandailing",
             "site": [
+                {
+                    "url": "https://btm.wikipedia.org",
+                    "dbname": "btmwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                },
                 {
                     "url": "https://btm.wiktionary.org",
                     "dbname": "btmwiktionary",
@@ -1095,7 +1155,7 @@
             "dir": "ltr",
             "localname": "Batak Mandailing"
         },
-        "47": {
+        "50": {
             "code": "bug",
             "name": "Basa Ugi",
             "site": [
@@ -1109,7 +1169,7 @@
             "dir": "ltr",
             "localname": "Buginese"
         },
-        "48": {
+        "51": {
             "code": "bxr",
             "name": "буряад",
             "site": [
@@ -1123,7 +1183,7 @@
             "dir": "ltr",
             "localname": "Russia Buriat"
         },
-        "49": {
+        "52": {
             "code": "ca",
             "name": "català",
             "site": [
@@ -1167,7 +1227,7 @@
             "dir": "ltr",
             "localname": "Catalan"
         },
-        "50": {
+        "53": {
             "code": "cbk-zam",
             "name": "Chavacano de Zamboanga",
             "site": [
@@ -1181,7 +1241,7 @@
             "dir": "ltr",
             "localname": "Chavacano"
         },
-        "51": {
+        "54": {
             "code": "cdo",
             "name": "閩東語 / Mìng-dĕ̤ng-ngṳ̄",
             "site": [
@@ -1195,7 +1255,7 @@
             "dir": "ltr",
             "localname": "Mindong"
         },
-        "52": {
+        "55": {
             "code": "ce",
             "name": "нохчийн",
             "site": [
@@ -1209,7 +1269,7 @@
             "dir": "ltr",
             "localname": "Chechen"
         },
-        "53": {
+        "56": {
             "code": "ceb",
             "name": "Cebuano",
             "site": [
@@ -1223,7 +1283,7 @@
             "dir": "ltr",
             "localname": "Cebuano"
         },
-        "54": {
+        "57": {
             "code": "ch",
             "name": "Chamoru",
             "site": [
@@ -1251,7 +1311,7 @@
             "dir": "ltr",
             "localname": "Chamorro"
         },
-        "55": {
+        "58": {
             "code": "cho",
             "name": "Chahta anumpa",
             "site": [
@@ -1266,7 +1326,7 @@
             "dir": "ltr",
             "localname": "Choctaw"
         },
-        "56": {
+        "59": {
             "code": "chr",
             "name": "ᏣᎳᎩ",
             "site": [
@@ -1286,7 +1346,7 @@
             "dir": "ltr",
             "localname": "Cherokee"
         },
-        "57": {
+        "60": {
             "code": "chy",
             "name": "Tsetsêhestâhese",
             "site": [
@@ -1300,7 +1360,7 @@
             "dir": "ltr",
             "localname": "Cheyenne"
         },
-        "58": {
+        "61": {
             "code": "ckb",
             "name": "کوردی",
             "site": [
@@ -1320,7 +1380,7 @@
             "dir": "rtl",
             "localname": "Central Kurdish"
         },
-        "59": {
+        "62": {
             "code": "co",
             "name": "corsu",
             "site": [
@@ -1354,7 +1414,7 @@
             "dir": "ltr",
             "localname": "Corsican"
         },
-        "60": {
+        "63": {
             "code": "cr",
             "name": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ",
             "site": [
@@ -1362,7 +1422,8 @@
                     "url": "https://cr.wikipedia.org",
                     "dbname": "crwiki",
                     "code": "wiki",
-                    "sitename": "Wikipedia"
+                    "sitename": "Wikipedia",
+                    "closed": ""
                 },
                 {
                     "url": "https://cr.wiktionary.org",
@@ -1382,7 +1443,7 @@
             "dir": "ltr",
             "localname": "Cree"
         },
-        "61": {
+        "64": {
             "code": "crh",
             "name": "qırımtatarca",
             "site": [
@@ -1396,7 +1457,7 @@
             "dir": "ltr",
             "localname": "Crimean Tatar"
         },
-        "62": {
+        "65": {
             "code": "cs",
             "name": "čeština",
             "site": [
@@ -1441,12 +1502,18 @@
                     "dbname": "cswikiversity",
                     "code": "wikiversity",
                     "sitename": "Wikiverzita"
+                },
+                {
+                    "url": "https://cs.wikivoyage.org",
+                    "dbname": "cswikivoyage",
+                    "code": "wikivoyage",
+                    "sitename": "Wikicesty"
                 }
             ],
             "dir": "ltr",
             "localname": "Czech"
         },
-        "63": {
+        "66": {
             "code": "csb",
             "name": "kaszëbsczi",
             "site": [
@@ -1466,7 +1533,7 @@
             "dir": "ltr",
             "localname": "Kashubian"
         },
-        "64": {
+        "67": {
             "code": "cu",
             "name": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ",
             "site": [
@@ -1480,7 +1547,7 @@
             "dir": "ltr",
             "localname": "Church Slavic"
         },
-        "65": {
+        "68": {
             "code": "cv",
             "name": "чӑвашла",
             "site": [
@@ -1500,7 +1567,7 @@
             "dir": "ltr",
             "localname": "Chuvash"
         },
-        "66": {
+        "69": {
             "code": "cy",
             "name": "Cymraeg",
             "site": [
@@ -1538,7 +1605,7 @@
             "dir": "ltr",
             "localname": "Welsh"
         },
-        "67": {
+        "70": {
             "code": "da",
             "name": "dansk",
             "site": [
@@ -1576,7 +1643,7 @@
             "dir": "ltr",
             "localname": "Danish"
         },
-        "68": {
+        "71": {
             "code": "dag",
             "name": "dagbanli",
             "site": [
@@ -1590,7 +1657,7 @@
             "dir": "ltr",
             "localname": "Dagbani"
         },
-        "69": {
+        "72": {
             "code": "de",
             "name": "Deutsch",
             "site": [
@@ -1646,7 +1713,7 @@
             "dir": "ltr",
             "localname": "German"
         },
-        "70": {
+        "73": {
             "code": "dga",
             "name": "Dagaare",
             "site": [
@@ -1658,9 +1725,9 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Dagaare"
+            "localname": "Southern Dagaare"
         },
-        "71": {
+        "74": {
             "code": "din",
             "name": "Thuɔŋjäŋ",
             "site": [
@@ -1674,7 +1741,7 @@
             "dir": "ltr",
             "localname": "Dinka"
         },
-        "72": {
+        "75": {
             "code": "diq",
             "name": "Zazaki",
             "site": [
@@ -1692,9 +1759,9 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Zazaki"
+            "localname": "Dimli"
         },
-        "73": {
+        "76": {
             "code": "dsb",
             "name": "dolnoserbski",
             "site": [
@@ -1708,7 +1775,21 @@
             "dir": "ltr",
             "localname": "Lower Sorbian"
         },
-        "74": {
+        "77": {
+            "code": "dtp",
+            "name": "Kadazandusun",
+            "site": [
+                {
+                    "url": "https://dtp.wikipedia.org",
+                    "dbname": "dtpwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Central Dusun"
+        },
+        "78": {
             "code": "dty",
             "name": "डोटेली",
             "site": [
@@ -1722,7 +1803,7 @@
             "dir": "ltr",
             "localname": "Doteli"
         },
-        "75": {
+        "79": {
             "code": "dv",
             "name": "ދިވެހިބަސް",
             "site": [
@@ -1742,7 +1823,7 @@
             "dir": "rtl",
             "localname": "Divehi"
         },
-        "76": {
+        "80": {
             "code": "dz",
             "name": "ཇོང་ཁ",
             "site": [
@@ -1763,7 +1844,7 @@
             "dir": "ltr",
             "localname": "Dzongkha"
         },
-        "77": {
+        "81": {
             "code": "ee",
             "name": "eʋegbe",
             "site": [
@@ -1777,7 +1858,7 @@
             "dir": "ltr",
             "localname": "Ewe"
         },
-        "78": {
+        "82": {
             "code": "el",
             "name": "Ελληνικά",
             "site": [
@@ -1833,7 +1914,7 @@
             "dir": "ltr",
             "localname": "Greek"
         },
-        "79": {
+        "83": {
             "code": "eml",
             "name": "emiliàn e rumagnòl",
             "site": [
@@ -1847,7 +1928,7 @@
             "dir": "ltr",
             "localname": "Emiliano-Romagnolo"
         },
-        "80": {
+        "84": {
             "code": "en",
             "name": "English",
             "site": [
@@ -1903,7 +1984,7 @@
             "dir": "ltr",
             "localname": "English"
         },
-        "81": {
+        "85": {
             "code": "eo",
             "name": "Esperanto",
             "site": [
@@ -1953,7 +2034,7 @@
             "dir": "ltr",
             "localname": "Esperanto"
         },
-        "82": {
+        "86": {
             "code": "es",
             "name": "español",
             "site": [
@@ -2009,7 +2090,7 @@
             "dir": "ltr",
             "localname": "Spanish"
         },
-        "83": {
+        "87": {
             "code": "et",
             "name": "eesti",
             "site": [
@@ -2047,7 +2128,7 @@
             "dir": "ltr",
             "localname": "Estonian"
         },
-        "84": {
+        "88": {
             "code": "eu",
             "name": "euskara",
             "site": [
@@ -2085,7 +2166,7 @@
             "dir": "ltr",
             "localname": "Basque"
         },
-        "85": {
+        "89": {
             "code": "ext",
             "name": "estremeñu",
             "site": [
@@ -2099,7 +2180,7 @@
             "dir": "ltr",
             "localname": "Extremaduran"
         },
-        "86": {
+        "90": {
             "code": "fa",
             "name": "فارسی",
             "site": [
@@ -2149,7 +2230,7 @@
             "dir": "rtl",
             "localname": "Persian"
         },
-        "87": {
+        "91": {
             "code": "fat",
             "name": "mfantse",
             "site": [
@@ -2163,7 +2244,7 @@
             "dir": "ltr",
             "localname": "Fanti"
         },
-        "88": {
+        "92": {
             "code": "ff",
             "name": "Fulfulde",
             "site": [
@@ -2177,7 +2258,7 @@
             "dir": "ltr",
             "localname": "Fula"
         },
-        "89": {
+        "93": {
             "code": "fi",
             "name": "suomi",
             "site": [
@@ -2233,14 +2314,14 @@
             "dir": "ltr",
             "localname": "Finnish"
         },
-        "90": {
+        "94": {
             "code": "fiu-vro",
             "name": "võro",
             "site": [],
             "dir": "ltr",
-            "localname": "võro"
+            "localname": "Võro"
         },
-        "91": {
+        "95": {
             "code": "fj",
             "name": "Na Vosa Vakaviti",
             "site": [
@@ -2260,7 +2341,7 @@
             "dir": "ltr",
             "localname": "Fijian"
         },
-        "92": {
+        "96": {
             "code": "fo",
             "name": "føroyskt",
             "site": [
@@ -2286,7 +2367,7 @@
             "dir": "ltr",
             "localname": "Faroese"
         },
-        "93": {
+        "97": {
             "code": "fon",
             "name": "fɔ̀ngbè",
             "site": [
@@ -2300,7 +2381,7 @@
             "dir": "ltr",
             "localname": "Fon"
         },
-        "94": {
+        "98": {
             "code": "fr",
             "name": "français",
             "site": [
@@ -2356,7 +2437,7 @@
             "dir": "ltr",
             "localname": "French"
         },
-        "95": {
+        "99": {
             "code": "frp",
             "name": "arpetan",
             "site": [
@@ -2370,7 +2451,7 @@
             "dir": "ltr",
             "localname": "Arpitan"
         },
-        "96": {
+        "100": {
             "code": "frr",
             "name": "Nordfriisk",
             "site": [
@@ -2384,7 +2465,7 @@
             "dir": "ltr",
             "localname": "Northern Frisian"
         },
-        "97": {
+        "101": {
             "code": "fur",
             "name": "furlan",
             "site": [
@@ -2398,7 +2479,7 @@
             "dir": "ltr",
             "localname": "Friulian"
         },
-        "98": {
+        "102": {
             "code": "fy",
             "name": "Frysk",
             "site": [
@@ -2424,7 +2505,7 @@
             "dir": "ltr",
             "localname": "Western Frisian"
         },
-        "99": {
+        "103": {
             "code": "ga",
             "name": "Gaeilge",
             "site": [
@@ -2458,7 +2539,7 @@
             "dir": "ltr",
             "localname": "Irish"
         },
-        "100": {
+        "104": {
             "code": "gag",
             "name": "Gagauz",
             "site": [
@@ -2472,7 +2553,7 @@
             "dir": "ltr",
             "localname": "Gagauz"
         },
-        "101": {
+        "105": {
             "code": "gan",
             "name": "贛語",
             "site": [
@@ -2486,7 +2567,7 @@
             "dir": "ltr",
             "localname": "Gan"
         },
-        "102": {
+        "106": {
             "code": "gcr",
             "name": "kriyòl gwiyannen",
             "site": [
@@ -2500,7 +2581,7 @@
             "dir": "ltr",
             "localname": "Guianan Creole"
         },
-        "103": {
+        "107": {
             "code": "gd",
             "name": "Gàidhlig",
             "site": [
@@ -2520,7 +2601,7 @@
             "dir": "ltr",
             "localname": "Scottish Gaelic"
         },
-        "104": {
+        "108": {
             "code": "gl",
             "name": "galego",
             "site": [
@@ -2558,7 +2639,7 @@
             "dir": "ltr",
             "localname": "Galician"
         },
-        "105": {
+        "109": {
             "code": "glk",
             "name": "گیلکی",
             "site": [
@@ -2572,7 +2653,7 @@
             "dir": "rtl",
             "localname": "Gilaki"
         },
-        "106": {
+        "110": {
             "code": "gn",
             "name": "Avañe'ẽ",
             "site": [
@@ -2599,7 +2680,7 @@
             "dir": "ltr",
             "localname": "Guarani"
         },
-        "107": {
+        "111": {
             "code": "gom",
             "name": "गोंयची कोंकणी / Gõychi Konknni",
             "site": [
@@ -2619,7 +2700,7 @@
             "dir": "ltr",
             "localname": "Goan Konkani"
         },
-        "108": {
+        "112": {
             "code": "gor",
             "name": "Bahasa Hulontalo",
             "site": [
@@ -2634,12 +2715,18 @@
                     "dbname": "gorwiktionary",
                     "code": "wiktionary",
                     "sitename": "Wikikamus"
+                },
+                {
+                    "url": "https://gor.wikiquote.org",
+                    "dbname": "gorwikiquote",
+                    "code": "wikiquote",
+                    "sitename": "Wikilumadu"
                 }
             ],
             "dir": "ltr",
             "localname": "Gorontalo"
         },
-        "109": {
+        "113": {
             "code": "got",
             "name": "𐌲𐌿𐍄𐌹𐍃𐌺",
             "site": [
@@ -2660,7 +2747,7 @@
             "dir": "ltr",
             "localname": "Gothic"
         },
-        "110": {
+        "114": {
             "code": "gpe",
             "name": "Ghanaian Pidgin",
             "site": [
@@ -2674,7 +2761,7 @@
             "dir": "ltr",
             "localname": "Ghanaian Pidgin"
         },
-        "111": {
+        "115": {
             "code": "gsw",
             "name": "Alemannisch",
             "site": [
@@ -2688,7 +2775,7 @@
             "dir": "ltr",
             "localname": "Alemannic"
         },
-        "112": {
+        "116": {
             "code": "gu",
             "name": "ગુજરાતી",
             "site": [
@@ -2727,7 +2814,7 @@
             "dir": "ltr",
             "localname": "Gujarati"
         },
-        "113": {
+        "117": {
             "code": "guc",
             "name": "wayuunaiki",
             "site": [
@@ -2741,7 +2828,7 @@
             "dir": "ltr",
             "localname": "Wayuu"
         },
-        "114": {
+        "118": {
             "code": "gur",
             "name": "farefare",
             "site": [
@@ -2755,7 +2842,7 @@
             "dir": "ltr",
             "localname": "Frafra"
         },
-        "115": {
+        "119": {
             "code": "guw",
             "name": "gungbe",
             "site": [
@@ -2787,7 +2874,7 @@
             "dir": "ltr",
             "localname": "Gun"
         },
-        "116": {
+        "120": {
             "code": "gv",
             "name": "Gaelg",
             "site": [
@@ -2807,7 +2894,7 @@
             "dir": "ltr",
             "localname": "Manx"
         },
-        "117": {
+        "121": {
             "code": "ha",
             "name": "Hausa",
             "site": [
@@ -2827,9 +2914,9 @@
             "dir": "ltr",
             "localname": "Hausa"
         },
-        "118": {
+        "122": {
             "code": "hak",
-            "name": "客家語/Hak-kâ-ngî",
+            "name": "客家語 / Hak-kâ-ngî",
             "site": [
                 {
                     "url": "https://hak.wikipedia.org",
@@ -2841,7 +2928,7 @@
             "dir": "ltr",
             "localname": "Hakka Chinese"
         },
-        "119": {
+        "123": {
             "code": "haw",
             "name": "Hawaiʻi",
             "site": [
@@ -2855,7 +2942,7 @@
             "dir": "ltr",
             "localname": "Hawaiian"
         },
-        "120": {
+        "124": {
             "code": "he",
             "name": "עברית",
             "site": [
@@ -2905,7 +2992,7 @@
             "dir": "rtl",
             "localname": "Hebrew"
         },
-        "121": {
+        "125": {
             "code": "hi",
             "name": "हिन्दी",
             "site": [
@@ -2955,7 +3042,7 @@
             "dir": "ltr",
             "localname": "Hindi"
         },
-        "122": {
+        "126": {
             "code": "hif",
             "name": "Fiji Hindi",
             "site": [
@@ -2975,7 +3062,7 @@
             "dir": "ltr",
             "localname": "Fiji Hindi"
         },
-        "123": {
+        "127": {
             "code": "ho",
             "name": "Hiri Motu",
             "site": [
@@ -2990,7 +3077,7 @@
             "dir": "ltr",
             "localname": "Hiri Motu"
         },
-        "124": {
+        "128": {
             "code": "hr",
             "name": "hrvatski",
             "site": [
@@ -3028,7 +3115,7 @@
             "dir": "ltr",
             "localname": "Croatian"
         },
-        "125": {
+        "129": {
             "code": "hsb",
             "name": "hornjoserbsce",
             "site": [
@@ -3048,7 +3135,7 @@
             "dir": "ltr",
             "localname": "Upper Sorbian"
         },
-        "126": {
+        "130": {
             "code": "ht",
             "name": "Kreyòl ayisyen",
             "site": [
@@ -3069,7 +3156,7 @@
             "dir": "ltr",
             "localname": "Haitian Creole"
         },
-        "127": {
+        "131": {
             "code": "hu",
             "name": "magyar",
             "site": [
@@ -3114,7 +3201,7 @@
             "dir": "ltr",
             "localname": "Hungarian"
         },
-        "128": {
+        "132": {
             "code": "hy",
             "name": "հայերեն",
             "site": [
@@ -3152,7 +3239,7 @@
             "dir": "ltr",
             "localname": "Armenian"
         },
-        "129": {
+        "133": {
             "code": "hyw",
             "name": "Արեւմտահայերէն",
             "site": [
@@ -3166,7 +3253,7 @@
             "dir": "ltr",
             "localname": "Western Armenian"
         },
-        "130": {
+        "134": {
             "code": "hz",
             "name": "Otsiherero",
             "site": [
@@ -3181,7 +3268,7 @@
             "dir": "ltr",
             "localname": "Herero"
         },
-        "131": {
+        "135": {
             "code": "ia",
             "name": "interlingua",
             "site": [
@@ -3207,7 +3294,21 @@
             "dir": "ltr",
             "localname": "Interlingua"
         },
-        "132": {
+        "136": {
+            "code": "iba",
+            "name": "Jaku Iban",
+            "site": [
+                {
+                    "url": "https://iba.wikipedia.org",
+                    "dbname": "ibawiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Iban"
+        },
+        "137": {
             "code": "id",
             "name": "Bahasa Indonesia",
             "site": [
@@ -3240,12 +3341,18 @@
                     "dbname": "idwikisource",
                     "code": "wikisource",
                     "sitename": "Wikisumber"
+                },
+                {
+                    "url": "https://id.wikivoyage.org",
+                    "dbname": "idwikivoyage",
+                    "code": "wikivoyage",
+                    "sitename": "Wikiwisata"
                 }
             ],
             "dir": "ltr",
             "localname": "Indonesian"
         },
-        "133": {
+        "138": {
             "code": "ie",
             "name": "Interlingue",
             "site": [
@@ -3272,7 +3379,7 @@
             "dir": "ltr",
             "localname": "Interlingue"
         },
-        "134": {
+        "139": {
             "code": "ig",
             "name": "Igbo",
             "site": [
@@ -3298,7 +3405,21 @@
             "dir": "ltr",
             "localname": "Igbo"
         },
-        "135": {
+        "140": {
+            "code": "igl",
+            "name": "Igala",
+            "site": [
+                {
+                    "url": "https://igl.wikipedia.org",
+                    "dbname": "iglwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipídiya"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Igala"
+        },
+        "141": {
             "code": "ii",
             "name": "ꆇꉙ",
             "site": [
@@ -3313,7 +3434,7 @@
             "dir": "ltr",
             "localname": "Sichuan Yi"
         },
-        "136": {
+        "142": {
             "code": "ik",
             "name": "Iñupiatun",
             "site": [
@@ -3334,7 +3455,7 @@
             "dir": "ltr",
             "localname": "Inupiaq"
         },
-        "137": {
+        "143": {
             "code": "ilo",
             "name": "Ilokano",
             "site": [
@@ -3348,7 +3469,7 @@
             "dir": "ltr",
             "localname": "Iloko"
         },
-        "138": {
+        "144": {
             "code": "inh",
             "name": "гӀалгӀай",
             "site": [
@@ -3362,7 +3483,7 @@
             "dir": "ltr",
             "localname": "Ingush"
         },
-        "139": {
+        "145": {
             "code": "io",
             "name": "Ido",
             "site": [
@@ -3382,7 +3503,7 @@
             "dir": "ltr",
             "localname": "Ido"
         },
-        "140": {
+        "146": {
             "code": "is",
             "name": "íslenska",
             "site": [
@@ -3420,7 +3541,7 @@
             "dir": "ltr",
             "localname": "Icelandic"
         },
-        "141": {
+        "147": {
             "code": "it",
             "name": "italiano",
             "site": [
@@ -3476,7 +3597,7 @@
             "dir": "ltr",
             "localname": "Italian"
         },
-        "142": {
+        "148": {
             "code": "iu",
             "name": "ᐃᓄᒃᑎᑐᑦ / inuktitut",
             "site": [
@@ -3496,7 +3617,7 @@
             "dir": "ltr",
             "localname": "Inuktitut"
         },
-        "143": {
+        "149": {
             "code": "ja",
             "name": "日本語",
             "site": [
@@ -3552,7 +3673,7 @@
             "dir": "ltr",
             "localname": "Japanese"
         },
-        "144": {
+        "150": {
             "code": "jam",
             "name": "Patois",
             "site": [
@@ -3566,7 +3687,7 @@
             "dir": "ltr",
             "localname": "Jamaican Creole English"
         },
-        "145": {
+        "151": {
             "code": "jbo",
             "name": "la .lojban.",
             "site": [
@@ -3586,7 +3707,7 @@
             "dir": "ltr",
             "localname": "Lojban"
         },
-        "146": {
+        "152": {
             "code": "jv",
             "name": "Jawa",
             "site": [
@@ -3612,7 +3733,7 @@
             "dir": "ltr",
             "localname": "Javanese"
         },
-        "147": {
+        "153": {
             "code": "ka",
             "name": "ქართული",
             "site": [
@@ -3639,12 +3760,18 @@
                     "dbname": "kawikiquote",
                     "code": "wikiquote",
                     "sitename": "ვიკიციტატა"
+                },
+                {
+                    "url": "https://ka.wikisource.org",
+                    "dbname": "kawikisource",
+                    "code": "wikisource",
+                    "sitename": "ვიკიწყარო"
                 }
             ],
             "dir": "ltr",
             "localname": "Georgian"
         },
-        "148": {
+        "154": {
             "code": "kaa",
             "name": "Qaraqalpaqsha",
             "site": [
@@ -3653,12 +3780,18 @@
                     "dbname": "kaawiki",
                     "code": "wiki",
                     "sitename": "Wikipedia"
+                },
+                {
+                    "url": "https://kaa.wiktionary.org",
+                    "dbname": "kaawiktionary",
+                    "code": "wiktionary",
+                    "sitename": "Wikisózlik"
                 }
             ],
             "dir": "ltr",
             "localname": "Kara-Kalpak"
         },
-        "149": {
+        "155": {
             "code": "kab",
             "name": "Taqbaylit",
             "site": [
@@ -3672,7 +3805,21 @@
             "dir": "ltr",
             "localname": "Kabyle"
         },
-        "150": {
+        "156": {
+            "code": "kaj",
+            "name": "Jju",
+            "site": [
+                {
+                    "url": "https://kaj.wikipedia.org",
+                    "dbname": "kajwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Jju"
+        },
+        "157": {
             "code": "kbd",
             "name": "адыгэбзэ",
             "site": [
@@ -3692,7 +3839,7 @@
             "dir": "ltr",
             "localname": "Kabardian"
         },
-        "151": {
+        "158": {
             "code": "kbp",
             "name": "Kabɩyɛ",
             "site": [
@@ -3706,7 +3853,7 @@
             "dir": "ltr",
             "localname": "Kabiye"
         },
-        "152": {
+        "159": {
             "code": "kcg",
             "name": "Tyap",
             "site": [
@@ -3726,7 +3873,7 @@
             "dir": "ltr",
             "localname": "Tyap"
         },
-        "153": {
+        "160": {
             "code": "kg",
             "name": "Kongo",
             "site": [
@@ -3740,7 +3887,21 @@
             "dir": "ltr",
             "localname": "Kongo"
         },
-        "154": {
+        "161": {
+            "code": "kge",
+            "name": "Kumoring",
+            "site": [
+                {
+                    "url": "https://kge.wikipedia.org",
+                    "dbname": "kgewiki",
+                    "code": "wiki",
+                    "sitename": "Wikipidiya"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Komering"
+        },
+        "162": {
             "code": "ki",
             "name": "Gĩkũyũ",
             "site": [
@@ -3754,7 +3915,7 @@
             "dir": "ltr",
             "localname": "Kikuyu"
         },
-        "155": {
+        "163": {
             "code": "kj",
             "name": "Kwanyama",
             "site": [
@@ -3769,7 +3930,7 @@
             "dir": "ltr",
             "localname": "Kuanyama"
         },
-        "156": {
+        "164": {
             "code": "kk",
             "name": "қазақша",
             "site": [
@@ -3802,7 +3963,7 @@
             "dir": "ltr",
             "localname": "Kazakh"
         },
-        "157": {
+        "165": {
             "code": "kl",
             "name": "kalaallisut",
             "site": [
@@ -3810,7 +3971,8 @@
                     "url": "https://kl.wikipedia.org",
                     "dbname": "klwiki",
                     "code": "wiki",
-                    "sitename": "Wikipedia"
+                    "sitename": "Wikipedia",
+                    "closed": ""
                 },
                 {
                     "url": "https://kl.wiktionary.org",
@@ -3822,7 +3984,7 @@
             "dir": "ltr",
             "localname": "Kalaallisut"
         },
-        "158": {
+        "166": {
             "code": "km",
             "name": "ភាសាខ្មែរ",
             "site": [
@@ -3848,7 +4010,7 @@
             "dir": "ltr",
             "localname": "Khmer"
         },
-        "159": {
+        "167": {
             "code": "kn",
             "name": "ಕನ್ನಡ",
             "site": [
@@ -3887,7 +4049,21 @@
             "dir": "ltr",
             "localname": "Kannada"
         },
-        "160": {
+        "168": {
+            "code": "knc",
+            "name": "Yerwa Kanuri",
+            "site": [
+                {
+                    "url": "https://knc.wikipedia.org",
+                    "dbname": "kncwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Central Kanuri"
+        },
+        "169": {
             "code": "ko",
             "name": "한국어",
             "site": [
@@ -3937,7 +4113,7 @@
             "dir": "ltr",
             "localname": "Korean"
         },
-        "161": {
+        "170": {
             "code": "koi",
             "name": "перем коми",
             "site": [
@@ -3951,7 +4127,7 @@
             "dir": "ltr",
             "localname": "Komi-Permyak"
         },
-        "162": {
+        "171": {
             "code": "kr",
             "name": "kanuri",
             "site": [
@@ -3973,7 +4149,7 @@
             "dir": "ltr",
             "localname": "Kanuri"
         },
-        "163": {
+        "172": {
             "code": "krc",
             "name": "къарачай-малкъар",
             "site": [
@@ -3987,9 +4163,9 @@
             "dir": "ltr",
             "localname": "Karachay-Balkar"
         },
-        "164": {
+        "173": {
             "code": "ks",
-            "name": "कॉशुर / کٲشُر",
+            "name": "کٲشُر",
             "site": [
                 {
                     "url": "https://ks.wikipedia.org",
@@ -4021,7 +4197,7 @@
             "dir": "rtl",
             "localname": "Kashmiri"
         },
-        "165": {
+        "174": {
             "code": "ksh",
             "name": "Ripoarisch",
             "site": [
@@ -4035,7 +4211,7 @@
             "dir": "ltr",
             "localname": "Colognian"
         },
-        "166": {
+        "175": {
             "code": "ku",
             "name": "kurdî",
             "site": [
@@ -4067,7 +4243,21 @@
             "dir": "ltr",
             "localname": "Kurdish"
         },
-        "167": {
+        "176": {
+            "code": "kus",
+            "name": "Kʋsaal",
+            "site": [
+                {
+                    "url": "https://kus.wikipedia.org",
+                    "dbname": "kuswiki",
+                    "code": "wiki",
+                    "sitename": "Wikipiidia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Kusaal"
+        },
+        "177": {
             "code": "kv",
             "name": "коми",
             "site": [
@@ -4081,7 +4271,7 @@
             "dir": "ltr",
             "localname": "Komi"
         },
-        "168": {
+        "178": {
             "code": "kw",
             "name": "kernowek",
             "site": [
@@ -4108,7 +4298,7 @@
             "dir": "ltr",
             "localname": "Cornish"
         },
-        "169": {
+        "179": {
             "code": "ky",
             "name": "кыргызча",
             "site": [
@@ -4128,7 +4318,8 @@
                     "url": "https://ky.wikibooks.org",
                     "dbname": "kywikibooks",
                     "code": "wikibooks",
-                    "sitename": "Wikibooks"
+                    "sitename": "Wikibooks",
+                    "closed": ""
                 },
                 {
                     "url": "https://ky.wikiquote.org",
@@ -4140,7 +4331,7 @@
             "dir": "ltr",
             "localname": "Kyrgyz"
         },
-        "170": {
+        "180": {
             "code": "la",
             "name": "Latina",
             "site": [
@@ -4178,7 +4369,7 @@
             "dir": "ltr",
             "localname": "Latin"
         },
-        "171": {
+        "181": {
             "code": "lad",
             "name": "Ladino",
             "site": [
@@ -4192,7 +4383,7 @@
             "dir": "ltr",
             "localname": "Ladino"
         },
-        "172": {
+        "182": {
             "code": "lb",
             "name": "Lëtzebuergesch",
             "site": [
@@ -4226,7 +4417,7 @@
             "dir": "ltr",
             "localname": "Luxembourgish"
         },
-        "173": {
+        "183": {
             "code": "lbe",
             "name": "лакку",
             "site": [
@@ -4240,7 +4431,7 @@
             "dir": "ltr",
             "localname": "Lak"
         },
-        "174": {
+        "184": {
             "code": "lez",
             "name": "лезги",
             "site": [
@@ -4254,7 +4445,7 @@
             "dir": "ltr",
             "localname": "Lezghian"
         },
-        "175": {
+        "185": {
             "code": "lfn",
             "name": "Lingua Franca Nova",
             "site": [
@@ -4268,7 +4459,7 @@
             "dir": "ltr",
             "localname": "Lingua Franca Nova"
         },
-        "176": {
+        "186": {
             "code": "lg",
             "name": "Luganda",
             "site": [
@@ -4282,7 +4473,7 @@
             "dir": "ltr",
             "localname": "Ganda"
         },
-        "177": {
+        "187": {
             "code": "li",
             "name": "Limburgs",
             "site": [
@@ -4326,7 +4517,7 @@
             "dir": "ltr",
             "localname": "Limburgish"
         },
-        "178": {
+        "188": {
             "code": "lij",
             "name": "Ligure",
             "site": [
@@ -4346,7 +4537,7 @@
             "dir": "ltr",
             "localname": "Ligurian"
         },
-        "179": {
+        "189": {
             "code": "lld",
             "name": "Ladin",
             "site": [
@@ -4360,7 +4551,7 @@
             "dir": "ltr",
             "localname": "Ladin"
         },
-        "180": {
+        "190": {
             "code": "lmo",
             "name": "lombard",
             "site": [
@@ -4380,7 +4571,7 @@
             "dir": "ltr",
             "localname": "Lombard"
         },
-        "181": {
+        "191": {
             "code": "ln",
             "name": "lingála",
             "site": [
@@ -4407,7 +4598,7 @@
             "dir": "ltr",
             "localname": "Lingala"
         },
-        "182": {
+        "192": {
             "code": "lo",
             "name": "ລາວ",
             "site": [
@@ -4427,7 +4618,7 @@
             "dir": "ltr",
             "localname": "Lao"
         },
-        "183": {
+        "193": {
             "code": "lrc",
             "name": "لۊری شومالی",
             "site": [
@@ -4442,7 +4633,7 @@
             "dir": "rtl",
             "localname": "Northern Luri"
         },
-        "184": {
+        "194": {
             "code": "lt",
             "name": "lietuvių",
             "site": [
@@ -4480,7 +4671,7 @@
             "dir": "ltr",
             "localname": "Lithuanian"
         },
-        "185": {
+        "195": {
             "code": "ltg",
             "name": "latgaļu",
             "site": [
@@ -4494,7 +4685,7 @@
             "dir": "ltr",
             "localname": "Latgalian"
         },
-        "186": {
+        "196": {
             "code": "lv",
             "name": "latviešu",
             "site": [
@@ -4521,7 +4712,7 @@
             "dir": "ltr",
             "localname": "Latvian"
         },
-        "187": {
+        "197": {
             "code": "lzh",
             "name": "文言",
             "site": [
@@ -4535,7 +4726,7 @@
             "dir": "ltr",
             "localname": "Literary Chinese"
         },
-        "188": {
+        "198": {
             "code": "mad",
             "name": "Madhurâ",
             "site": [
@@ -4544,12 +4735,24 @@
                     "dbname": "madwiki",
                     "code": "wiki",
                     "sitename": "Wikipedia"
+                },
+                {
+                    "url": "https://mad.wiktionary.org",
+                    "dbname": "madwiktionary",
+                    "code": "wiktionary",
+                    "sitename": "Wikikamus"
+                },
+                {
+                    "url": "https://mad.wikisource.org",
+                    "dbname": "madwikisource",
+                    "code": "wikisource",
+                    "sitename": "Wikigherbhung"
                 }
             ],
             "dir": "ltr",
             "localname": "Madurese"
         },
-        "189": {
+        "199": {
             "code": "mai",
             "name": "मैथिली",
             "site": [
@@ -4563,7 +4766,7 @@
             "dir": "ltr",
             "localname": "Maithili"
         },
-        "190": {
+        "200": {
             "code": "map-bms",
             "name": "Basa Banyumasan",
             "site": [
@@ -4575,9 +4778,9 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Basa Banyumasan"
+            "localname": "Banyumasan"
         },
-        "191": {
+        "201": {
             "code": "mdf",
             "name": "мокшень",
             "site": [
@@ -4591,7 +4794,7 @@
             "dir": "ltr",
             "localname": "Moksha"
         },
-        "192": {
+        "202": {
             "code": "mg",
             "name": "Malagasy",
             "site": [
@@ -4617,7 +4820,7 @@
             "dir": "ltr",
             "localname": "Malagasy"
         },
-        "193": {
+        "203": {
             "code": "mh",
             "name": "Ebon",
             "site": [
@@ -4639,7 +4842,7 @@
             "dir": "ltr",
             "localname": "Marshallese"
         },
-        "194": {
+        "204": {
             "code": "mhr",
             "name": "олык марий",
             "site": [
@@ -4653,7 +4856,7 @@
             "dir": "ltr",
             "localname": "Eastern Mari"
         },
-        "195": {
+        "205": {
             "code": "mi",
             "name": "Māori",
             "site": [
@@ -4680,7 +4883,7 @@
             "dir": "ltr",
             "localname": "Māori"
         },
-        "196": {
+        "206": {
             "code": "min",
             "name": "Minangkabau",
             "site": [
@@ -4695,12 +4898,24 @@
                     "dbname": "minwiktionary",
                     "code": "wiktionary",
                     "sitename": "Wikikato"
+                },
+                {
+                    "url": "https://min.wikibooks.org",
+                    "dbname": "minwikibooks",
+                    "code": "wikibooks",
+                    "sitename": "Wikibuku"
+                },
+                {
+                    "url": "https://min.wikisource.org",
+                    "dbname": "minwikisource",
+                    "code": "wikisource",
+                    "sitename": "Wikibasurek"
                 }
             ],
             "dir": "ltr",
             "localname": "Minangkabau"
         },
-        "197": {
+        "207": {
             "code": "mk",
             "name": "македонски",
             "site": [
@@ -4720,7 +4935,7 @@
                     "url": "https://mk.wikibooks.org",
                     "dbname": "mkwikibooks",
                     "code": "wikibooks",
-                    "sitename": "Wikibooks"
+                    "sitename": "Викикниги"
                 },
                 {
                     "url": "https://mk.wikisource.org",
@@ -4732,7 +4947,7 @@
             "dir": "ltr",
             "localname": "Macedonian"
         },
-        "198": {
+        "208": {
             "code": "ml",
             "name": "മലയാളം",
             "site": [
@@ -4770,7 +4985,7 @@
             "dir": "ltr",
             "localname": "Malayalam"
         },
-        "199": {
+        "209": {
             "code": "mn",
             "name": "монгол",
             "site": [
@@ -4784,7 +4999,7 @@
                     "url": "https://mn.wiktionary.org",
                     "dbname": "mnwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Викитоль"
                 },
                 {
                     "url": "https://mn.wikibooks.org",
@@ -4797,7 +5012,7 @@
             "dir": "ltr",
             "localname": "Mongolian"
         },
-        "200": {
+        "210": {
             "code": "mni",
             "name": "ꯃꯤꯇꯩ ꯂꯣꯟ",
             "site": [
@@ -4817,7 +5032,7 @@
             "dir": "ltr",
             "localname": "Manipuri"
         },
-        "201": {
+        "211": {
             "code": "mnw",
             "name": "ဘာသာမန်",
             "site": [
@@ -4837,14 +5052,28 @@
             "dir": "ltr",
             "localname": "Mon"
         },
-        "202": {
+        "212": {
             "code": "mo",
             "name": "молдовеняскэ",
             "site": [],
             "dir": "ltr",
             "localname": "Moldovan"
         },
-        "203": {
+        "213": {
+            "code": "mos",
+            "name": "moore",
+            "site": [
+                {
+                    "url": "https://mos.wikipedia.org",
+                    "dbname": "moswiki",
+                    "code": "wiki",
+                    "sitename": "Wikipidiya"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Mossi"
+        },
+        "214": {
             "code": "mr",
             "name": "मराठी",
             "site": [
@@ -4882,7 +5111,7 @@
             "dir": "ltr",
             "localname": "Marathi"
         },
-        "204": {
+        "215": {
             "code": "mrj",
             "name": "кырык мары",
             "site": [
@@ -4896,7 +5125,7 @@
             "dir": "ltr",
             "localname": "Western Mari"
         },
-        "205": {
+        "216": {
             "code": "ms",
             "name": "Bahasa Melayu",
             "site": [
@@ -4910,19 +5139,31 @@
                     "url": "https://ms.wiktionary.org",
                     "dbname": "mswiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Wikikamus"
                 },
                 {
                     "url": "https://ms.wikibooks.org",
                     "dbname": "mswikibooks",
                     "code": "wikibooks",
-                    "sitename": "Wikibooks"
+                    "sitename": "Wikibuku"
+                },
+                {
+                    "url": "https://ms.wikiquote.org",
+                    "dbname": "mswikiquote",
+                    "code": "wikiquote",
+                    "sitename": "Wikipetik"
+                },
+                {
+                    "url": "https://ms.wikisource.org",
+                    "dbname": "mswikisource",
+                    "code": "wikisource",
+                    "sitename": "Wikisumber"
                 }
             ],
             "dir": "ltr",
             "localname": "Malay"
         },
-        "206": {
+        "217": {
             "code": "mt",
             "name": "Malti",
             "site": [
@@ -4942,7 +5183,7 @@
             "dir": "ltr",
             "localname": "Maltese"
         },
-        "207": {
+        "218": {
             "code": "mus",
             "name": "Mvskoke",
             "site": [
@@ -4957,7 +5198,7 @@
             "dir": "ltr",
             "localname": "Muscogee"
         },
-        "208": {
+        "219": {
             "code": "mwl",
             "name": "Mirandés",
             "site": [
@@ -4971,7 +5212,7 @@
             "dir": "ltr",
             "localname": "Mirandese"
         },
-        "209": {
+        "220": {
             "code": "my",
             "name": "မြန်မာဘာသာ",
             "site": [
@@ -4993,12 +5234,18 @@
                     "code": "wikibooks",
                     "sitename": "Wikibooks",
                     "closed": ""
+                },
+                {
+                    "url": "https://my.wikisource.org",
+                    "dbname": "mywikisource",
+                    "code": "wikisource",
+                    "sitename": "ဝီကီရင်းမြစ်"
                 }
             ],
             "dir": "ltr",
             "localname": "Burmese"
         },
-        "210": {
+        "221": {
             "code": "myv",
             "name": "эрзянь",
             "site": [
@@ -5012,7 +5259,7 @@
             "dir": "ltr",
             "localname": "Erzya"
         },
-        "211": {
+        "222": {
             "code": "mzn",
             "name": "مازِرونی",
             "site": [
@@ -5026,7 +5273,7 @@
             "dir": "rtl",
             "localname": "Mazanderani"
         },
-        "212": {
+        "223": {
             "code": "na",
             "name": "Dorerin Naoero",
             "site": [
@@ -5061,7 +5308,7 @@
             "dir": "ltr",
             "localname": "Nauru"
         },
-        "213": {
+        "224": {
             "code": "nah",
             "name": "Nāhuatl",
             "site": [
@@ -5086,11 +5333,11 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Nāhuatl"
+            "localname": "Nahuatl"
         },
-        "214": {
+        "225": {
             "code": "nan",
-            "name": "Bân-lâm-gú",
+            "name": "閩南語 / Bân-lâm-gí",
             "site": [
                 {
                     "url": "https://zh-min-nan.wikipedia.org",
@@ -5128,7 +5375,7 @@
             "dir": "ltr",
             "localname": "Minnan"
         },
-        "215": {
+        "226": {
             "code": "nap",
             "name": "Napulitano",
             "site": [
@@ -5148,7 +5395,7 @@
             "dir": "ltr",
             "localname": "Neapolitan"
         },
-        "216": {
+        "227": {
             "code": "nds",
             "name": "Plattdüütsch",
             "site": [
@@ -5182,7 +5429,7 @@
             "dir": "ltr",
             "localname": "Low German"
         },
-        "217": {
+        "228": {
             "code": "nds-nl",
             "name": "Nedersaksies",
             "site": [
@@ -5196,7 +5443,7 @@
             "dir": "ltr",
             "localname": "Low Saxon"
         },
-        "218": {
+        "229": {
             "code": "ne",
             "name": "नेपाली",
             "site": [
@@ -5222,7 +5469,7 @@
             "dir": "ltr",
             "localname": "Nepali"
         },
-        "219": {
+        "230": {
             "code": "new",
             "name": "नेपाल भाषा",
             "site": [
@@ -5236,7 +5483,7 @@
             "dir": "ltr",
             "localname": "Newari"
         },
-        "220": {
+        "231": {
             "code": "ng",
             "name": "Oshiwambo",
             "site": [
@@ -5251,7 +5498,7 @@
             "dir": "ltr",
             "localname": "Ndonga"
         },
-        "221": {
+        "232": {
             "code": "nia",
             "name": "Li Niha",
             "site": [
@@ -5265,13 +5512,13 @@
                     "url": "https://nia.wiktionary.org",
                     "dbname": "niawiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Wikikamus"
                 }
             ],
             "dir": "ltr",
             "localname": "Nias"
         },
-        "222": {
+        "233": {
             "code": "nl",
             "name": "Nederlands",
             "site": [
@@ -5321,7 +5568,7 @@
             "dir": "ltr",
             "localname": "Dutch"
         },
-        "223": {
+        "234": {
             "code": "nn",
             "name": "norsk nynorsk",
             "site": [
@@ -5347,7 +5594,7 @@
             "dir": "ltr",
             "localname": "Norwegian Nynorsk"
         },
-        "224": {
+        "235": {
             "code": "no",
             "name": "norsk",
             "site": [
@@ -5391,7 +5638,7 @@
             "dir": "ltr",
             "localname": "Norwegian"
         },
-        "225": {
+        "236": {
             "code": "nov",
             "name": "Novial",
             "site": [
@@ -5405,7 +5652,7 @@
             "dir": "ltr",
             "localname": "Novial"
         },
-        "226": {
+        "237": {
             "code": "nqo",
             "name": "ߒߞߏ",
             "site": [
@@ -5419,7 +5666,21 @@
             "dir": "rtl",
             "localname": "N’Ko"
         },
-        "227": {
+        "238": {
+            "code": "nr",
+            "name": "isiNdebele seSewula",
+            "site": [
+                {
+                    "url": "https://nr.wikipedia.org",
+                    "dbname": "nrwiki",
+                    "code": "wiki",
+                    "sitename": "Wikiphidiya"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "South Ndebele"
+        },
+        "239": {
             "code": "nrm",
             "name": "Nouormand",
             "site": [
@@ -5433,7 +5694,7 @@
             "dir": "ltr",
             "localname": "Norman"
         },
-        "228": {
+        "240": {
             "code": "nso",
             "name": "Sesotho sa Leboa",
             "site": [
@@ -5447,7 +5708,21 @@
             "dir": "ltr",
             "localname": "Northern Sotho"
         },
-        "229": {
+        "241": {
+            "code": "nup",
+            "name": "Nupe",
+            "site": [
+                {
+                    "url": "https://nup.wikipedia.org",
+                    "dbname": "nupwiki",
+                    "code": "wiki",
+                    "sitename": "Wikipedia"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Nupe"
+        },
+        "242": {
             "code": "nv",
             "name": "Diné bizaad",
             "site": [
@@ -5461,7 +5736,7 @@
             "dir": "ltr",
             "localname": "Navajo"
         },
-        "230": {
+        "243": {
             "code": "ny",
             "name": "Chi-Chewa",
             "site": [
@@ -5475,7 +5750,7 @@
             "dir": "ltr",
             "localname": "Nyanja"
         },
-        "231": {
+        "244": {
             "code": "oc",
             "name": "occitan",
             "site": [
@@ -5501,7 +5776,7 @@
             "dir": "ltr",
             "localname": "Occitan"
         },
-        "232": {
+        "245": {
             "code": "olo",
             "name": "livvinkarjala",
             "site": [
@@ -5515,7 +5790,7 @@
             "dir": "ltr",
             "localname": "Livvi-Karelian"
         },
-        "233": {
+        "246": {
             "code": "om",
             "name": "Oromoo",
             "site": [
@@ -5535,7 +5810,7 @@
             "dir": "ltr",
             "localname": "Oromo"
         },
-        "234": {
+        "247": {
             "code": "or",
             "name": "ଓଡ଼ିଆ",
             "site": [
@@ -5561,7 +5836,7 @@
             "dir": "ltr",
             "localname": "Odia"
         },
-        "235": {
+        "248": {
             "code": "os",
             "name": "ирон",
             "site": [
@@ -5575,7 +5850,7 @@
             "dir": "ltr",
             "localname": "Ossetic"
         },
-        "236": {
+        "249": {
             "code": "pa",
             "name": "ਪੰਜਾਬੀ",
             "site": [
@@ -5607,7 +5882,7 @@
             "dir": "ltr",
             "localname": "Punjabi"
         },
-        "237": {
+        "250": {
             "code": "pag",
             "name": "Pangasinan",
             "site": [
@@ -5621,7 +5896,7 @@
             "dir": "ltr",
             "localname": "Pangasinan"
         },
-        "238": {
+        "251": {
             "code": "pam",
             "name": "Kapampangan",
             "site": [
@@ -5635,7 +5910,7 @@
             "dir": "ltr",
             "localname": "Pampanga"
         },
-        "239": {
+        "252": {
             "code": "pap",
             "name": "Papiamentu",
             "site": [
@@ -5649,7 +5924,7 @@
             "dir": "ltr",
             "localname": "Papiamento"
         },
-        "240": {
+        "253": {
             "code": "pcd",
             "name": "Picard",
             "site": [
@@ -5663,7 +5938,7 @@
             "dir": "ltr",
             "localname": "Picard"
         },
-        "241": {
+        "254": {
             "code": "pcm",
             "name": "Naijá",
             "site": [
@@ -5672,12 +5947,18 @@
                     "dbname": "pcmwiki",
                     "code": "wiki",
                     "sitename": "Wikipedia"
+                },
+                {
+                    "url": "https://pcm.wikiquote.org",
+                    "dbname": "pcmwikiquote",
+                    "code": "wikiquote",
+                    "sitename": "Wikitok"
                 }
             ],
             "dir": "ltr",
             "localname": "Nigerian Pidgin"
         },
-        "242": {
+        "255": {
             "code": "pdc",
             "name": "Deitsch",
             "site": [
@@ -5691,7 +5972,7 @@
             "dir": "ltr",
             "localname": "Pennsylvania German"
         },
-        "243": {
+        "256": {
             "code": "pfl",
             "name": "Pälzisch",
             "site": [
@@ -5705,7 +5986,7 @@
             "dir": "ltr",
             "localname": "Palatine German"
         },
-        "244": {
+        "257": {
             "code": "pi",
             "name": "पालि",
             "site": [
@@ -5726,7 +6007,7 @@
             "dir": "ltr",
             "localname": "Pali"
         },
-        "245": {
+        "258": {
             "code": "pih",
             "name": "Norfuk / Pitkern",
             "site": [
@@ -5734,13 +6015,14 @@
                     "url": "https://pih.wikipedia.org",
                     "dbname": "pihwiki",
                     "code": "wiki",
-                    "sitename": "Wikipedia"
+                    "sitename": "Wikipedia",
+                    "closed": ""
                 }
             ],
             "dir": "ltr",
-            "localname": "Norfuk / Pitkern"
+            "localname": "Pitcairn-Norfolk"
         },
-        "246": {
+        "259": {
             "code": "pl",
             "name": "polski",
             "site": [
@@ -5790,7 +6072,7 @@
             "dir": "ltr",
             "localname": "Polish"
         },
-        "247": {
+        "260": {
             "code": "pms",
             "name": "Piemontèis",
             "site": [
@@ -5810,7 +6092,7 @@
             "dir": "ltr",
             "localname": "Piedmontese"
         },
-        "248": {
+        "261": {
             "code": "pnb",
             "name": "پنجابی",
             "site": [
@@ -5830,7 +6112,7 @@
             "dir": "rtl",
             "localname": "Western Punjabi"
         },
-        "249": {
+        "262": {
             "code": "pnt",
             "name": "Ποντιακά",
             "site": [
@@ -5844,7 +6126,21 @@
             "dir": "ltr",
             "localname": "Pontic"
         },
-        "250": {
+        "263": {
+            "code": "ppl",
+            "name": "Nawat",
+            "site": [
+                {
+                    "url": "https://ppl.wikipedia.org",
+                    "dbname": "pplwiki",
+                    "code": "wiki",
+                    "sitename": "Wikiamachti"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Nawat"
+        },
+        "264": {
             "code": "ps",
             "name": "پښتو",
             "site": [
@@ -5877,7 +6173,7 @@
             "dir": "rtl",
             "localname": "Pashto"
         },
-        "251": {
+        "265": {
             "code": "pt",
             "name": "português",
             "site": [
@@ -5933,7 +6229,7 @@
             "dir": "ltr",
             "localname": "Portuguese"
         },
-        "252": {
+        "266": {
             "code": "pwn",
             "name": "pinayuanan",
             "site": [
@@ -5947,7 +6243,7 @@
             "dir": "ltr",
             "localname": "Paiwan"
         },
-        "253": {
+        "267": {
             "code": "qu",
             "name": "Runa Simi",
             "site": [
@@ -5981,7 +6277,21 @@
             "dir": "ltr",
             "localname": "Quechua"
         },
-        "254": {
+        "268": {
+            "code": "rki",
+            "name": "ရခိုင်",
+            "site": [
+                {
+                    "url": "https://rki.wikipedia.org",
+                    "dbname": "rkiwiki",
+                    "code": "wiki",
+                    "sitename": "ဝီကီးပီးဒီးယား"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Arakanese"
+        },
+        "269": {
             "code": "rm",
             "name": "rumantsch",
             "site": [
@@ -6009,7 +6319,7 @@
             "dir": "ltr",
             "localname": "Romansh"
         },
-        "255": {
+        "270": {
             "code": "rmy",
             "name": "romani čhib",
             "site": [
@@ -6023,7 +6333,7 @@
             "dir": "ltr",
             "localname": "Vlax Romani"
         },
-        "256": {
+        "271": {
             "code": "rn",
             "name": "ikirundi",
             "site": [
@@ -6044,7 +6354,7 @@
             "dir": "ltr",
             "localname": "Rundi"
         },
-        "257": {
+        "272": {
             "code": "ro",
             "name": "română",
             "site": [
@@ -6094,14 +6404,14 @@
             "dir": "ltr",
             "localname": "Romanian"
         },
-        "258": {
+        "273": {
             "code": "roa-rup",
             "name": "armãneashti",
             "site": [],
             "dir": "ltr",
             "localname": "Aromanian"
         },
-        "259": {
+        "274": {
             "code": "roa-tara",
             "name": "tarandíne",
             "site": [
@@ -6115,7 +6425,21 @@
             "dir": "ltr",
             "localname": "Tarantino"
         },
-        "260": {
+        "275": {
+            "code": "rsk",
+            "name": "руски",
+            "site": [
+                {
+                    "url": "https://rsk.wikipedia.org",
+                    "dbname": "rskwiki",
+                    "code": "wiki",
+                    "sitename": "Википедия"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Pannonian Rusyn"
+        },
+        "276": {
             "code": "ru",
             "name": "русский",
             "site": [
@@ -6171,7 +6495,7 @@
             "dir": "ltr",
             "localname": "Russian"
         },
-        "261": {
+        "277": {
             "code": "rue",
             "name": "русиньскый",
             "site": [
@@ -6185,7 +6509,7 @@
             "dir": "ltr",
             "localname": "Rusyn"
         },
-        "262": {
+        "278": {
             "code": "rup",
             "name": "armãneashti",
             "site": [
@@ -6205,7 +6529,7 @@
             "dir": "ltr",
             "localname": "Aromanian"
         },
-        "263": {
+        "279": {
             "code": "rw",
             "name": "Ikinyarwanda",
             "site": [
@@ -6225,7 +6549,7 @@
             "dir": "ltr",
             "localname": "Kinyarwanda"
         },
-        "264": {
+        "280": {
             "code": "sa",
             "name": "संस्कृतम्",
             "site": [
@@ -6263,7 +6587,7 @@
             "dir": "ltr",
             "localname": "Sanskrit"
         },
-        "265": {
+        "281": {
             "code": "sah",
             "name": "саха тыла",
             "site": [
@@ -6289,7 +6613,7 @@
             "dir": "ltr",
             "localname": "Yakut"
         },
-        "266": {
+        "282": {
             "code": "sat",
             "name": "ᱥᱟᱱᱛᱟᱲᱤ",
             "site": [
@@ -6298,12 +6622,18 @@
                     "dbname": "satwiki",
                     "code": "wiki",
                     "sitename": "ᱣᱤᱠᱤᱯᱤᱰᱤᱭᱟ"
+                },
+                {
+                    "url": "https://sat.wiktionary.org",
+                    "dbname": "satwiktionary",
+                    "code": "wiktionary",
+                    "sitename": "ᱣᱤᱠᱤ ᱟᱹᱲᱟᱹ ᱢᱩᱨᱟᱹᱭ"
                 }
             ],
             "dir": "ltr",
             "localname": "Santali"
         },
-        "267": {
+        "283": {
             "code": "sc",
             "name": "sardu",
             "site": [
@@ -6324,7 +6654,7 @@
             "dir": "ltr",
             "localname": "Sardinian"
         },
-        "268": {
+        "284": {
             "code": "scn",
             "name": "sicilianu",
             "site": [
@@ -6344,7 +6674,7 @@
             "dir": "ltr",
             "localname": "Sicilian"
         },
-        "269": {
+        "285": {
             "code": "sco",
             "name": "Scots",
             "site": [
@@ -6358,7 +6688,7 @@
             "dir": "ltr",
             "localname": "Scots"
         },
-        "270": {
+        "286": {
             "code": "sd",
             "name": "سنڌي",
             "site": [
@@ -6385,7 +6715,7 @@
             "dir": "rtl",
             "localname": "Sindhi"
         },
-        "271": {
+        "287": {
             "code": "se",
             "name": "davvisámegiella",
             "site": [
@@ -6406,7 +6736,7 @@
             "dir": "ltr",
             "localname": "Northern Sami"
         },
-        "272": {
+        "288": {
             "code": "sg",
             "name": "Sängö",
             "site": [
@@ -6426,7 +6756,7 @@
             "dir": "ltr",
             "localname": "Sango"
         },
-        "273": {
+        "289": {
             "code": "sgs",
             "name": "žemaitėška",
             "site": [
@@ -6440,7 +6770,7 @@
             "dir": "ltr",
             "localname": "Samogitian"
         },
-        "274": {
+        "290": {
             "code": "sh",
             "name": "srpskohrvatski / српскохрватски",
             "site": [
@@ -6454,13 +6784,13 @@
                     "url": "https://sh.wiktionary.org",
                     "dbname": "shwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Wikirječnik"
                 }
             ],
             "dir": "ltr",
             "localname": "Serbo-Croatian"
         },
-        "275": {
+        "291": {
             "code": "shi",
             "name": "Taclḥit",
             "site": [
@@ -6474,9 +6804,9 @@
             "dir": "ltr",
             "localname": "Tachelhit"
         },
-        "276": {
+        "292": {
             "code": "shn",
-            "name": "ၽႃႇသႃႇတႆး ",
+            "name": "တႆး",
             "site": [
                 {
                     "url": "https://shn.wikipedia.org",
@@ -6497,6 +6827,12 @@
                     "sitename": "ဝီႇၶီႇပပ်ႉ"
                 },
                 {
+                    "url": "https://shn.wikinews.org",
+                    "dbname": "shnwikinews",
+                    "code": "wikinews",
+                    "sitename": "ဝီႇၶီႇၶၢဝ်ႇ"
+                },
+                {
                     "url": "https://shn.wikivoyage.org",
                     "dbname": "shnwikivoyage",
                     "code": "wikivoyage",
@@ -6506,7 +6842,7 @@
             "dir": "ltr",
             "localname": "Shan"
         },
-        "277": {
+        "293": {
             "code": "shy",
             "name": "tacawit",
             "site": [
@@ -6520,7 +6856,7 @@
             "dir": "ltr",
             "localname": "Shawiya"
         },
-        "278": {
+        "294": {
             "code": "si",
             "name": "සිංහල",
             "site": [
@@ -6546,7 +6882,7 @@
             "dir": "ltr",
             "localname": "Sinhala"
         },
-        "279": {
+        "295": {
             "code": "simple",
             "name": "Simple English",
             "site": [
@@ -6580,7 +6916,7 @@
             "dir": "ltr",
             "localname": "Simple English"
         },
-        "280": {
+        "296": {
             "code": "sk",
             "name": "slovenčina",
             "site": [
@@ -6618,7 +6954,7 @@
             "dir": "ltr",
             "localname": "Slovak"
         },
-        "281": {
+        "297": {
             "code": "skr",
             "name": "سرائیکی",
             "site": [
@@ -6638,7 +6974,7 @@
             "dir": "rtl",
             "localname": "Saraiki"
         },
-        "282": {
+        "298": {
             "code": "sl",
             "name": "slovenščina",
             "site": [
@@ -6682,7 +7018,7 @@
             "dir": "ltr",
             "localname": "Slovenian"
         },
-        "283": {
+        "299": {
             "code": "sm",
             "name": "Gagana Samoa",
             "site": [
@@ -6702,7 +7038,7 @@
             "dir": "ltr",
             "localname": "Samoan"
         },
-        "284": {
+        "300": {
             "code": "smn",
             "name": "anarâškielâ",
             "site": [
@@ -6716,7 +7052,7 @@
             "dir": "ltr",
             "localname": "Inari Sami"
         },
-        "285": {
+        "301": {
             "code": "sn",
             "name": "chiShona",
             "site": [
@@ -6737,7 +7073,7 @@
             "dir": "ltr",
             "localname": "Shona"
         },
-        "286": {
+        "302": {
             "code": "so",
             "name": "Soomaaliga",
             "site": [
@@ -6757,7 +7093,7 @@
             "dir": "ltr",
             "localname": "Somali"
         },
-        "287": {
+        "303": {
             "code": "sq",
             "name": "shqip",
             "site": [
@@ -6795,7 +7131,7 @@
             "dir": "ltr",
             "localname": "Albanian"
         },
-        "288": {
+        "304": {
             "code": "sr",
             "name": "српски / srpski",
             "site": [
@@ -6839,7 +7175,7 @@
             "dir": "ltr",
             "localname": "Serbian"
         },
-        "289": {
+        "305": {
             "code": "srn",
             "name": "Sranantongo",
             "site": [
@@ -6853,7 +7189,7 @@
             "dir": "ltr",
             "localname": "Sranan Tongo"
         },
-        "290": {
+        "306": {
             "code": "ss",
             "name": "SiSwati",
             "site": [
@@ -6873,7 +7209,7 @@
             "dir": "ltr",
             "localname": "Swati"
         },
-        "291": {
+        "307": {
             "code": "st",
             "name": "Sesotho",
             "site": [
@@ -6893,7 +7229,7 @@
             "dir": "ltr",
             "localname": "Southern Sotho"
         },
-        "292": {
+        "308": {
             "code": "stq",
             "name": "Seeltersk",
             "site": [
@@ -6907,7 +7243,7 @@
             "dir": "ltr",
             "localname": "Saterland Frisian"
         },
-        "293": {
+        "309": {
             "code": "su",
             "name": "Sunda",
             "site": [
@@ -6946,7 +7282,7 @@
             "dir": "ltr",
             "localname": "Sundanese"
         },
-        "294": {
+        "310": {
             "code": "sv",
             "name": "svenska",
             "site": [
@@ -7002,7 +7338,7 @@
             "dir": "ltr",
             "localname": "Swedish"
         },
-        "295": {
+        "311": {
             "code": "sw",
             "name": "Kiswahili",
             "site": [
@@ -7029,7 +7365,21 @@
             "dir": "ltr",
             "localname": "Swahili"
         },
-        "296": {
+        "312": {
+            "code": "syl",
+            "name": "ꠍꠤꠟꠐꠤ",
+            "site": [
+                {
+                    "url": "https://syl.wikipedia.org",
+                    "dbname": "sylwiki",
+                    "code": "wiki",
+                    "sitename": "ꠃꠁꠇꠤꠙꠤꠒꠤꠀ"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Sylheti"
+        },
+        "313": {
             "code": "szl",
             "name": "ślůnski",
             "site": [
@@ -7043,7 +7393,7 @@
             "dir": "ltr",
             "localname": "Silesian"
         },
-        "297": {
+        "314": {
             "code": "szy",
             "name": "Sakizaya",
             "site": [
@@ -7057,7 +7407,7 @@
             "dir": "ltr",
             "localname": "Sakizaya"
         },
-        "298": {
+        "315": {
             "code": "ta",
             "name": "தமிழ்",
             "site": [
@@ -7101,7 +7451,7 @@
             "dir": "ltr",
             "localname": "Tamil"
         },
-        "299": {
+        "316": {
             "code": "tay",
             "name": "Tayal",
             "site": [
@@ -7113,9 +7463,9 @@
                 }
             ],
             "dir": "ltr",
-            "localname": "Tayal"
+            "localname": "Atayal"
         },
-        "300": {
+        "317": {
             "code": "tcy",
             "name": "ತುಳು",
             "site": [
@@ -7124,12 +7474,38 @@
                     "dbname": "tcywiki",
                     "code": "wiki",
                     "sitename": "ವಿಕಿಪೀಡಿಯ"
+                },
+                {
+                    "url": "https://tcy.wiktionary.org",
+                    "dbname": "tcywiktionary",
+                    "code": "wiktionary",
+                    "sitename": "ವಿಕ್ಷನರಿ"
+                },
+                {
+                    "url": "https://tcy.wikisource.org",
+                    "dbname": "tcywikisource",
+                    "code": "wikisource",
+                    "sitename": "ವಿಕಿಸೋರ್ಸ್"
                 }
             ],
             "dir": "ltr",
             "localname": "Tulu"
         },
-        "301": {
+        "318": {
+            "code": "tdd",
+            "name": "ᥖᥭᥰ ᥖᥬᥲ ᥑᥨᥒᥰ",
+            "site": [
+                {
+                    "url": "https://tdd.wikipedia.org",
+                    "dbname": "tddwiki",
+                    "code": "wiki",
+                    "sitename": "ᥝᥤᥱ ᥑᥤᥱ ᥚᥤᥱ ᥖᥤᥱ ᥕᥣᥱ"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Tai Nuea"
+        },
+        "319": {
             "code": "te",
             "name": "తెలుగు",
             "site": [
@@ -7167,7 +7543,7 @@
             "dir": "ltr",
             "localname": "Telugu"
         },
-        "302": {
+        "320": {
             "code": "tet",
             "name": "tetun",
             "site": [
@@ -7181,7 +7557,7 @@
             "dir": "ltr",
             "localname": "Tetum"
         },
-        "303": {
+        "321": {
             "code": "tg",
             "name": "тоҷикӣ",
             "site": [
@@ -7207,7 +7583,7 @@
             "dir": "ltr",
             "localname": "Tajik"
         },
-        "304": {
+        "322": {
             "code": "th",
             "name": "ไทย",
             "site": [
@@ -7252,7 +7628,7 @@
             "dir": "ltr",
             "localname": "Thai"
         },
-        "305": {
+        "323": {
             "code": "ti",
             "name": "ትግርኛ",
             "site": [
@@ -7272,7 +7648,21 @@
             "dir": "ltr",
             "localname": "Tigrinya"
         },
-        "306": {
+        "324": {
+            "code": "tig",
+            "name": "ትግሬ",
+            "site": [
+                {
+                    "url": "https://tig.wikipedia.org",
+                    "dbname": "tigwiki",
+                    "code": "wiki",
+                    "sitename": "ዊኪፒድያ"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Tigre"
+        },
+        "325": {
             "code": "tk",
             "name": "Türkmençe",
             "site": [
@@ -7306,7 +7696,7 @@
             "dir": "ltr",
             "localname": "Turkmen"
         },
-        "307": {
+        "326": {
             "code": "tl",
             "name": "Tagalog",
             "site": [
@@ -7320,7 +7710,7 @@
                     "url": "https://tl.wiktionary.org",
                     "dbname": "tlwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Wiksiyonaryo"
                 },
                 {
                     "url": "https://tl.wikibooks.org",
@@ -7333,12 +7723,18 @@
                     "dbname": "tlwikiquote",
                     "code": "wikiquote",
                     "sitename": "Wikiquote"
+                },
+                {
+                    "url": "https://tl.wikisource.org",
+                    "dbname": "tlwikisource",
+                    "code": "wikisource",
+                    "sitename": "Wikisource"
                 }
             ],
             "dir": "ltr",
             "localname": "Tagalog"
         },
-        "308": {
+        "327": {
             "code": "tly",
             "name": "tolışi",
             "site": [
@@ -7346,13 +7742,13 @@
                     "url": "https://tly.wikipedia.org",
                     "dbname": "tlywiki",
                     "code": "wiki",
-                    "sitename": "Vikipediá"
+                    "sitename": "Vikipedija"
                 }
             ],
             "dir": "ltr",
             "localname": "Talysh"
         },
-        "309": {
+        "328": {
             "code": "tn",
             "name": "Setswana",
             "site": [
@@ -7372,7 +7768,7 @@
             "dir": "ltr",
             "localname": "Tswana"
         },
-        "310": {
+        "329": {
             "code": "to",
             "name": "lea faka-Tonga",
             "site": [
@@ -7393,7 +7789,21 @@
             "dir": "ltr",
             "localname": "Tongan"
         },
-        "311": {
+        "330": {
+            "code": "tok",
+            "name": "toki pona",
+            "site": [
+                {
+                    "url": "https://tok.wikipedia.org",
+                    "dbname": "tokwiki",
+                    "code": "wiki",
+                    "sitename": "lipu Wikipesija"
+                }
+            ],
+            "dir": "ltr",
+            "localname": "Toki Pona"
+        },
+        "331": {
             "code": "tpi",
             "name": "Tok Pisin",
             "site": [
@@ -7413,7 +7823,7 @@
             "dir": "ltr",
             "localname": "Tok Pisin"
         },
-        "312": {
+        "332": {
             "code": "tr",
             "name": "Türkçe",
             "site": [
@@ -7464,7 +7874,7 @@
             "dir": "ltr",
             "localname": "Turkish"
         },
-        "313": {
+        "333": {
             "code": "trv",
             "name": "Seediq",
             "site": [
@@ -7478,7 +7888,7 @@
             "dir": "ltr",
             "localname": "Taroko"
         },
-        "314": {
+        "334": {
             "code": "ts",
             "name": "Xitsonga",
             "site": [
@@ -7498,7 +7908,7 @@
             "dir": "ltr",
             "localname": "Tsonga"
         },
-        "315": {
+        "335": {
             "code": "tt",
             "name": "татарча / tatarça",
             "site": [
@@ -7531,7 +7941,7 @@
             "dir": "ltr",
             "localname": "Tatar"
         },
-        "316": {
+        "336": {
             "code": "tum",
             "name": "chiTumbuka",
             "site": [
@@ -7545,7 +7955,7 @@
             "dir": "ltr",
             "localname": "Tumbuka"
         },
-        "317": {
+        "337": {
             "code": "tw",
             "name": "Twi",
             "site": [
@@ -7566,7 +7976,7 @@
             "dir": "ltr",
             "localname": "Twi"
         },
-        "318": {
+        "338": {
             "code": "ty",
             "name": "reo tahiti",
             "site": [
@@ -7580,7 +7990,7 @@
             "dir": "ltr",
             "localname": "Tahitian"
         },
-        "319": {
+        "339": {
             "code": "tyv",
             "name": "тыва дыл",
             "site": [
@@ -7594,7 +8004,7 @@
             "dir": "ltr",
             "localname": "Tuvinian"
         },
-        "320": {
+        "340": {
             "code": "udm",
             "name": "удмурт",
             "site": [
@@ -7608,7 +8018,7 @@
             "dir": "ltr",
             "localname": "Udmurt"
         },
-        "321": {
+        "341": {
             "code": "ug",
             "name": "ئۇيغۇرچە / Uyghurche",
             "site": [
@@ -7642,7 +8052,7 @@
             "dir": "rtl",
             "localname": "Uyghur"
         },
-        "322": {
+        "342": {
             "code": "uk",
             "name": "українська",
             "site": [
@@ -7692,7 +8102,7 @@
             "dir": "ltr",
             "localname": "Ukrainian"
         },
-        "323": {
+        "343": {
             "code": "ur",
             "name": "اردو",
             "site": [
@@ -7724,7 +8134,7 @@
             "dir": "rtl",
             "localname": "Urdu"
         },
-        "324": {
+        "344": {
             "code": "uz",
             "name": "oʻzbekcha / ўзбекча",
             "site": [
@@ -7738,7 +8148,7 @@
                     "url": "https://uz.wiktionary.org",
                     "dbname": "uzwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Vikilug‘at"
+                    "sitename": "Vikilugʻat"
                 },
                 {
                     "url": "https://uz.wikibooks.org",
@@ -7757,7 +8167,7 @@
             "dir": "ltr",
             "localname": "Uzbek"
         },
-        "325": {
+        "345": {
             "code": "ve",
             "name": "Tshivenda",
             "site": [
@@ -7771,7 +8181,7 @@
             "dir": "ltr",
             "localname": "Venda"
         },
-        "326": {
+        "346": {
             "code": "vec",
             "name": "vèneto",
             "site": [
@@ -7797,7 +8207,7 @@
             "dir": "ltr",
             "localname": "Venetian"
         },
-        "327": {
+        "347": {
             "code": "vep",
             "name": "vepsän kel’",
             "site": [
@@ -7811,7 +8221,7 @@
             "dir": "ltr",
             "localname": "Veps"
         },
-        "328": {
+        "348": {
             "code": "vi",
             "name": "Tiếng Việt",
             "site": [
@@ -7855,7 +8265,7 @@
             "dir": "ltr",
             "localname": "Vietnamese"
         },
-        "329": {
+        "349": {
             "code": "vls",
             "name": "West-Vlams",
             "site": [
@@ -7869,7 +8279,7 @@
             "dir": "ltr",
             "localname": "West Flemish"
         },
-        "330": {
+        "350": {
             "code": "vo",
             "name": "Volapük",
             "site": [
@@ -7903,7 +8313,7 @@
             "dir": "ltr",
             "localname": "Volapük"
         },
-        "331": {
+        "351": {
             "code": "vro",
             "name": "võro",
             "site": [
@@ -7917,7 +8327,7 @@
             "dir": "ltr",
             "localname": "Võro"
         },
-        "332": {
+        "352": {
             "code": "wa",
             "name": "walon",
             "site": [
@@ -7950,7 +8360,7 @@
             "dir": "ltr",
             "localname": "Walloon"
         },
-        "333": {
+        "353": {
             "code": "war",
             "name": "Winaray",
             "site": [
@@ -7964,7 +8374,7 @@
             "dir": "ltr",
             "localname": "Waray"
         },
-        "334": {
+        "354": {
             "code": "wo",
             "name": "Wolof",
             "site": [
@@ -7991,7 +8401,7 @@
             "dir": "ltr",
             "localname": "Wolof"
         },
-        "335": {
+        "355": {
             "code": "wuu",
             "name": "吴语",
             "site": [
@@ -8005,7 +8415,7 @@
             "dir": "ltr",
             "localname": "Wu"
         },
-        "336": {
+        "356": {
             "code": "xal",
             "name": "хальмг",
             "site": [
@@ -8019,7 +8429,7 @@
             "dir": "ltr",
             "localname": "Kalmyk"
         },
-        "337": {
+        "357": {
             "code": "xh",
             "name": "isiXhosa",
             "site": [
@@ -8047,7 +8457,7 @@
             "dir": "ltr",
             "localname": "Xhosa"
         },
-        "338": {
+        "358": {
             "code": "xmf",
             "name": "მარგალური",
             "site": [
@@ -8061,7 +8471,7 @@
             "dir": "ltr",
             "localname": "Mingrelian"
         },
-        "339": {
+        "359": {
             "code": "yi",
             "name": "ייִדיש",
             "site": [
@@ -8087,7 +8497,7 @@
             "dir": "rtl",
             "localname": "Yiddish"
         },
-        "340": {
+        "360": {
             "code": "yo",
             "name": "Yorùbá",
             "site": [
@@ -8115,7 +8525,7 @@
             "dir": "ltr",
             "localname": "Yoruba"
         },
-        "341": {
+        "361": {
             "code": "yue",
             "name": "粵語",
             "site": [
@@ -8135,7 +8545,7 @@
             "dir": "ltr",
             "localname": "Cantonese"
         },
-        "342": {
+        "362": {
             "code": "za",
             "name": "Vahcuengh",
             "site": [
@@ -8170,7 +8580,7 @@
             "dir": "ltr",
             "localname": "Zhuang"
         },
-        "343": {
+        "363": {
             "code": "zea",
             "name": "Zeêuws",
             "site": [
@@ -8184,7 +8594,7 @@
             "dir": "ltr",
             "localname": "Zeelandic"
         },
-        "344": {
+        "364": {
             "code": "zgh",
             "name": "ⵜⴰⵎⴰⵣⵉⵖⵜ ⵜⴰⵏⴰⵡⴰⵢⵜ",
             "site": [
@@ -8193,12 +8603,18 @@
                     "dbname": "zghwiki",
                     "code": "wiki",
                     "sitename": "ⵡⵉⴽⵉⴱⵉⴷⵢⴰ"
+                },
+                {
+                    "url": "https://zgh.wiktionary.org",
+                    "dbname": "zghwiktionary",
+                    "code": "wiktionary",
+                    "sitename": "ⵡⵉⴽⵉⵎⴰⵡⴰⵍ"
                 }
             ],
             "dir": "ltr",
             "localname": "Standard Moroccan Tamazight"
         },
-        "345": {
+        "365": {
             "code": "zh",
             "name": "中文",
             "site": [
@@ -8254,28 +8670,28 @@
             "dir": "ltr",
             "localname": "Chinese"
         },
-        "346": {
+        "366": {
             "code": "zh-classical",
             "name": "文言",
             "site": [],
             "dir": "ltr",
             "localname": "Literary Chinese"
         },
-        "347": {
+        "367": {
             "code": "zh-min-nan",
             "name": "Bân-lâm-gú",
             "site": [],
             "dir": "ltr",
             "localname": "Minnan"
         },
-        "348": {
+        "368": {
             "code": "zh-yue",
             "name": "粵語",
             "site": [],
             "dir": "ltr",
             "localname": "Cantonese"
         },
-        "349": {
+        "369": {
             "code": "zu",
             "name": "isiZulu",
             "site": [
@@ -8318,6 +8734,14 @@
                 "lang": "en",
                 "sitename": "Advisory Board",
                 "closed": ""
+            },
+            {
+                "url": "https://ae.wikimedia.org",
+                "dbname": "aewikimedia",
+                "code": "aewikimedia",
+                "lang": "en",
+                "sitename": "Wikimedia United Arab Emirates",
+                "fishbowl": ""
             },
             {
                 "url": "https://am.wikimedia.org",
@@ -8374,6 +8798,14 @@
                 "private": ""
             },
             {
+                "url": "https://wikipedia-it-arbcom.wikimedia.org",
+                "dbname": "arbcom_itwiki",
+                "code": "arbcom-it",
+                "lang": "it",
+                "sitename": "Wikipedia",
+                "private": ""
+            },
+            {
                 "url": "https://arbcom-nl.wikipedia.org",
                 "dbname": "arbcom_nlwiki",
                 "code": "arbcom-nl",
@@ -8382,11 +8814,27 @@
                 "private": ""
             },
             {
+                "url": "https://wikipedia-pl-arbcom.wikimedia.org",
+                "dbname": "arbcom_plwiki",
+                "code": "arbcom-pl",
+                "lang": "pl",
+                "sitename": "Komitet Arbitrażowy",
+                "private": ""
+            },
+            {
                 "url": "https://arbcom-ru.wikipedia.org",
                 "dbname": "arbcom_ruwiki",
                 "code": "arbcom-ru",
                 "lang": "ru",
                 "sitename": "Арбитражный комитет русской Википедии",
+                "private": ""
+            },
+            {
+                "url": "https://wikipedia-zh-arbcom.wikimedia.org",
+                "dbname": "arbcom_zhwiki",
+                "code": "arbcom-zh",
+                "lang": "zh",
+                "sitename": "中文维基百科仲裁委员会",
                 "private": ""
             },
             {
@@ -8584,7 +9032,7 @@
                 "dbname": "gewikimedia",
                 "code": "gewikimedia",
                 "lang": "ka",
-                "sitename": "ვიკიმედიის მომხმარებელთა საქართველოს ჯგუფი",
+                "sitename": "ვიკიმედია საქართველო",
                 "fishbowl": ""
             },
             {
@@ -8664,16 +9112,7 @@
                 "dbname": "labswiki",
                 "code": "labs",
                 "lang": "labs",
-                "sitename": "Wikipedia",
-                "nonglobal": ""
-            },
-            {
-                "url": "https://labtestwikitech.wikimedia.org",
-                "dbname": "labtestwiki",
-                "code": "labtest",
-                "lang": "labtest",
-                "sitename": "Wikipedia",
-                "nonglobal": ""
+                "sitename": "Wikipedia"
             },
             {
                 "url": "https://legalteam.wikimedia.org",
@@ -8710,7 +9149,7 @@
                 "dbname": "metawiki",
                 "code": "meta",
                 "lang": "meta",
-                "sitename": "Meta"
+                "sitename": "Meta-Wiki"
             },
             {
                 "url": "https://mk.wikimedia.org",
@@ -8951,6 +9390,14 @@
                 "private": ""
             },
             {
+                "url": "https://wikipedia-pl-sysop.wikimedia.org",
+                "dbname": "sysop_plwiki",
+                "code": "sysop-pl",
+                "lang": "pl",
+                "sitename": "Wiki administratorów polskojęzycznej Wikipedii",
+                "private": ""
+            },
+            {
                 "url": "https://techconduct.wikimedia.org",
                 "dbname": "techconductwiki",
                 "code": "techconduct",
@@ -8985,8 +9432,7 @@
                 "dbname": "testcommonswiki",
                 "code": "testcommons",
                 "lang": "testcommons",
-                "sitename": "Test Wikimedia Commons",
-                "closed": ""
+                "sitename": "Test Wikimedia Commons"
             },
             {
                 "url": "https://test.wikidata.org",
@@ -8994,6 +9440,13 @@
                 "code": "testwikidata",
                 "lang": "testwikidata",
                 "sitename": "Wikipedia"
+            },
+            {
+                "url": "https://th.wikimedia.org",
+                "dbname": "thwikimedia",
+                "code": "thwikimedia",
+                "lang": "th",
+                "sitename": "Wikimedia"
             },
             {
                 "url": "https://thankyou.wikipedia.org",
@@ -9018,6 +9471,14 @@
                 "sitename": "Transition Team Wiki",
                 "private": "",
                 "closed": ""
+            },
+            {
+                "url": "https://u4c.wikimedia.org",
+                "dbname": "u4cwiki",
+                "code": "u4c",
+                "lang": "en",
+                "sitename": "U4C Wiki",
+                "private": ""
             },
             {
                 "url": "https://ua.wikimedia.org",
