@@ -136,7 +136,7 @@ class TokenizerUtils {
 	 * @param string $pegSource
 	 * @param string $tagName
 	 * @param string $wtChar
-	 * @param mixed $attrInfo
+	 * @param ?array $attrInfo
 	 * @param SourceRange $tsr
 	 * @param int $endPos
 	 * @param mixed $content
@@ -144,7 +144,7 @@ class TokenizerUtils {
 	 * @return array (of tokens)
 	 */
 	public static function buildTableTokens(
-		string $pegSource, string $tagName, string $wtChar, $attrInfo,
+		string $pegSource, string $tagName, string $wtChar, ?array $attrInfo,
 		SourceRange $tsr, int $endPos, $content, bool $addEndTag = false
 	): array {
 		$dp = new DataParsoid;
@@ -167,7 +167,7 @@ class TokenizerUtils {
 		} elseif ( $tagName === 'th' ) {
 			if ( !$attrInfo ) {
 				// Add a flag that indicates that the tokenizer didn't
-				// encounter a "|...|" attribute box. This is useful when
+				// encounter a "!...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
 				$dp->setTempFlag( TempData::NO_ATTRS );
 
@@ -182,16 +182,16 @@ class TokenizerUtils {
 			}
 		}
 
-		$a = [];
+		$attrs = [];
 		if ( $attrInfo ) {
 			$dp->getTemp()->attrSrc = substr(
 				$pegSource, $tsr->start, $tsr->end - $tsr->start - strlen( $attrInfo[2] )
 			);
-			$a = $attrInfo[0];
-			if ( !$a ) {
+			$attrs = $attrInfo[0];
+			if ( !$attrs ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
 			}
-			if ( ( !$a && $attrInfo[2] ) || $attrInfo[2] !== '|' ) {
+			if ( ( !$attrs && $attrInfo[2] ) || $attrInfo[2] !== '|' ) {
 				// Variation from default
 				// 1. Separator present with an empty attribute block
 				// 2. Not "|"
@@ -214,7 +214,7 @@ class TokenizerUtils {
 			$dp->setTempFlag( TempData::AT_SRC_START );
 		}
 
-		$tokens = [ new TagTk( $tagName, $a, $dp ) ];
+		$tokens = [ new TagTk( $tagName, $attrs, $dp ) ];
 		PHPUtils::pushArray( $tokens, $content );
 
 		if ( $addEndTag ) {

@@ -2348,12 +2348,12 @@ private function a183($thTag, $thTags) {
 		return $thTags;
 	
 }
-private function a184($arg, $tagEndPos, $td) {
+private function a184($args, $tagEndPos, $td) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
-			$this->input, 'td', '|', $arg, $tsr, $this->endOffset(), $td
+			$this->input, 'td', '|', $args, $tsr, $this->endOffset(), $td
 		);
 	
 }
@@ -2415,12 +2415,12 @@ private function a190($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 		);
 	
 }
-private function a191($arg, $tagEndPos, $th) {
+private function a191($args, $tagEndPos, $th) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos, $this->source );
 		return TokenizerUtils::buildTableTokens(
-			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $th
+			$this->input, 'th', '!', $args, $tsr, $this->endOffset(), $th
 		);
 	
 }
@@ -23578,7 +23578,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   if ($r6===self::$FAILED) {
     $r6 = null;
   }
-  // arg <- $r6
+  // args <- $r6
   $r7 = $this->parsePOSITION($silence);
   // tagEndPos <- $r7
   $r8 = [];
@@ -24648,7 +24648,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
   if ($r6===self::$FAILED) {
     $r6 = null;
   }
-  // arg <- $r6
+  // args <- $r6
   $r7 = $this->parsePOSITION($silence);
   // tagEndPos <- $r7
   $r8 = [];
