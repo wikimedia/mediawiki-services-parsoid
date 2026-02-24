@@ -30,8 +30,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$dpb = DomPageBundle::fromHtmlPageBundle( HtmlPageBundle::newEmpty(
 			"<p>Hello, world</p>"
 		) );
-		DOMDataUtils::prepareDoc( $dpb->doc );
-		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $dpb->doc ) );
+		DOMDataUtils::prepareAndLoadDoc( $dpb->doc );
 		$p = DOMCompat::querySelector( $dpb->doc, 'p' );
 		TestingAccessWrapper::newFromClass( DOMDataUtils::class )->storeInPageBundle( $dpb, $p, (object)[
 			'parsoid' => '{"go":"team"}',

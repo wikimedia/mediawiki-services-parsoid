@@ -717,12 +717,7 @@ class Env {
 			}
 			$this->remexPipeline = new RemexPipeline( $this );
 			// Prepare and load.
-			// (Loading should be easy since the doc is expected to be empty.)
-			DOMDataUtils::prepareDoc( $this->topLevelDoc, true );
-			DOMDataUtils::visitAndLoadDataAttribs( $body );
-			// Mark the document as loaded so we can try to catch errors which
-			// might try to reload this again later.
-			DOMDataUtils::getBag( $this->topLevelDoc )->loaded = true;
+			DOMDataUtils::prepareAndLoadDoc( $this->topLevelDoc, [ 'serializeNewEmptyDp' => true ] );
 		}
 	}
 

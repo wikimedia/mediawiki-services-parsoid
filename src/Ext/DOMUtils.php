@@ -14,11 +14,11 @@ use Wikimedia\Parsoid\Utils\DOMUtils as DU;
  */
 class DOMUtils {
 	/**
-	 * Parse HTML, return the tree.
+	 * Parse HTML, return the DOM.
 	 *
-	 * @note The resulting document is not "prepared and loaded"; use
-	 * ContentUtils::prepareAndLoadDocument() instead if that's what
-	 * you need.
+	 * @note The resulting document is not "prepared and loaded" into Parsoid's
+	 * internal processed DOM format. Use ContentUtils::createAndLoadDocument()
+	 * instead if that's what you need.
 	 */
 	public static function parseHTML(
 		string $html, bool $validateXMLNames = false

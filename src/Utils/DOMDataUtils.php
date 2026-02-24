@@ -127,7 +127,7 @@ class DOMDataUtils {
 		return self::getExtensionData( $doc, "codec" );
 	}
 
-	public static function isPrepared( Document $doc ): bool {
+	private static function isPrepared( Document $doc ): bool {
 		return self::hasExtensionData( $doc, "bag" );
 	}
 
@@ -135,13 +135,28 @@ class DOMDataUtils {
 		return self::isPrepared( $doc ) && self::getBag( $doc )->loaded;
 	}
 
-	public static function prepareDoc( Document $doc, bool $serializeNewEmptyDp = false ): void {
+	public static function prepareAndLoadDoc( Document $doc, array $options = [] ): void {
 		$bag = new DataBag();
-		$codec = new DOMDataCodec( $doc, [] );
+		$codec = new DOMDataCodec( $doc, $options );
 		self::setExtensionData( $doc, "bag", $bag );
 		self::setExtensionData( $doc, "codec", $codec );
 
-		$bag->serializeNewEmptyDp = $serializeNewEmptyDp;
+		// Init data bag
+		$pb = $options['loadFromPageBundle'] ?? null;
+		'@phan-var ?BasePageBundle $pb'; // @var ?BasePageBundle $pb
+		if ( $pb ) {
+			$bag->updateCountersFromPageBundle( $pb );
+		}
+		$bag->serializeNewEmptyDp = $options['serializeNewEmptyDp'] ?? false;
+
+		self::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ), $options );
+		foreach ( $options['fragments'] ?? [] as $f ) {
+			self::visitAndLoadDataAttribs( $f, $options );
+		}
+
+		// Mark the document as loaded so we can try to catch errors which
+		// might try to reload this again later.
+		$bag->loaded = true;
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
@@ -149,7 +164,11 @@ class DOMDataUtils {
 	}
 
 	/** @internal */
-	public static function unprepareDoc( Document $doc ): void {
+	public static function storeAndUnprepareDoc( Document $doc, array $options ): void {
+		self::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), $options );
+		foreach ( $options['fragments'] ?? [] as $f ) {
+			self::visitAndStoreDataAttribs( $f, $options );
+		}
 		self::setExtensionData( $doc, "bag", null );
 		self::setExtensionData( $doc, "codec", null );
 	}
@@ -645,20 +664,8 @@ class DOMDataUtils {
 	 * @param array $options options
 	 */
 	public static function visitAndLoadDataAttribs( Node $node, array $options = [] ): void {
-		$doc = $node->ownerDocument ?? $node;
+		$doc = $node->ownerDocument;
 		Assert::invariant( self::isPrepared( $doc ), "document should be prepared" );
-		if ( $node === DOMCompat::getBody( $doc ) ) {
-			Assert::invariant( !self::getBag( $doc )->loaded, "redundant load" );
-		}
-		self::getCodec( $node )->setOptions( $options );
-
-		// Init data bag
-		$bag = self::getBag( $doc );
-		$pb = $options['loadFromPageBundle'] ?? null;
-		'@phan-var BasePageBundle $pb'; // @var BasePageBundle $pb
-		if ( $pb ) {
-			$bag->updateCountersFromPageBundle( $pb );
-		}
 
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
 			self::loadDataAttribs( $node, $options );
@@ -853,7 +860,9 @@ class DOMDataUtils {
 		$clone = clone $doc;
 		// But now we need to duplicate the extension data.
 		if ( self::isPrepared( $doc ) ) {
-			self::prepareDoc( $clone );
+			$codec = new DOMDataCodec( $clone, [] );
+			self::setExtensionData( $clone, "codec", $codec );
+
 			// Overwrite the empty Bag with a clone, after setting up
 			// to importNode rich data
 			self::setExtensionData( $doc, "cloneTarget", $clone );

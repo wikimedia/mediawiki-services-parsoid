@@ -120,11 +120,12 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$doc = ContentUtils::createAndLoadDocument(
 			"<html><body><span>hello</span></body></html>"
 		);
-		$span = DOMCompat::getBody( $doc )->firstChild;
+		$body = DOMCompat::getBody( $doc );
+		$span = $body->firstChild;
 		WTUtils::addPageContentI18nAttribute( $span, '0', 'key1' );
 		WTUtils::addInterfaceI18nAttribute( $span, '1', 'key2', [ 'Foo' ] );
 		DOMDataUtils::visitAndStoreDataAttribs( $doc, [ 'discardDataParsoid' => true ] );
-		$actualHtml = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
+		$actualHtml = DOMCompat::getInnerHTML( $body );
 		$expectedHtml = '<span typeof="mw:LocalizedAttrs" ' .
 			'data-mw-i18n=\'{' .
 			'"0":{"lang":"x-page","key":"key1"},' .
@@ -134,8 +135,8 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 			'}\'>hello</span>';
 		self::assertEquals( $expectedHtml, $actualHtml );
 
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
-		$span = DOMCompat::getBody( $doc )->firstChild;
+		DOMDataUtils::visitAndLoadDataAttribs( $body );
+		$span = $body->firstChild;
 		$attrI18n = DOMDataUtils::getDataAttrI18n( $span, '0' );
 		self::assertNotNull( $attrI18n );
 		$attrI18n = DOMDataUtils::getDataAttrI18n( $span, '1' );

@@ -78,9 +78,7 @@ class ContentUtils {
 		string $html, array $options = []
 	): Document {
 		$doc = DOMUtils::parseHTML( $html, validateXMLNames: true );
-		DOMDataUtils::prepareDoc( $doc, $options['serializeNewEmptyDp'] ?? false );
-		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ), $options );
-		DOMDataUtils::getBag( $doc )->loaded = true;
+		DOMDataUtils::prepareAndLoadDoc( $doc, $options );
 		return $doc;
 	}
 

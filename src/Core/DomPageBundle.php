@@ -138,17 +138,12 @@ class DomPageBundle extends BasePageBundle {
 		$options ??= [];
 		if ( $load ) {
 			$fragments = [];
-			DOMDataUtils::prepareDoc( $doc );
-			$body = DOMCompat::getBody( $doc );
-			$options = [ 'loadFromPageBundle' => $this ] + $options;
-			DOMDataUtils::visitAndLoadDataAttribs( $body, $options );
 			foreach ( $this->fragments as $name => $f ) {
-				DOMDataUtils::visitAndLoadDataAttribs(
-					$f, $options
-				);
 				$fragments[$name] = $f;
 			}
-			DOMDataUtils::getBag( $doc )->loaded = true;
+			$options['loadFromPageBundle'] = $this;
+			$options['fragments'] = $this->fragments;
+			DOMDataUtils::prepareAndLoadDoc( $doc, $options );
 		} else {
 			PHPUtils::deprecated( __METHOD__ . ' with $load=false', '0.23' );
 			$doc = $this->toInlineAttributeDocument(
@@ -278,16 +273,9 @@ class DomPageBundle extends BasePageBundle {
 		$doc = $this->toDom( true, null, $fragments );
 		$options = [
 			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
+			'fragments' => array_values( $fragments )
 		] + $options;
-		DOMDataUtils::visitAndStoreDataAttribs(
-			DOMCompat::getBody( $doc ), $options
-		);
-		foreach ( $fragments as $name => $f ) {
-			DOMDataUtils::visitAndStoreDataAttribs(
-				$f, $options
-			);
-		}
-		DOMDataUtils::unprepareDoc( $doc );
+		DOMDataUtils::storeAndUnprepareDoc( $doc, $options );
 		return $doc;
 	}
 

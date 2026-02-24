@@ -491,8 +491,8 @@ class Parsoid {
 	): string {
 		if ( $doc instanceof Document ) {
 			Assert::invariant(
-				!DOMDataUtils::isPrepared( $doc ),
-				"document should not be already prepared"
+				!DOMDataUtils::isPreparedAndLoaded( $doc ),
+				"document should not be already prepared and loaded"
 			);
 		}
 		$envOptions = $this->setupCommonOptions( $options );
@@ -844,11 +844,7 @@ class Parsoid {
 			!DOMDataUtils::isPreparedAndLoaded( $topLevelDoc ),
 			"toplevelDoc should not be prepared and loaded already"
 		);
-		DOMDataUtils::prepareDoc( $topLevelDoc );
-		DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $topLevelDoc ) );
-		// Mark the document as loaded so we can try to catch errors which
-		// might try to reload this again later.
-		DOMDataUtils::getBag( $topLevelDoc )->loaded = true;
+		DOMDataUtils::prepareAndLoadDoc( $topLevelDoc );
 		return $topLevelDoc;
 	}
 

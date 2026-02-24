@@ -34,8 +34,8 @@ class DataBag {
 	public bool $serializeNewEmptyDp = false;
 
 	/**
-	 * Track whether or not data attributes have been loaded for this
-	 * document. See DOMDataUtils::visitAndLoadDataAttribs().
+	 * Track whether or not data attributes have been loaded for this document.
+	 * See DOMDataUtils::prepareAndLoadDoc(). This flag might eventually be removed.
 	 */
 	public bool $loaded = false;
 
