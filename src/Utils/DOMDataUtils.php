@@ -700,7 +700,7 @@ class DOMDataUtils {
 		$nodeData = self::getNodeData( $node, $pb );
 		if ( !$pb || $pb->counters === null ) {
 			// Force load of data-mw to lookup annotation range id.
-			$nodeData->getDataMw( $node );
+			$nodeData->getDataMwIfExists( $node );
 			if ( isset( $nodeData->mw->rangeId ) ) {
 				$bag->seenAnnotationId( $nodeData->mw->rangeId );
 			}

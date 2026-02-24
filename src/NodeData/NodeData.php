@@ -104,6 +104,19 @@ class NodeData {
 	}
 
 	/**
+	 * Get data meta wiki info from a node.
+	 */
+	public function getDataMwIfExists( Element $node ): ?DataMw {
+		// Fast path
+		$dmw = $this->mw;
+		if ( $dmw instanceof DataMw ) {
+			return $dmw;
+		}
+		// Fall back to generic case
+		return DOMDataUtils::getAttributeObject( $node, 'data-mw', DataMw::hint() );
+	}
+
+	/**
 	 * Set data meta wiki info from a node.
 	 */
 	public function setDataMw( Element $node, ?DataMw $dmw ): void {
