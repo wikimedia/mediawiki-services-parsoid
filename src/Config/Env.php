@@ -152,6 +152,7 @@ class Env {
 
 	/**
 	 * Cache of wikitext source for a title; only used for ParserTests.
+	 * @var array<string,string>
 	 */
 	public array $pageCache = [];
 

@@ -5,11 +5,13 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Ext\AsyncResult;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
+use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EmptyLineTk;
@@ -606,8 +608,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 		// load template w/ variant names (language variants)
 
 		// Fetch template source and expand it
-		$src = $this->fetchTemplateAndTitle( $target, $attribs );
-		if ( $src !== null ) {
+		$pageContent = $this->fetchTemplateAndTitle( $target, $attribs );
+		if ( $pageContent !== null ) {
 			$toks = $this->processTemplateSource(
 				$this->manager->getFrame(),
 				$state->token,
@@ -616,7 +618,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 					'title' => $resolvedTgt['title'],
 					'attribs' => array_slice( $attribs, 1 ), // strip template target
 				],
-				$src,
+				// FIXME: Hard-coded 'main' role
+				$pageContent->getContent( 'main' ),
 				$this->options
 			);
 			return new TemplateExpansionResult( $toks, true, $encap );
@@ -734,18 +737,21 @@ class TemplateHandler extends XMLTagBasedHandler {
 	 *
 	 * @param string $templateName
 	 * @param array $attribs
-	 * @return ?string
+	 * @return ?PageContent
 	 */
-	private function fetchTemplateAndTitle( string $templateName, array $attribs ): ?string {
+	private function fetchTemplateAndTitle( string $templateName, array $attribs ): ?PageContent {
 		$env = $this->env;
+		$title = Title::newFromText( $templateName, $env->getSiteConfig() );
 		if ( isset( $env->pageCache[$templateName] ) ) {
-			return $env->pageCache[$templateName];
+			return new MockPageContent(
+				[ 'main' => $env->pageCache[$templateName] ], $title
+			);
 		}
 
 		$start = hrtime( true );
 		$pageContent = $env->getDataAccess()->fetchTemplateSource(
 			$env->getPageConfig(),
-			Title::newFromText( $templateName, $env->getSiteConfig() )
+			$title
 		);
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
@@ -753,9 +759,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 			$profile->bumpCount( "TemplateFetch" );
 		}
 
-		// FIXME:
-		// 1. Hard-coded 'main' role
-		return $pageContent ? $pageContent->getContent( 'main' ) : null;
+		return $pageContent;
 	}
 
 	/**
