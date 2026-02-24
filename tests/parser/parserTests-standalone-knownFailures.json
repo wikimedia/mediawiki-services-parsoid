@@ -144,7 +144,7 @@
         "html2wt": "* {{1x|a\n[[Category:Foo]]\n[[es:Foo]]}}"
     },
     "8. Encapsulate foster-parented transclusion content": {
-        "wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}\n"
+        "wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}"
     },
     "8. cats/langlinks: migrateTrailingSolTransparentLinks dom pass should not get tripped by intervening templates": {
         "html2wt": "* a\n\n{{1x|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]\n[[es:Baz]]"

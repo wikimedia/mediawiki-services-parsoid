@@ -10,7 +10,7 @@
         "html2wt": "PARSOID HAS A BUG HERE: T215628"
     },
     "T265737: 1. Relax section start requirements to reduce unnecessary conflicts between template and section boundaries": {
-        "wt2wt": "=x=\n{{Foobar1}}\ny\n",
+        "wt2wt": "=x=\n{{Foobar1}}\ny",
         "selser [1,2]": "cj1l50\n\n= x =\n{{Foobar1}}\ny",
         "selser [0,[2,0,0]]": "1bno6v9\n\n= x =\n{{Foobar1}}\ny",
         "selser [0,[0,4,3]]": "= x =\n1e2ahe6",

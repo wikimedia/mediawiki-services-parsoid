@@ -28,7 +28,7 @@
 		"wt2wt": "<includeonly>\n|+foo</includeonly>\n{|\n{{1x|{{!}}-}}<includeonly>\n|+foo</includeonly>\n|bar\n|}"
 	},
 	"8. Encapsulate foster-parented transclusion content": {
-		"wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}\n"
+		"wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}"
 	},
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"

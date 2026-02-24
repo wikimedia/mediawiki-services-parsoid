@@ -887,14 +887,18 @@ parsoid={
 x
 ==boo==
 }}
+y
 !! html/php
 <p>x
 </p>
 <div class="mw-heading mw-heading2"><h2 id="boo">boo</h2></div>
+<p>y
+</p>
 !! html/parsoid
-<section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
+<section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}},"\ny"]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
-</span></section><section data-mw-section-id="-1" about="#mwt2"><h2 about="#mwt1" id="boo">boo</h2></section>
+</span></section><section data-mw-section-id="-1" about="#mwt2"><h2 about="#mwt1" id="boo">boo</h2>
+<p>y</p></section>
 !! end
 
 !! test

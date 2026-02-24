@@ -71,13 +71,10 @@ class DiffDOMUtils {
 	/**
 	 * Get the last child element or non-IEW text node, ignoring
 	 * whitespace-only text nodes, comments, and deleted nodes.
-	 *
-	 * @param Node $node
-	 * @return Node|null
 	 */
-	public static function lastNonSepChild( Node $node ): ?Node {
+	public static function lastNonSepChild( Node $node, ?Node $sentinel = null ): ?Node {
 		$child = $node->lastChild;
-		while ( $child && !self::isContentNode( $child ) ) {
+		while ( $child && $child !== $sentinel && !self::isContentNode( $child ) ) {
 			$child = $child->previousSibling;
 		}
 		return $child;
@@ -85,13 +82,10 @@ class DiffDOMUtils {
 
 	/**
 	 * Get the previous non separator sibling node.
-	 *
-	 * @param Node $node
-	 * @return Node|null
 	 */
-	public static function previousNonSepSibling( Node $node ): ?Node {
+	public static function previousNonSepSibling( Node $node, ?Node $sentinel = null ): ?Node {
 		$prev = $node->previousSibling;
-		while ( $prev && !self::isContentNode( $prev ) ) {
+		while ( $prev && $prev !== $sentinel && !self::isContentNode( $prev ) ) {
 			$prev = $prev->previousSibling;
 		}
 		return $prev;

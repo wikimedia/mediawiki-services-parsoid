@@ -1339,12 +1339,28 @@ class WikitextSerializer {
 		);
 
 		$this->env->log( 'debug/wts', 'Calling serialization handler for ' . $nodeName );
-		$nextNode = $method( $node, $domHandler );
+		$next = $nextNode = $method( $node, $domHandler );
 
-		$next = DiffDOMUtils::nextNonSepSibling( $node ) ?: $node->parentNode;
+		// If we've skipped over encapsulated content to return a $nextNode,
+		// the newline constraint we want for after $node should be based on
+		// $nextNode and DiffDOMUtils::previousNonSepSibling( $nextNode )
+
+		if ( $next !== null && !DiffDOMUtils::isContentNode( $next ) ) {
+			$next = DiffDOMUtils::nextNonSepSibling( $next );
+		}
+		if ( $next === null ) {
+			$next = $node->parentNode;
+			$prev = DiffDOMUtils::lastNonSepChild( $next, $node ) ?: $node;
+		} else {
+			$prev = DiffDOMUtils::previousNonSepSibling( $next, $node ) ?: $node;
+		}
+
+		$prevDomHandler = ( $prev === $node ) ? $domHandler :
+			$domHandlerFactory->getDOMHandler( $prev );
+
 		$this->env->log( 'debug/wts', 'After constraints for ' . $nodeName );
 		$state->separators->updateSeparatorConstraints(
-			$node, $domHandler,
+			$prev, $prevDomHandler,
 			$next, $domHandlerFactory->getDOMHandler( $next )
 		);
 
