@@ -2,6 +2,30 @@
     "(confirming safety of fix for subst T3936)": {
         "html2wt": "@<span>Oh no</span>\n"
     },
+    "Category with link tail": {
+        "wt2wt": "123\n[[Category:Foo]]\n456",
+        "selser [5]": "123\n[[Category:Foo]]\n456",
+        "metadata": "cat=Foo sort="
+    },
+    "Category with template": {
+        "metadata": "cat=Template:1x sort="
+    },
+    "Category with template in sort key": {
+        "wt2wt": "[[Category:Foo|{{1x|Bar}}<nowiki>]]</nowiki>",
+        "selser [1]": "[[Category:Foo|{{1x|Bar}}]]",
+        "selser [[2,0,0]]": "w4gzmn[[Category:Foo|{{1x|Bar}}]]",
+        "selser [2]": "dq9zxf\n\n[[Category:Foo|{{1x|Bar}}]]",
+        "selser [[4,0,4]]": "1hpy82n{{1x|Bar}}<nowiki/>obc4gk",
+        "selser [[3,0,4]]": "{{1x|Bar}}<nowiki/>jmn18n"
+    },
+    "Category with template in sort key and title": {
+        "selser [[2,0,4,0,2]]": "xyawpm[[Category:{{1x|Foo}}<nowiki/>jutyf7{{1x|Bar}}5os7nn]]",
+        "selser [[0,0,0,0,4]]": "[[Category:{{1x|Foo}}|{{1x|Bar}}<nowiki/>g68v2",
+        "selser [[4,0,4,0,4]]": "4srv3x{{1x|Foo}}<nowiki/>djubh1{{1x|Bar}}<nowiki/>p3m55w",
+        "selser [[0,0,4,0,0]]": "[[Category:{{1x|Foo}}<nowiki/>i3xjzr{{1x|Bar}}]]",
+        "selser [[0,0,2,0,0]]": "[[Category:{{1x|Foo}}<nowiki/>e1zuvr|{{1x|Bar}}]]",
+        "selser [[2,0,4,0,4]]": "otj5a1[[Category:{{1x|Foo}}<nowiki/>jfklm6{{1x|Bar}}<nowiki/>kt1an6"
+    },
     "ParserOutput flags from signature expansion (T84843)": {
         "wt2wt": "<nowiki>~~~~</nowiki>",
         "selser [2]": "1hn7rnr\n\n~~~~",

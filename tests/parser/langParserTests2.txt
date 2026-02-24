@@ -1,5 +1,8 @@
 # LanguageConverter and language variants parser tests (v2)
 # Based on https://www.mediawiki.org/wiki/Writing_systems/Syntax
+# This file is primarily for testing actual LanguageConverter
+# behavior, aka +langconv output for various constructs, focusing
+# on examples from the zhwiki documentation.
 !! options
 version=2
 parsoid-compatible=wt2html

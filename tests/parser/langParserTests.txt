@@ -1,4 +1,7 @@
 # LanguageConverter and language variants parser tests
+# This file includes standalone tests of Parsoid parsing of LC
+# constructs (html/parsoid) as well as tests of language converter
+# behavior (html/parsoid+langconv).
 !! options
 version=2
 parsoid-compatible=wt2html
@@ -1878,4 +1881,14 @@ parsoid=html2wt
 <span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"R|R"}}'></span>
 !! wikitext
 -{R|R|R}-
+!! end
+
+!! test
+Don't crash if there are no possible variants of a redlink
+!! options
+language=zh htmlVariantLanguage=zh-tw
+!! wikitext
+[[This is a red link]]
+!! html/parsoid+langconv
+<p><a rel="mw:WikiLink" href="./This_is_a_red_link?action=edit&amp;redlink=1" title="This is a red link" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["This is a red link"]}}'>This is a red link</a></p>
 !! end
