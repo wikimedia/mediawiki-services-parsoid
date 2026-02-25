@@ -163,8 +163,8 @@ class BasePageBundle implements JsonCodecable {
 			// Backward compatibility with Parsoid < 0.23
 			$json['counters'] ??= [
 				'nodedata' => $json['parsoid']['counter'],
-				'annotation' => -1,
-				'transclusion' => -1,
+				'annotation' => 0,
+				'transclusion' => 1,
 			];
 			unset( $json['parsoid']['counter'] );
 		}

@@ -612,6 +612,20 @@ class Parsoid {
 		);
 		$doc = $env->getTopLevelDoc();
 
+		// NOTE: When $doc is prepared (with eager loading of attributes),
+		// 'parsoid' and 'mw' attributes are stashed in DataBag, and the
+		// 'annotation' and 'transclusion' counters in DataBag are also
+		// initialized. But $pb->counters['nodedata'] is not, because it
+		// is in encoded base64 form.
+		//
+		// FIXME: We should ideally be initializing $env->pageBundle
+		// from $pb in self::prepareAndLoadDocOrBundle, but it needs
+		// a bunch of code rejiggering in this file and in Env. That will
+		// be a followup refactoring when we work on lazy loading.
+		if ( isset( $pb->counters['nodedata'] ) ) {
+			$env->pageBundle->counters['nodedata'] = $pb->counters['nodedata'];
+		}
+
 		switch ( $update ) {
 			case 'convertoffsets':
 				// This method also calls Env::setCurrentOffsetType, which
@@ -620,9 +634,6 @@ class Parsoid {
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
-				if ( isset( $pb->counters['nodedata'] ) ) {
-					$env->pageBundle->counters['nodedata'] = $pb->counters['nodedata'];
-				}
 				break;
 
 			case 'redlinks':

@@ -72,8 +72,8 @@ class DomPageBundle extends BasePageBundle {
 			],
 			[
 				'nodedata' => -1,
-				'annotation' => -1,
-				'transclusion' => -1,
+				'annotation' => 0,
+				'transclusion' => 1,
 			],
 			$version,
 			$headers,
@@ -363,8 +363,8 @@ class DomPageBundle extends BasePageBundle {
 		if ( !isset( $decoded['counters'] ) ) {
 			$decoded['counters'] = [
 				'nodedata' => $decoded['parsoid']['counter'] ?? -1,
-				'annotation' => -1,
-				'transclusion' => -1,
+				'annotation' => 0,
+				'transclusion' => 1,
 			];
 		}
 		if ( isset( $decoded['parsoid']['counter'] ) ) {
