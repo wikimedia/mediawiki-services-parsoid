@@ -290,7 +290,7 @@ class ExtensionHandler extends XMLTagBasedHandler {
 
 		$res = $s;
 		foreach ( $annotationStrippers as $annotationStripper ) {
-			$res = $annotationStripper->stripAnnotations( $s );
+			$res = $annotationStripper->stripAnnotations( $res );
 		}
 		return $res;
 	}
