@@ -155,15 +155,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * @param Document $topLevelDoc
-	 * @param Document $childDoc
-	 */
-	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ): void {
-		self::setExtensionData( $childDoc, "bag", self::getExtensionData( $topLevelDoc, "bag" ) );
-		self::setExtensionData( $childDoc, "codec", self::getExtensionData( $topLevelDoc, "codec" ) );
-	}
-
-	/**
 	 * Stash $obj in $doc and return an id for later retrieval
 	 * @param Document $doc
 	 * @param NodeData $obj
