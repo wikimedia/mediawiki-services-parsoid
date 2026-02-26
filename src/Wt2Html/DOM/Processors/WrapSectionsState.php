@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\SectionMetadata;
 use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -284,6 +285,38 @@ class WrapSectionsState {
 		return true;
 	}
 
+	// Similar to HandleParsoidSectionLinks::isHtmlHeading in OTP
+	private static function isHtmlHeading( Element $h ): bool {
+		// FIXME(T100856): stx info probably shouldn't be in data-parsoid
+		if ( !WTUtils::isLiteralHTMLNode( $h ) ) {
+			return false;
+		}
+
+		foreach ( $h->attributes as $attr ) {
+			// Condition matches DiscussionTool's CommentFormatter::handleHeading
+			if (
+				!in_array( $attr->name, [ 'id', 'data-object-id', 'about', 'typeof' ], true ) &&
+				!Sanitizer::isReservedDataAttribute( $attr->name )
+			) {
+				return true;
+			}
+		}
+
+		// Id is ignored above since it's a special case, make use of metadata
+		// to determine if it came from wikitext
+		if ( DOMDataUtils::getDataParsoid( $h )->reusedId ?? false ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	private static function isWrappableHeading( Node $node ): bool {
+		return ( $node instanceof Element ) &&
+			DOMUtils::isHeading( $node ) &&
+			!self::isHtmlHeading( $node );
+	}
+
 	/**
 	 * Walk the DOM and add <section> wrappers where required.
 	 * This is the workhorse code that wrapSections relies on.
@@ -355,7 +388,7 @@ class WrapSectionsState {
 					$node = $node->nextSibling;
 				}
 
-				if ( count( $tplInfo->rtContentNodes ) > 0 && DOMUtils::isHeading( $node ) ) {
+				if ( count( $tplInfo->rtContentNodes ) > 0 && self::isWrappableHeading( $node ) ) {
 					// In this scenario, we can expand the section boundary to include these nodes
 					// rather than start with the heading. This eliminates unnecessary conflicts
 					// between section & template boundaries.
@@ -368,7 +401,7 @@ class WrapSectionsState {
 				}
 			}
 
-			if ( DOMUtils::isHeading( $node ) ) {
+			if ( self::isWrappableHeading( $node ) ) {
 				'@phan-var Element $node'; // @var Element $node // headings are elements
 				$level = (int)DOMUtils::nodeName( $node )[1];
 
@@ -782,7 +815,7 @@ class WrapSectionsState {
 				continue;
 			}
 			if ( $elt instanceof Element ) {
-				if ( DOMUtils::isHeading( $elt ) ) {
+				if ( self::isWrappableHeading( $elt ) ) {
 					return $elt;
 				} elseif ( $elt->firstChild ) {
 					$tocIP = self::findTOCInsertionPoint( $elt->firstChild );

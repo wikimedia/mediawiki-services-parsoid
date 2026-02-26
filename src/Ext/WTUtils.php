@@ -35,4 +35,9 @@ class WTUtils {
 	public static function fromTemplatedContent( Node $node ): bool {
 		return WTU::fromTemplatedContent( $node );
 	}
+
+	public static function isLiteralHTMLNode( ?Node $node ): bool {
+		return WTU::isLiteralHTMLNode( $node );
+	}
+
 }
