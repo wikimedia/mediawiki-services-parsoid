@@ -246,10 +246,12 @@ class LanguageConverter {
 	): void {
 		// PageConfig guarantees getPageLanguage() never returns null.
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
+		if ( $pageLangCode->toBcp47Code() === 'zh' ) {
+			return; // no conversion: T346657
+		}
 
 		$loadTiming = Timing::start( $env->getSiteConfig() );
-		$languageClass = self::loadLanguage( $env, $pageLangCode );
-		$lang = new $languageClass();
+		$lang = self::loadLanguage( $env, $pageLangCode );
 		$langconv = $lang->getConverter();
 		$htmlVariantLanguageMw = Utils::bcp47ToMwCode( $htmlVariantLanguage );
 		// XXX we might want to lazily-load conversion tables here.
