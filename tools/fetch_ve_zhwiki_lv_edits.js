@@ -18,10 +18,7 @@ const processDiff = Promise.async(function *(fetchArgs, diffUrl) {
 	};
 	const resp = yield ScriptUtils.retryingHTTPRequest(3, requestOpts);
 
-	const re = new RegExp("/-{zh-/", 'g');
-	const matches = resp[1].match(re);
-	const ret = matches && matches.length % 2 === 1;
-	if (ret) {
+	if (/<ins class="diffchange diffchange-inline">-{zh-/.test(resp[1])) {
 		console.log("\nlv bug seen in " + diffUrl);
 		return true;
 	} else {
@@ -33,7 +30,7 @@ const processDiff = Promise.async(function *(fetchArgs, diffUrl) {
 processRCForWikis(
 	wikis,
 	{
-		rcstart: '2026-02-14T00:00:00Z',
+		rcstart: '2026-02-23T00:00:00Z',
 		rcend: '2026-02-28T11:59:59Z',
 		rctag: 'visualeditor', // visualeditor
 	},
