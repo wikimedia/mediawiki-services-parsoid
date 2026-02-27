@@ -68,6 +68,7 @@ async function fetchAll (args, out) {
 	} catch (e) {
 		// Catch exceptions to ensure they don't cause this promise to get rejected
 		// and cause upstream failure of Promise.all()
+		console.log("EXC: " + e);
 	}
 }
 
