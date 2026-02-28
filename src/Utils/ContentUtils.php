@@ -96,11 +96,8 @@ class ContentUtils {
 			PHPUtils::deprecated( __METHOD__ . ' with $options', '0.23' );
 		}
 		$domFragment = $doc->createDocumentFragment();
-		// Ignore the provided options, and just use the options of the
-		// parent document.
-		$options = DOMDataUtils::getCodec( $doc )->options;
 		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
-		DOMDataUtils::visitAndLoadDataAttribs( $domFragment, $options );
+		DOMDataUtils::visitAndLoadDataAttribs( $domFragment );
 		return $domFragment;
 	}
 

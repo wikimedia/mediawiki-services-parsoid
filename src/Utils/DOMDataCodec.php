@@ -195,7 +195,7 @@ class DOMDataCodec extends JsonCodec {
 				} else {
 					DOMUtils::setFragmentInnerHTML( $df, $json['_h'] );
 				}
-				DOMDataUtils::visitAndLoadDataAttribs( $df, $this->codec->options );
+				DOMDataUtils::visitAndLoadDataAttribs( $df );
 				return $df;
 			}
 

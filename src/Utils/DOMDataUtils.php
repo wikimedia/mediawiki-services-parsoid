@@ -137,7 +137,7 @@ class DOMDataUtils {
 
 	public static function prepareAndLoadDoc( Document $doc, array $options = [] ): void {
 		$bag = new DataBag();
-		$codec = new DOMDataCodec( $doc, $options );
+		$codec = new DOMDataCodec( $doc, [] );
 		self::setExtensionData( $doc, "bag", $bag );
 		self::setExtensionData( $doc, "codec", $codec );
 
@@ -145,13 +145,14 @@ class DOMDataUtils {
 		$pb = $options['loadFromPageBundle'] ?? null;
 		'@phan-var ?BasePageBundle $pb'; // @var ?BasePageBundle $pb
 		if ( $pb ) {
+			$bag->inputPageBundle = $pb;
 			$bag->updateCountersFromPageBundle( $pb );
 		}
 		$bag->serializeNewEmptyDp = $options['serializeNewEmptyDp'] ?? false;
 
-		self::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ), $options );
+		self::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
 		foreach ( $options['fragments'] ?? [] as $f ) {
-			self::visitAndLoadDataAttribs( $f, $options );
+			self::visitAndLoadDataAttribs( $f );
 		}
 
 		// Mark the document as loaded so we can try to catch errors which
@@ -661,15 +662,16 @@ class DOMDataUtils {
 	 * Walk DOM from node downward calling loadDataAttribs
 	 *
 	 * @param Node $node node
-	 * @param array $options options
 	 */
-	public static function visitAndLoadDataAttribs( Node $node, array $options = [] ): void {
+	public static function visitAndLoadDataAttribs( Node $node ): void {
 		$doc = $node->ownerDocument;
 		Assert::invariant( self::isPrepared( $doc ), "document should be prepared" );
 
-		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
-			self::loadDataAttribs( $node, $options );
-		}, $options );
+		DOMUtils::visitDOM( $node, function ( Node $node ) {
+			if ( $node instanceof Element ) {
+				self::loadDataAttribs( $node );
+			}
+		} );
 	}
 
 	/**
@@ -679,21 +681,14 @@ class DOMDataUtils {
 	 * the attributes up-to-date throughout that phase.  For the most part,
 	 * using this.ppTo* should be sufficient and using these directly should be
 	 * avoided.
-	 *
-	 * @param Node $node node
-	 * @param array $options options
 	 */
-	private static function loadDataAttribs( Node $node, array $options ): void {
-		if ( !( $node instanceof Element ) ) {
-			return;
-		}
+	private static function loadDataAttribs( Element $node ): void {
 		$bag = self::getBag( $node->ownerDocument ?? $node );
 		$about = DOMCompat::getAttribute( $node, 'about' );
 		if ( $about !== null ) {
 			$bag->seenAboutId( $about );
 		}
-		$pb = $options['loadFromPageBundle'] ?? null;
-		'@phan-var BasePageBundle $pb'; // @var BasePageBundle $pb
+		$pb = $bag->inputPageBundle;
 		// FIXME: This is still an eager load of node data.
 		$nodeData = self::getNodeData( $node, $pb );
 		if ( !$pb || $pb->counters === null ) {
@@ -764,16 +759,12 @@ class DOMDataUtils {
 
 		$options['serializeNewEmptyDp'] = $bag->serializeNewEmptyDp;
 
-		// Set the "storage options" and save the "loading options"
+		// Set the "storage options"
 		$codec = self::getCodec( $node );
-		$oldOptions = $codec->setOptions( $options );
-
+		$codec->setOptions( $options );
 		DOMUtils::visitDOM( $node, function ( Node $node, array $options ) {
 			self::storeDataAttribs( $node, $options );
 		}, $options );
-
-		// Restore the "loading options"
-		$codec->setOptions( $oldOptions );
 	}
 
 	/**

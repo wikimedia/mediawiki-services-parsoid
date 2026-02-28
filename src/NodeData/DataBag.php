@@ -25,6 +25,16 @@ class DataBag {
 	private int $annotationId = 0;
 
 	/**
+	 * This is the input page bundle for an input doc available in pagebundle form.
+	 * It is read-only and hence does not need to be deep-cloned. During eager
+	 * loading of the doc's data-* attributes, this is useless after loading completes.
+	 * But, during lazy loading, unloaded data will be transferred over to the
+	 * output pagebundle during serialization, and so this pagebundle might be active
+	 * and used till the very end of the request.
+	 */
+	public ?BasePageBundle $inputPageBundle = null;
+
+	/**
 	 * Should every Parsoid-generated node be serialized with a data-parsoid attribute?
 	 * This property is set per-transformation (whether wt2html, html2wt, or html2html)
 	 * and as such, we record it here in the top-level document's databag.

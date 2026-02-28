@@ -234,7 +234,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$html
 		);
 
-		DOMDataUtils::visitAndLoadDataAttribs( $p, [] );
+		DOMDataUtils::visitAndLoadDataAttribs( $p );
 
 		// Values should be preserved!
 		$rd3 = DOMDataUtils::getAttributeObject( $p, 'data-mw-foo', SampleNestedRichData::class );
