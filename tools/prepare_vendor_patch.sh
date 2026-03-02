@@ -73,8 +73,8 @@ if [ ! -d "$coreRepo" ]; then
 fi
 
 # lower-case tag names
-oldTag=${1,,}
-newTag=${2,,}
+oldTag=$(echo $1 | tr '[:upper:]' '[:lower:]')
+newTag=$(echo $2 | tr '[:upper:]' '[:lower:]')
 
 if [[ $1 == V* ]]; then
 	echo "Lowercased tag from $1 to $oldTag"
