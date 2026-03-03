@@ -851,7 +851,10 @@ class DOMDataUtils {
 		$clone = clone $doc;
 		// But now we need to duplicate the extension data.
 		if ( self::isPrepared( $doc ) ) {
-			$codec = new DOMDataCodec( $clone, [] );
+			$codec = new DOMDataCodec( $clone, [
+				// No loading options needed; any info needed for
+				// lazy-loading will come from the (cloned) DataBag
+			] );
 			self::setExtensionData( $clone, "codec", $codec );
 
 			// Overwrite the empty Bag with a clone, after setting up
