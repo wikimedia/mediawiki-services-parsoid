@@ -39,7 +39,7 @@
 		"wikimedia/idle-dom": "^2.1.0",
 		"wikimedia/ip-utils": "^6.0.0",
 		"wikimedia/json-codec": "^4.0.0 || ^5.0.0",
-		"wikimedia/object-factory": "^5.0.1",
+		"wikimedia/object-factory": "^5.0.1 || ^6.0.0",
 		"wikimedia/remex-html": "^5.1.0 || ^6.0.0",
 		"wikimedia/utfnormal": "^4.0",
 		"wikimedia/wikipeg": "^6.0.0",
