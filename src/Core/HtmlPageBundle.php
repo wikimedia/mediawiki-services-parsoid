@@ -59,8 +59,8 @@ class HtmlPageBundle extends BasePageBundle {
 			],
 			[
 				'nodedata' => -1,
-				'annotation' => 0,
-				'transclusion' => 1,
+				'annotation' => -1,
+				'transclusion' => -1,
 			],
 			$version,
 			$headers,
