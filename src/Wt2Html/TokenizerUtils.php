@@ -40,27 +40,17 @@ class TokenizerUtils {
 			return $e;
 		}
 
-		for ( $i = 0;  $i < count( $e );  $i++ ) {
-			$v = $e[$i];
+		foreach ( $e as $i => $v ) {
 			if ( is_array( $v ) ) {
 				// Change in assumption from a shallow array to a nested array.
-				if ( $res === null ) {
-					$res = array_slice( $e, 0, $i );
-				}
+				$res ??= array_slice( $e, 0, $i );
 				self::internalFlatten( $v, $res );
-			} elseif ( $v !== null ) {
-				if ( $res !== null ) {
-					$res[] = $v;
-				}
-			} else {
-				throw new \RuntimeException( __METHOD__ . ": found falsy element $v @ posn $i" );
+			} elseif ( $res !== null ) {
+				$res[] = $v;
 			}
 		}
 
-		if ( $res !== null ) {
-			$e = $res;
-		}
-		return $e;
+		return $res ?? $e;
 	}
 
 	/**
