@@ -130,7 +130,7 @@ abstract class PageConfig {
 	 * @return string
 	 */
 	public function getPageMainContent(): string {
-		return $this->getRevisionContent()->getContent( 'main' );
+		return $this->getRevisionContent()?->getContent( 'main' ) ?? '';
 	}
 
 }
