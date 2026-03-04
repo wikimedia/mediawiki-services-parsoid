@@ -82,7 +82,7 @@ class Utils {
 			return '';
 		}
 		$c = $str[--$idx];
-		while ( ( ord( $c ) & 0xC0 ) === 0x80 ) {
+		while ( ( ord( $c[0] ) & 0xC0 ) === 0x80 ) {
 			$c = $str[--$idx] . $c;
 		}
 		return $c;
