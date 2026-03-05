@@ -54,6 +54,9 @@ class PWrapState {
 		if ( $t && !str_ends_with( $t, '/End' ) ) {
 			'@phan-var Element $n';  // @var Element $n
 			$about = DOMCompat::getAttribute( $n, 'about' );
+			// FIXME: Annotations don't have about ids, they set rangeId
+			// in the data-mw.  However, that only happens after pwrapping
+			// so we'd need to rearrange transforms in the pipeline
 			if ( $about !== null ) {
 				$this->seenStarts[$about] = true;
 			}
@@ -76,8 +79,11 @@ class PWrapState {
 					// Check if one of its prior siblings has a matching opening tag.
 					// If so, we are done with unwrapping here since we don't want to
 					// hoist this closing tag by itself.
-					$aboutId = DOMCompat::getAttribute( $lastChild, 'about' );
-					if ( $this->seenStarts[$aboutId] ?? null ) {
+					$about = DOMCompat::getAttribute( $lastChild, 'about' );
+					// FIXME: Annotations don't have about ids, they set rangeId
+					// in the data-mw.  However, that only happens after pwrapping
+					// so we'd need to rearrange transforms in the pipeline
+					if ( $about !== null && ( $this->seenStarts[$about] ?? null ) ) {
 						break;
 					}
 				}
