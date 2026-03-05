@@ -46,7 +46,10 @@ class PWrapState {
 		$this->hasOptionalNode = (bool)$t || $this->hasOptionalNode;
 		if ( $t && !str_ends_with( $t, '/End' ) ) {
 			'@phan-var Element $n';  // @var Element $n
-			$this->seenStarts[DOMCompat::getAttribute( $n, 'about' )] = true;
+			$about = DOMCompat::getAttribute( $n, 'about' );
+			if ( $about !== null ) {
+				$this->seenStarts[$about] = true;
+			}
 		}
 	}
 
