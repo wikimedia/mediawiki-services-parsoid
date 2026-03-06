@@ -999,19 +999,31 @@ class DOMDataUtils {
 		self::loadRichAttributes( $node, $name ); // lazy load
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			// Don't create an empty node data object if we don't need to.
-			return null;
+			$value = null;
+		} else {
+			$nodeData = self::getNodeData( $node );
+			$propName = self::nodeDataPropName( $name );
+			$value = $nodeData->$propName ?? null;
+			// We lazily decode rich values, because we need to know the $classHint
+			// before we decode.  Undecoded values are wrapped with an array so
+			// we can tell whether the value has been decoded already or not.
+			if ( is_array( $value ) ) {
+				$value = self::decodeAttribute( self::getCodec( $node ), $value[0], $classHint );
+				$nodeData->$propName = $value;
+				$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
+				$nodeData->$hintName = $classHint;
+			}
 		}
-		$nodeData = self::getNodeData( $node );
-		$propName = self::nodeDataPropName( $name );
-		$value = $nodeData->$propName ?? null;
-		// We lazily decode rich values, because we need to know the $classHint
-		// before we decode.  Undecoded values are wrapped with an array so
-		// we can tell whether the value has been decoded already or not.
-		if ( is_array( $value ) ) {
-			$value = self::decodeAttribute( self::getCodec( $node ), $value[0], $classHint );
-			$nodeData->$propName = $value;
-			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
-			$nodeData->$hintName = $classHint;
+		// Special case handling for DocumentFragments with plain-text
+		// values.
+		if (
+			$value === null &&
+			$classHint === DocumentFragment::class &&
+			$node->hasAttribute( $name )
+		) {
+			$value = $node->ownerDocument->createDocumentFragment();
+			DOMCompat::append( $value, DOMCompat::getAttribute( $node, $name ) );
+			self::setAttributeDom( $node, $name, $value );
 		}
 		return $value;
 	}
@@ -1202,7 +1214,7 @@ class DOMDataUtils {
 		$value = self::getAttributeDom( $node, $name );
 		if ( $value === null ) {
 			$value = $node->ownerDocument->createDocumentFragment();
-			self::setAttributeDOM( $node, $name, $value );
+			self::setAttributeDom( $node, $name, $value );
 		}
 		return $value;
 	}
@@ -1413,15 +1425,29 @@ class DOMDataUtils {
 		} else {
 			// For compatibility, store the rich value in data-mw.attribs
 			// and store a flattened version in the $attrName.
+			$complex = true;
+			'@phan-var DocumentFragment $df';
 			if ( $flat !== null ) {
 				$node->setAttribute( $attrName, $flat );
+				// Identify special case where the html is trivial to
+				// avoid bloating the HTML.
+				if ( $df && $df->firstChild &&
+					$df->firstChild->nextSibling === null &&
+					$df->firstChild->nodeType === XML_TEXT_NODE &&
+					$df->firstChild->nodeValue === $flat ) {
+					$complex = false;
+				}
 			} else {
 				$node->removeAttribute( $attrName );
 			}
-			$dataMw = self::getDataMw( $node );
-			$value = $df ? [ 'html' => $df ] : [ 'rich' => $json ];
-			$dataMw->attribs[] = new DataMwAttrib( $attrName, $value );
-			DOMUtils::addTypeOf( $node, 'mw:ExpandedAttrs' );
+			// Only store rich content if it is different from the
+			// flattened attribute value
+			if ( $complex ) {
+				$dataMw = self::getDataMw( $node );
+				$value = $df ? [ 'html' => $df ] : [ 'rich' => $json ];
+				$dataMw->attribs[] = new DataMwAttrib( $attrName, $value );
+				DOMUtils::addTypeOf( $node, 'mw:ExpandedAttrs' );
+			}
 		}
 	}
 

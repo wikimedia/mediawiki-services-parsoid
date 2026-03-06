@@ -311,32 +311,32 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
 				'<template data-tid="g/SsaX6L-1">This is pretty <b>bold</b>!</template>' .
-				'<template data-tid="ie1lOoOR-1">ebb &amp; flow</template>' .
+				'<template data-tid="ie1lOoOR">ebb &amp; flow</template>' .
 				'<template data-tid="g/SsaX6L-2">This is pretty <b>bold</b>!</template>' .
-				'<template data-tid="ie1lOoOR-2">ebb &amp; flow</template>' .
 				'</head><body><p ' .
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
 				'title2="ebb &amp; flow" ' .
 				'data-mw-foo=\'{"_t":"g/SsaX6L-1"}\' ' .
-				'data-mw-foo2=\'{"_t":"ie1lOoOR-1"}\' ' .
-				'data-mw=\'{"attribs":[["title",{"html":{"_t":"g/SsaX6L-2"}}],["title2",{"html":{"_t":"ie1lOoOR-2"}}]]}\'>' .
+				'data-mw-foo2=\'{"_t":"ie1lOoOR"}\' ' .
+				'data-mw=\'{"attribs":[["title",{"html":{"_t":"g/SsaX6L-2"}}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>' :
 
 				"<!DOCTYPE html>\n<html><head></head><body>" .
 				'<p ' .
-				'typeof="mw:ExpandedAttrs" ' .
 				'title="This is pretty bold!" ' .
+				'typeof="mw:ExpandedAttrs" ' .
 				'title2="ebb &amp; flow" ' .
 				'data-mw-foo=\'{"_h":"This is pretty &lt;b>bold&lt;/b>!"}\' ' .
 				'data-mw-foo2=\'{"_h":"ebb &amp;amp; flow"}\' ' .
 				'data-mw=\'{"attribs":[' .
-				'["title",{"html":"This is pretty &lt;b>bold&lt;/b>!"}],' .
-				'["title2",{"html":"ebb &amp;amp; flow"}]]}\'>' .
+				'["title",{"html":"This is pretty &lt;b>bold&lt;/b>!"}]' .
+				']}\'>' .
 				'Hello, world</p>' .
 				'</body></html>',
-				$html
+				$html,
+				"useFragmentBank=" . ( $useFragmentBank ? "true" : "false" )
 			);
 			$doc = ContentUtils::createAndLoadDocument( $html );
 			$p = DOMCompat::querySelector( $doc, 'p' );
