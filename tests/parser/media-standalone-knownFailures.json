@@ -58,10 +58,13 @@
     },
     "Fragment in media filename": {
         "wt2wt": "[[File:Foobar.jpg#fragment|123|link=File:Foobar.jpg]]",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"link\",\"ak\":\"link=File:Foobar.jpg\"},{\"ck\":\"caption\",\"ak\":\"123\"}],\"dsr\":[0,53,null,null]}' data-mw='{\"caption\":\"123\"}'><a href=\"./File:Foobar.jpg\" title=\"123\" data-parsoid=\"{}\"><img alt=\"123\" resource=\"./File:Foobar.jpg#fragment\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg#fragment\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg#fragment\"}}'/></a></span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"link\",\"ak\":\"link=File:Foobar.jpg\"},{\"ck\":\"caption\",\"ak\":\"123\"}],\"dsr\":[0,53,null,null]}' data-mw='{\"caption\":\"123\"}'><a href=\"./File:Foobar.jpg\" title=\"123\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg#fragment\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" alt=\"123\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg#fragment\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg#fragment\"}}'/></a></span></p>",
         "html2wt": "[[File:Foobar.jpg#fragment|link=File:Foobar.jpg|123]]",
         "selser [2]": "hutwn7\n\n[[File:Foobar.jpg#fragment|123]]",
         "selser [1]": "[[File:Foobar.jpg#fragment|123]]"
+    },
+    "Gallery with wikitext incl bogus HTML tag (T237318)": {
+        "html2html": "<ul class=\"gallery mw-gallery-traditional\" typeof=\"mw:Extension/gallery\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,60,9,10]}' data-mw='{\"name\":\"gallery\",\"attrs\":{},\"body\":{}}'>\n<li class=\"gallerybox\" style=\"width: 155px;\" data-parsoid='{\"dsr\":[10,49,null,null]}'><div class=\"thumb\" style=\"width: 150px; height: 150px;\" data-parsoid=\"{}\"><span typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"caption\",\"ak\":\"&lt;nowiki>&lt;/ref>&lt;/nowiki>\"},{\"ck\":\"width\",\"ak\":\"120x120px\"}]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" title=\"&lt;/ref>\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"14\" width=\"120\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x\" class=\"mw-file-element\" alt=\"&lt;/ref>\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"14\",\"width\":\"120\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}' data-mw='{\"attribs\":[[\"alt\",{\"html\":\"&lt;span typeof=\\\"mw:Nowiki\\\" data-parsoid=&apos;{\\\"dsr\\\":[26,49,8,9]}&apos;>&amp;lt;/ref>&lt;/span>\"}]]}'/></a></span></div><div class=\"gallerytext\" data-parsoid='{\"dsr\":[26,49,0,0]}'>&lt;/ref></div></li>\n</ul>"
     },
     "Image with 'frame' first.": {
         "selser [[0,3],2,[0,3],3,[0,2],3,0]": "[[File:Foobar.jpg|frame]]1xp0okt\n[[File:Foobar.jpg|frame|frameless]][[File:Foobar.jpg|frame|thumb|caption]]\n[[File:Foobar.jpg|frame|thumbnail=Thumb.png|caption]]",
@@ -78,11 +81,11 @@
         "html2wt": "123[[File:Foobar.jpg]]456\n123\n[[File:Foobar.jpg|right]]\n456\n123\n[[File:Foobar.jpg|thumb]]\n456"
     },
     "Image with multiple alignments -- use first (T50664)": {
-        "html2wt": "[[File:Foobar.jpg|left|thumb|caption]]\n[[File:Foobar.jpg|middle|caption]]"
+        "html2wt": "[[File:Foobar.jpg|left|thumb|caption]]\n\n[[File:Foobar.jpg|middle|caption]]"
     },
     "Image with multiple attributes from the same template": {
         "wt2wt": "[[File:Foobar.jpg|right|Caption text]]",
-        "html2html": "<figure class=\"mw-default-size mw-halign-right\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"right\",\"ak\":\"right\"},{\"ck\":\"caption\",\"ak\":\"Caption text\"}],\"dsr\":[0,38,2,2]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" title=\"Caption text\" data-parsoid='{\"dsr\":[2,24,null,null]}'><img alt=\"Caption text\" resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a><figcaption data-parsoid='{\"dsr\":[24,36,0,0]}'>Caption text</figcaption></figure>\n",
+        "html2html": "<figure class=\"mw-default-size mw-halign-right\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"right\",\"ak\":\"right\"},{\"ck\":\"caption\",\"ak\":\"Caption text\"}],\"dsr\":[0,38,2,2]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" title=\"Caption text\" data-parsoid='{\"dsr\":[2,24,null,null]}'><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" alt=\"Caption text\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a><figcaption data-parsoid='{\"dsr\":[24,36,0,0]}'>Caption text</figcaption></figure>\n",
         "html2wt": "[[File:Foobar.jpg|right|Caption text]]\n"
     },
     "Image with multiple captions -- only last one is accepted": {
@@ -125,5 +128,8 @@
     },
     "Parsoid-specific image handling - simple image with size and middle alignment": {
         "html2wt": "[[File:Foobar.jpg|middle|50x50px]]"
+    },
+    "Various link types in alt and link options": {
+        "html2wt": "[[File:Foobar.jpg|link=Main_Page|alt=[[Main Page]]|caption]]\n\n[[File:Foobar.jpg|link=Media:Thumb.png|alt=[[Media:Thumb.png]]|caption]]\n\n[[File:Foobar.jpg|link=http://en.wikipedia.org/wiki/Foo|alt=[[wikipedia:Foo]]|caption]]"
     }
 }

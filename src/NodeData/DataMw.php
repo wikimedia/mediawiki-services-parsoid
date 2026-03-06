@@ -81,6 +81,24 @@ class DataMw implements JsonCodecable, RichCodecable {
 	}
 
 	/**
+	 * Helper method to remove elements from ->$attribs.
+	 */
+	public function removeAttrib( string $name ): void {
+		$this->attribs = array_values( array_filter(
+			$this->attribs ?? [],
+			static function ( $a ) use ( $name ) {
+				if ( $a instanceof DataMwAttrib && $a->getKeyString() === $name ) {
+					return false; // Remove this entry
+				}
+				return true;
+			}
+		) );
+		if ( count( $this->attribs ) === 0 ) {
+			unset( $this->attribs );
+		}
+	}
+
+	/**
 	 * Helper method to facilitate renaming the 'attrs' property to
 	 * 'extAttribs' (T367616).
 	 * @note that numeric key values will be converted from string

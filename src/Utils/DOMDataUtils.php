@@ -1159,20 +1159,8 @@ class DOMDataUtils {
 		}
 		// If there was a data-mw.attribs for this attribute, remove it
 		// (it will be rewritten during serialization later)
-		$dataMw->attribs = array_values( array_filter(
-			$dataMw->attribs ?? [],
-			static function ( $a ) use ( $name ) {
-				if ( !( $a instanceof DataMwAttrib ) ) {
-					return true;
-				}
-				if ( $a->getKeyString() === $name ) {
-					return false; // Remove this entry
-				}
-				return true;
-			}
-		) );
-		if ( count( $dataMw->attribs ) === 0 ) {
-			unset( $dataMw->attribs );
+		$dataMw->removeAttrib( $name );
+		if ( !isset( $dataMw->attribs ) ) {
 			DOMUtils::removeTypeOf( $node, 'mw:ExpandedAttrs' );
 		}
 	}

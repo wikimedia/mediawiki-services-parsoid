@@ -30,6 +30,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -1004,7 +1005,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		Env $env, ?array &$optInfo, string $prefix, string $resultStr
 	): bool {
 		// link and alt options are allowed to contain arbitrary
-		// wikitext (even though only strings are supported in reality)
+		// wikitext, and that wikitext can contain language converter
+		// markup, etc.
 		// FIXME(SSS): Is this actually true of all options rather than
 		// just link and alt?
 		if ( $optInfo === null ) {
@@ -1464,6 +1466,33 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				}
 				$dataMw->attribs ??= [];
 				$dataMw->attribs[] = new DataMwAttrib( $opt['ck'], $val );
+
+				// For alt attribute, try to split off the option name from
+				// the parsed HTML so we can store in standard "rich attribute"
+				// form (T417525).
+				// This is awkward, but the option name itself might have
+				// been template-generated originally, but should be plain
+				// text now.
+				if ( $opt['ck'] === 'alt' && isset( $val['html'] ) ) {
+					$newFragment = DOMDataUtils::cloneDocumentFragment( $val['html'] );
+					DOMCompat::normalize( $newFragment );
+					$firstChild = $newFragment->firstChild;
+					if ( $firstChild !== null && $firstChild->nodeType === XML_TEXT_NODE ) {
+						// protect against trim on the right by adding a
+						// placeholder 'x'
+						$oi = self::getOptionInfo( $firstChild->nodeValue . 'x', $env );
+						// sanity check that this parsed correctly
+						if ( $oi !== null && $oi['ck'] === $opt['ck'] ) {
+							// Replace with the stripped value
+							$firstChild->nodeValue = substr( $oi['v'], 0, -1 );
+							// We'll move this to <img> node in AddMediaInfo
+							$dataMw->attribs[] = new DataMwAttrib(
+								'data-x-' . $opt['ck'],
+								[ 'html' => $newFragment ] + $val
+							);
+						}
+					}
+				}
 			}
 		}
 

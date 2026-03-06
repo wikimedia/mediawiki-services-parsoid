@@ -212,10 +212,11 @@ class LinterTest extends TestCase {
 			"</gallery>"
 		);
 		$result = $this->filterLints( $result, 'stripped-tag' );
-		$this->assertCount( 3, $result, $desc );
+		$this->assertCount( 4, $result, $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[2]['type'], $desc );
+		$this->assertEquals( 'stripped-tag', $result[3]['type'], $desc );
 	}
 
 	/**
@@ -255,8 +256,9 @@ class LinterTest extends TestCase {
 
 		$desc = 'should not have template info for extension tags';
 		$result = $this->wtToLint( "<gallery>\nFile:Test.jpg|<tt>foo</tt>\n</gallery>" );
-		$this->assertCount( 1, $result, $desc );
+		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
+		$this->assertEquals( 'obsolete-tag', $result[1]['type'], $desc );
 		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( [ 24, 36, 4, 5 ], $result[0]['dsr'], $desc );
 	}

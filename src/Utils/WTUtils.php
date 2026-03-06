@@ -966,4 +966,29 @@ class WTUtils {
 		return $content;
 	}
 
+	/**
+	 * A related strip function used when the output can be a DOM
+	 * and can contain LanguageConverter and other markup.
+	 * Mutates the fragment in-place.
+	 */
+	public static function stripSomeContentFromCaption( Element|DocumentFragment $node ): void {
+		$oldChildren = DOMUtils::childNodes( $node );
+		$newChildren = [];
+		foreach ( $oldChildren as $c ) {
+			if ( DOMUtils::hasTypeOf( $c, "mw:Extension/ref" ) ) {
+				// drop this node on the floor
+				continue;
+			}
+			if ( $c instanceof Element ) {
+				self::stripSomeContentFromCaption( $c );
+				if ( DOMUtils::nodeName( $c ) === 'a' ) {
+					// remove <a> tag, use children.
+					PHPUtils::pushArray( $newChildren, DOMUtils::childNodes( $c ) );
+					continue;
+				}
+			}
+			$newChildren[] = $c;
+		}
+		DOMCompat::replaceChildren( $node, ...$newChildren );
+	}
 }

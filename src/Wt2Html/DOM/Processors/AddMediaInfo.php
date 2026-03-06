@@ -240,12 +240,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param DataMw $dataMw
 	 * @param Element $container
-	 * @param string|null $alt Unused, but matches the signature of handlers
+	 * @param ?DocumentFragment $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleAudio(
 		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
-		Element $container, ?string $alt
+		Element $container, ?DocumentFragment $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$audio = $doc->createElement( 'audio' );
@@ -298,12 +298,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param DataMw $dataMw
 	 * @param Element $container
-	 * @param string|null $alt Unused, but matches the signature of handlers
+	 * @param ?DocumentFragment $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleVideo(
 		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
-		Element $container, ?string $alt
+		Element $container, ?DocumentFragment $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$video = $doc->createElement( 'video' );
@@ -356,18 +356,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param DataMw $dataMw
 	 * @param Element $container
-	 * @param string|null $alt
+	 * @param ?DocumentFragment $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleImage(
 		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
-		Element $container, ?string $alt
+		Element $container, ?DocumentFragment $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
 		if ( $alt !== null ) {
-			$img->setAttribute( 'alt', $alt );
+			DOMDataUtils::setAttributeDom( $img, 'alt', $alt );
 		}
 
 		self::copyOverAttribute( $img, $span, 'resource' );
@@ -413,11 +413,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param list<DataMwError> $errs
 	 * @param DataMw $dataMw
-	 * @param ?string $alt
+	 * @param ?DocumentFragment $alt
 	 */
 	private static function handleErrors(
 		Element $container, Element $span, array $errs, DataMw $dataMw,
-		?string $alt
+		?DocumentFragment $alt
 	): void {
 		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
 			DOMUtils::addTypeOf( $container, 'mw:Error', true );
@@ -428,8 +428,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$dataMw->errors = $errs;
 		// Looks like $alt is "" for scenarios where the only
 		// content there is rendering-transparent
-		if ( $alt !== null && $alt !== "" ) {
-			DOMCompat::replaceChildren( $span, $span->ownerDocument->createTextNode( $alt ) );
+		if ( $alt !== null && $alt->textContent !== "" ) {
+			// Strip some tags from the caption which may not be appropriate
+			// in error output (esp since we're inside an <a> tag)
+			WTUtils::stripSomeContentFromCaption( $alt );
+			DOMCompat::replaceChildren( $span, $alt );
 		}
 	}
 
@@ -753,6 +756,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			if ( WTUtils::hasVisibleCaption( $container ) ) {
 				$captionText = null;
+				$caption = null;
 			} else {
 				if ( WTUtils::isInlineMedia( $container ) ) {
 					$caption = $dataMw->caption ?? $container->ownerDocument->createDocumentFragment();
@@ -803,10 +807,27 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$alt = null;
 			$keepAltInDataMw = !$isImage || $errs;
 			$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', $keepAltInDataMw );
-			if ( $attr !== null ) {
-				$alt = $attr->value['txt'];
-			} elseif ( $captionText ) {
-				$alt = $captionText;
+			if ( $attr !== null && isset( $attr->value['txt'] ) ) {
+				$alt = $container->ownerDocument->createDocumentFragment();
+				DOMCompat::append( $alt, $attr->value['txt'] );
+			} elseif ( $caption && $caption->firstChild !== null ) {
+				// caption is either a document fragment or a <figcaption>
+				if ( $caption->nodeType === XML_ELEMENT_NODE ) {
+					$alt = $container->ownerDocument->createDocumentFragment();
+					DOMUtils::migrateChildren(
+						DOMDataUtils::cloneElement( $caption, true ),
+						$alt
+					);
+				} else {
+					$alt = DOMDataUtils::cloneDocumentFragment( $caption );
+				}
+			}
+			// Attribute with `alt=` prefix stripped is in data-x-alt; don't
+			// leave it there, though.
+			$alt2 = WTSUtils::getAttrFromDataMw( $dataMw, 'data-x-alt', false );
+			if ( $alt2 !== null && isset( $alt2->value['html'] ) ) {
+				$dataMw->removeAttrib( 'data-x-alt' );
+				$alt = $alt2->value['html'];
 			}
 
 			// Add mw:Error to the RDFa type.

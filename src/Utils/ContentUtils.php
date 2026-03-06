@@ -162,6 +162,14 @@ class ContentUtils {
 				$proc( $df );
 			}
 		}
+		// We should be looking for any rich attributes, but for now
+		// we'll settle for looking for img[alt]
+		if ( DOMUtils::nodeName( $elt ) === 'img' ) {
+			$df = DOMDataUtils::getAttributeDom( $elt, 'alt' );
+			if ( $df ) {
+				$proc( $df );
+			}
+		}
 
 		// Language variant markup
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
