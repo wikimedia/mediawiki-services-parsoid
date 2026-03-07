@@ -2,9 +2,6 @@
 	"Editable headings can only have trailing comments and whitespace": {
 		"wt2wt": "====test====\nyup\n\n====hi ho====\n<noinclude>\nnope\n</noinclude>\n\n====test 2====\nanother yup\n\n<!-- well -->====ha ha====\nback to nope\n\n====he he====  <!-- but this is ok -->\nsee"
 	},
-	"Ensure comments in toc lines are stripped": {
-		"wt2html": "Sections:"
-	},
 	"HHP2.1: Heuristics for headings in preprocessor parenthetical structures": {
 		"wt2wt": "<nowiki>{{foo|</nowiki>\n=heading=\n"
 	},
