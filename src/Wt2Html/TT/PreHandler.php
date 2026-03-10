@@ -251,7 +251,14 @@ class PreHandler extends LineBasedHandler {
 			$indentPreTk = new IndentPreTk;
 			$indentPreTk->addToken( new TagTk( 'pre', [], $da ) );
 			for ( $j = 0; $j < $i + 1; $j++ ) {
-				$indentPreTk->addToken( $this->tokens[$j] );
+				$t = $this->tokens[$j];
+				// The ListHandler will ignore IndentPreTk tokens but
+				// we might have tokenized a listItem on this line from
+				// a template so turn it back to text
+				if ( $t instanceof XMLTagTk && $t->getName() === 'listItem' ) {
+					$t = $t->getAttributeKV( 'bullets' )->srcOffsets->value->substr();
+				}
+				$indentPreTk->addToken( $t );
 			}
 			$indentPreTk->addToken( new EndTagTk( 'pre' ) );
 
