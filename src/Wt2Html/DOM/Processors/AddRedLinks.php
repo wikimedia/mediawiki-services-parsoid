@@ -206,7 +206,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 		foreach ( $links as $link ) {
 			$title = DOMCompat::getAttribute( $link, 'title' );
-			$caption = DOMCompat::getInnerHTML( $link );
+			$caption = $link->textContent;
 
 			$isDefaultCaption = $this->isDefaultLinkCaption( $title, $caption );
 
