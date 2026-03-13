@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Utils;
 
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
@@ -574,5 +575,195 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $doc2, $dff2->ownerDocument );
 		$this->assertNotSame( $dff, $dff2 );
 		$this->assertSame( '<i>nice!</i>', DOMUtils::getFragmentInnerHTML( $dff2 ) );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndLoadDataAttribs
+	 * @covers ::loadDataAttribs
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 * @covers ::storeInPageBundle
+	 */
+	public function testInlineAttrsToPageBundleDataParsoidLazyLoading(): void {
+		// inline dp -> pagebundle dp
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>'
+		);
+
+		// Verify laziness
+		$bag = DOMDataUtils::getBag( $doc );
+		$reflection = new \ReflectionClass( $bag );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		// Two nodes: <body>, <p>
+		$this->assertCount( 2, $bagData );
+		// Node data loaded because counters are missing, but data-parsoid is not loaded
+		$this->assertNull( $bagData[0]->parsoid );
+		$this->assertNull( $bagData[0]->mw );
+		$this->assertNull( $bagData[1]->parsoid );
+		// data-mw is eagerly loaded because of trying to init annotation id counter
+		$this->assertSame( DataMw::class, get_class( $bagData[1]->mw ) );
+
+		$outPb = DomPageBundle::newEmpty( $doc );
+		$this->assertSame( [], $outPb->parsoid['ids'] );
+		$this->assertSame( -1, $outPb->counters['nodedata'] );
+		DOMDataUtils::visitAndStoreDataAttribs( $doc, [
+			'idIndex' => [],
+			'storeInPageBundle' => $outPb,
+		] );
+		$this->assertSame( [ "mwAA" => [ "a" => "b" ] ], $outPb->parsoid['ids'] );
+		$this->assertSame( 0, $outPb->counters['nodedata'] );
+		$this->assertSame( 0, $outPb->counters['annotation'] );
+		$this->assertSame( 1, $outPb->counters['transclusion'] );
+		$out = XHtmlSerializer::serialize( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
+		$this->assertSame( '<p data-mw=\'{"c":"d"}\' id="mwAA">Hello, world</p>', $out['html'] );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndLoadDataAttribs
+	 * @covers ::loadDataAttribs
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 * @covers ::storeInPageBundle
+	 */
+	public function testInlineAttrsToPageBundleDataMwLazyLoading(): void {
+		// inline attrs -> pagebundle
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => -1, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>',
+			[ 'loadFromPageBundle' => $inPb ]
+		);
+
+		// Verify laziness
+		$bag = DOMDataUtils::getBag( $doc );
+		$reflection = new \ReflectionClass( $bag );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		// Two nodes: <body>, <p>
+		$this->assertCount( 2, $bagData );
+		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
+		// because the inPb provided counters (NOTE: current lazy loading code doesn't
+		// check that annotation counter has been provided.)
+		$this->assertNull( $bagData[0]->parsoid );
+		$this->assertNull( $bagData[0]->mw );
+		$this->assertNull( $bagData[1]->parsoid );
+		$this->assertNull( $bagData[1]->mw );
+
+		// pagebundle -> pagebundle
+		$outPb = new DomPageBundle( $doc, counters: $inPb->counters );
+		DOMDataUtils::visitAndStoreDataAttribs( $doc, [
+			'idIndex' => [],
+			'storeInPageBundle' => $outPb,
+		] );
+		$this->assertSame( [ "mwAA" => [ "a" => "b" ] ], $outPb->parsoid['ids'] );
+		$this->assertSame( 0, $outPb->counters['nodedata'] );
+		$this->assertSame( 0, $outPb->counters['annotation'] );
+		$this->assertSame( 1, $outPb->counters['transclusion'] );
+		$out = XHtmlSerializer::serialize( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
+		$this->assertSame( '<p data-mw=\'{"c":"d"}\' id="mwAA">Hello, world</p>', $out['html'] );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndLoadDataAttribs
+	 * @covers ::loadDataAttribs
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 */
+	public function testInlineAttrsToInlineAttrsLazyLoading(): void {
+		// inline attrs -> pagebundle
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => -1, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>',
+			[ 'loadFromPageBundle' => $inPb ]
+		);
+		$body = DOMCompat::getBody( $doc );
+		'@phan-var Element $p'; // @var Element $p
+		$p = $body->firstChild;
+
+		// Verify laziness
+		$bag = DOMDataUtils::getBag( $doc );
+		$reflection = new \ReflectionClass( $bag );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		// Two nodes: <body>, <p>
+		$this->assertCount( 2, $bagData );
+		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
+		// because the inPb provided counters (NOTE: current lazy loading code doesn't
+		// check that annotation counter has been provided.)
+		$this->assertNull( $bagData[0]->parsoid );
+		$this->assertNull( $bagData[0]->mw );
+		$this->assertNull( $bagData[1]->parsoid );
+		$this->assertNull( $bagData[1]->mw );
+		$this->assertSame( '{"a":"b"}', DOMCompat::getAttribute( $p, "data-parsoid" ) );
+		$this->assertSame( '{"c":"d"}', DOMCompat::getAttribute( $p, "data-mw" ) );
+		// Now load $p's data-mw and assert loaded state
+		DOMDataUtils::getDataMw( $p );
+		$this->assertFalse( $p->hasAttribute( "data-mw" ) );
+		$this->assertSame( DataMw::class, get_class( $bagData[1]->mw ) );
+
+		// pagebundle -> inline attributes
+		DOMDataUtils::visitAndStoreDataAttribs( $doc );
+		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
+		$this->assertSame( '<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>', $out['html'] );
+	}
+
+	/**
+	 * @covers ::prepareAndLoadDoc
+	 * @covers ::visitAndLoadDataAttribs
+	 * @covers ::loadDataAttribs
+	 * @covers ::visitAndStoreDataAttribs
+	 * @covers ::storeRichAttributes
+	 * @covers ::storeDataAttribs
+	 */
+	public function testPageBundleToInlineAttrsLazyLoading(): void {
+		// pagebundle -> pagebundle
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => 0, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ] ] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p id="mwAA" data-mw=\'{"c":"d"}\'>Hello, world</p>',
+			[ 'loadFromPageBundle' => $inPb ]
+		);
+
+		$body = DOMCompat::getBody( $doc );
+		$p = $body->firstChild;
+
+		// Verify laziness
+		$bag = DOMDataUtils::getBag( $doc );
+		$reflection = new \ReflectionClass( $bag );
+		$bagData = $reflection->getProperty( 'dataObject' )->getValue( $bag );
+		// Two nodes: <body>, <p>
+		$this->assertCount( 2, $bagData );
+		// Node data loaded to init about id, but data-parsoid & data-mw are not loaded
+		// because the inPb provided counters (NOTE: current lazy loading code doesn't
+		// check that annotation counter has been provided.)
+		$this->assertNull( $bagData[0]->parsoid );
+		$this->assertNull( $bagData[0]->mw );
+		$this->assertNull( $bagData[1]->mw );
+		// Partial lazy load (i.e. cheap transfer from pagebundle),
+		// but DataParsoid class isn't intialized
+		$this->assertIsArray( $bagData[1]->parsoid );
+		// Load data-parsoid and assert that it is fully initialized
+		DOMDataUtils::getDataParsoid( $p );
+		$this->assertSame( DataParsoid::class, get_class( $bagData[1]->parsoid ) );
+
+		// pagebundle -> inline attributes
+		DOMDataUtils::visitAndStoreDataAttribs( $doc );
+		$out = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] );
+		// FIXME: id attribute is left behind even if we are serializing to inline attrs format
+		$this->assertSame( '<p id="mwAA" data-mw=\'{"c":"d"}\' data-parsoid=\'{"a":"b"}\'>Hello, world</p>', $out['html'] );
 	}
 }
