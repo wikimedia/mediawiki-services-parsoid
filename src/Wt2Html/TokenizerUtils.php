@@ -307,7 +307,7 @@ class TokenizerUtils {
 				return $htmlOrEmpty && (
 					$stops['templateArg']
 					|| $stops['tableCellArg']
-					|| $stops['linkdesc']
+					|| ( $stops['linkdesc'] && $stops['tagType'] !== 'html' )
 					|| ( $stops['table']
 						&& $pos < strlen( $input ) - 1
 						&& preg_match( '/[}|]/', $c2 ) )
