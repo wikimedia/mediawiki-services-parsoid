@@ -1482,6 +1482,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 		// Handle image default sizes and upright option after extracting all
 		// options
+		$uprightFactor = null;
 		if ( $format === 'framed' || $format === 'manualthumb' ) {
 			// width and height is ignored for framed and manualthumb images
 			// https://phabricator.wikimedia.org/T64258
@@ -1497,10 +1498,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
 				if ( isset( $opts['upright'] ) ) {
 					if ( $opts['upright']['v'] === 'upright' ) {  // Simple option
-						$defaultWidth *= 0.75;
+						$uprightFactor = 0.75;
 					} else {
-						$defaultWidth *= $opts['upright']['v'];
+						$uprightFactor = (float)$opts['upright']['v'];
 					}
+					$defaultWidth *= $uprightFactor;
 					// round to nearest 10 pixels
 					$defaultWidth = 10 * round( $defaultWidth / 10 );
 				}
@@ -1566,6 +1568,9 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 		if ( !empty( $size['height'] ) ) {
 			$span->addAttribute( 'data-height', (string)$size['height'] );
+		}
+		if ( $uprightFactor !== null ) {
+			$span->addAttribute( 'data-upright', (string)$uprightFactor );
 		}
 
 		$anchor = new TagTk( 'a' );

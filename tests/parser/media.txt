@@ -3493,6 +3493,7 @@ Image: New block level image should have \n before and after (existing content)
 <p>456</p>
 !! end
 
+# Note that upright option is ignored when explicit 500x500px size is given
 !! test
 Image: upright option (parsoid)
 !! wikitext
@@ -3500,8 +3501,8 @@ Image: upright option (parsoid)
 [[File:Foobar.jpg|thumb|upright=0.5|caption]]
 [[File:Foobar.jpg|thumb|500x500px|upright=0.5|caption]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="140" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/210px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/280px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption>caption</figcaption></figure>
-<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/90px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="10" width="90" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/135px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="16" width="140" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/210px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/280px-Foobar.jpg 2x" class="mw-file-element mw-file-upright" style="--mw-file-upright: 0.75"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/90px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="10" width="90" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/135px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 2x" class="mw-file-element mw-file-upright" style="--mw-file-upright: 0.5"/></a><figcaption>caption</figcaption></figure>
 <figure typeof="mw:File/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/500px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="57" width="500" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/750px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/1000px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption>caption</figcaption></figure>
 !! end
 

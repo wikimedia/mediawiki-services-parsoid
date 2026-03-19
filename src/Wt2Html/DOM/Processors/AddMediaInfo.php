@@ -612,6 +612,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				'width' => (int)DOMCompat::getAttribute( $span, 'data-width' ) ?: null,
 				'height' => (int)DOMCompat::getAttribute( $span, 'data-height' ) ?: null,
 			];
+			$uprightFactor = DOMCompat::getAttribute( $span, 'data-upright' );
+			if ( $uprightFactor !== null ) {
+				$uprightFactor = (float)$uprightFactor;
+			}
 
 			$page = WTSUtils::getAttrFromDataMw( $dataMw, 'page', true );
 			if ( $page ) {
@@ -679,6 +683,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$validContainers[] = [
 				'container' => $container,
 				'attrs' => $attrs,
+				'upright' => $uprightFactor,
 				// Pass the anchor because we did some work to find it above
 				'anchor' => $anchor,
 				'infoKey' => $infoKey,
@@ -717,6 +722,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$anchor = $c['anchor'];
 			$span = $anchor->firstChild;
 			$attrs = $c['attrs'];
+			$uprightFactor = $c['upright'];
 			$dataMw = DOMDataUtils::getDataMw( $container );
 			$errs = $c['errs'];
 
@@ -828,6 +834,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$attrs['dims']['lang'] ?? ''
 			);
 			$anchor->appendChild( $elt );
+
+			// Add style & class for upright images to support thumbnail scaling
+			if ( $uprightFactor !== null && $elt instanceof Element ) {
+				DOMCompat::getClassList( $elt )->add( 'mw-file-upright' );
+				$elt->setAttribute( 'style', "--mw-file-upright: {$uprightFactor}" );
+			}
 
 			$needsTMHModules = $needsTMHModules || ( !$isImage && !$errs );
 
