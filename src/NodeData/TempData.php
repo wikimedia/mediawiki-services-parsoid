@@ -52,6 +52,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * Node represents empty extension content
  * @property bool|null $empty
+ *
+ * Magic link type
+ * @property string|null $ref
  */
 #[\AllowDynamicProperties]
 class TempData {

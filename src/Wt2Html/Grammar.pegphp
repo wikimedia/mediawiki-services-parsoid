@@ -720,6 +720,7 @@ autoref =
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
 		$dp->stx = 'magiclink';
+		$dp->getTemp()->ref = strtolower( $ref );
 		$this->env->getDataAccess()->addTrackingCategory(
 			$this->env->getPageConfig(),
 			$this->env->getMetadata(),
@@ -766,6 +767,7 @@ isbn =
 		$dp = new DataParsoid;
 		$dp->stx = 'magiclink';
 		$dp->tsr = $tsr;
+		$dp->getTemp()->ref = 'isbn';
 		$this->env->getDataAccess()->addTrackingCategory(
 			$this->env->getPageConfig(),
 			$this->env->getMetadata(),

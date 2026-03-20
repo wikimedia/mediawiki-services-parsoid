@@ -1753,6 +1753,7 @@ private function a140($ref, $sp, $identifier) {
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
 		$dp->stx = 'magiclink';
+		$dp->getTemp()->ref = strtolower( $ref );
 		$this->env->getDataAccess()->addTrackingCategory(
 			$this->env->getPageConfig(),
 			$this->env->getMetadata(),
@@ -1812,6 +1813,7 @@ private function a149($sp, $isbn, $isbncode) {
 		$dp = new DataParsoid;
 		$dp->stx = 'magiclink';
 		$dp->tsr = $tsr;
+		$dp->getTemp()->ref = 'isbn';
 		$this->env->getDataAccess()->addTrackingCategory(
 			$this->env->getPageConfig(),
 			$this->env->getMetadata(),

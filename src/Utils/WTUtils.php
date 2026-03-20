@@ -132,8 +132,7 @@ class WTUtils {
 		}
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
-			isset( $dp->stx ) && $dp->stx === 'magiclink';
+		return isset( $dp->stx ) && $dp->stx === 'magiclink';
 	}
 
 	/**
