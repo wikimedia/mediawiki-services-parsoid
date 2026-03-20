@@ -65,6 +65,11 @@ class AddLinkAttributes {
 			// with what Parsoid output prior to T329347
 			$classInfoText .= " mw-magiclink mw-magiclink-{$ref}";
 			$a->setAttribute( 'class', $classInfoText );
+			$state->env->getDataAccess()->addTrackingCategory(
+				$state->env->getPageConfig(),
+				$state->env->getMetadata(),
+				"magiclink-tracking-{$ref}"
+			);
 		}
 
 		return true;

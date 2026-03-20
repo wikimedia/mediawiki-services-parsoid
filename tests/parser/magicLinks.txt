@@ -33,6 +33,20 @@ cat=Pages_using_RFC_magic_links sort=
 !! end
 
 !! test
+Magic links: RFC in wikilink (T420749)
+!! options
+cat
+!! wikitext
+[[Test|RFC 822]]
+!! metadata
+!! html/php
+<p><a href="/index.php?title=Test&amp;action=edit&amp;redlink=1" class="new" title="Test (page does not exist)">RFC 822</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test?action=edit&amp;redlink=1" title="Test" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Test"]}}'>RFC 822</a></p>
+!! end
+
+!! test
 Magic links: RFC (T67278)
 !! wikitext
 This is RFC 822 but thisRFC 822 is not RFC 822linked.

@@ -721,11 +721,6 @@ autoref =
 		$dp->tsr = $tsr;
 		$dp->stx = 'magiclink';
 		$dp->getTemp()->ref = strtolower( $ref );
-		$this->env->getDataAccess()->addTrackingCategory(
-			$this->env->getPageConfig(),
-			$this->env->getMetadata(),
-			'magiclink-tracking-' . strtolower($ref)
-		);
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', sprintf( $base_urls[$ref], $identifier ) ),
@@ -768,11 +763,6 @@ isbn =
 		$dp->stx = 'magiclink';
 		$dp->tsr = $tsr;
 		$dp->getTemp()->ref = 'isbn';
-		$this->env->getDataAccess()->addTrackingCategory(
-			$this->env->getPageConfig(),
-			$this->env->getMetadata(),
-			'magiclink-tracking-isbn'
-		);
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', 'Special:BookSources/' . $isbncode ),

@@ -1758,11 +1758,6 @@ private function a140($ref, $sp, $identifier) {
 		$dp->tsr = $tsr;
 		$dp->stx = 'magiclink';
 		$dp->getTemp()->ref = strtolower( $ref );
-		$this->env->getDataAccess()->addTrackingCategory(
-			$this->env->getPageConfig(),
-			$this->env->getMetadata(),
-			'magiclink-tracking-' . strtolower($ref)
-		);
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', sprintf( $base_urls[$ref], $identifier ) ),
@@ -1818,11 +1813,6 @@ private function a149($sp, $isbn, $isbncode) {
 		$dp->stx = 'magiclink';
 		$dp->tsr = $tsr;
 		$dp->getTemp()->ref = 'isbn';
-		$this->env->getDataAccess()->addTrackingCategory(
-			$this->env->getPageConfig(),
-			$this->env->getMetadata(),
-			'magiclink-tracking-isbn'
-		);
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', 'Special:BookSources/' . $isbncode ),
