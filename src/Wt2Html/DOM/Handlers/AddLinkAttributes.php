@@ -45,14 +45,23 @@ class AddLinkAttributes {
 			}
 			$href = DOMCompat::getAttribute( $a, 'href' ) ?? '';
 			$attribs = $state->env->getExternalLinkAttribs( $href );
+			if ( ( $attribs['href'] ?? null ) === null ) {
+				// Blocked link: T420043
+				$a->removeAttribute( 'href' );
+			}
 			foreach ( $attribs as $key => $val ) {
 				if ( $key === 'rel' ) {
 					foreach ( $val as $v ) {
 						DOMUtils::addRel( $a, $v );
 					}
+				} elseif ( $key === 'class' ) {
+					DOMCompat::getClassList( $a )->add( ...$val );
 				} else {
 					$a->setAttribute( $key, $val );
 				}
+			}
+			if ( $attribs['href'] ?? null ) {
+				$state->env->getMetadata()->addExternalLink( $attribs['href'] );
 			}
 		} elseif ( DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' ) ) {
 			DOMCompat::getClassList( $a )->add( 'extiw' );

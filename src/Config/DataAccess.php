@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Config;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Utils\UrlUtils;
 
 /**
  * MediaWiki data access abstract class for Parsoid
@@ -74,6 +75,43 @@ abstract class DataAccess {
 	 *  - sha1: (string, optional) SHA-1
 	 */
 	abstract public function getFileInfo( PageConfig $pageConfig, array $files ): array;
+
+	/**
+	 * Return information about blocked/rewritten external URLs.
+	 *
+	 * @param SiteConfig $siteConfig
+	 * @param list<string> $hrefList The external URLs to query.
+	 * @param LinkTarget $contextTitle The context title, for
+	 *   wgNoFollowNsExceptions lookups.
+	 * @return list<array{originalHref:string,href:?string,class:?string,rel:?string,title:?string}>
+	 *   Information about the external URL: the href can be rewritten
+	 *   or blocked (null), and optional class, title, and rel attributes can
+	 *   be added (if non-null).  The results are in the same order as
+	 *   the input $hrefList.
+	 */
+	public function getExternalUrlInfo(
+		SiteConfig $siteConfig,
+		array $hrefList,
+		LinkTarget $contextTitle
+	): array {
+		$ns = $contextTitle->getNamespace();
+		$noFollowConfig = $siteConfig->getNoFollowConfig();
+		$checkDomain = ( $noFollowConfig['nofollow'] ?? true ) &&
+			!in_array( $ns, ( $noFollowConfig['nsexceptions'] ?? [] ), true );
+		// Cast to an array because parserTests sets it as a string
+		$domainExceptions = (array)( $noFollowConfig['domainexceptions'] ?? [] );
+		// default implementation: return 'nofollow' where appropriate
+		return array_map( static fn ( $href ) => [
+			'originalHref' => $href,
+			'href' => $href,
+			'class' => null,
+			'rel' => (
+				$checkDomain &&
+				!UrlUtils::matchesDomainList( $href, $domainExceptions )
+			) ? 'nofollow' : null,
+			'title' => null,
+		], $hrefList );
+	}
 
 	/**
 	 * Perform a parse on wikitext

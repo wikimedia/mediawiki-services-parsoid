@@ -23,7 +23,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandler;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -1013,23 +1012,33 @@ class Env {
 	/**
 	 * Get an array of attributes to apply to an anchor linking to $url
 	 *
-	 * @return array{rel?: list<'nofollow'|'noopener'|'noreferrer'>, target?: string}
+	 * @return array{class:list<string>,rel:list<string>,title?:string,href?:string}
 	 */
 	public function getExternalLinkAttribs( string $url ): array {
 		$siteConfig = $this->getSiteConfig();
-		$noFollowConfig = $siteConfig->getNoFollowConfig();
-		$attribs = [];
-		$ns = $this->getContextTitle()->getNamespace();
-		if (
-			$noFollowConfig['nofollow'] &&
-			!in_array( $ns, $noFollowConfig['nsexceptions'], true ) &&
-			!UrlUtils::matchesDomainList(
-				$url,
-				// Cast to an array because parserTests sets it as a string
-				(array)$noFollowConfig['domainexceptions']
-			)
-		) {
-			$attribs['rel'] = [ 'nofollow' ];
+		$dataAccess = $this->getDataAccess();
+		// Even though this API allows for batch updates, we're just passsing 1
+		if ( $url ) {
+			$info = $dataAccess->getExternalUrlInfo(
+				$siteConfig, [ $url ], $this->getContextTitle()
+			)[0];
+		} else {
+			$info = [ 'href' => $url ];
+		}
+		$split = static fn ( $s ) => preg_split( '/\s+/', $s, -1, PREG_SPLIT_NO_EMPTY );
+		$attribs = [
+			'href' => $info['href'] ?? null,
+			'class' => $split( $info['class'] ?? '' ),
+			'rel' => $split( $info['rel'] ?? '' ),
+		];
+		if ( ( $info['title'] ?? null ) !== null ) {
+			$attribs['title'] = $info['title'];
+		}
+		if ( $attribs['href'] !== $url ) {
+			$attribs['data-mw-original-href'] = $url;
+		}
+		if ( $attribs['href'] === null ) {
+			unset( $attribs['href'] );
 		}
 		$target = $siteConfig->getExternalLinkTarget();
 		if ( $target ) {
@@ -1038,9 +1047,6 @@ class Env {
 				// T133507. New windows can navigate parent cross-origin.
 				// Including noreferrer due to lacking browser
 				// support of noopener. Eventually noreferrer should be removed.
-				if ( !isset( $attribs['rel'] ) ) {
-					$attribs['rel'] = [];
-				}
 				array_push( $attribs['rel'], 'noreferrer', 'noopener' );
 			}
 		}

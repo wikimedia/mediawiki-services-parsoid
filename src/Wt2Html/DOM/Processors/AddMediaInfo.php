@@ -478,7 +478,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				} elseif ( $urlParser->tokenizeURL( $val ) !== false ) {
 					// An external link!
 					$href = Sanitizer::cleanUrl( $env->getSiteConfig(), $val, 'external' );
-					$anchor->setAttribute( 'href', $href );
 					// Similar to AddLinkAttributes
 					$extLinkAttribs = $env->getExternalLinkAttribs( $href );
 					foreach ( $extLinkAttribs as $key => $val ) {
@@ -486,6 +485,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 							foreach ( $val as $v ) {
 								DOMUtils::addRel( $anchor, $v );
 							}
+						} elseif ( $key === 'class' ) {
+							DOMCompat::getClassList( $anchor )->add( ...$val );
 						} else {
 							$anchor->setAttribute( $key, $val );
 						}

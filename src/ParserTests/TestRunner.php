@@ -573,7 +573,10 @@ class TestRunner {
 		}
 
 		if ( isset( $opts['extlinks'] ) ) {
-			foreach ( $output->getExternalLinks() as $url => $_ignore ) {
+			$extLinks = $output->getExternalLinks();
+			// This is a set, variations in array order shouldn't matter
+			sort( $extLinks );
+			foreach ( $extLinks  as $url ) {
 				$after[] = "extlink=$url";
 			}
 		}
