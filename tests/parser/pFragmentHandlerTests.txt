@@ -149,7 +149,7 @@ parsoid=wt2html,wt2wt
 !! metadata/parsoid+integrated
 cat=Foo sort=
 !! html/parsoid+integrated
-<link rel="mw:PageProp/Category" href="./Category:Foo" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"1"},"2":{"wt":"{{1x|[[Category:Foo]]}}"},"3":{"wt":"{{1x|[[Category:Bar]]}}"}},"i":0}}]}'/>
+<span class="mw-empty-elt" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"1"},"2":{"wt":"{{1x|[[Category:Foo]]}}"},"3":{"wt":"{{1x|[[Category:Bar]]}}"}},"i":0}}]}'><link href="./Category:Foo" rel="mw:PageProp/Category" /></span>
 !! end
 
 !! test

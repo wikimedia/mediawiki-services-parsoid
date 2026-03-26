@@ -217,9 +217,6 @@
 	"Templates: Ugly nesting: 1. Quotes opened/closed across templates (1x)": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><i about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}],[{\"k\":\"1\"}],[{\"k\":\"1\"}]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;a\"}},\"i\":0}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b&apos;&apos;c&apos;&apos;d\"}},\"i\":1}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;e\"}},\"i\":2}}]}'>ab</i><span about=\"#mwt\">c</span><i about=\"#mwt\">d</i><span about=\"#mwt\">e</span></p>"
 	},
-	"Templates: Ugly templates: 4. newline-only template parameter inconsistency": {
-		"wt2html": "<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n\"}},\"i\":0}}]}'>\n</span>"
-	},
 	"Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out": {
 		"wt2wt": "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}"
 	},

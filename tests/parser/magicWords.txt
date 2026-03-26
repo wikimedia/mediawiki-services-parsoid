@@ -1280,7 +1280,7 @@ parsoid={
 !! metadata
 flags=mw-NewSection
 !! html/parsoid
-<section data-mw-section-id="0"><meta property="mw:PageProp/newsectionlink" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"magicSrc":"__NEWSECTIONLINK__","pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"NewSectionLink","href":"./Template:NewSectionLink"},"params":{},"i":0}}]}'/></section>
+<section data-mw-section-id="0"><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"NewSectionLink","href":"./Template:NewSectionLink"},"params":{},"i":0}}]}'><meta property="mw:PageProp/newsectionlink"/></span></section>
 !! end
 
 # html2wt disabled because it uses a different preferred localization

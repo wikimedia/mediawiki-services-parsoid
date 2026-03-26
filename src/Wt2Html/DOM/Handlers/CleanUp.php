@@ -96,7 +96,7 @@ class CleanUp {
 						return false;
 					}
 				}
-				if ( WTUtils::isRenderingTransparentNode( $n ) ) {
+				if ( WTUtils::isRenderingTransparentNode( $n ) || DOMUtils::hasClass( $n, 'mw-empty-elt' ) ) {
 					$hasRTNodes = true;
 					continue;
 				}
@@ -136,6 +136,25 @@ class CleanUp {
 		// Set by isEmptyNode() to indicate whether a node which is "empty" contained
 		// invisible "rendering transparent" nodes.
 		$hasRTNodes = false;
+
+		// Remove mw-empty-elt span nodes introduced by DOMRangeBuilder
+		// that are deletable (IEW children only, if any).
+		if ( $node instanceof Element && DOMUtils::nodeName( $node ) === 'span' &&
+			DOMUtils::hasClass( $node, 'mw-empty-elt' )
+		) {
+			if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+				return true;
+			}
+
+			if ( !$node->hasChildNodes() ||
+				( $node->childElementCount === 1 && DOMUtils::isIEW( $node->firstChild ) )
+			) {
+				$next = $node->nextSibling;
+				DOMCompat::remove( $node );
+				return $next;
+			}
+			return true;
+		}
 
 		if ( !( $node instanceof Element ) ||
 			!isset( Consts::$Output['FlaggedEmptyElts'][DOMUtils::nodeName( $node )] ) ||

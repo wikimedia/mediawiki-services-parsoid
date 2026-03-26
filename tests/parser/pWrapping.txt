@@ -220,7 +220,7 @@ No paragraph necessary for SOL transparent template
 <link rel="mw:PageProp/Category" href="./Category:Foo"/>
 
 <span data-parsoid='{"stx":"html"}'><div data-parsoid='{"stx":"html"}'>foo</div></span>
-<link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]"}},"i":0}}]}'/>
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span>
 !! end
 
 !! test

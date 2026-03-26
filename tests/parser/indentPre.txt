@@ -268,9 +268,7 @@ parsoid=wt2html,selser
 }} X'' {{1x|<span></span>
 }} Y
 !! html/parsoid
- <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'>
-</span><pre><i data-parsoid='{"autoInsertedEnd":true}'></i><span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'>
-</span>X<i about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"firstWikitextNode":"I","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&apos;&apos; ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>&lt;/span>\n"}},"i":0}}]}'> <span></span></i><span about="#mwt3">
+ <span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'></span><pre><i data-parsoid='{"autoInsertedEnd":true}'></i><span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'></span>X<i about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"firstWikitextNode":"I","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&apos;&apos; ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>&lt;/span>\n"}},"i":0}}]}'> <span></span></i><span about="#mwt3">
 </span>Y</pre>
 !! html/php
 <pre><i></i>

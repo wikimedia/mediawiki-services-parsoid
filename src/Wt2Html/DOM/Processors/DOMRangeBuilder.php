@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -770,7 +771,7 @@ class DOMRangeBuilder {
 			// Remove about attribute
 			'@phan-var Element $elt';  /** @var Element $elt */
 			$next = $elt->nextSibling;
-			if ( DOMUtils::nodeName( $elt ) === 'span' ) {
+			if ( !( $elt instanceof Element ) || DOMUtils::nodeName( $elt ) === 'span' ) {
 				// Drop the newline span!
 				// Alternatively, we could migrate all the newlines as follows:
 				// DOMUtils::migrateChildren( $elt, $migrationTarget, $insertPosition );
@@ -785,76 +786,6 @@ class DOMRangeBuilder {
 
 	private function isNewlineWrappingSpan( Node $elt ): bool {
 		return DOMUtils::nodeName( $elt ) === 'span' && preg_match( "/^\n+$/", $elt->textContent );
-	}
-
-	/**
-	 * This code exists to handle T370751 and T378906. This support is known to not be
-	 * perfect and exists to making the vast majority of existing templates & CSS work
-	 * (primarily navbox styling).
-	 *
-	 * We can get rid of this code if editors amend their templates and/or CSS to either
-	 * make their next-sibling selectors work (by moving newlines & categories from leading
-	 * and trailing positions in templates) OR amending their CSS to account for Parsoid's
-	 * span-newline-wrapping and category link tags.
-	 */
-	private function handleRenderingTransparentEltsAtBoundary( DOMRangeInfo $range ): void {
-		// Except for 'p', other block tags are not suitable.
-		//
-		// We could include 'p' here, but the primary use case
-		// for doing this are navboxes which are always 'div' tags.
-		static $allowedMigrationTargets = [ 'div' ];
-
-		if ( $range->start === $range->end ) {
-			return;
-		}
-
-		$elt = $range->start;
-		while ( $elt !== $range->end && (
-			WTUtils::isRenderingTransparentNode( $elt ) || $this->isNewlineWrappingSpan( $elt )
-		) ) {
-			$elt = $elt->nextSibling;
-		}
-
-		if ( $elt !== $range->start &&
-			in_array( DOMUtils::nodeName( $elt ), $allowedMigrationTargets, true ) &&
-			DOMDataUtils::getNodeData( $elt )->mw === null // Conservative but safe
-		) {
-			// Migrate all nodes from $range->start till $elt into $elt
-			$rangeStart = $range->start;
-			$newRangeStart = $elt;
-
-			DOMUtils::removeTypeOf( $rangeStart, 'mw:Transclusion' );
-			$rangeDmw = DOMDataUtils::getDataMw( $rangeStart );
-			$rangeDp = DOMDataUtils::getDataParsoid( $rangeStart );
-
-			$this->migrateElements( $elt, $rangeStart, $elt, $elt->firstChild );
-			$range->start = $newRangeStart;
-
-			DOMUtils::addTypeOf( $newRangeStart, 'mw:Transclusion' );
-			$newRangeDmw = DOMDataUtils::getDataMw( $newRangeStart );
-			$newRangeDmw->parts = $rangeDmw->parts;
-			unset( $rangeDmw->parts );
-			$newRangeDp = DOMDataUtils::getDataParsoid( $newRangeStart );
-			$newRangeDp->pi = $rangeDp->pi;
-			unset( $rangeDp->pi );
-			$newRangeDp->dsr = $rangeDp->dsr;
-			unset( $rangeDp->dsr );
-		}
-
-		$elt = $range->end;
-		while ( $elt !== $range->start && (
-			WTUtils::isRenderingTransparentNode( $elt ) || $this->isNewlineWrappingSpan( $elt )
-		) ) {
-			$elt = $elt->previousSibling;
-		}
-
-		if ( $elt !== $range->end &&
-			in_array( DOMUtils::nodeName( $elt ), $allowedMigrationTargets, true )
-		) {
-			// Migrate all nodes from $elt->nextSibling till $range->end into $elt
-			$this->migrateElements( $elt, $elt->nextSibling, $range->end->nextSibling, null );
-			$range->end = $elt;
-		}
 	}
 
 	/**
@@ -1128,7 +1059,7 @@ class DOMRangeBuilder {
 			}
 			$range->endElem->parentNode->removeChild( $range->endElem );
 
-			$this->handleRenderingTransparentEltsAtBoundary( $range );
+			$this->handleRenderingTransparentEltsBetweenBlocks( $range );
 		}
 	}
 
@@ -1376,5 +1307,187 @@ class DOMRangeBuilder {
 		}
 
 		return $range;
+	}
+
+	/**
+	 * This code exists to handle T370751 and T378906. This support is known to not be
+	 * perfect and exists to making the vast majority of existing templates & CSS work
+	 * (primarily navbox styling).
+	 * It wraps rendering transparent tags that have chance of ending up between two divs
+	 * or table into a span, thus giving the option to select them with a CSS that needs to
+	 * account for at most two of these spans (with the class mw-empty-elt).
+	 */
+	private function handleRenderingTransparentEltsBetweenBlocks( DOMRangeInfo $range ): void {
+		$traverser = new DOMTraverser( false, false );
+		$traverser->addHandler( null, fn ( $node ) => $this->handleFirstRenderingTransparentNode( $node, $range ) );
+
+		$elt = $range->start;
+		$end = $range->end->nextSibling;
+		while ( $elt && $elt !== $end ) {
+			if ( WTUtils::isRenderingTransparentNode( $elt ) ||
+				$this->isNewlineWrappingSpan( $elt ) ||
+				DOMUtils::nodeName( $elt ) === 'style'
+			) {
+				$res = $this->handleFirstRenderingTransparentNode( $elt, $range );
+				if ( $res instanceof Element ) {
+					$elt = $res;
+					continue;
+				}
+			} else {
+				$traverser->traverse( null, $elt );
+			}
+			$elt = $elt->nextSibling;
+		}
+	}
+
+	private function canSwallowRenderingTransparentNodes( ?Element $node, Element $wrapper ): bool {
+		return $node !== null && DOMUtils::nodeName( $node ) === 'div' &&
+			DOMCompat::getAttribute( $node, 'about' ) == DOMCompat::getAttribute( $wrapper, 'about' ) &&
+			(
+				// data-mw will not be transferred to $node if $wrapper has mw:Transclusion
+				!DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ||
+				// data-mw will be transferred to $node here. Conservatively
+				// require no existing data-mw $node to guarantee we won't clobber it.
+				DOMDataUtils::getNodeData( $node )->mw === null
+			);
+	}
+
+	/**
+	 * Processes a contiguous range of stashable nodes (category links and newline wrapping spans)
+	 * to put them in a mw-empty-elt wrapping span.
+	 *
+	 * For all sequence of contiguous (up to white space) sol-transparent links
+	 * and empty-line wrapping spans that come from the same transclusion range,
+	 * and that are either at the boundary of a transclusion or between two
+	 * elements of type table or div:
+	 * - if they have a valid div before or after that can contain them (and
+	 *   that is part of that same transclusion range), we stash them there
+	 * - if not, we create a wrapping span with class mw-empty-elt where
+	 *   they are and stash them there.
+	 * We actually drop empty-line spans and non-element nodes.
+	 *
+	 * Empty spans get deleted in Wt2Html/DOM/Handlers/CleanUp, unless
+	 * it's containing the template wrapping information (which may have been
+	 * transferred from one of the stashed nodes). This can lead to some
+	 * differences in the generated HTML, for instance:
+	 * - a template that starts with a single empty-line span will be replaced
+	 *   by a span that contains the template information, but not the new line
+	 * - empty lines spans between divs/tables, or empty line spans at the end
+	 *   of a transclusion, will disappear
+	 *
+	 * Additionally, if there's a sequence of sol-transparent links that
+	 * contain both non-transcluded and transcluded elements, the transcluded
+	 * ones will be added to a wrapping span, but the non-transcluded ones
+	 * won't, which may look odd in the resulting HTML.
+	 *
+	 * Traverser used by @see DOMTraverser
+	 *
+	 * @return \DOMNode|true|null
+	 */
+	public function handleFirstRenderingTransparentNode( Node $node, DOMRangeInfo $range ) {
+		if ( !$node instanceof Element || !$this->isStashableNode( $node ) ) {
+			return true;
+		}
+
+		$start = $last = $node;
+		$rangeExitSentinel = DOMCompat::getNextElementSibling( $range->end );
+		$next = DOMCompat::getNextElementSibling( $start );
+		// $next is past the last element of the template, so let's not consider it
+		if ( $next === $rangeExitSentinel ) {
+			$next = null;
+		}
+		while ( $next !== null && $next !== $rangeExitSentinel && $this->isStashableNode( $next ) ) {
+			$last = $next;
+			$next = DOMCompat::getNextElementSibling( $next );
+		}
+
+		$prev = DOMCompat::getPreviousElementSibling( $start );
+		if ( !$this->shouldStashRenderingTransparentNodes( $prev, $next, $start ) ) {
+			return true;
+		}
+
+		if ( $this->canSwallowRenderingTransparentNodes( $prev, $start ) ) {
+			$target = $prev;
+			$before = null;
+		} elseif ( $this->canSwallowRenderingTransparentNodes( $next, $start ) ) {
+			$target = $next;
+			$before = $target->firstChild;
+		} else {
+			$target = $start->ownerDocument->createElement( 'span' );
+			$target->setAttribute( 'class', 'mw-empty-elt' );
+			$targetDp = DOMDataUtils::getDataParsoid( $target );
+			$targetDp->autoInsertedStart = true;
+			$targetDp->autoInsertedEnd = true;
+			$before = null;
+			$start->parentNode->insertBefore( $target, $start );
+			if ( $start->hasAttribute( 'about' ) ) {
+				$target->setAttribute( 'about', DOMCompat::getAttribute( $start, 'about' ) );
+			}
+		}
+
+		if ( DOMUtils::hasTypeOf( $start, 'mw:Transclusion' ) ) {
+			$newRangeStart = $target;
+
+			DOMUtils::removeTypeOf( $start, 'mw:Transclusion' );
+			$rangeDmw = DOMDataUtils::getDataMw( $start );
+			$rangeDp = DOMDataUtils::getDataParsoid( $start );
+
+			$this->migrateElements( $target, $start, $last->nextSibling, $before );
+			if ( $range->start === $start ) {
+				$range->start = $newRangeStart;
+			}
+
+			DOMUtils::addTypeOf( $newRangeStart, 'mw:Transclusion' );
+
+			$pfkey = WTUtils::getPFragmentHandlerKey( $start );
+			if ( $pfkey ) {
+				DOMUtils::addTypeOf( $newRangeStart, "mw:ParserFunction/$pfkey" );
+				DOMUtils::removeTypeOf( $start, "mw:ParserFunction/$pfkey" );
+			}
+
+			$newRangeDmw = DOMDataUtils::getDataMw( $newRangeStart );
+			$newRangeDmw->parts = $rangeDmw->parts;
+			unset( $rangeDmw->parts );
+			$newRangeDp = DOMDataUtils::getDataParsoid( $newRangeStart );
+			$newRangeDp->pi = $rangeDp->pi;
+			unset( $rangeDp->pi );
+			$newRangeDp->dsr = $rangeDp->dsr;
+			unset( $rangeDp->dsr );
+		} else {
+			$this->migrateElements( $target, $start, $last->nextSibling, $before );
+			if ( $range->end === $last ) {
+				$range->end = $target;
+			}
+		}
+		return $target->nextSibling;
+	}
+
+	private function shouldStashRenderingTransparentNodes( ?Element $prev, ?Element $next, Element $node ): bool {
+		return (
+				// start of a template
+				$prev === null ||
+				WTUtils::isTplStartMarkerMeta( $prev ) ||
+				WTUtils::isFirstEncapsulationWrapperNode( $node ) ||
+				// or after a div or a table
+				in_array( DOMUtils::nodeName( $prev ), [ 'div', 'table' ], true )
+			) &&
+			(
+				// end of a template (or start of a new one)
+				$next === null ||
+				WTUtils::isTplMarkerMeta( $next ) ||
+				// or before a div or a table
+				in_array( DOMUtils::nodeName( $next ), [ 'div', 'table' ], true )
+			 );
+	}
+
+	private function isStashableNode( Node $node ): bool {
+		return (
+				WTUtils::isRenderingTransparentNode( $node ) &&
+				// these metas count as rendering transparent, but let's not touch them - they're probably irrelevant
+				// for our case, and require fiddling with the pre handling more than necessary.
+				!DOMUtils::hasTypeOf( $node, 'mw:IndentPreWS' )
+			) ||
+			$this->isNewlineWrappingSpan( $node ) ||
+			DOMUtils::nodeName( $node ) === 'style';
 	}
 }

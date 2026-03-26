@@ -5762,11 +5762,9 @@ Orphaned table row wikitext with templated table for an attribute should not dup
 <td>foo
 </td></tr></tbody></table>
 !! html/parsoid
-<p>|-</p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'>
-</span><table about="#mwt1">
+<p>|-</p><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'></span><table about="#mwt1">
 <tbody><tr><td>foo</td></tr>
-</tbody></table><span about="#mwt1">
-</span>
+</tbody></table>
 !! end
 
 !! test
@@ -6148,7 +6146,7 @@ Drop stripped tag markers, unless they have encapsulation info
 !! html/php
 
 !! html/parsoid
-<meta typeof="mw:Transclusion mw:Placeholder/StrippedTag" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>&lt;/tr>"}},"i":0}}]}'/>
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>&lt;/tr>"}},"i":0}}]}'></span>
 !! end
 
 !!test
@@ -6370,7 +6368,7 @@ Templates: Support for templates generating table attributes and content (with f
 <td>bar
 </td></tr></tbody></table>
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:Fostered_Content" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:Fostered_Content"},"sa":{"href":"Category:Fostered Content"},"pi":[[]],"firstWikitextNode":"TABLE"}' data-mw='{"parts":["{| ",{"template":{"target":{"wt":"mixed_attr_content_template_2","href":"./Template:Mixed_attr_content_template_2"},"params":{},"i":0}},"\n|-\n|bar\n|}"]}'/><table style="color:red;" title="T249740" about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"style","html":"style=\"color:red;\" title=\"T249740\"","uneditable":true},{"html":""}]]}'>
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["{| ",{"template":{"target":{"wt":"mixed_attr_content_template_2","href":"./Template:Mixed_attr_content_template_2"},"params":{},"i":0}},"\n|-\n|bar\n|}"]}'><link rel="mw:PageProp/Category" href="./Category:Fostered_Content"/></span><table style="color:red;" title="T249740" about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"style","html":"style=\"color:red;\" title=\"T249740\"","uneditable":true},{"html":""}]]}'>
 <tbody><tr>
 
 <td>foo</td></tr>
@@ -6712,16 +6710,15 @@ Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered
 |foo
 |}
 !! html/parsoid
-<meta typeof="mw:Transclusion mw:Includes/OnlyInclude" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"UnclosedTableEndsWithTR","href":"./Template:UnclosedTableEndsWithTR"},"params":{},"i":0}},"\n&lt;onlyinclude>\n|foo\n&lt;/onlyinclude>\n|}"]}'/>
-<table about="#mwt1">
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"UnclosedTableEndsWithTR","href":"./Template:UnclosedTableEndsWithTR"},"params":{},"i":0}},"\n&lt;onlyinclude>\n|foo\n&lt;/onlyinclude>\n|}"]}'><meta typeof="mw:Includes/OnlyInclude"/></span><table about="#mwt1">
 <tbody><tr>
 
 <td>foo
-<meta typeof="mw:Includes/OnlyInclude/End"/></td></tr>
+<span class="mw-empty-elt"><meta typeof="mw:Includes/OnlyInclude/End"/></span></td></tr>
 </tbody></table>
 
 <meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
-<meta about="#mwt2" typeof="mw:Transclusion mw:Includes/NoInclude/End" data-mw='{"parts":[{"template":{"target":{"wt":"UnclosedTableEndsWithTR","href":"./Template:UnclosedTableEndsWithTR"},"params":{},"i":0}},"\n&lt;/noinclude>\n|foo\n|}"]}'/> <table about="#mwt2">
+<span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"UnclosedTableEndsWithTR","href":"./Template:UnclosedTableEndsWithTR"},"params":{},"i":0}},"\n&lt;/noinclude>\n|foo\n|}"]}'><meta typeof="mw:Includes/NoInclude/End"/></span><table about="#mwt2">
 <tbody><tr>
 
 <td>foo</td></tr>
@@ -6801,9 +6798,11 @@ Templates: Ugly templates: 4. newline-only template parameter inconsistency
 !! wikitext
 {{1x|
 }}
-!! html
+!! html/php
 <p><br />
 </p>
+!! html/parsoid
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'></span>
 !! end
 
 # T66017 -- ugly wikitext with fostered content generates two template ranges that
@@ -6815,8 +6814,7 @@ Templates: Ugly templates: 5. Template encapsulation test: Non-trivial overlap o
 {{1x|<div>foo}}
 {{1x|</table>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}],[{"k":"1"}],[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo"}},"i":1}},"\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;/table>"}},"i":2}}]}'>foo</div><span about="#mwt1">
-</span><table about="#mwt1">
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}],[{"k":"1"}],[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo"}},"i":1}},"\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;/table>"}},"i":2}}]}'>foo</div><table about="#mwt1" data-parsoid='{"stx":"html"}'>
 </table>
 !! end
 
@@ -7507,7 +7505,7 @@ Bar
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
 <p>Foo <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> Bar</p>
-<link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'/>
+<link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <link rel="mw:PageProp/Category" href="./Category:Baz"/> <span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Baz]]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Baz"/></span>
 <link rel="mw:PageProp/Category" href="./Category:Baz"/>
 !! end
 
@@ -14594,7 +14592,7 @@ T115289: Unclosed table
 !! wikitext
 {{1x|<table>}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:Two" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'/><table about="#mwt1" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><!--c--></table>
+<span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'><link rel="mw:PageProp/Category" href="./Category:Two"/></span><table about="#mwt1" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><!--c--></table>
 !! end
 
 !! test
@@ -14602,7 +14600,7 @@ T115289: Don't migrate newlines out of tables with fostered content
 !! wikitext
 <table><td></td>{{1x|<tr>[[Category:One]]}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:One" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:One"},"sa":{"href":"Category:One"},"fostered":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;td>&lt;/td>",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>[[Category:One]]"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'/><link rel="mw:PageProp/Category" href="./Category:Two" about="#mwt2"/><table about="#mwt2" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr><td></td></tr><!--c--></tbody></table>
+<span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;td>&lt;/td>",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>[[Category:One]]"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'><link rel="mw:PageProp/Category" href="./Category:One"/><link rel="mw:PageProp/Category" href="./Category:Two"/></span><table about="#mwt2" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr><td></td></tr><!--c--></tbody></table>
 !! end
 
 !! test
@@ -17032,7 +17030,7 @@ Empty list item with rendering transparent tag
 <li class="mw-empty-elt"></li></ul>
 !! html/parsoid
 <ul about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"*hmm\n*[[category:123]]"}},"i":0}}]}'><li>hmm</li>
-<li class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:123"/></li></ul>
+<li class="mw-empty-elt"><span class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:123"/></span></li></ul>
 !! end
 
 !! test
