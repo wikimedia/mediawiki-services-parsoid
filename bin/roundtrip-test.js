@@ -652,6 +652,9 @@ var parsoidPost = Promise.async(function *(profile, options) {
 	}
 	httpOptions.uri = uri;
 	httpOptions.proxy = options.proxy;
+	if (options.headers) {
+		Object.assign(httpOptions.headers, options.headers);
+	}
 
 	var result = yield issueRequest(httpOptions);
 	var body = result[1];
@@ -793,13 +796,15 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	const uriOpts = options.parsoidURLOpts;
 	let uri = uriOpts.baseUrl;
 	let proxy;
+
+	// Replace DOMAIN placeholder
+	uri = uri.replace(/DOMAIN/, domain);
+
 	if (uriOpts.proxy) {
 		proxy = uriOpts.proxy.host;
 		if (uriOpts.proxy.port) {
 			proxy += ":" + uriOpts.proxy.port;
 		}
-		// Special support for the WMF cluster
-		uri = uri.replace(/DOMAIN/, domain);
 	}
 
 	// make sure the Parsoid URI ends on /
@@ -811,6 +816,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		proxy: proxy,
 		title: encodeURIComponent(title),
 		outputContentVersion: options.outputContentVersion || defaultContentVersion,
+		headers: uriOpts.headers  || null,
 	};
 	var uri2 = parsoidOptions.uri + 'page/wikitext/' + parsoidOptions.title;
 	if (options.oldid) {
@@ -827,9 +833,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 			method: 'GET',
 			uri: uri2,
 			proxy: proxy,
-			headers: {
-				'User-Agent': UA,
-			},
+			headers: Object.assign({ 'User-Agent': UA }, uriOpts.headers || {} ),
 		});
 		profile.time.start = JSUtils.startTime();
 		// We may have been redirected to the latest revision.  Record the
@@ -976,6 +980,11 @@ if (require.main === module) {
 			default: false,
 			alias: 'c',
 		},
+		headers: {
+			description: 'Extra HTTP headers as a JSON string, e.g. \'{"X-Foo":"bar"}\'',
+			boolean: false,
+			default: null,
+		},
 	};
 
 	Promise.async(function *() {
@@ -1001,6 +1010,9 @@ if (require.main === module) {
 		argv.parsoidURLOpts = { baseUrl: argv.parsoidURL };
 		if (argv.proxyURL) {
 			argv.parsoidURLOpts.proxy = { host: argv.proxyURL };
+		}
+		if (argv.headers) {
+			argv.parsoidURLOpts.headers = JSON.parse(argv.headers);
 		}
 		var formatter = ScriptUtils.booleanOption(argv.xml) ? xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
