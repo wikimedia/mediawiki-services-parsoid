@@ -825,9 +825,10 @@ class ParsoidExtensionAPI {
 	public function domToWikitext( array $opts, Element|DocumentFragment $df, bool $releaseDom = false ) {
 		if ( $df instanceof Element ) {
 			$node = $df;
-			// Passing an element is deprecated and will emit warnings in the
-			// future.
-			return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom ) );
+			// Passing an element is deprecated and will emit warnings in the future.
+			// FIXME: This call has been busted since a4385806 where we were mistakenly
+			// using $releaseDom as the second arg to actually request $node's innerHTML.
+			return $this->htmlToWikitext( $opts, $this->domToHtml( $node, $releaseDom, false ) );
 		}
 		$state = $this->serializerState;
 		$opts['env'] = $this->env;
