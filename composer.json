@@ -44,8 +44,7 @@
 		"wikimedia/utfnormal": "^4.0",
 		"wikimedia/wikipeg": "^6.0.0",
 		"wikimedia/zest-css": "^4.1.0",
-		"ext-dom": "*",
-		"ext-json": "*"
+		"ext-dom": "*"
 	},
 	"require-dev": {
 		"ext-curl": "*",
