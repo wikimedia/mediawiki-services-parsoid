@@ -1032,7 +1032,7 @@ class Sanitizer {
 				|| $k === 'aria-labelledby'
 				|| $k === 'aria-owns'
 			) {
-				$v = self::escapeIdReferenceList( $v );
+				$v = self::escapeIdReferenceListInternal( $v );
 			}
 
 			// RDFa and microdata properties allow URLs, URIs and/or CURIs.
@@ -1303,6 +1303,10 @@ class Sanitizer {
 	 * @return string
 	 */
 	private static function escapeIdInternal( string $id, string $mode ): string {
+		// Truncate overly-long IDs.  This isn't an HTML limit, it's just
+		// griefer protection. [T251506]
+		$id = mb_substr( $id, 0, 1024 );
+
 		switch ( $mode ) {
 			case 'html5':
 				// html5 spec says ids must not have any of the following:
@@ -1334,12 +1338,10 @@ class Sanitizer {
 	 * Given a string containing a space delimited list of ids, escape each id
 	 * to match ids escaped by the escapeIdForAttribute() function.
 	 *
-	 * @since 1.27
-	 *
 	 * @param string $referenceString Space delimited list of ids
 	 * @return string
 	 */
-	public static function escapeIdReferenceList( string $referenceString ): string {
+	private static function escapeIdReferenceListInternal( string $referenceString ): string {
 		# Explode the space delimited list string into an array of tokens
 		$references = preg_split( '/\s+/', "{$referenceString}", -1, PREG_SPLIT_NO_EMPTY );
 
