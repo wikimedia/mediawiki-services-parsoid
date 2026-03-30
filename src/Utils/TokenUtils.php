@@ -176,7 +176,7 @@ class TokenUtils {
 		) {
 			return true;
 		} elseif ( $token instanceof SelfclosingTagTk && $token->getName() === 'meta' ) {
-			return !( isset( $token->dataParsoid->stx ) && $token->dataParsoid->stx === 'html' );
+			return !WTUtils::hasLiteralHTMLMarker( $token->dataParsoid );
 		}
 		return false;
 	}

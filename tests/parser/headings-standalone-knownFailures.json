@@ -157,18 +157,18 @@
         "selser [1,1,3]": "__FORCETOC__\n== One ==\n=== Two ===\n",
         "selser [[1,4,3],1,2]": "__FORCETOC__1xyp4n6\n== One ==\n=== Two ===\n1o24tkn\n\n== Three ==\n=== Four ===",
         "selser [4,4,1]": "9cain9\n\nt4zke0\n\n== Three ==\n=== Four ===",
-        "selser [1,4,[1,4,0]]": "__FORCETOC__\n\n134iwwh\n\n== Three ==\ngasrw2\n=== Four ===",
+        "selser [1,4,[1,4,0]]": "__FORCETOC__\n134iwwh\n\n== Three ==\ngasrw2\n=== Four ===",
         "selser [3,[1,3,4],[0,4,2]]": "== One ==\n1jtx01h\n== Three ==\n1srn0ms1rxthzk\n=== Four ===",
         "selser [[0,4,3],2,[[3],2,0]]": "__FORCETOC__t27jpy\n\nlad14w\n\n== One ==\n=== Two ===\na5dj5t\n=== Four ===",
         "selser [1,[[2],2,[0,3]],4]": "__FORCETOC__\n== u1aoyqOne ==\nzw5m5k\n=== Two ===\nlk8dn6",
         "selser [[0,0,4],[0,3,[3,0]],[1,0,1]]": "__FORCETOC__\n1vbrmsz\n== One ==\n== Three ==\n=== Four ===",
-        "selser [2,1,[1,0,1]]": "284rgr\n\n__FORCETOC__\n== One ==\n=== Two ===\n== Three ==\n=== Four ===",
+        "selser [2,1,[1,0,1]]": "284rgr__FORCETOC__\n== One ==\n=== Two ===\n== Three ==\n=== Four ===",
         "selser [[0,0,3],[3,0,2],4]": "__FORCETOC__\n\n1mqwq3a\n=== Two ===\nh1wnqa",
         "selser [3,2,[3,0,[1]]]": "1ietlja\n\n== One ==\n=== Two ===\n\n=== Four ===",
-        "selser [[0,3,1],2,[4,4,3]]": "__FORCETOC__\n\nms6576\n\n== One ==\n=== Two ===\n149vk7\n\n14w6t9p",
+        "selser [[0,3,1],2,[4,4,3]]": "__FORCETOC__\nms6576\n\n== One ==\n=== Two ===\n149vk7\n\n14w6t9p",
         "selser [3,[0,3,[0,4]],[3,0,1]]": "== One ==\n=== Two ===\n1ljeqt6\n=== Four ===",
         "selser [[4,0,0],[[4],0,[3,0]],[[3],0,0]]": "p6hmv4\n== njx1yp ==\n\n=== Four ===",
-        "selser [2,2,[3,0,3]]": "1sqq6os\n\n__FORCETOC__\n\n18txtkg\n\n== One ==\n=== Two ===\n"
+        "selser [2,2,[3,0,3]]": "1sqq6os__FORCETOC__\n18txtkg\n\n== One ==\n=== Two ===\n"
     },
     "T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
         "wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n",
@@ -176,7 +176,7 @@
         "selser [3,1,[2,0,[[4]]]]": "== One ==\n=== Two ===\n1u88z90\n\n== Three ==\n=== 182nkhg ===",
         "selser [[4,0],[4,4,2],2]": "12bkcqq\n\ne2q1l1\n\ngmj0f51kcmw0h\n=== Two ===\n6txsjw\n\n== Three ==\n=== Four ===",
         "selser [[0,2],[2,3,2],1]": "__NOTOC__1jwpqh9\n\n1fjtud1\n\n== One ==\n1pgt7kw\n=== Two ===\n== Three ==\n=== Four ===",
-        "selser [0,4,[0,0,4]]": "__NOTOC__\n\nkzfspc\n\n== Three ==\nlnnbbj",
+        "selser [0,4,[0,0,4]]": "__NOTOC__\nkzfspc\n\n== Three ==\nlnnbbj",
         "selser [4,[4,3,[3,0]],[[3],3,[[2]]]]": "y9i27\n\nn4q0c9\n\n=== 15mv0f0Four ===",
         "selser [[3,0],[0,3,1],[4,4,2]]": "\n== One ==\n=== Two ===\n1p9ypae\n\n1qor02xalgcl8\n=== Four ===",
         "selser [1,[3,4,[3,0]],[0,0,[[4]]]]": "__NOTOC__\n3310e5\n== Three ==\n=== zetokc ===",
@@ -186,11 +186,11 @@
         "selser [[0,4],[4,2,2],1]": "__NOTOC__v2da0u\n\n1mi8s57\n\n11vhre0\n7fxoce\n=== Two ===\n== Three ==\n=== Four ===",
         "selser [4,4,1]": "yj18e9\n\na7cxm5\n\n== Three ==\n=== Four ===",
         "selser [4,[2,0,[1,0]],[4,0,0]]": "fqcyb6\n\nz1i0kg\n\n== One ==\n=== Two ===\n1ki1x1a\n\n=== Four ===",
-        "selser [2,1,4]": "1mxnus4\n\n__NOTOC__\n== One ==\n=== Two ===\n13548e8",
-        "selser [2,2,[2,0,4]]": "1la3dj6\n\n__NOTOC__\n\n1op2aro\n\n== One ==\n=== Two ===\nugbqgt\n\n== Three ==\n1rco633",
+        "selser [2,1,4]": "1mxnus4__NOTOC__\n== One ==\n=== Two ===\n13548e8",
+        "selser [2,2,[2,0,4]]": "1la3dj6__NOTOC__\n1op2aro\n\n== One ==\n=== Two ===\nugbqgt\n\n== Three ==\n1rco633",
         "selser [3,[0,4,4],[0,3,[[3]]]]": "== One ==\ndhvu7u1u8vdwr\n== Three ==\n",
         "selser [[0,4],1,[[4],2,4]]": "__NOTOC__1369osp\n== One ==\n=== Two ===\n== 749s6w ==\n101lrnd\n1gi7px4",
-        "selser [2,3,[4,0,2]]": "120vsh1\n\n__NOTOC__\n\nxyb6x1\n\nrx4dsw\n=== Four ==="
+        "selser [2,3,[4,0,2]]": "120vsh1__NOTOC__\nxyb6x1\n\nrx4dsw\n=== Four ==="
     },
     "T307691: show-toc flag: no sections, and __NOTOC__": {
         "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/notoc\" data-parsoid='{\"src\":\"__NOTOC__\",\"magicSrc\":\"__NOTOC__\",\"dsr\":[0,9,null,null]}'/>\n</section>"
@@ -230,19 +230,19 @@
         "selser [[1,0],1]": "__NOTOC__\n== One ==",
         "selser [0,1]": "__NOTOC__\n== One ==",
         "selser [[0,4],2]": "__NOTOC__396jxo\n\n4rrvzh\n\n== One ==",
-        "selser [2,0]": "1gy051r\n\n__NOTOC__\n== One =="
+        "selser [2,0]": "1gy051r__NOTOC__\n== One =="
     },
     "T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
         "wt2wt": "__FORCETOC__\n==One==\n",
         "html2wt": "__FORCETOC__\n\n== One ==\n",
-        "selser [2,1]": "y8h1fu\n\n__FORCETOC__\n== One ==",
+        "selser [2,1]": "y8h1fu__FORCETOC__\n== One ==",
         "selser [[1,2,0],0]": "__FORCETOC__1mxaf4c\n== One ==",
         "selser [[3,4,0],0]": "dkxgdi\n== One ==",
         "selser [0,[1]]": "__FORCETOC__\n== One ==",
         "selser [3,2]": "hd43c7\n\n== One ==",
         "selser [[0,4,2],2]": "__FORCETOC__j1j6p4v8hcp0\n\nd9c13n\n\n== One ==",
         "selser [[2,0,3],1]": "eplufy__FORCETOC__\n== One ==",
-        "selser [2,0]": "13gal2v\n\n__FORCETOC__\n== One =="
+        "selser [2,0]": "13gal2v__FORCETOC__\n== One =="
     },
     "T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
         "wt2wt": "==One==\n__TOC__",

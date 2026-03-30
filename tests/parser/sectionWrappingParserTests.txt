@@ -20,7 +20,6 @@ Template:Foobar2
 <noinclude>{{1x|boo}}</noinclude>
 [[Category:BadTemplate]]
 __NOTOC__
-
 == <noinclude>Foo</noinclude><includeonly>bar</includeonly> ==
 baz
 !! endarticle
@@ -940,8 +939,6 @@ parsoid={
 y
 !! html/php
 <div class="mw-heading mw-heading1"><h1 id="x">x</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></div>
-<p><br />
-</p>
 <div class="mw-heading mw-heading2"><h2 id="bar">bar</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>baz
 y

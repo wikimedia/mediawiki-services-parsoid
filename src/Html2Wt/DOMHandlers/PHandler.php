@@ -220,6 +220,7 @@ class PHandler extends DOMHandler {
 				&& !DOMUtils::isWikitextBlockNode( $node )
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
+				&& ( DOMUtils::nodeName( $node ) !== 'meta' )
 				&& !WTUtils::isSolTransparentLink( $node )
 				&& !DOMUtils::matchTypeOf( $node, '#^mw:Includes/#' )
 				&& !DOMUtils::matchTypeOf( $node, '#^mw:Annotation/#' ) );

@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
@@ -397,35 +398,45 @@ class ParagraphWrapper extends LineBasedHandler {
 	 */
 	public function onAny( $token ): ?array {
 		$this->env->trace( 'p-wrap', $this->pipelineId, 'ANY   |', $token );
+		$tokenName = ( $token instanceof XMLTagTk ) ? $token->getName() : '';
 
-		if ( is_string( $token ) ||
+		// The conditions in TokenUtils::isSolTransparent are split between
+		// the following two blocks since certain SOL constructs swallow a
+		// newline and others do not
+
+		// 1. Inline some of the conditions of TokenUtils::isSolTransparent
+		if (
+			( is_string( $token ) && preg_match( '/^[\t ]*$/D', $token ) ) ||
+			$token instanceof EmptyLineTk ||
 			$token instanceof CommentTk ||
-			$token instanceof EmptyLineTk
+			TokenUtils::isBehaviorSwitch( $this->env, $token )
 		) {
-			if ( !is_string( $token ) || preg_match( '/^[\t ]*$/D', $token ) ) {
-				if ( $this->newLineCount === 0 ) {
-					// Since we have no pending newlines to trip us up,
-					// no need to buffer -- just flush everything
-					return $this->flushBuffers( $token );
-				} else {
-					// We are in buffering mode waiting till we are ready to
-					// process pending newlines.
-					$this->nlWsTokens[] = $token;
-					return [];
-				}
+			if ( $this->newLineCount === 0 ) {
+				// Since we have no pending newlines to trip us up,
+				// no need to buffer -- just flush everything
+				return $this->flushBuffers( $token );
+			} else {
+				// We are in buffering mode waiting till we are ready to
+				// process pending newlines.
+				$this->nlWsTokens[] = $token;
+				return [];
 			}
-
-			$this->currLineHasWrappableTokens = true;
-			return $this->processBuffers( $token, false );
 		}
 
-		$tokenName = ( $token instanceof XMLTagTk ) ? $token->getName() : '';
+		// 2. Inline the rest of the conditions of TokenUtils::isSolTransparent
 		if (
+			TokenUtils::isSolTransparentLinkTag( $token ) ||
+			// FIXME: We decided not to do template boundaries in T355099
+			// but do any other metas belong above?
+			(
+				$tokenName === 'meta' &&
+				$token instanceof SelfclosingTagTk &&
+				!WTUtils::hasLiteralHTMLMarker( $token->dataParsoid )
+			) ||
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
 			// a new paragraph by itself.
-			$tokenName === 'style' ||
-			TokenUtils::isSolTransparent( $this->env, $token )
+			$tokenName === 'style'
 		) {
 			if ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,
@@ -445,6 +456,11 @@ class ParagraphWrapper extends LineBasedHandler {
 			} else {
 				return $this->processBuffers( $token, false );
 			}
+		}
+
+		if ( is_string( $token ) ) {
+			$this->currLineHasWrappableTokens = true;
+			return $this->processBuffers( $token, false );
 		}
 
 		// Skip the entire list token - dont process nested tokens
