@@ -594,7 +594,7 @@ class MockApiHelper extends ApiHelper {
 	 * Image scaling computation helper.
 	 *
 	 * Linker.php in core calls File::transform(...) for each dimension (1x,
-	 * 1.5x, 2x) which then scales the image dimensions, using round/ceil/floor
+	 * 2x) which then scales the image dimensions, using round/ceil/floor
 	 * as appropriate to yield integer dimensions.  Note that the results
 	 * may be unintuitive due to the conversion to integer: eg, a 442px width
 	 * image may become 883px in 2x mode.  Resist the temptation to "optimize"
@@ -780,7 +780,7 @@ class MockApiHelper extends ApiHelper {
 			$info['thumburl'] = $turl;
 			// src set info; added to core API result as part of T226683
 			// See Linker.php::processResponsiveImages() in core
-			foreach ( [ 1.5, 2 ] as $scale ) {
+			foreach ( [ 2 ] as $scale ) {
 				$stwidth = $stheight = null;
 				if ( $origThumbWidth !== null ) {
 					$stwidth = round( $origThumbWidth * $scale );
