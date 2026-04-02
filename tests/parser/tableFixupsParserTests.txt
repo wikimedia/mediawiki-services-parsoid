@@ -830,6 +830,8 @@ parsoid=wt2html
 | {{1x|[[Main Page]]}} | 123
 | {{1x|[[Main Page]] {{!}}}} 123
 | {{1x|[[Main Page]]}} {{!}} 123
+| foo={{1x|[[Main Page]]}} | 123
+| {{1x|[[Main Page]]}} {{1x|1={{!}}{{!}}class='foo'}}| 123
 |}
 !! html/php
 <table>
@@ -841,15 +843,22 @@ parsoid=wt2html
 <td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> | 123
 </td>
 <td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> | 123
+</td>
+<td>foo=<a href="/wiki/Main_Page" title="Main Page">Main Page</a> | 123
+</td>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a></td>
+<td class="foo">123
 </td></tr></tbody></table>
 !! html/parsoid+integrated
 <table>
 <tbody>
 <tr>
 <td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> | 123</td>
-<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}]}'>Main Page</a> | 123</td>
-<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]] {{!}}"}},"i":0}}]}'>Main Page</a><span> |</span> 123</td>
-<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}]}'>Main Page</a> <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span> 123</td>
+<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}]}'>Main Page</a> | 123</td>
+<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]] {{!}}"}},"i":0}}]}'>Main Page</a><span> |</span> 123</td>
+<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}]}'>Main Page</a> <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span> 123</td>
+<td>foo=<a rel="mw:WikiLink" href="./Main_Page" title="Main Page" about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}]}'>Main Page</a> | 123</td>
+<td about="#mwt5" typeof="mw:Transclusion" data-mw='{"parts":["| ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Main Page]]"}},"i":0}}," ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}{{!}}class=&apos;foo&apos;"}},"i":1}},"| 123"]}'><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></td><td about="#mwt5" class="foo" data-parsoid='{"stx":"row"}'>123</td>
 </tr>
 </tbody>
 </table>

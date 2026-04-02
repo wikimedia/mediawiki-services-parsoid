@@ -742,8 +742,7 @@ class TableFixups {
 	 * Wikilinks and language converter constructs should follow suit
 	 */
 	private static function shouldAbortAttr( Element $child ): bool {
-		return DOMUtils::matchRel( $child,
-			'#^mw:(WikiLink(/Interwiki)?|MediaLink|PageProp/(Category|Language))$#' ) ||
+		return DOMUtils::matchRel( $child, WTUtils::WIKILINK_SYNTAX_CONSTRUCTS_REGEXP ) ||
 			WTUtils::isGeneratedFigure( $child );
 	}
 
@@ -900,6 +899,13 @@ class TableFixups {
 		}
 
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+		if ( isset( $cellDp->getTemp()->cellAttrTerminatorSeen ) ) {
+			self::convertAttribsToContent( $dtState->env, $dtState->options['frame'], $cell, false, true );
+			unset( $cellDp->getTemp()->cellAttrTerminatorSeen );
+			// Reprocess $cell in case this round makes it suitable
+			// for additional processing.
+			return $cell;
+		}
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th> when not the first child

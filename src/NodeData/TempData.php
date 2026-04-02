@@ -53,6 +53,11 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Node represents empty extension content
  * @property bool|null $empty
  *
+ * Only set on some table cells. If true, this node encountered
+ * an attribute terminator token in attribute position in the
+ * AttributeExpander pass.
+ * @property bool|null $cellAttrTerminatorSeen
+ *
  * Magic link type
  * @property string|null $ref
  */

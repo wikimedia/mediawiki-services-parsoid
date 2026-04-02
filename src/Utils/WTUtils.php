@@ -45,6 +45,14 @@ class WTUtils {
 	public const ANNOTATION_META_TYPE_REGEXP = '#^mw:(?:Annotation/([\w\d]+))(?:/End)?$#uD';
 
 	/**
+	 * Checks if a token/node has a rel attribute that matches this regexp.
+	 * Tokens matching this and embedded in a table-cell attribute position
+	 * stops attribute processing in that cell.
+	 */
+	// phpcs:ignore Generic.Files.LineLength.TooLong
+	public const WIKILINK_SYNTAX_CONSTRUCTS_REGEXP = '#^mw:(WikiLink(/Interwiki)?|MediaLink|PageProp/(Category|Language))$#';
+
+	/**
 	 * Check whether a node's data-parsoid object includes
 	 * an indicator that the original wikitext was a literal
 	 * HTML element (like table or p)

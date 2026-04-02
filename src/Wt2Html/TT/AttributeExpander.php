@@ -196,10 +196,11 @@ class AttributeExpander extends UniversalTokenHandler {
 	 * @return array{hasGeneratedContent: bool, annotationType: list<string>, value: list<Token|string>}
 	 */
 	private static function stripMetaTags(
-		Env $env, array $tokens, bool $wrapTemplates
+		Env $env, array $tokens, bool $wrapTemplates, bool $inTableCellContext = false
 	): array {
 		$buf = [];
 		$hasGeneratedContent = false;
+		$cellAttrTerminatorSeen = false;
 		$annotationType = [];
 
 		foreach ( $tokens as $t ) {
@@ -210,6 +211,19 @@ class AttributeExpander extends UniversalTokenHandler {
 				// token should be annotated with "mw:ExpandedAttrs".
 				if ( TokenUtils::hasDOMFragmentType( $t ) ) {
 					$hasGeneratedContent = true;
+				}
+
+				if ( $inTableCellContext ) {
+					// Images, links, etc. terminate table cell attribute processing.
+					// If so, record info so TableFixups can cleanly convert this attribute
+					// back to content and handle any additional fixups resulting from that.
+					$rel = $t->getAttributeV( 'rel' ) ?? '';
+					$typeof = $t->getAttributeV( 'typeof' ) ?? '';
+					if ( preg_match( '#\bmw:File($|/)\b#', $typeof ) ||
+						preg_match( WTUtils::WIKILINK_SYNTAX_CONSTRUCTS_REGEXP, $rel )
+					) {
+						$cellAttrTerminatorSeen = true;
+					}
 				}
 
 				if ( $wrapTemplates ) {
@@ -241,6 +255,7 @@ class AttributeExpander extends UniversalTokenHandler {
 
 		return [
 			'hasGeneratedContent' => $hasGeneratedContent,
+			'cellAttrTerminatorSeen' => $cellAttrTerminatorSeen,
 			'annotationType' => $annotationType,
 			'value' => $buf
 		];
@@ -409,9 +424,16 @@ class AttributeExpander extends UniversalTokenHandler {
 						}
 					} else {
 						// Maybe scenario 2 from the documentation comment above.
-						$updatedK = self::stripMetaTags( $env, $expandedK, $wrapTemplates );
+						$updatedK = self::stripMetaTags(
+							$env, $expandedK, $wrapTemplates,
+							( $tokenName === 'td' || $tokenName === 'th' )
+						);
 						PHPUtils::pushArray( $annotationTypes, $updatedK['annotationType'] );
 						$expandedK = $updatedK['value'];
+						// @phan-suppress-next-line PhanTypeInvalidDimOffset
+						if ( $updatedK['cellAttrTerminatorSeen'] ) {
+							$token->dataParsoid->getTemp()->cellAttrTerminatorSeen = true;
+						}
 					}
 
 					$expandedA->k = $expandedK;
@@ -499,9 +521,16 @@ class AttributeExpander extends UniversalTokenHandler {
 						}
 					} else {
 						// Maybe scenario 2 from the documentation comment above.
-						$updatedV = self::stripMetaTags( $env, $expandedV, $wrapTemplates );
+						$updatedV = self::stripMetaTags(
+							$env, $expandedV, $wrapTemplates,
+							( $tokenName === 'td' || $tokenName === 'th' )
+						);
 						PHPUtils::pushArray( $annotationTypes, $updatedV['annotationType'] );
 						$expandedV = $updatedV['value'];
+						// @phan-suppress-next-line PhanTypeInvalidDimOffset
+						if ( $updatedV['cellAttrTerminatorSeen'] ) {
+							$token->dataParsoid->getTemp()->cellAttrTerminatorSeen = true;
+						}
 					}
 					$expandedA->v = $expandedV;
 				}
