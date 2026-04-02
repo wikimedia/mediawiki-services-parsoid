@@ -877,11 +877,24 @@ class TableFixups {
 	 * piggyback on top of DOMTraverser since the DOM can be significantly
 	 * mutated in these handlers.
 	 *
-	 * @param Element $cell $cell is known to be <td>/<th>
+	 * @param Element $tableOrCell If a cell, $cell is known to be <td>/<th>
 	 * @param DTState $dtState
 	 * @return mixed
 	 */
-	public static function handleTableCellTemplates( Element $cell, DTState $dtState ) {
+	public static function handleTableCellTemplates( Element $tableOrCell, DTState $dtState ) {
+		$cellName = $nodeName = DOMUtils::nodeName( $tableOrCell );
+		$isTemplatedCell = $isTemplatedNode = DOMUtils::hasTypeOf( $tableOrCell, 'mw:Transclusion' );
+		if ( $nodeName === 'table' ) {
+			// If the table is templated and is from a well-balanced template, individual cells
+			// had been expanded in the preprocessor and there is no need to examine individual
+			// cells for reparsing. Skip the entire table.
+			if ( $isTemplatedNode && DOMDataUtils::getDataMw( $tableOrCell )->fromWellBalancedTemplate() ) {
+				return $tableOrCell->nextSibling;
+			}
+			return true;
+		}
+
+		$cell = $tableOrCell;
 		if ( WTUtils::isLiteralHTMLNode( $cell ) ) {
 			return true;
 		}
@@ -890,8 +903,7 @@ class TableFixups {
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th> when not the first child
-		if ( DOMUtils::nodeName( $cell ) === 'th' &&
-			DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) &&
+		if ( $cellName === 'th' && $isTemplatedCell &&
 			// The ! wouldn't be the first content char if attrs were present
 			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) &&
 			// This is checking that previous sibling is not "\n" which would
@@ -934,7 +946,7 @@ class TableFixups {
 			$reparseType === ReparseScenario::MAYBE_REPARSE_ATTRS &&
 			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX )
 		) {
-			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
+			$templateWrapper = $isTemplatedCell ? $cell : null;
 			self::reparseTemplatedAttributes( $dtState, $cell, $templateWrapper );
 		}
 
@@ -953,7 +965,7 @@ class TableFixups {
 		$tplAbout = null;
 		$transclusions = [];
 		$needsTplInfoHoisted = false;
-		$isTd = DOMUtils::nodeName( $cell ) === 'td';
+		$isTd = $cellName === 'td';
 		$child = $cell->firstChild;
 		while ( $child ) {
 			$next = $child->nextSibling;

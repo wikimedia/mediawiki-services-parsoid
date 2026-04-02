@@ -74,6 +74,10 @@ class DataMw implements JsonCodecable, RichCodecable {
 		}
 	}
 
+	public function fromWellBalancedTemplate(): bool {
+		return isset( $this->parts ) && count( $this->parts ) === 1;
+	}
+
 	/** Returns true iff there are no dynamic properties of this object. */
 	public function isEmpty(): bool {
 		$result = (array)$this;

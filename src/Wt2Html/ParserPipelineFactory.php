@@ -107,6 +107,7 @@ class ParserPipelineFactory {
 				[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
 				[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
 				// 2. Fix up issues from templated table cells and table cell attributes
+				[ 'nodeName' => 'table', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 			]
