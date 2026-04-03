@@ -2381,7 +2381,7 @@ http://</p><div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-h
 </div>
 !! html/parsoid
 <h2 id="onmouseover="><span id="onmouseover.3D" typeof="mw:FallbackId"></span>onmouseover=</h2>
-<p><a rel="mw:ExtLink" href="http://__TOC__" class="external free" data-parsoid='{"stx":"url"}'>http://__TOC__</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://__TOC__" class="external free" data-parsoid='{"stx":"url"}'>http://__TOC__</a></p>
 !! end
 
 !! test

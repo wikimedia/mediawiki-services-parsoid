@@ -146,11 +146,6 @@ class TestUtils {
 			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );
 			$out = preg_replace( $unnecessaryAttribs . "\\\\?'[^\']*\\\\?'/u", '', $out ); // single-quoted variant
 			$out = preg_replace( $unnecessaryAttribs . '&apos;.*?&apos;/u', '', $out ); // apos variant
-			if ( !$options['externallinktarget'] ) {
-				$out = preg_replace( '/ nofollow/', '', $out );
-				$out = str_replace( ' rel="nofollow"', '', $out );
-				$out = preg_replace( '/ noreferrer noopener/', '', $out );
-			}
 
 			// strip self-closed <nowiki /> because we frequently test WTS
 			// <nowiki> insertion by providing an html/parsoid section with the

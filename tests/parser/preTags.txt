@@ -593,7 +593,7 @@ Template pre: Link
 <pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"name":"pre","attrs":{"format":"wikitext"},"body":{"extsrc":"\n[[Test]]\n[https://google.com 123]\n"},"parts":[{"template":{"target":{"wt":"pre","href":"./Template:Pre"},"params":{"1":{"wt":"\n[[Test]]\n[https://google.com 123]\n"}},"i":0}}]}'>
 
 <a rel="mw:WikiLink" href="./Test?action=edit&amp;redlink=1" title="Test" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Test"]}}'>Test</a>
-<a rel="mw:ExtLink" href="https://google.com" class="external text">123</a></pre>
+<a rel="mw:ExtLink nofollow" href="https://google.com" class="external text">123</a></pre>
 !! end
 
 !! test

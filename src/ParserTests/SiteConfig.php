@@ -304,7 +304,12 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public function getNoFollowConfig(): array {
 		if ( $this->noFollowConfig === null ) {
-			$this->noFollowConfig = parent::getNoFollowConfig();
+			// Defaults for parser tests (not API values)
+			$this->noFollowConfig = [
+				'nofollow' => true,
+				'nsexceptions' => [],
+				'domainexceptions' => [ 'mediawiki.org' ],
+			];
 		}
 		return $this->noFollowConfig;
 	}

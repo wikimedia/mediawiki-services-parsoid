@@ -763,9 +763,8 @@ parsoid=wt2html,html2html
 </tr>
 </tbody></table>
 !! html/parsoid
-<table><tbody>
-<tr>
-<td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|"}'>[<a rel="mw:ExtLink" href="ftp://%7Cx" class="external free" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx":"row"}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
+<table data-parsoid='{"autoInsertedEnd":true}'>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"startTagSrc":"| ","attrSepSrc":"|"}'>[<a rel="mw:ExtLink nofollow" href="ftp://%7Cx" class="external free" data-parsoid='{"stx":"url","a":{"href":"ftp://%7Cx"},"sa":{"href":"ftp://|x"}}'>ftp://%7Cx</a></td><td data-parsoid='{"stx":"row"}'>]" onmouseover="alert(document.cookie)">test</td></tr></tbody></table>
 !! end
 
 !! test

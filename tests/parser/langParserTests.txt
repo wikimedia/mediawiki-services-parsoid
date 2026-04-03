@@ -182,15 +182,18 @@ http://example.com
 </p><p><a rel="nofollow" class="external text" href="http://example.com">abcd</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text">abcd</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text">http://foo.com</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'></span></a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text">abcd</a></p>
+
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text">http://foo.com</a></p>
+
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external free">http://example.com</a></p>
+
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'></span></a></p>
 !! html/parsoid+langconv
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text">абцд</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text">http://foo.com</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a></p>
-<p><a rel="mw:ExtLink" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'>abcd</span></a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text">абцд</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text">http://foo.com</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external free">http://example.com</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text"><span typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{"t":"abcd"}}'>abcd</span></a></p>
 !! end
 
 !! test
@@ -1368,13 +1371,13 @@ gopher://www.google.com
 <a rel="nofollow" class="external text" href="//www.google.com">www.гоогле.цом</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://www.google.com" class="external free">http://www.google.com</a>
-<a rel="mw:ExtLink" href="gopher://www.google.com" class="external free">gopher://www.google.com</a>
-<a rel="mw:ExtLink" href="http://www.google.com" class="external text">http://www.google.com</a>
-<a rel="mw:ExtLink" href="gopher://www.google.com" class="external text">gopher://www.google.com</a>
-<a rel="mw:ExtLink" href="https://www.google.com" class="external text">irc://www.google.com</a>
-<a rel="mw:ExtLink" href="ftp://www.google.com" class="external text">www.google.com/ftp://dir</a>
-<a rel="mw:ExtLink" href="//www.google.com" class="external text">www.google.com</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://www.google.com" class="external free">http://www.google.com</a>
+<a rel="mw:ExtLink nofollow" href="gopher://www.google.com" class="external free">gopher://www.google.com</a>
+<a rel="mw:ExtLink nofollow" href="http://www.google.com" class="external text">http://www.google.com</a>
+<a rel="mw:ExtLink nofollow" href="gopher://www.google.com" class="external text">gopher://www.google.com</a>
+<a rel="mw:ExtLink nofollow" href="https://www.google.com" class="external text">irc://www.google.com</a>
+<a rel="mw:ExtLink nofollow" href="ftp://www.google.com" class="external text">www.google.com/ftp://dir</a>
+<a rel="mw:ExtLink nofollow" href="//www.google.com" class="external text">www.google.com</a></p>
 !! end
 
 !! test

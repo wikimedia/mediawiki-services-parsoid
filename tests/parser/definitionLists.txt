@@ -63,7 +63,7 @@ parsoid=wt2html,html2html
 <dl><dt><a rel="nofollow" class="external free" href="http://example.com/">http://example.com/</a></dt>
 <dd>definition</dd></dl>
 !! html/parsoid
-<dl><dt><a rel="mw:ExtLink" href="http://example.com/" class="external free">http://example.com/</a></dt><dd data-parsoid='{"stx":"row"}'>definition</dd></dl>
+<dl><dt><a rel="mw:ExtLink nofollow" href="http://example.com/" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/</a></dt><dd data-parsoid='{"stx":"row"}'>definition</dd></dl>
 !! end
 
 !! test
@@ -97,7 +97,7 @@ parsoid=wt2html,html2html
 <dl><dt><a rel="nofollow" class="external free" href="news:alt.wikipedia.rox">news:alt.wikipedia.rox</a></dt>
 <dd>This isn't even a real newsgroup!</dd></dl>
 !! html/parsoid
-<dl><dt><a rel="mw:ExtLink" href="news:alt.wikipedia.rox" class="external free" data-parsoid='{"stx":"url"}'>news:alt.wikipedia.rox</a></dt><dd data-parsoid='{"stx":"row"}'>This isn't even a real newsgroup!</dd></dl>
+<dl><dt><a rel="mw:ExtLink nofollow" href="news:alt.wikipedia.rox" class="external free" data-parsoid='{"stx":"url"}'>news:alt.wikipedia.rox</a></dt><dd data-parsoid='{"stx":"row"}'>This isn't even a real newsgroup!</dd></dl>
 !! end
 
 !! test
@@ -118,7 +118,7 @@ parsoid=wt2html,html2html
 <dl><dt><a rel="nofollow" class="external text" href="http://www.wikipedia2.org/">Wikipedia :The Next Generation</a></dt>
 <dd>OK, I made that up</dd></dl>
 !! html/parsoid
-<dl><dt><a rel="mw:ExtLink" href="http://www.wikipedia2.org/" class="external text">Wikipedia :The Next Generation</a></dt><dd data-parsoid='{"stx":"row"}'>OK, I made that up</dd></dl>
+<dl><dt><a rel="mw:ExtLink nofollow" href="http://www.wikipedia2.org/" class="external text">Wikipedia :The Next Generation</a></dt><dd data-parsoid='{"stx":"row"}'>OK, I made that up</dd></dl>
 !! end
 
 !! test

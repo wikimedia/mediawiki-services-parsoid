@@ -29,7 +29,7 @@ cat=Pages_using_RFC_magic_links sort=
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc822">RFC 822</a>
 </p>
 !! html/parsoid
-<p><a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-rfc">RFC 822</a></p>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-rfc">RFC 822</a></p>
 !! end
 
 !! test
@@ -54,7 +54,7 @@ This is RFC 822 but thisRFC 822 is not RFC 822linked.
 <p>This is <a class="external mw-magiclink-rfc" rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc822">RFC 822</a> but thisRFC 822 is not RFC 822linked.
 </p>
 !! html/parsoid
-<p>This is <a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-rfc">RFC 822</a> but thisRFC 822 is not RFC 822linked.</p>
+<p>This is <a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-rfc">RFC 822</a> but thisRFC 822 is not RFC 822linked.</p>
 !! end
 
 !! test
@@ -69,7 +69,7 @@ RFC
 822
 </p>
 !! html/parsoid
-<p><a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-rfc">RFC <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 822</a>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc822" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-rfc" data-parsoid='{"stx":"magiclink"}'>RFC <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 822</a>
 RFC
 822</p>
 !! end
@@ -146,7 +146,7 @@ PMID 1234
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a>
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-pmid">PMID 1234</a></p>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-pmid">PMID 1234</a></p>
 !! end
 
 !! test
@@ -161,7 +161,7 @@ cat=Pages_using_PMID_magic_links sort=
 <p>This is <a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.
 </p>
 !! html/parsoid
-<p>This is <a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-pmid">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.</p>
+<p>This is <a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-pmid">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.</p>
 !! end
 
 !! test
@@ -176,7 +176,7 @@ PMID
 1234
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-pmid">PMID <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 1234</a>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-pmid" data-parsoid='{"stx":"magiclink"}'>PMID <span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#0160;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#Xa0;","srcContent":" "}'> </span> 1234</a>
 PMID
 1234</p>
 !! end
@@ -195,7 +195,8 @@ X[https://datatracker.ietf.org/doc/html/rfc1234 foo]
 </p>
 !! html/parsoid
 <p>X<a rel="mw:WikiLink" href="./Special:BookSources/0978739256" title="Special:BookSources/0978739256">foo</a></p>
-<p>X<a rel="mw:ExtLink" href="https://datatracker.ietf.org/doc/html/rfc1234" class="external text">foo</a></p>
+
+<p>X<a rel="mw:ExtLink nofollow" href="https://datatracker.ietf.org/doc/html/rfc1234" class="external text">foo</a></p>
 !! end
 
 !! test
@@ -245,7 +246,7 @@ PMID 234
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract">PMID 234</a>
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-pmid">PMID 234</a></p>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-pmid">PMID 234</a></p>
 !! end
 
 !! test
@@ -258,7 +259,7 @@ PMID 234
 <p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract">PMID 234</a>
 </p>
 !! html/parsoid
-<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-pmid">PMID 234</a></p>
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-pmid">PMID 234</a></p>
 !! end
 
 !! test
@@ -289,9 +290,9 @@ wgEnableMagicLinks={"PMID":false,"RFC":false}
 </p><p><a rel="nofollow" class="external text" href="https://datatracker.ietf.org/doc/html/rfc4321">RFC 4321</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink/Interwiki"
-href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" title="pmid:234" class="extiw">PMID 234</a></p>
-<p><a rel="mw:ExtLink" href="https://datatracker.ietf.org/doc/html/rfc4321" class="external text">RFC 4321</a></p>
+<p><a rel="mw:WikiLink/Interwiki" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" title="pmid:234" class="extiw">PMID 234</a></p>
+
+<p><a rel="mw:ExtLink nofollow" href="https://datatracker.ietf.org/doc/html/rfc4321" class="external text">RFC 4321</a></p>
 !! end
 
 !! test
@@ -341,10 +342,10 @@ Magic links inside links (not autolinked)
 <a rel="mw:WikiLink" href="./Foo" title="Foo">PMID 1234</a>
 <a rel="mw:WikiLink" href="./Foo" title="Foo">ISBN 123456789x</a></p>
 
-<p><a rel="mw:ExtLink" href="http://foo.com" class="external text">http://example.com</a>
-<a rel="mw:ExtLink" href="http://foo.com" class="external text">RFC 1234</a>
-<a rel="mw:ExtLink" href="http://foo.com" class="external text">PMID 1234</a>
-<a rel="mw:ExtLink" href="http://foo.com" class="external text">ISBN 123456789x</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://foo.com" class="external text">http://example.com</a>
+<a rel="mw:ExtLink nofollow" href="http://foo.com" class="external text">RFC 1234</a>
+<a rel="mw:ExtLink nofollow" href="http://foo.com" class="external text">PMID 1234</a>
+<a rel="mw:ExtLink nofollow" href="http://foo.com" class="external text">ISBN 123456789x</a></p>
 !! end
 
 !! test
@@ -464,7 +465,7 @@ T24905: <abbr> followed by ISBN followed by </a>
 <p><abbr>(fr)</abbr> <a href="/wiki/Special:BookSources/2753300917" class="internal mw-magiclink-isbn">ISBN 2753300917</a> <a rel="nofollow" class="external text" href="http://www.example.com">example.com</a>
 </p>
 !! html/parsoid
-<p><abbr data-parsoid='{"stx":"html"}'>(fr)</abbr> <a href="./Special:BookSources/2753300917" rel="mw:WikiLink" class="internal mw-magiclink mw-magiclink-isbn" data-parsoid='{"stx":"magiclink"}'>ISBN 2753300917</a> <a rel="mw:ExtLink" href="http://www.example.com" class="external text">example.com</a></p>
+<p><abbr data-parsoid='{"stx":"html"}'>(fr)</abbr> <a href="./Special:BookSources/2753300917" rel="mw:WikiLink" class="internal mw-magiclink mw-magiclink-isbn" data-parsoid='{"stx":"magiclink"}'>ISBN 2753300917</a> <a rel="mw:ExtLink nofollow" href="http://www.example.com" class="external text">example.com</a></p>
 !! end
 
 !! test
@@ -475,7 +476,7 @@ RFC RFC 1234
 <p>RFC <a class="external mw-magiclink-rfc" rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc1234">RFC 1234</a>
 </p>
 !! html/parsoid
-<p>RFC <a href="https://datatracker.ietf.org/doc/html/rfc1234" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-rfc">RFC 1234</a></p>
+<p>RFC <a href="https://datatracker.ietf.org/doc/html/rfc1234" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-rfc">RFC 1234</a></p>
 !! end
 
 !! test
@@ -497,7 +498,7 @@ RFC   983&#x20;987
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="https://datatracker.ietf.org/doc/html/rfc983">RFC 983</a>&#x20;987
 </p>
 !! html/parsoid
-<p><a href="https://datatracker.ietf.org/doc/html/rfc983" rel="mw:ExtLink" class="external mw-magiclink mw-magiclink-rfc" data-parsoid='{"stx":"magiclink"}'>RFC   983</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>987</p>
+<p><a href="https://datatracker.ietf.org/doc/html/rfc983" rel="mw:ExtLink nofollow" class="external mw-magiclink mw-magiclink-rfc" data-parsoid='{"stx":"magiclink"}'>RFC   983</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x20;","srcContent":" "}'> </span>987</p>
 !! end
 
 !! test

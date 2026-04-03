@@ -190,8 +190,8 @@ Interwiki links that cannot be represented in wiki syntax
 <p><a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok" title="meatball:ok" class="extiw">meatball:ok</a>
 <a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok#foo" title="meatball:ok" class="extiw">ok with fragment</a>
 <a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?ok_as_well%3F" title="meatball:ok as well?" class="extiw">ok ending with<span typeof="mw:DisplaySpace"> </span>? mark</a>
-<a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/Foo?action=history" class="external text">has query</a>
-<a rel="mw:ExtLink" href="http://de.wikipedia.org/wiki/#foo" class="external text">is just fragment</a></p>
+<a rel="mw:ExtLink nofollow" href="http://de.wikipedia.org/wiki/Foo?action=history" class="external text">has query</a>
+<a rel="mw:ExtLink nofollow" href="http://de.wikipedia.org/wiki/#foo" class="external text">is just fragment</a></p>
 !! end
 
 !! test
