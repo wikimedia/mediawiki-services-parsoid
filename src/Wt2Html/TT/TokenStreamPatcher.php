@@ -328,8 +328,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 				}
 				$buf .= $cellAttrSrc;
 				if ( in_array( $tokenName, [ 'caption', 'td', 'th' ], true ) ) {
-					$buf .= '|';
+					$buf .= $dp->attrSepSrc ?? '|';
 				}
+			} else {
+				$buf .= $dp->attrSepSrc ?? '';
 			}
 
 			if ( $needsRetokenization ) {

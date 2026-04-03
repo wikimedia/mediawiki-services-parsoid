@@ -5632,6 +5632,10 @@ c
 </p>
 !! end
 
+# This test passes both integrated and standalone modes, but the
+# standalone mode passes even without the fixes in I9fc10b446
+# So, we pick the integrated mode version to protect the fixes
+# in I9fc10b446.
 !! test
 1. Templated table wikitext syntax outside wiki-tables
 !! options
@@ -5640,6 +5644,8 @@ parsoid=wt2html,wt2wt
 |-
 {{1x|!a!!b}}
 |-
+{{1x|{{!}}{{!}}a}}
+|-
 {{1x|{{!}}a {{!}}{{!}}b}}
 |-
 {{1x|1={{!}} class='boo' {{!}} bar}}
@@ -5647,13 +5653,17 @@ parsoid=wt2html,wt2wt
 <p>|-
 !a!!b
 |-
+||a
+|-
 |a ||b
 |-
 | class='boo' | bar
 </p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>|-
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!a!!b"}},"i":0}}]}'>!a!!b</span>
+|-
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}{{!}}a"}},"i":0}}]}'>||a</span>
 |-
 <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}a {{!}}{{!}}b"}},"i":0}}]}'>|a ||b</span>
 |-
