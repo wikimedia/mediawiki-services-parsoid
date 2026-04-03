@@ -394,6 +394,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function updateSemanticErrorTitles( string $baseUrl, array &$titles ): void {
 		$url = $baseUrl;
 		$page = 0;
+		$overrideTooMany = false;
 		do {
 			$done = true;
 			$dom = DOMUtils::parseHTML( $this->makeCurlRequest( $url ) );
@@ -403,14 +404,24 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 			// Fetch more if necessary
 			if ( !DOMCompat::querySelectorAll( $dom, 'tr[status=skip]' ) ) {
+				echo( '.' ); // visual feedback about pages being fetched.
 				$done = false;
 				$page++;
 				$url = $baseUrl . "/$page";
-				if ( $page > 2 ) {
-					throw new \RuntimeException( "Too many regressions? Fetched $page pages of $baseUrl. Aborting." );
+				if ( $page > 2 && !$overrideTooMany ) {
+					echo( "\n" );
+					$a = readline( "Too many regressions? Fetched $page pages of $baseUrl. " .
+									"Expected to see these many? Press y/Y to continue. Will abort otherwise. " );
+					if ( strtolower( $a ) === 'y' ) {
+						$overrideTooMany = true;
+					} else {
+						// Exit!
+						exit();
+					}
 				}
 			}
 		} while ( !$done );
+		echo( "\n" . "Processed $page pages. Found " . count( $titles ) . " titles to test.\n" );
 	}
 
 	/** @inheritDoc */
