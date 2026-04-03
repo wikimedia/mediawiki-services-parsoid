@@ -465,15 +465,14 @@ class TestUtils {
 
 	/**
 	 * Removes DSR from data-parsoid for test normalization of a complete document. If
-	 * data-parsoid gets subsequently empty, removes it too.
-	 * @param string $raw
-	 * @return string
+	 * data-parsoid gets subsequently empty, or if it wasn't present in the first place,
+	 * removes it too.
 	 */
-	public static function filterDsr( string $raw ): string {
+	public static function filterDsr( string $raw, bool $removeDataParsoid = false ): string {
 		$doc = ContentUtils::createAndLoadDocument( $raw );
 		foreach ( DOMUtils::childNodes( $doc ) as $child ) {
 			if ( $child instanceof Element ) {
-				self::filterNodeDsr( $child );
+				self::filterNodeDsr( $child, $removeDataParsoid );
 			}
 		}
 		return ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
@@ -482,16 +481,16 @@ class TestUtils {
 	/**
 	 * Removes DSR from data-parsoid for test normalization of an element.
 	 */
-	public static function filterNodeDsr( Element $el ): void {
+	public static function filterNodeDsr( Element $el, bool $removeDataParsoid = false ): void {
 		$dp = DOMDataUtils::getDataParsoid( $el );
 		unset( $dp->dsr );
-		if ( $dp->isEmpty() ) {
+		if ( $dp->isEmpty() || $removeDataParsoid ) {
 			$dp->getTemp()->setFlag( TempData::DISCARDABLE_DP );
 		}
 
 		foreach ( DOMUtils::childNodes( $el ) as $child ) {
 			if ( $child instanceof Element ) {
-				self::filterNodeDsr( $child );
+				self::filterNodeDsr( $child, $removeDataParsoid );
 			}
 		}
 	}

@@ -971,9 +971,13 @@ class TestRunner {
 							 '(?:(?!!!\s*end)[\s\S])*' .
 							 ')(' . preg_quote( $fail['expected'], '/' ) .
 							 ')/m';
+						$hadDataParsoid = str_contains( $fail['expected'], 'data-parsoid' );
 						$fail['noDsr'] = $fail['raw'];
 						if ( $updateFormat === 'noDsr' && $mode !== 'metadata' ) {
-							$fail['noDsr'] = TestUtils::filterDsr( $fail['noDsr'] );
+							$fail['noDsr'] = TestUtils::filterDsr(
+								$fail['noDsr'],
+								removeDataParsoid: !$hadDataParsoid
+							);
 						}
 						$fileContent = preg_replace_callback(
 							$exp,

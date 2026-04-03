@@ -210,7 +210,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			],
 			'update-format' => [
 				'description' => 'format with which to update tests; only useful in conjunction ' .
-					'with update-tests or update-unexpected. Values: raw, noDsr, actualNormalized.',
+					'with update-tests or update-unexpected. Values: raw, noDsr (default), actualNormalized.',
 				'default' => 'noDsr',
 			]
 		], [
