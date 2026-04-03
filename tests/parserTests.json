@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "931322868322ac7c01817190a845ad959561f4b9",
+		"latestCommit": "fbbc6663d7151754d88d1d501173ab36b2b69930",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -59,11 +59,11 @@
 			},
 			"langParserTests.txt": {
 				"path": "tests/parser/langParserTests.txt",
-				"expectedSHA1": "ca26045504114b2196f19eb7a2d8a630ca15ea72"
+				"expectedSHA1": "b1ce8f479dbe5189ac68bd66e5606a6d60b5671a"
 			},
 			"langParserTests2.txt": {
 				"path": "tests/parser/langParserTests2.txt",
-				"expectedSHA1": "ad1dc7aba92b884c149036b5df18a0ad28f71d0b"
+				"expectedSHA1": "c97d7e1ce6a9aeee352fae37bb5f8cdc1f60d9f4"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -71,7 +71,7 @@
 			},
 			"magicWords.txt": {
 				"path": "tests/parser/magicWords.txt",
-				"expectedSHA1": "5c3825d54ed4bed44410d988fa8e98f691e34e86"
+				"expectedSHA1": "a910ded03fb72c90d45684f4c75b642f28e1f9f9"
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
@@ -79,7 +79,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "ef80e1f4d7f1cba8d25f95c71e20b45de3513c7e"
+				"expectedSHA1": "8c7a8388ce1184d5223c82e781a1204b1d989292"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
