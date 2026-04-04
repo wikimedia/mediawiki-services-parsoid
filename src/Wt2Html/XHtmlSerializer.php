@@ -76,6 +76,11 @@ class XHtmlSerializer {
 				if ( $noSideEffects ) {
 					DOMDataUtils::dumpRichAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );
 				}
+				if ( $options['sortAttrs'] ) {
+					# sort on attribute name to reduce test case dependency on
+					# attribute order
+					ksort( $attrs );
+				}
 				foreach ( $attrs as $an => $av ) {
 					if ( $smartQuote
 						&& str_contains( $av, '"' )
@@ -243,6 +248,9 @@ class XHtmlSerializer {
 	 *   - noSideEffects (bool, default false): Copy the NodeData into JSON attributes. This is for
 	 *     debugging purposes only, the normal code path is to use DOMDataUtils::storeDataAttribs().
 	 *   - keepTmp (bool, default false): When saving data, include DataParsoid::$tmp.
+	 *   - sortAttrs (bool, default false): Sort all attributes when serializing.
+	 *      This helps ensure non-semantic differences in test cases don't
+	 *      cause spurious failures.
 	 * @return array An array with the following data:
 	 *   - html: the serialized HTML
 	 *   - offsets: the start and end position of each element in the HTML, in a
@@ -262,6 +270,7 @@ class XHtmlSerializer {
 			'noSideEffects' => false,
 			'keepTmp' => false,
 			'storeDiffMark' => false,
+			'sortAttrs' => false,
 		];
 		if ( $node instanceof Document ) {
 			$node = $node->documentElement;

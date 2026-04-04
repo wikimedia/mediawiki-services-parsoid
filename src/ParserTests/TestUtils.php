@@ -115,7 +115,11 @@ class TestUtils {
 			'/^mw:Placeholder$/' :
 			'/^mw:(?:DisplaySpace|Placeholder|Nowiki|Transclusion|Entity)$/';
 		$domBody = self::unwrapSpansAndNormalizeIEW( $domBody, $stripTypeof, $parsoidOnly, $preserveIEW );
-		$out = ContentUtils::toXML( $domBody, [ 'innerXML' => true ] );
+		$out = ContentUtils::toXML( $domBody, [
+			'innerXML' => true,
+			# don't treat attribute order as significant
+			'sortAttrs' => true,
+		] );
 		// NOTE that we use a slightly restricted regexp for "attribute"
 		//  which works for the output of DOM serialization.  For example,
 		//  we know that attribute values will be surrounded with double quotes,
@@ -389,7 +393,11 @@ class TestUtils {
 		try {
 			$body = self::unwrapSpansAndNormalizeIEW( DOMCompat::getBody( DOMUtils::parseHTML( $source ) ) );
 			self::normalizePhpOutput( $body );
-			$html = ContentUtils::toXML( $body, [ 'innerXML' => true ] );
+			$html = ContentUtils::toXML( $body, [
+				'innerXML' => true,
+				# don't treat attribute order as significant
+				'sortAttrs' => true,
+			] );
 
 			// a few things we ignore for now..
 			//  .replace(/\/wiki\/Main_Page/g, 'Main Page')
