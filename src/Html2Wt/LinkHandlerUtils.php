@@ -8,6 +8,7 @@ use UnexpectedValueException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -505,9 +506,10 @@ class LinkHandlerUtils {
 		$contentStr = self::getContentString( $node );
 
 		// First check if we can serialize as an URL link
+		$clean = static fn ( $s ) => Sanitizer::cleanUrl( $env->getSiteConfig(), $s, '' );
 		return ( $contentStr !== null && $contentStr !== '' ) &&
 			// Can we minimize this?
-			( $target['value'] === $contentStr || self::getHref( $env, $node ) === $contentStr ) &&
+			( $target['value'] === $clean( $contentStr ) || self::getHref( $env, $node ) === $clean( $contentStr ) ) &&
 			// protocol-relative url links not allowed in text
 			// (see autourl rule in peg tokenizer, T32269)
 			!str_starts_with( $contentStr, '//' ) && Utils::isProtocolValid( $contentStr, $env ) &&
