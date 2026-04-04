@@ -5,6 +5,9 @@
     "HRs: 1. Single line": {
         "html2wt": "--------\n----=foo=\n----*foo"
     },
+    "Links 18. Square brackets in URL fragments (T404823)": {
+        "html2wt": "[[Foo#%5Bon_hold%5D_stuff]]\n\n[[Foo#%5Bon_hold%5D_stuff]]\n\n[[Foo#a%7Cb]]\n\n[https://example.com/foo#&#x5B;on_hold&#x5D;_stuff <nowiki>Foo#[on_hold]_stuff</nowiki>]\n\n[https://example.com/foo#&#x5B;on_hold&#x5D;_stuff <nowiki>https://example.com/foo#[on_hold]_stuff</nowiki>]\n\n[[Foo#&amp;%2358;stuff|Foo#[on_hold]_stuff]]"
+    },
     "Lists: 4. No escapes needed": {
         "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
     },
