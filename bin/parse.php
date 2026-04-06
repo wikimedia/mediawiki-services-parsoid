@@ -146,7 +146,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->addOption(
 			'pageName',
 			'Backward-compatibility alias for --page if no input is given, ' .
-			'or --title if inout is provided on stdin.',
+			'or --title if input is provided on stdin.',
 			false,
 			true
 		);
