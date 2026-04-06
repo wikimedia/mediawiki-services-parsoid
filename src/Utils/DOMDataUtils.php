@@ -1327,13 +1327,17 @@ class DOMDataUtils {
 					$key = $a->key;
 					$value = $a->value;
 					if ( is_array( $key ) ) {
-						// Attribute expander may use array values for
-						// key, since it supports rich key values.
-						// Ignore any entries created this way, since
-						// we can't preserve their values: they will be
-						// added to $unused and replaced.
-						$unused[] = $a;
-						continue;
+						if ( count( $key ) === 1 && isset( $key['txt'] ) ) {
+							$key = $key['txt'];
+						} else {
+							// Attribute expander may use array values for
+							// key, since it supports rich key values.
+							// Ignore any entries created this way, since
+							// we can't preserve their values: they will be
+							// added to $unused and replaced.
+							$unused[] = $a;
+							continue;
+						}
 					}
 					$propName = self::RICH_ATTR_DATA_PREFIX . $key;
 					$hintName = self::RICH_ATTR_HINT_PREFIX . $key;
