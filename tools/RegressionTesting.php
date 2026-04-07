@@ -421,7 +421,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 				}
 			}
 		} while ( !$done );
-		echo( "\n" . "Processed $page pages. Found " . count( $titles ) . " titles to test.\n" );
+		if ( $page > 0 ) {
+			echo( "\n" );
+		}
+		echo( "Processed " . ( $page + 1 ) . " pages. Total titles to test: " . count( $titles ) . "\n" );
 	}
 
 	/** @inheritDoc */
@@ -440,8 +443,11 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$rtSelserUrl = preg_replace( "#regressions/between/.*/(.*)$#", "rtselsererrors/$1", $baseUrl );
 			$titles = [];
 
+			echo( "-- Looking for wt2wt regressions --\n" );
 			$this->updateSemanticErrorTitles( $baseUrl, $titles );
+			echo( "-- Looking for selser regressions --\n" );
 			$this->updateSemanticErrorTitles( $rtSelserUrl, $titles );
+			echo( "\n" );
 			$localTitlesPath = "/tmp/titles";
 			file_put_contents( $localTitlesPath, implode( "\n", $titles ) );
 		} elseif ( $this->hasOption( 'titles' ) ) {
