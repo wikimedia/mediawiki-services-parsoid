@@ -600,6 +600,10 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider providePiecesPerformance
 	 */
 	public function testPreprocPiecesPerformance( $prefix, $repeat, $suffix, $limit ) {
+		// This test causes the pcov extension to crash (T422865)
+		if ( extension_loaded( 'pcov' ) ) {
+			$this->markTestSkipped( 'https://github.com/krakjoe/pcov/issues/130' );
+		}
 		$iterations = 10000;
 		$input = $prefix . str_repeat( $repeat, 10000 ) . $suffix;
 		$env = new MockEnv( [] );
