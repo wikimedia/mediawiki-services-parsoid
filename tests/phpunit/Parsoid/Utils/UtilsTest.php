@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Utils;
 
+use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -167,4 +168,31 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
+	/**
+	 * @covers ::ensureValidUtf8
+	 */
+	public function testEnsureValidUtf8(): void {
+		$input = 'Valid UTF-8 text Příliš žluťoučký kůň úpěl ďábelské ódy.';
+		$expected = $input;
+
+		$logger = $this->createMock( LoggerInterface::class );
+		$logger->expects( $this->never() )
+			->method( 'warning' );
+
+		Utils::ensureValidUtf8( $input, $logger );
+
+		$this->assertSame( $expected, $input );
+
+		$input = "Invalid UTF-8: \xC3\x28 and something behind";
+		$logger = $this->createMock( LoggerInterface::class );
+		$logger->expects( $this->once() )
+			->method( 'warning' );
+
+		Utils::ensureValidUtf8( $input, $logger );
+
+		$this->assertTrue( mb_check_encoding( $input, 'UTF-8' ) );
+		$this->assertStringContainsString( 'Invalid UTF-8: ', $input );
+		$this->assertStringContainsString( ' and something behind', $input );
+		$this->assertNotSame( "Invalid UTF-8: \xC3\x28 and something behind", $input );
+	}
 }

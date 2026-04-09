@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Psr\Log\LoggerInterface;
+use UtfNormal\Validator;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Env;
@@ -638,5 +639,23 @@ class Utils {
 	 */
 	public static function isBcp47CodeEqual( Bcp47Code $a, Bcp47Code $b ): bool {
 		return strcasecmp( $a->toBcp47Code(), $b->toBcp47Code() ) === 0;
+	}
+
+	/**
+	 * Validates string for utf encoding. If check fails, string is being fixed and warning is being thrown,
+	 * if logger was provided
+	 *
+	 * @param string &$input reference to input, input is being fixed in case of invalid character.
+	 * @param LoggerInterface|null $warnLogger if provided, log is being generated
+	 */
+	public static function ensureValidUtf8( string &$input, ?LoggerInterface $warnLogger = null ): void {
+		// this is faster than Validator::cleanUp
+		if ( mb_check_encoding( $input, 'UTF-8' ) ) {
+			return;
+		}
+
+		$warnLogger?->warning( "Malformed utf-8 characters detected. Replacing." );
+
+		$input = Validator::cleanUp( $input );
 	}
 }
