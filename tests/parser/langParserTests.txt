@@ -1782,6 +1782,20 @@ x<langconvert from="crh-latn" to="crh-cyrl"/>x
 !! end
 
 !! test
+Langconvert tag: ensure output is not double-converted
+!! options
+language=zh htmlVariantLanguage=zh-hans
+!! wikitext
+氣
+
+<langconvert from="zh-hans" to="zh-hant">气</langconvert>
+!! html/php
+<p>气
+</p><p>氣
+</p>
+!! end
+
+!! test
 T302678: Serialize empty twoway
 !! options
 language=zh

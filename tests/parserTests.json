@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "fbbc6663d7151754d88d1d501173ab36b2b69930",
+		"latestCommit": "1eeccc2d758e5c7e829fe6380954de5e9343f14f",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -31,15 +31,15 @@
 			},
 			"definitionLists.txt": {
 				"path": "tests/parser/definitionLists.txt",
-				"expectedSHA1": "3b246ed12f3ef4aa85c43a433a6adcc34a0ca484"
+				"expectedSHA1": "d6e8488b644139a8d56e755db65561fbb4e9214c"
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
-				"expectedSHA1": "af5db8dc8a611ed7e2816c6028844204fe22ab34"
+				"expectedSHA1": "44f7bc4f12275ddf1b3a4a650c75c8420123ad30"
 			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
-				"expectedSHA1": "90c95bf5baf4a7a5e90c6c5d1b7f5dba60d14036"
+				"expectedSHA1": "86f9f13966bf7a5f42f7b72abb8f195d132c0e9b"
 			},
 			"indentPre.txt": {
 				"path": "tests/parser/indentPre.txt",
@@ -55,11 +55,11 @@
 			},
 			"interwikiLinks.txt": {
 				"path": "tests/parser/interwikiLinks.txt",
-				"expectedSHA1": "75b7f8a9d8c54763a81035ca6ed64e3045edde9b"
+				"expectedSHA1": "93de962028b0d1df132f90831c92adfb13ae71dd"
 			},
 			"langParserTests.txt": {
 				"path": "tests/parser/langParserTests.txt",
-				"expectedSHA1": "b1ce8f479dbe5189ac68bd66e5606a6d60b5671a"
+				"expectedSHA1": "41aca051c33817643f7cd5d041fa99d413687f43"
 			},
 			"langParserTests2.txt": {
 				"path": "tests/parser/langParserTests2.txt",
@@ -67,7 +67,7 @@
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
-				"expectedSHA1": "bd6de752c40a784d5e5d2ed11dba3076827d98e9"
+				"expectedSHA1": "29bae4647f1762d443903c2245743dd6927398ce"
 			},
 			"magicWords.txt": {
 				"path": "tests/parser/magicWords.txt",
@@ -75,15 +75,15 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "6bdc2880e78415428615d05285698c0fe70d64d2"
+				"expectedSHA1": "7c4a048cd53b273026897bce3cf77b66d3968855"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "8c7a8388ce1184d5223c82e781a1204b1d989292"
+				"expectedSHA1": "88e5b894e87666a645280f39f4c228e50ec0af8f"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
-				"expectedSHA1": "d1f78f176114e3d8574d28072d7580e7b4a13aa3"
+				"expectedSHA1": "25a0c324d31451cc546651d0659883172f6cf4c5"
 			},
 			"pst.txt": {
 				"path": "tests/parser/pst.txt",
@@ -95,7 +95,7 @@
 			},
 			"preprocessor.txt": {
 				"path": "tests/parser/preprocessor.txt",
-				"expectedSHA1": "0eb74bc597b26d48b91082f3569d01e9e55845cd"
+				"expectedSHA1": "f4c03c85555667fd97f73cd48e560d67b6333b8d"
 			},
 			"quotes.txt": {
 				"path": "tests/parser/quotes.txt",
@@ -107,7 +107,7 @@
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
-				"expectedSHA1": "81538380a105bcfd9a3495c08fb272203e88e7b3"
+				"expectedSHA1": "c441d650d9309f49a631869c52ba85b9e6fab62b"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
