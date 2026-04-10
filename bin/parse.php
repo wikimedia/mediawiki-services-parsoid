@@ -911,7 +911,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$this->output( $this->maybeNormalize( $html ) );
 		} else {
 			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {
-				return $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				return $this->maybeNormalize( $html );
 			} );
 		}
 	}
