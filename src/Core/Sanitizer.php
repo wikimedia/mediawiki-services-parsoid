@@ -355,7 +355,8 @@ class Sanitizer {
 		# only if it isn't followed by a word character.
 		'/ (?=[?:;!%»›](?!\w))/u' => "%s",
 		# French spaces, Guillemet-right
-		'/([«‹]) /u' => "\\1%s",
+		# only if it isn't preceded by a word character.
+		'/(?<!\w)([«‹]) /u' => "\\1%s",
 	];
 
 	/**

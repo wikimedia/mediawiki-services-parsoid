@@ -1151,6 +1151,19 @@ French spacing and spans
 «<span typeof="mw:DisplaySpace"> </span>Test<span typeof="mw:DisplaySpace"> </span>»<span data-parsoid='{"stx":"html"}'>123</span></p>
 !! end
 
+# Parsoid differs from core here, but this is expected to be resolved
+# by a core-side patch.
+!! test
+T378404: Don't armor inward-pointing French quotes
+!! wikitext
+French: These « quotes » should be protected.
+
+Croatian: These »quotes« shouldn't be armored.
+!! html/parsoid
+<p>French: These «<span typeof="mw:DisplaySpace"> </span>quotes<span typeof="mw:DisplaySpace"> </span>» should be protected.</p>
+<p>Croatian: These »quotes« shouldn't be armored.</p>
+!! end
+
 !! test
 post-expand include size being exceeded
 !! options
