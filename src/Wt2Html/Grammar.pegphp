@@ -1400,7 +1400,7 @@ lang_variant_nowiki =
 	}
 
 lang_variant_text =
-	tokens:(inlineline / "|" )*
+	tokens:(nested_block / "|" / newlineToken)*
 	{
 		return [
 			'tokens' => TokenizerUtils::flattenStringlist( $tokens ),

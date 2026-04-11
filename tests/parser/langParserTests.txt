@@ -1909,3 +1909,116 @@ language=zh htmlVariantLanguage=zh-tw
 !! html/parsoid+langconv
 <p><a rel="mw:WikiLink" href="./This_is_a_red_link?action=edit&amp;redlink=1" title="This is a red link" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["This is a red link"]}}'>This is a red link</a></p>
 !! end
+
+!! test
+Language converter markup can contain tables (T422966)
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html
+!! wikitext
+-{zh-tw;|
+{|
+| col1
+| col2
+|-
+| foo || bar
+|}
+}-
+!! html/php
+<p class="mw-empty-elt">
+</p>
+<table>
+<tbody><tr>
+<td>col1
+</td>
+<td>col2
+</td></tr>
+<tr>
+<td>foo</td>
+<td>bar
+</td></tr></tbody></table>
+<p class="mw-empty-elt">
+</p>
+!! html/parsoid
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"\n&lt;table>\n&lt;tbody>&lt;tr>&lt;td>col1&lt;/td>\n&lt;td>col2&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>foo&lt;/td>&lt;td>bar&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\n"}}' typeof="mw:LanguageVariant"></div>
+!! html/parsoid+langconv
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"\n&lt;table>\n&lt;tbody>&lt;tr>&lt;td>col1&lt;/td>\n&lt;td>col2&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>foo&lt;/td>&lt;td>bar&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\n"}}' typeof="mw:LanguageVariant">
+<table>
+<tbody>
+<tr>
+<td>col1</td>
+<td>col2</td>
+</tr>
+<tr>
+<td>foo</td>
+<td>bar</td>
+</tr>
+</tbody>
+</table>
+</div>
+!! end
+
+!! test
+Language converter markup can contain tables containing tables (T422966)
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html
+!! wikitext
+-{zh-tw;|before table
+{| border=1
+| &alpha;
+|
+{| bgcolor=#ABCDEF border=2
+|nested
+|-
+|table
+|}
+|the original table again
+|}
+after table}-
+!! html/php
+<p>before table
+</p>
+<table border="1">
+<tbody><tr>
+<td>&#945;
+</td>
+<td>
+<table bgcolor="#ABCDEF" border="2">
+<tbody><tr>
+<td>nested
+</td></tr>
+<tr>
+<td>table
+</td></tr></tbody></table>
+</td>
+<td>the original table again
+</td></tr></tbody></table>
+<p>after table
+</p>
+!! html/parsoid
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"before table\n&lt;table border=\"1\">\n&lt;tbody>&lt;tr>&lt;td>&lt;span typeof=\"mw:Entity\">α&lt;/span>&lt;/td>\n&lt;td>\n&lt;table bgcolor=\"#ABCDEF\" border=\"2\">\n&lt;tbody>&lt;tr>&lt;td>nested&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>&lt;/td>\n&lt;td>the original table again&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\nafter table"}}' typeof="mw:LanguageVariant"></div>
+!! html/parsoid+langconv
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"before table\n&lt;table border=\"1\">\n&lt;tbody>&lt;tr>&lt;td>&lt;span typeof=\"mw:Entity\">α&lt;/span>&lt;/td>\n&lt;td>\n&lt;table bgcolor=\"#ABCDEF\" border=\"2\">\n&lt;tbody>&lt;tr>&lt;td>nested&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>&lt;/td>\n&lt;td>the original table again&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\nafter table"}}' typeof="mw:LanguageVariant">before table
+<table border="1">
+<tbody>
+<tr>
+<td><span typeof="mw:Entity">α</span></td>
+<td>
+<table bgcolor="#ABCDEF" border="2">
+<tbody>
+<tr>
+<td>nested</td>
+</tr>
+<tr>
+<td>table</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>the original table again</td>
+</tr>
+</tbody>
+</table>
+after table</div>
+!! end
