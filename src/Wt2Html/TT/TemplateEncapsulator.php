@@ -39,7 +39,9 @@ class TemplateEncapsulator {
 	public XMLTagTk $token;
 	public ?string $variableName = null;
 	public ?string $parserFunctionName = null;
-	public ?string $resolvedTemplateTarget = null;
+	public ?string $templateTarget = null;
+	public ?string $resolvedTemplateTitle = null;
+	public ?int $resolvedTemplateRevision = null;
 	// Should we use the "legacy" parser function format?
 	public bool $isOldParserFunction = true;
 
@@ -133,8 +135,10 @@ class TemplateEncapsulator {
 			$ret->func = $this->parserFunctionName;
 			$ret->type = $this->isOldParserFunction ?
 				'old-parserfunction' : 'parserfunction';
-		} elseif ( $this->resolvedTemplateTarget !== null ) {
-			$ret->href = $this->resolvedTemplateTarget;
+		} elseif ( $this->templateTarget !== null ) {
+			$ret->href = $this->templateTarget;
+			$ret->resolvedTitle = $this->resolvedTemplateTitle;
+			$ret->resolvedRevId = $this->resolvedTemplateRevision;
 		}
 
 		// If this was tokenized as a 'template3' the ParamInfos are

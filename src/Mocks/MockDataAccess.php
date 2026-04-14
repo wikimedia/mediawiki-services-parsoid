@@ -644,7 +644,8 @@ class MockDataAccess extends DataAccess {
 			foreach ( $pageData['slots'] as $role => $data ) {
 				$content['role'] = $data['*'];
 			}
-			return new MockPageContent( $content, $title );
+			$revid = $pageData['revid'];
+			return new MockPageContent( $content, $title, $revid );
 		} else {
 			return null;
 		}

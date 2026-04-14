@@ -410,7 +410,7 @@ class DataAccess extends IDataAccess {
 			$params = [
 				'action' => 'query',
 				'prop' => 'revisions',
-				'rvprop' => 'content',
+				'rvprop' => 'content|ids',
 				'rvslots' => '*',
 				'titles' => $title,
 				'rvlimit' => 1,
@@ -425,6 +425,7 @@ class DataAccess extends IDataAccess {
 			} else {
 				$ret = [
 					'data' => $pageData['revisions'][0]['slots'],
+					'revid' => $pageData['revisions'][0]['revid'],
 					'title' => Title::newFromText(
 						$pageData['title'], $this->siteConfig
 					),
@@ -432,7 +433,7 @@ class DataAccess extends IDataAccess {
 				$this->setCache( $key, $ret );
 			}
 		}
-		return new MockPageContent( $ret['data'], $ret['title'] );
+		return new MockPageContent( $ret['data'], $ret['title'], $ret['revid'] );
 	}
 
 	/** @inheritDoc */

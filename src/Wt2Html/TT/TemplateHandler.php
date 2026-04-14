@@ -476,7 +476,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		}
 
 		// data-mw.target.href should be a url
-		$state->resolvedTemplateTarget = $env->makeLink( $title );
+		$state->templateTarget = $env->makeLink( $title );
 
 		return [
 			'magicWordType' => null,
@@ -610,6 +610,12 @@ class TemplateHandler extends XMLTagBasedHandler {
 		// Fetch template source and expand it
 		$pageContent = $this->fetchTemplateAndTitle( $target, $attribs );
 		if ( $pageContent !== null ) {
+			$state->resolvedTemplateTitle = $env->makeLink(
+				Title::newFromLinkTarget(
+					$pageContent->getLinkTarget(), $env->getSiteConfig()
+				)
+			);
+			$state->resolvedTemplateRevision = $pageContent->getRevisionId();
 			$toks = $this->processTemplateSource(
 				$this->manager->getFrame(),
 				$state->token,
@@ -744,7 +750,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 		$title = Title::newFromText( $templateName, $env->getSiteConfig() );
 		if ( isset( $env->pageCache[$templateName] ) ) {
 			return new MockPageContent(
-				[ 'main' => $env->pageCache[$templateName] ], $title
+				[ 'main' => $env->pageCache[$templateName] ],
+				$title,
+				1234
 			);
 		}
 

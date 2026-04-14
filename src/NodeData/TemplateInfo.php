@@ -29,6 +29,16 @@ class TemplateInfo implements JsonCodecable {
 	public ?string $href = null;
 
 	/**
+	 * The resolved title of the target
+	 */
+	public ?string $resolvedTitle = null;
+
+	/**
+	 * The resolved revision ID of the target
+	 */
+	public ?int $resolvedRevId = null;
+
+	/**
 	 * Template arguments as an ordered list
 	 * @var list<ParamInfo>
 	 */

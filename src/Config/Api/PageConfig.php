@@ -210,7 +210,7 @@ class PageConfig extends IPageConfig {
 	public function getRevisionContent(): ?PageContent {
 		$this->loadData();
 		if ( $this->rev && !$this->content ) {
-			$this->content = new MockPageContent( $this->rev['slots'], $this->getLinkTarget() );
+			$this->content = new MockPageContent( $this->rev['slots'], $this->getLinkTarget(), $this->getRevisionId() );
 		}
 		return $this->content;
 	}

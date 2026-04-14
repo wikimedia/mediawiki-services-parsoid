@@ -16,6 +16,11 @@ abstract class PageContent {
 	abstract public function getLinkTarget(): LinkTarget;
 
 	/**
+	 * Return the revision ID of this page, or null if it is unknown.
+	 */
+	abstract public function getRevisionId(): ?int;
+
+	/**
 	 * Return the roles available in this page
 	 * @return string[]
 	 */
