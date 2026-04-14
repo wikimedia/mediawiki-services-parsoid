@@ -259,6 +259,13 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( [ 24, 36, 4, 5 ], $result[0]['dsr'], $desc );
+
+		$desc = 'should lint obsolete tag from parser function argument';
+		$result = $this->wtToLint( "{{#tag:div|<tt>foo</tt>bar}}" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 28, null, null ], $result[0]['dsr'], $desc );
+		$this->assertTrue( $result[0]['templateInfo']['parserFunction'] ?? false, $desc );
 	}
 
 	/**

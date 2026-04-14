@@ -603,12 +603,13 @@ class MockDataAccess extends DataAccess {
 		}
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
 		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match1 );
-		preg_match( '/{{#tag:ref\|(.*?)\|(.*?)}}/s', $expanded, $match2 );
+		preg_match( '/{{#tag:(.*?)\|(.*?)(?:\|(.*?))?}}/s', $expanded, $match2 );
 
 		if ( $match1 ) {
 			$ret = $match1[1];
 		} elseif ( $match2 ) {
-			$ret = "<ref {$match2[2]}>{$match2[1]}</ref>";
+			$attrs = isset( $match2[3] ) ? ' ' . $match2[3] : '';
+			$ret = "<{$match2[1]}{$attrs}>{$match2[2]}</{$match2[1]}>";
 		} elseif ( $wikitext === '{{colours of the rainbow}}' ) {
 			$ret = 'purple';
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {

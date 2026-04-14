@@ -178,13 +178,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * for every lint we find within this template's content. It could probably
 	 * be cached in tplInfo after it is computed once.
 	 *
-	 * @return ?array{multiPartTemplateBlock?: true, name?: string}
+	 * @return ?array{multiPartTemplateBlock?: true, parserFunction?: true, name?: string}
 	 */
 	public static function findEnclosingTemplateName( Env $env, ?stdClass $tplInfo ): ?array {
 		if ( !$tplInfo ) {
 			return null;
 		}
-
 		if ( !DOMUtils::hasTypeOf( $tplInfo->first, 'mw:Transclusion' ) ) {
 			return null;
 		}
@@ -195,27 +194,26 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// a non-string representation for them and a change in spec along with
 		// a version bump and all that song and dance. If linting accuracy in these
 		// scenarios become a problem, we can revisit this.
-		if (
-			!empty( $dmw->parts ) &&
-			count( $dmw->parts ) === 1
-		) {
-			$p0 = $dmw->parts[0];
-			if ( !( $p0 instanceof TemplateInfo ) ) {
-				throw new UnreachableException(
-					"a single part will always be a TemplateInfo not a string"
-				);
-			}
-			if ( $p0->href !== null ) { // Could be "function"
-				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = PHPUtils::stripPrefix( $p0->href, './' );
-			} else {
-				// type === 'templatearg' or 'template'
-				$name = trim( $p0->targetWt );
-			}
-			return [ 'name' => $name ];
-		} else {
+		if ( empty( $dmw->parts ) || count( $dmw->parts ) !== 1 ) {
 			return [ 'multiPartTemplateBlock' => true ];
 		}
+		$p0 = $dmw->parts[0];
+		if ( !( $p0 instanceof TemplateInfo ) ) {
+			throw new UnreachableException(
+				"a single part will always be a TemplateInfo not a string"
+			);
+		}
+		if ( $p0->func !== null ) {
+			return [ 'parserFunction' => true ];
+		}
+		if ( $p0->href !== null ) {
+			// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
+			$name = PHPUtils::stripPrefix( $p0->href, './' );
+		} else {
+			// type === 'templatearg' or 'template'
+			$name = trim( $p0->targetWt );
+		}
+		return [ 'name' => $name ];
 	}
 
 	/**
