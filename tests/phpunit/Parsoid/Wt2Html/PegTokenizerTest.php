@@ -421,12 +421,13 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider providePiecesPerformance
 	 */
 	public function testPreprocPiecesPerformance( $prefix, $repeat, $suffix, $limit ) {
-		// This test causes the pcov extension to crash (T422865)
+		// This test could exhaust the C stack if pcov is enabled and the
+		// stack is configured with an unusually low limit. (T422865)
 		if ( extension_loaded( 'pcov' ) ) {
-			$this->markTestSkipped( 'https://github.com/krakjoe/pcov/issues/130' );
+			$this->markTestSkipped( 'test uses recursion -- T422865' );
 		}
-		$iterations = 10000;
-		$input = $prefix . str_repeat( $repeat, 10000 ) . $suffix;
+		$iterations = 1000;
+		$input = $prefix . str_repeat( $repeat, 1000 ) . $suffix;
 		$env = new MockEnv( [] );
 		$options = [
 			// Use custom tracer to count parse steps
