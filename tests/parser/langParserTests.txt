@@ -2022,3 +2022,78 @@ after table}-
 </table>
 after table</div>
 !! end
+
+!! test
+Tables can contain language converter markup that can contain tables (T422966)
+!! options
+language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html
+!! wikitext
+{| border=1
+| &alpha;
+|
+-{zh-tw;|before table
+{| bgcolor=#ABCDEF border=2
+|nested
+|-
+|table
+|}
+after table}-
+|the original table again
+|}
+!! html/php
+<table border="1">
+<tbody><tr>
+<td>&#945;
+</td>
+<td>
+<p>before table
+</p>
+<table bgcolor="#ABCDEF" border="2">
+<tbody><tr>
+<td>nested
+</td></tr>
+<tr>
+<td>table
+</td></tr></tbody></table>
+<p>after table
+</p>
+</td>
+<td>the original table again
+</td></tr></tbody></table>
+!! html/parsoid
+<table border="1">
+<tbody>
+<tr>
+<td><span typeof="mw:Entity">α</span></td>
+<td>
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"before table\n&lt;table bgcolor=\"#ABCDEF\" border=\"2\">\n&lt;tbody>&lt;tr>&lt;td>nested&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\nafter table"}}' typeof="mw:LanguageVariant"></div>
+</td>
+<td>the original table again</td>
+</tr>
+</tbody>
+</table>
+!! html/parsoid+langconv
+<table border="1">
+<tbody>
+<tr>
+<td><span typeof="mw:Entity">α</span></td>
+<td>
+<div data-mw-variant='{"filter":{"l":["zh-tw"],"t":"before table\n&lt;table bgcolor=\"#ABCDEF\" border=\"2\">\n&lt;tbody>&lt;tr>&lt;td>nested&lt;/td>&lt;/tr>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>\n&lt;/tbody>&lt;/table>\nafter table"}}' typeof="mw:LanguageVariant">before table
+<table bgcolor="#ABCDEF" border="2">
+<tbody>
+<tr>
+<td>nested</td>
+</tr>
+<tr>
+<td>table</td>
+</tr>
+</tbody>
+</table>
+after table</div>
+</td>
+<td>the original table again</td>
+</tr>
+</tbody>
+</table>
+!! end
