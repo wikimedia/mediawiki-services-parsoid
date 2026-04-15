@@ -2,6 +2,12 @@
     "-{}- tags within headlines (within html for parserConvert())": {
         "html2wt": "== -{Naslov}- ==\n\nNote that even an unprotected headline ID is not affected by language\nconversion:\n\n== Latinski ==\n"
     },
+    "Language converter markup can contain lists (T422966)": {
+        "wt2wt": "-{#foo\n#bar}-",
+        "html2html": "<div typeof=\"mw:LanguageVariant\" data-parsoid='{\"fl\":[],\"src\":\"-{# foo\\n# bar}-\",\"dsr\":[0,15,2,2]}' data-mw-variant='{\"disabled\":{\"t\":\"# foo\\n&lt;ol data-parsoid=&apos;{\\\"dsr\\\":[8,13,0,0]}&apos;>&lt;li data-parsoid=&apos;{\\\"dsr\\\":[8,13,1,0,1,0]}&apos;>bar&lt;/li>&lt;/ol>\"}}'></div>",
+        "html2wt": "-{# foo\n# bar}-",
+        "selser [2]": "1ahqlin-{\n#foo\n#bar\n}-"
+    },
     "T153140: Don't break table handling if language converter markup is in the cell.": {
         "wt2wt": "{|\n|-\n|<nowiki/>-{R|B}-\n|}",
         "selser [2]": "a5ione\n{|\n|-\n| -{R|B}-\n|}",

@@ -2027,13 +2027,13 @@ after table</div>
 Tables can contain language converter markup that can contain tables (T422966)
 !! options
 language=zh htmlVariantLanguage=zh-tw
-parsoid=wt2html
+parsoid=wt2html,wt2wt
 !! wikitext
-{| border=1
-| &alpha;
+{| border="1"
+|&alpha;
 |
 -{zh-tw;|before table
-{| bgcolor=#ABCDEF border=2
+{| bgcolor="#ABCDEF" border="2"
 |nested
 |-
 |table
@@ -2096,4 +2096,31 @@ after table</div>
 </tr>
 </tbody>
 </table>
+!! end
+
+!! test
+Language converter markup can contain lists (T422966)
+!! options
+language=zh htmlVariantLanguage=zh-tw
+!! wikitext
+-{
+#foo
+#bar
+}-
+!! html/php
+<p class="mw-empty-elt">
+</p>
+<ol><li>foo</li>
+<li>bar</li></ol>
+<p class="mw-empty-elt">
+</p>
+!! html/parsoid
+<div data-mw-variant='{"disabled":{"t":"\n&lt;ol>&lt;li>foo&lt;/li>\n&lt;li>bar&lt;/li>&lt;/ol>\n"}}' typeof="mw:LanguageVariant"></div>
+!! html/parsoid+langconv
+<div data-mw-variant='{"disabled":{"t":"\n&lt;ol>&lt;li>foo&lt;/li>\n&lt;li>bar&lt;/li>&lt;/ol>\n"}}' typeof="mw:LanguageVariant">
+<ol>
+<li>foo</li>
+<li>bar</li>
+</ol>
+</div>
 !! end
