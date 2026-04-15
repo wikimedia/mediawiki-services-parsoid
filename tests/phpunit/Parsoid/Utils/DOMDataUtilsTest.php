@@ -538,6 +538,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$doc = ContentUtils::createAndLoadDocument(
 			"<p>Hello, world</p>", [ 'serializeNewEmptyDp' => true ]
 		);
+
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$p_dp = DOMDataUtils::getDataParsoid( $p );
 		$p_dp->src = "test1";
@@ -575,6 +576,259 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $doc2, $dff2->ownerDocument );
 		$this->assertNotSame( $dff, $dff2 );
 		$this->assertSame( '<i>nice!</i>', DOMUtils::getFragmentInnerHTML( $dff2 ) );
+	}
+
+	/**
+	 * @covers ::cloneDocument
+	 */
+	public function testCloneInlineAttrsDocument() {
+		// Create a document with some data-parsoid and rich attributes
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p><span typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
+			[ 'serializeNewEmptyDp' => true ]
+		);
+
+		// Clone the document before loading anything from $doc.
+		// This lets us test that cloning works under lazy-loading scenarios.
+		$doc2 = DOMDataUtils::cloneDocument( $doc );
+
+		$p = DOMCompat::getBody( $doc )->firstChild;
+		$span = $p->firstChild;
+		$p_dp = DOMDataUtils::getDataParsoid( $p );
+		$span_dp = DOMDataUtils::getDataParsoid( $span );
+		$dmv = DOMDataUtils::getDataMwVariant( $span );
+		$f1 = $dmv->disabled;
+		$f1_dp = DOMDataUtils::getDataParsoid( $f1->firstChild );
+
+		$p2 = DOMCompat::getBody( $doc2 )->firstChild;
+		$this->assertNotSame( $p, $p2 );
+		$span2 = $p2->firstChild;
+		$p2_dp = DOMDataUtils::getDataParsoid( $p2 );
+		$span2_dp = DOMDataUtils::getDataParsoid( $span2 );
+		$dmv2 = DOMDataUtils::getDataMwVariant( $span2 );
+		$f2 = $dmv2->disabled;
+		$f2_dp = DOMDataUtils::getDataParsoid( $f2->firstChild );
+
+		// Verify cloning at nested levels
+		$this->assertNotSame( $p_dp, $p2_dp );
+		$this->assertNotSame( $span_dp, $span2_dp );
+		$this->assertNotSame( $dmv, $dmv2 );
+		$this->assertNotSame( $f1_dp, $f2_dp );
+
+		// Since we are cloning documents, the data bags are also cloned
+		// and hence ids & data objects associated with the bags can be equal.
+		$p1_html = ContentUtils::toXML( $p );
+		$p2_html = ContentUtils::toXML( $p2 );
+		$this->assertSame( $p1_html, $p2_html );
+	}
+
+	/**
+	 * @covers ::cloneDocumentFragment
+	 */
+	public function testCloneInlineAttrsDocumentFragment() {
+		// Create a document with some data-parsoid and rich attributes
+		$doc = ContentUtils::createAndLoadDocument( '' );
+		$frag = ContentUtils::createAndLoadDocumentFragment(
+			$doc,
+			'<p><span typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>'
+		);
+
+		// Clone the document fragment before loading anything from $doc.
+		// This lets us test that cloning works under lazy-loading scenarios.
+		$frag2 = DOMDataUtils::cloneDocumentFragment( $frag );
+
+		$p = $frag->firstChild;
+		$span = $p->firstChild;
+		$p_dp = DOMDataUtils::getDataParsoid( $p );
+		$span_dp = DOMDataUtils::getDataParsoid( $span );
+		$dmv = DOMDataUtils::getDataMwVariant( $span );
+		$f1 = $dmv->disabled;
+		$f1_dp = DOMDataUtils::getDataParsoid( $f1->firstChild );
+
+		$p2 = $frag2->firstChild;
+		$span2 = $p2->firstChild;
+		$p2_dp = DOMDataUtils::getDataParsoid( $p2 );
+		$span2_dp = DOMDataUtils::getDataParsoid( $span2 );
+		$dmv2 = DOMDataUtils::getDataMwVariant( $span2 );
+		$f2 = $dmv2->disabled;
+		$f2_dp = DOMDataUtils::getDataParsoid( $f2->firstChild );
+
+		// Verify cloning at nested levels
+		$this->assertNotSame( $p_dp, $p2_dp );
+		$this->assertNotSame( $span_dp, $span2_dp );
+		$this->assertNotSame( $dmv, $dmv2 );
+		$this->assertNotSame( $f1_dp, $f2_dp );
+
+		// Since we are cloning document fragments, the data bags are identical
+		// and hence the associated ids should not be identical.
+		$p1_html = ContentUtils::toXML( $p );
+		$p2_html = ContentUtils::toXML( $p2 );
+		$this->assertNotSame( $p1_html, $p2_html );
+	}
+
+	/**
+	 * @covers ::cloneDocument
+	 */
+	public function testClonePageBundleAttrsDocument() {
+		// Create a document with some data-parsoid and rich attributes
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument(
+			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
+			[ 'loadFromPageBundle' => $inPb ]
+		);
+
+		// Clone the document before loading anything from $doc.
+		// This lets us test that cloning works under lazy-loading scenarios.
+		$doc2 = DOMDataUtils::cloneDocument( $doc );
+
+		$p = DOMCompat::getBody( $doc )->firstChild;
+		$span = $p->firstChild;
+		$p_dp = DOMDataUtils::getDataParsoid( $p );
+		$span_dp = DOMDataUtils::getDataParsoid( $span );
+		$dmv = DOMDataUtils::getDataMwVariant( $span );
+		$f1 = $dmv->disabled;
+		$f1_dp = DOMDataUtils::getDataParsoid( $f1->firstChild );
+
+		$p2 = DOMCompat::getBody( $doc2 )->firstChild;
+		$span2 = $p2->firstChild;
+		$p2_dp = DOMDataUtils::getDataParsoid( $p2 );
+		$span2_dp = DOMDataUtils::getDataParsoid( $span2 );
+		$dmv2 = DOMDataUtils::getDataMwVariant( $span2 );
+		$f2 = $dmv2->disabled;
+		$f2_dp = DOMDataUtils::getDataParsoid( $f2->firstChild );
+
+		// Verify cloning at nested levels
+		$this->assertNotSame( $p_dp, $p2_dp );
+		$this->assertNotSame( $span_dp, $span2_dp );
+		$this->assertNotSame( $dmv, $dmv2 );
+		$this->assertNotSame( $f1_dp, $f2_dp );
+
+		// Since we are cloning documents, the data bags are also cloned
+		// and hence ids & data objects associated with the bags are identical.
+		$p1_html = ContentUtils::toXML( $p );
+		$p2_html = ContentUtils::toXML( $p2 );
+		$this->assertSame( $p1_html, $p2_html );
+
+		// Dump the two docs to two different pagebundles
+		// They should be equal (but won't be the same object).
+		$outPb = DomPageBundle::newEmpty( $doc );
+		DOMDataUtils::storeAndUnprepareDoc( $doc, [
+			'storeInPageBundle' => $outPb,
+			'idIndex' => array_fill_keys( array_keys( $inPb->parsoid['ids'] ), true ),
+			'fragments' => []
+		] );
+
+		$outPb2 = DomPageBundle::newEmpty( $doc2 );
+		DOMDataUtils::storeAndUnprepareDoc( $doc2, [
+			'storeInPageBundle' => $outPb2,
+			'idIndex' => array_fill_keys( array_keys( $inPb->parsoid['ids'] ), true ),
+			'fragments' => []
+		] );
+
+		$this->assertEquals( $outPb->toJsonArray(), $outPb2->toJsonArray() );
+	}
+
+	/**
+	 * @covers ::cloneDocumentFragment
+	 */
+	public function testClonePageBundleAttrsDocumentFragment() {
+		// Create a document with some data-parsoid and rich attributes
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument( '', [ 'loadFromPageBundle' => $inPb ] );
+		$frag = ContentUtils::createAndLoadDocumentFragment(
+			$doc,
+			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
+		);
+
+		// Clone the document before loading anything from $doc.
+		// This lets us test that cloning works under lazy-loading scenarios.
+		$frag2 = DOMDataUtils::cloneDocumentFragment( $frag );
+
+		$p = $frag->firstChild;
+		$span = $p->firstChild;
+		$p_dp = DOMDataUtils::getDataParsoid( $p );
+		$span_dp = DOMDataUtils::getDataParsoid( $span );
+		$dmv = DOMDataUtils::getDataMwVariant( $span );
+		$f1 = $dmv->disabled;
+		$f1_dp = DOMDataUtils::getDataParsoid( $f1->firstChild );
+
+		$p2 = $frag2->firstChild;
+		$span2 = $p2->firstChild;
+		$p2_dp = DOMDataUtils::getDataParsoid( $p2 );
+		$span2_dp = DOMDataUtils::getDataParsoid( $span2 );
+		$dmv2 = DOMDataUtils::getDataMwVariant( $span2 );
+		$f2 = $dmv2->disabled;
+		$f2_dp = DOMDataUtils::getDataParsoid( $f2->firstChild );
+
+		// Verify cloning at nested levels
+		$this->assertNotSame( $p_dp, $p2_dp );
+		$this->assertNotSame( $span_dp, $span2_dp );
+		$this->assertNotSame( $dmv, $dmv2 );
+		$this->assertNotSame( $f1_dp, $f2_dp );
+
+		// Since we are cloning document fragments, the data bags are identical
+		// and hence the associated data-object-ids should not be identical.
+		$p1_html = ContentUtils::toXML( $p );
+		$p2_html = ContentUtils::toXML( $p2 );
+		$this->assertNotSame( $p1_html, $p2_html );
+
+		// Dump the doc & fragments to an output pagebundle
+		// We should see the ids deduplicated in the fragments
+		$outPb = DomPageBundle::newEmpty( $doc );
+		DOMDataUtils::storeAndUnprepareDoc( $doc, [
+			'storeInPageBundle' => $outPb,
+			'idIndex' => array_fill_keys( array_keys( $inPb->parsoid['ids'] ), true ),
+			'fragments' => [ $frag, $frag2 ]
+		] );
+
+		$this->assertCount( 6, $outPb->parsoid['ids'] );
+		// This might feel strange, but that is because 'mwAA', 'mwAB', 'mwAC' come
+		// after 'mwAQ', 'mwAg', 'mwAw' -- the newly assigned ids
+		$this->assertSame( 3, $outPb->counters['nodedata'] );
+	}
+
+	/**
+	 * @covers ::cloneDocumentFragment
+	 * @covers ::dedupeNodeData
+	 */
+	public function testFragmentCloningAndDedupeNodeData() {
+		// Create a document with some data-parsoid and rich attributes
+		$inPb = new BasePageBundle(
+			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
+			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
+			mw: [ 'ids' => [] ],
+		);
+		$doc = ContentUtils::createAndLoadDocument( '', [ 'loadFromPageBundle' => $inPb ] );
+		$frag = ContentUtils::createAndLoadDocumentFragment(
+			$doc,
+			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
+		);
+
+		$p = DOMCompat::querySelector( $frag, 'p' );
+		$pClone = DOMDataUtils::cloneNode( $p, true );
+		$p->parentNode->appendChild( $pClone );
+
+		// Dump the doc & fragments to an output pagebundle
+		// We should see the ids deduplicated in the fragments
+		$outPb = DomPageBundle::newEmpty( $doc );
+		DOMDataUtils::storeAndUnprepareDoc( $doc, [
+			'storeInPageBundle' => $outPb,
+			'idIndex' => array_fill_keys( array_keys( $inPb->parsoid['ids'] ), true ),
+			'fragments' => [ $frag ]
+		] );
+		$this->assertCount( 6, $outPb->parsoid['ids'] );
+
+		// Six different ids with three of them deduplicated via data-x-id
+		$expectedFragHtml = '<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p><p id="mwAQ" data-x-id="mwAA"><span id="mwAw" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAg\" typeof=\"mw:Entity\" data-x-id=\"mwAC\">foo&lt;/span>"}}\' data-x-id="mwAB"></span></p>';
+		$this->assertSame( $expectedFragHtml, ContentUtils::toXML( $frag ) );
 	}
 
 	/**

@@ -184,6 +184,32 @@ class DOMDataUtils {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
+	/** @internal */
+	public static function eagerlyLoadRichAttributes( Element $node ): void {
+		// This is a list of all the attributes which could have embedded
+		// HTML, which we should ensure are loaded before serialization in
+		// certain circumstances so that format conversion is performed.
+		// XXX: it would be best if these attributes were marked as
+		// proposed in [[mw:Parsoid/MediaWiki_DOM_spec/Rich_Attributes]]
+		// Phase 3 so this wasn't so ad-hoc
+		if ( $node->hasAttribute( 'data-mw' ) ) {
+			self::getDataMw( $node );
+		}
+		if ( $node->hasAttribute( 'data-mw-variant' ) ) {
+			// DataMwVariant::$twoway,$oneway,$filter,$disabled,$name etc
+			self::getDataMwVariant( $node );
+		}
+		if ( $node->hasAttribute( 'data-mw-i18n' ) ) {
+			// I18nInfo::$params could potentially contain embedded HTML
+			self::getDataNodeI18n( $node );
+		}
+		if ( $node->hasAttribute( 'data-parsoid' ) ) {
+			// embedded HTML in DataParsoid::$html
+			self::getDataParsoid( $node );
+		}
+		// data-parsoid-diff is a rich attribute, but it doesn't contain HTML
+	}
+
 	public static function dedupeNodeData( Node $clonedRoot ): void {
 		$bag = self::getBag( $clonedRoot->ownerDocument );
 		$aboutMap = [];
@@ -201,12 +227,13 @@ class DOMDataUtils {
 				// (Note that UnpackDOMFragments may call us with nodes which
 				// don't have unique ids, though!)
 				$nd = $bag->getObject( $id );
+
 				// All we are doing here is cloning the node-data object
 				// and reassigning it to the same node. So, any unloaded
-				// data continues to be available. But, since cloning inspects
-				// data->mw->attribs, it should be fully loaded if in JSON form.
-				// So, force loading by getting data-mw.
-				self::getDataMw( $node );
+				// data continues to be available. But, we eagerly load
+				// all rich attributes to ensure that embedded HTML fragments
+				// get their (about,annotation,node) ids deduplicated correctly.
+				self::eagerlyLoadRichAttributes( $node );
 
 				$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 				$nd = $nd->cloneNodeData();
@@ -849,6 +876,11 @@ class DOMDataUtils {
 	public static function cloneDocument( Document $doc ): Document {
 		// Standard PHP clone works fine for the Document
 		$clone = clone $doc;
+		if ( !DOMCompat::isStandardsMode( $doc ) ) {
+			// Uncache head & body since they point to the old doc.
+			$clone->head = null;
+			$clone->body = null;
+		}
 		// But now we need to duplicate the extension data.
 		if ( self::isPrepared( $doc ) ) {
 			$codec = new DOMDataCodec( $clone, [
