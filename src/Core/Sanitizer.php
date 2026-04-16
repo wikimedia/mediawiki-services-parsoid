@@ -162,14 +162,13 @@ class Sanitizer {
 
 	/**
 	 * Fetch the list of acceptable attributes for a given element name.
-	 * FIXME: Not marked private because it is used in src/Ext/Gallery
 	 *
 	 * @internal
 	 *
 	 * @param string $element
 	 * @return array<string,int>
 	 */
-	public static function attributesAllowedInternal( string $element ): array {
+	private static function attributesAllowedInternal( string $element ): array {
 		$lists = self::setupAttributesAllowedInternal();
 		$list = $lists[$element] ?? [];
 		return array_flip( $list );

@@ -210,8 +210,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DocumentFragment {
-		$attrs = $extApi->extArgsToArray( $args );
-		$opts = new Opts( $extApi, $attrs );
+		$opts = new Opts( $extApi, $args );
 
 		$offset = $extApi->extTag->getOffsets()->innerStart();
 		$source = $extApi->extTag->getOffsets()->source;

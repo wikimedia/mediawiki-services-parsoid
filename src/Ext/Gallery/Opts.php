@@ -9,12 +9,13 @@ use Wikimedia\Parsoid\Ext\Utils;
 
 class Opts {
 	/**
-	 * Parse options from an attribute array.
+	 * Parse options from an arguments array.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param array<string,string> $attrs The attribute array
+	 * @param array $args The arguments array
 	 */
-	public function __construct( ParsoidExtensionAPI $extApi, array $attrs ) {
+	public function __construct( ParsoidExtensionAPI $extApi, array $args ) {
 		$siteConfig = $extApi->getSiteConfig();
+		$attrs = $extApi->extArgsToArray( $args );
 
 		// Set default values from config
 		// The options 'showDimensions' and 'showBytes' for traditional mode are not implemented,
@@ -55,21 +56,16 @@ class Opts {
 		$this->caption = (bool)( $attrs['caption'] ?? false );
 
 		// TODO: Good contender for T54941
-		$validUlAttrs = Sanitizer::attributesAllowedInternal( 'ul' );
-		$this->attrs = [];
-		foreach ( $attrs as $k => $v ) {
-			if ( !isset( $validUlAttrs[$k] ) ) {
-				continue;
+		$sAttrs = Sanitizer::sanitizeTagAttrs( $siteConfig, 'ul', null, $args );
+		foreach ( $sAttrs as $k => $v ) {
+			if ( isset( $v[0] ) ) {
+				$this->attrs[$k] = $v[0];
 			}
-			if ( $k === 'style' ) {
-				$v = Sanitizer::checkCss( $v );
-			}
-			$this->attrs[$k] = $v;
 		}
 	}
 
 	/** @var array<string,string> */
-	public $attrs;
+	public $attrs = [];
 
 	/** @var int */
 	public $imagesPerRow;
