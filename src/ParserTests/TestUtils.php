@@ -235,6 +235,14 @@ class TestUtils {
 		);
 	}
 
+	private static function newlineBefore( ?Node $node ): bool {
+		return false;
+	}
+
+	private static function newlineAfter( ?Node $node ): bool {
+		return $node && DOMUtils::nodeName( $node ) === 'br';
+	}
+
 	private static function normalizeIEWVisitor(
 		Node $node, array $opts
 	): Node {
@@ -301,15 +309,20 @@ class TestUtils {
 
 		// now add newlines around appropriate nodes.
 		for ( $child = $node->firstChild;  $child; $child = $next ) {
+			$addBoth = self::newlineAround( $child );
+			$addBefore = $addBoth || self::newlineBefore( $child );
+			$addAfter = $addBoth || self::newlineAfter( $child );
 			$prev = $child->previousSibling;
-			$next = $child->nextSibling;
-			if ( self::newlineAround( $child ) ) {
+			if ( $addBefore ) {
 				if ( $prev instanceof Text ) {
 					$prev->data = preg_replace( '/\s*$/uD', "\n", $prev->data, 1 );
 				} else {
 					$prev = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $prev, $child );
 				}
+			}
+			$next = $child->nextSibling;
+			if ( $addAfter ) {
 				if ( $next instanceof Text ) {
 					$next->data = preg_replace( '/^\s*/u', "\n", $next->data, 1 );
 				} else {
