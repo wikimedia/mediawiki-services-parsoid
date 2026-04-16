@@ -1962,13 +1962,13 @@ parsoid=wt2html
 Language converter markup can contain tables containing tables (T422966)
 !! options
 language=zh htmlVariantLanguage=zh-tw
-parsoid=wt2html
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 -{zh-tw;|before table
-{| border=1
-| &alpha;
+{| border="1"
+|&alpha;
 |
-{| bgcolor=#ABCDEF border=2
+{| bgcolor="#ABCDEF" border="2"
 |nested
 |-
 |table
@@ -2027,7 +2027,7 @@ after table</div>
 Tables can contain language converter markup that can contain tables (T422966)
 !! options
 language=zh htmlVariantLanguage=zh-tw
-parsoid=wt2html,wt2wt
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 {| border="1"
 |&alpha;
@@ -2102,6 +2102,7 @@ after table</div>
 Language converter markup can contain lists (T422966)
 !! options
 language=zh htmlVariantLanguage=zh-tw
+parsoid=wt2html,wt2wt,html2html
 !! wikitext
 -{
 #foo

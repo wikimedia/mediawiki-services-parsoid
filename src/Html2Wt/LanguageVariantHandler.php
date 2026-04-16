@@ -51,7 +51,10 @@ class LanguageVariantHandler {
 				'onSOL' => false
 			];
 			$result = $state->serializer->domToWikitext( $options, $df );
-			if ( $options['trimNLs'] ?? true ) {
+			$isBlock = DOMUtils::hasBlockElementDescendant( $df );
+			if ( $isBlock && preg_match( '/^(?:{\\||[:;#*])/', $result ) ) {
+				$result = "\n" . $result;
+			} else {
 				$result = trim( $result, "\n\r" );
 			}
 			return $result;
