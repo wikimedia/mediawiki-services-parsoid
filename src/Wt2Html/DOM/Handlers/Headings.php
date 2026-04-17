@@ -130,7 +130,7 @@ class Headings {
 
 		// Additional processing for $anchor
 		$anchorText = $clone->textContent; // strip all tags
-		$anchorText = Sanitizer::normalizeSectionNameWhiteSpace( $anchorText );
+		$anchorText = Sanitizer::normalizeSectionNameWhitespace( $anchorText );
 		$anchorText = self::normalizeSectionName( $anchorText, $state->env );
 
 		# NOTE: Parsoid defaults to html5 mode. So, if we want to replicate

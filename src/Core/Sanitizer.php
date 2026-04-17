@@ -520,12 +520,10 @@ class Sanitizer {
 	 * Normalizes whitespace in a section name, such as might be returned
 	 * by Parser::stripSectionName(), for use in the ids that are used for
 	 * section links.
-	 *
-	 * @param string $section
-	 * @return string
 	 */
-	public static function normalizeSectionNameWhiteSpace( string $section ): string {
-		return trim( preg_replace( '/[ _]+/', ' ', $section ) );
+	public static function normalizeSectionNameWhitespace( string $section ): string {
+		$normalized = preg_replace( '/[ _]+/', ' ', $section );
+		return trim( $normalized );
 	}
 
 	/**
@@ -539,22 +537,16 @@ class Sanitizer {
 	 * c. use lower cased "&#x", not "&#X"
 	 * d. fix or reject non-valid attributes
 	 *
-	 * @param string $text
-	 * @return string
 	 * @internal
 	 */
 	public static function normalizeCharReferences( string $text ): string {
 		return preg_replace_callback(
 			self::CHAR_REFS_REGEX,
-			[ self::class, 'normalizeCharReferencesCallback' ],
+			self::normalizeCharReferencesCallback( ... ),
 			$text, -1, $count, PREG_UNMATCHED_AS_NULL
 		);
 	}
 
-	/**
-	 * @param array $matches
-	 * @return string
-	 */
 	private static function normalizeCharReferencesCallback( array $matches ): string {
 		$ret = null;
 		if ( isset( $matches[1] ) ) {
@@ -599,10 +591,6 @@ class Sanitizer {
 		}
 	}
 
-	/**
-	 * @param string $codepoint
-	 * @return null|string
-	 */
 	private static function decCharReference( string $codepoint ): ?string {
 		# intval() will (safely) saturate at the maximum signed integer
 		# value if $codepoint is too many digits
@@ -614,10 +602,6 @@ class Sanitizer {
 		}
 	}
 
-	/**
-	 * @param string $codepoint
-	 * @return null|string
-	 */
 	private static function hexCharReference( string $codepoint ): ?string {
 		$point = hexdec( $codepoint );
 		// hexdec() might return a float if the string is too long
@@ -631,8 +615,6 @@ class Sanitizer {
 	/**
 	 * Returns true if a given Unicode codepoint is a valid character in
 	 * both HTML5 and XML.
-	 * @param int $codepoint
-	 * @return bool
 	 */
 	private static function validateCodepoint( int $codepoint ): bool {
 		# U+000C is valid in HTML5 but not allowed in XML.
@@ -649,38 +631,39 @@ class Sanitizer {
 	/**
 	 * Decode any character references, numeric or named entities,
 	 * in the text and return a UTF-8 string.
-	 * @param string $text
-	 * @return string
 	 */
 	public static function decodeCharReferences( string $text ): string {
 		return preg_replace_callback(
 			self::CHAR_REFS_REGEX,
-			function ( $matches ) {
-				if ( isset( $matches[1] ) ) {
-					return self::decodeEntity( $matches[1] );
-				} elseif ( isset( $matches[2] ) ) {
-					return self::decodeChar( intval( $matches[2] ) );
-				} elseif ( isset( $matches[3] ) ) {
-					$point = hexdec( $matches[3] );
-					// hexdec() might return a float if the string is too long
-					if ( !is_int( $point ) ) {
-						// Invalid character reference.
-						return \UtfNormal\Constants::UTF8_REPLACEMENT;
-					}
-					return self::decodeChar( $point );
-				}
-				# Last case should be an ampersand by itself
-				return $matches[0];
-			},
+			self::decodeCharReferencesCallback( ... ),
 			$text, -1, $count, PREG_UNMATCHED_AS_NULL
 		);
+	}
+
+	private static function decodeCharReferencesCallback( array $matches ): string {
+		if ( isset( $matches[1] ) ) {
+			return self::decodeEntity( $matches[1] );
+		} elseif ( isset( $matches[2] ) ) {
+			// Value is user provided string and may exceed native int bounds.
+			// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+			return self::decodeChar( @intval( $matches[2] ) );
+		} elseif ( isset( $matches[3] ) ) {
+			$point = hexdec( $matches[3] );
+			// hexdec() might return a float if the string is too long
+			if ( !is_int( $point ) ) {
+				// Invalid character reference.
+				return \UtfNormal\Constants::UTF8_REPLACEMENT;
+			}
+			return self::decodeChar( $point );
+		}
+		# Last case should be an ampersand by itself
+		return $matches[0];
 	}
 
 	/**
 	 * Return UTF-8 string for a codepoint if that is a valid
 	 * character reference, otherwise U+FFFD REPLACEMENT CHARACTER.
-	 * @param int $codepoint
-	 * @return string
+	 * @internal
 	 */
 	private static function decodeChar( int $codepoint ): string {
 		if ( self::validateCodepoint( $codepoint ) ) {
@@ -710,10 +693,9 @@ class Sanitizer {
 	/**
 	 * Fetch the list of acceptable attributes for a given element name.
 	 *
-	 * @internal
-	 *
 	 * @param string $element
-	 * @return array<string,int>
+	 * @return array<string,int> An associative array where keys are acceptable
+	 *   attribute names
 	 */
 	private static function attributesAllowedInternal( string $element ): array {
 		$lists = self::setupAttributesAllowedInternal();
