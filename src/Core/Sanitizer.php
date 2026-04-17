@@ -2,19 +2,27 @@
 declare( strict_types = 1 );
 
 /**
- * General token sanitizer. Strips out (or encapsulates) unsafe and disallowed
- * tag types and attributes. Should run last in the third, synchronous
- * expansion stage.
+ * HTML sanitizer for %MediaWiki.
  *
- * FIXME: This code was originally ported from PHP to JS in 2012
+ * Extended by Parsoid to be a general token sanitizer. Strips out (or
+ * encapsulates) unsafe and disallowed tag types and
+ * attributes. Should run last in the third, synchronous expansion
+ * stage.
+ *
+ * This code was originally ported from PHP to JS in 2012
  * and periodically updated before being back to PHP. This code should be
- * (a) resynced with core sanitizer changes (b) updated to use HTML5 spec
+ * periodically resynced with core sanitizer changes.
+ *
+ * Copyright © 2002-2005 Brooke Vibber <bvibber@wikimedia.org> et al
+ * https://www.mediawiki.org/
+ *
+ * @license GPL-2.0-or-later
+ * @file
  */
 
 namespace Wikimedia\Parsoid\Core;
 
 use InvalidArgumentException;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -25,30 +33,15 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\RemexHtml\HTMLData;
 
+/**
+ * HTML sanitizer for MediaWiki
+ */
 class Sanitizer {
 	/**
-	 * RDFa and microdata properties allow URLs, URIs and/or CURIs.
-	 */
-	private const MICRODATA = [
-		'rel' => true,
-		'rev' => true,
-		'about' => true,
-		'property' => true,
-		'resource' => true,
-		'datatype' => true,
-		'typeof' => true, // RDFa
-		'itemid' => true,
-		'itemprop' => true,
-		'itemref' => true,
-		'itemscope' => true,
-		'itemtype' => true,
-	];
-
-	private const UTF8_REPLACEMENT = "\u{FFFD}";
-
-	/**
 	 * Regular expression to match various types of character references in
-	 * Sanitizer::normalizeCharReferences and Sanitizer::decodeCharReferences
+	 * Sanitizer::normalizeCharReferences and Sanitizer::decodeCharReferences.
+	 * Note that HTML5 allows some named entities to omit the trailing
+	 * semicolon; wikitext entities *must* have a trailing semicolon.
 	 */
 	private const CHAR_REFS_REGEX =
 		'/&([A-Za-z0-9\x80-\xff]+;)
@@ -94,7 +87,7 @@ class Sanitizer {
 	 *
 	 * @since 1.30
 	 */
-	public const ID_FALLBACK = 1; // public because it is accessed in Headings handler
+	public const ID_FALLBACK = 1;
 
 	/** Characters that will be ignored in IDNs.
 	 * https://datatracker.ietf.org/doc/html/rfc8264#section-9.13
@@ -501,8 +494,9 @@ class Sanitizer {
 			return "&$name";
 		} elseif ( isset( HTMLData::NAMED_ENTITY_TRANSLATION[$name] ) ) {
 			// Beware: some entities expand to more than 1 codepoint
-			return preg_replace_callback( '/./Ssu', function ( $m ) {
-				return '&#' . self::utf8ToCodepoint( $m[0] ) . ';';
+			return preg_replace_callback( '/./Ssu', static function ( $m ) {
+				// @phan-suppress-next-line PhanDeprecatedFunction
+				return '&#' . \UtfNormal\Utils::utf8ToCodepoint( $m[0] ) . ';';
 			}, HTMLData::NAMED_ENTITY_TRANSLATION[$name] );
 		} else {
 			return "&amp;$name";
@@ -554,30 +548,6 @@ class Sanitizer {
 			|| ( $codepoint >= 0xa0 && $codepoint <= 0xd7ff )
 			|| ( $codepoint >= 0xe000 && $codepoint <= 0xfffd )
 			|| ( $codepoint >= 0x10000 && $codepoint <= 0x10ffff );
-	}
-
-	/**
-	 * Returns a string from the provided code point.
-	 *
-	 * @param int $cp
-	 * @return string
-	 */
-	private static function codepointToUtf8( int $cp ): string {
-		$chr = mb_chr( $cp, 'UTF-8' );
-		Assert::invariant( $chr !== false, "Getting char failed!" );
-		return $chr;
-	}
-
-	/**
-	 * Returns the code point at the first position of the string.
-	 *
-	 * @param string $str
-	 * @return int
-	 */
-	private static function utf8ToCodepoint( string $str ): int {
-		$ord = mb_ord( $str );
-		Assert::invariant( $ord !== false, "Getting code point failed!" );
-		return $ord;
 	}
 
 	/**
@@ -651,9 +621,9 @@ class Sanitizer {
 	 */
 	private static function decodeChar( int $codepoint ): string {
 		if ( self::validateCodepoint( $codepoint ) ) {
-			return self::codepointToUtf8( $codepoint );
+			return \UtfNormal\Utils::codepointToUtf8( $codepoint );
 		} else {
-			return self::UTF8_REPLACEMENT;
+			return \UtfNormal\Constants::UTF8_REPLACEMENT;
 		}
 	}
 
@@ -676,7 +646,7 @@ class Sanitizer {
 					// hexdec() might return a float if the string is too long
 					if ( !is_int( $point ) ) {
 						// Invalid character reference.
-						return self::UTF8_REPLACEMENT;
+						return \UtfNormal\Constants::UTF8_REPLACEMENT;
 					}
 					return self::decodeChar( $point );
 				}
@@ -723,7 +693,7 @@ class Sanitizer {
 				)/xu";
 		}
 		$value = preg_replace_callback( $decodeRegex,
-			[ self::class, 'cssDecodeCallback' ], $value );
+			self::cssDecodeCallback( ... ), $value );
 
 		// Let the value through if it's nothing but a single comment, to
 		// allow other functions which may reject it to pass some error
@@ -1121,35 +1091,46 @@ class Sanitizer {
 	}
 
 	/**
-	 * @param string $text
+	 * Pick apart some CSS and check it for forbidden or unsafe structures.
+	 * Returns a sanitized string. This sanitized string will have
+	 * character references and escape sequences decoded and comments
+	 * stripped (unless it is itself one valid comment, in which case the value
+	 * will be passed through). If the input is just too evil, only a comment
+	 * complaining about evilness will be returned.
+	 *
+	 * Currently URL references, 'expression', 'tps' are forbidden.
+	 *
+	 * NOTE: Despite the fact that character references are decoded, the
+	 * returned string may contain character references given certain
+	 * clever input strings. These character references must
+	 * be escaped before the return value is embedded in HTML.
+	 *
+	 * @warning This method is intended to sanitize style attributes on
+	 *  html tags only. It is not safe to use on full CSS files.
+	 * @param string $value
 	 * @return string
 	 */
-	public static function checkCss( string $text ): string {
-		$text = self::normalizeCss( $text );
-		// \000-\010\013\016-\037\177 are the octal escape sequences
-		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $text )
-			|| str_contains( $text, self::UTF8_REPLACEMENT )
-		) {
+	public static function checkCss( $value ) {
+		$value = self::normalizeCss( $value );
+
+		// Reject problematic keywords and control characters
+		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $value ) ||
+			str_contains( $value, \UtfNormal\Constants::UTF8_REPLACEMENT ) ) {
 			return '/* invalid control char */';
-		} elseif ( preg_match( self::INSECURE_RE, $text ) ) {
+		} elseif ( preg_match( self::INSECURE_RE, $value ) ) {
 			return '/* insecure input */';
-		} else {
-			return $text;
 		}
+		return $value;
 	}
 
-	/**
-	 * @param array $matches
-	 * @return string
-	 */
-	public static function cssDecodeCallback( array $matches ): string {
+	private static function cssDecodeCallback( array $matches ): string {
 		if ( $matches[1] !== '' ) {
 			// Line continuation
 			return '';
 		} elseif ( $matches[2] !== '' ) {
 			# hexdec could return a float if the match is too long, but the
 			# regexp in question limits the string length to 6.
-			$char = self::codepointToUtf8( hexdec( $matches[2] ) );
+			$char = \UtfNormal\Utils::codepointToUtf8( hexdec( $matches[2] ) );
 		} elseif ( $matches[3] !== '' ) {
 			$char = $matches[3];
 		} else {
@@ -1281,6 +1262,7 @@ class Sanitizer {
 	/**
 	 * Do percent encoding of percent signs for href (but not id) attributes
 	 *
+	 * @since 1.35
 	 * @see https://phabricator.wikimedia.org/T238385
 	 * @param string $id String to escape
 	 * @param string $mode One of modes from $wgFragmentMode
@@ -1316,7 +1298,7 @@ class Sanitizer {
 				break;
 
 			case 'legacy':
-				// This corresponds to 'noninitial' mode of the old escapeId
+				// This corresponds to 'noninitial' mode of the former escapeId()
 				static $replace = [
 					'%3A' => ':',
 					'%' => '.'
