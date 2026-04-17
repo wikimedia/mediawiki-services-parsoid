@@ -37,6 +37,16 @@ const computeSHA1 = Promise.async(function *(targetName) {
 });
 
 const fetch = async function(repo, testFile, gitCommit, skipCheck) {
+	let ua = process.env.GERRITUA;
+	if (ua === undefined) {
+		console.error("WARNING: gerrit scraping may be throttled without a User-Agent");
+		console.error("Set GERRITUA to set an appropriate user agent, and contact someone from");
+		console.error("Content Transform Team (https://www.mediawiki.org/wiki/Content_Transform_Team)");
+		console.error("to get it whitelisted.  WMF staff may use the UA string at");
+		console.error("https://office.wikimedia.org/wiki/Team_interfaces/Content_Transform/Setup_information");
+		ua = "wikimedia-parsoid-fetch";
+	}
+
 	const repoInfo = testFiles[repo];
 	const targets = repoInfo.targets;
 	for (const targetName in targets) {
@@ -52,7 +62,7 @@ const fetch = async function(repo, testFile, gitCommit, skipCheck) {
 		const url = {
 			host: 'gerrit.wikimedia.org',
 			path: filePath,
-			headers: { 'user-agent': 'wikimedia-parsoid' },
+			headers: { 'user-agent': ua },
 		};
 		await new Promise(function(resolve, reject) {
 			https.get(url, function(result) {
