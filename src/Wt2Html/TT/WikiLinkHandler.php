@@ -1070,8 +1070,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 						// Entity encode pipes since we wouldn't have split on
 						// them from fragments and we're about to attempt to
 						// when this function returns.
-						// This is similar to getting the shadow "href" below.
-						$resultStr .= preg_replace( '/\|/', '&vert;', $str, 1 );
+						$resultStr .= str_replace( '|', '&vert;', $str );
 						$optInfo = null; // might change the nature of opt
 						continue;
 					} else {
@@ -1105,9 +1104,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
 						$tokenType = $currentToken->getAttributeV( 'rel' );
-						// Using the shadow since entities (think pipes) would
-						// have already been decoded.
-						$tkHref = $currentToken->getAttributeShadowInfo( 'href' )['value'];
 						$isLink = $optInfo && $optInfo['ck'] === 'link';
 						// Reset the optInfo since we're changing the nature of it
 						$optInfo = null;
@@ -1116,8 +1112,15 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 							$tokenType === 'mw:ExtLink' &&
 							( $currentToken->dataParsoid->stx ?? '' ) === 'url'
 						) {
-							// Add the URL
-							$resultStr .= $tkHref;
+							// Add the URL and entity encode any pipes
+							// If the pipes are from entity decoding in the href,
+							// we don't want to split media options on them
+							// If the pipes are from template expansion, legacy
+							// would have considered them delineating a media option
+							// but let's not support that combination with the url
+							$resultStr .= str_replace(
+								'|', '&vert;', $currentToken->getAttributeV( 'href' )
+							);
 							// Tell our loop to skip to the end of this tag
 							$skipToEndOf = 'a';
 						} elseif ( $tokenType === 'mw:WikiLink/Interwiki' ) {
