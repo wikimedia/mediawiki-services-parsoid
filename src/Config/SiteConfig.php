@@ -1991,7 +1991,6 @@ abstract class SiteConfig {
 		// Max transclusions per page
 		'transclusion' => 10000,
 
-		// DISABLED for now
 		// Max images per page
 		'image' => 1000,
 

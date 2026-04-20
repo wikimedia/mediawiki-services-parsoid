@@ -26,6 +26,8 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var array overrides parent-class server info */
 	private $serverData;
 
+	private array $wt2htmlLimitOverrides = [];
+
 	/** @var array overrides parent-class info */
 	public $allowedExternalImagePrefixes = [ '' ];
 
@@ -128,6 +130,12 @@ class SiteConfig extends ApiSiteConfig {
 		$this->externalLinkTarget = false;
 		$this->noFollowConfig = null;
 		$this->v3pf = false;
+
+		// reset wt2htmlLimit overrides
+		foreach ( $this->wt2htmlLimitOverrides as $limitName => $limitValue ) {
+			$this->wt2htmlLimits[$limitName] = $limitValue;
+		}
+		$this->wt2htmlLimitOverrides = [];
 	}
 
 	private function deleteNamespace( string $name ): void {
@@ -312,5 +320,18 @@ class SiteConfig extends ApiSiteConfig {
 			];
 		}
 		return $this->noFollowConfig;
+	}
+
+	/**
+	 * Override for set limits for testing purposes
+	 * @param string $limitName overridden limit
+	 * @param int $newLimit new limit
+	 * @return void
+	 */
+	public function setWt2htmlLimit( string $limitName, int $newLimit ): void {
+		if ( !isset( $this->wt2htmlLimitOverrides[$limitName] ) ) {
+			$this->wt2htmlLimitOverrides[$limitName] = $this->wt2htmlLimits[$limitName];
+		}
+		$this->wt2htmlLimits[$limitName] = $newLimit;
 	}
 }

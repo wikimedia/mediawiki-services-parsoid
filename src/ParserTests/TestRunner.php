@@ -1132,6 +1132,13 @@ class TestRunner {
 			);
 		}
 
+		if ( isset( $test->config['wgParsoidMaximumImages'] ) ) {
+			$this->siteConfig->setWt2htmlLimit(
+				'image',
+				(int)$test->config['wgParsoidMaximumImages']
+			);
+		}
+
 		$this->siteConfig->v3pf = $test->config['wgParsoidExperimentalParserFunctionOutput'] ?? false;
 
 		// Process test-specific options

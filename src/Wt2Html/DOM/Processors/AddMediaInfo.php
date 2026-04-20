@@ -662,25 +662,43 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$file = [ $attrs['title']->getDBKey(), $dims ];
 			$infoKey = md5( json_encode( $file ) );
-			$files[$infoKey] = $file;
-			$errs = [];
 
+			$errs = [];
 			$manualKey = null;
-			$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
-			if ( $manualthumb !== null ) {
-				$val = $manualthumb->value['txt'];
-				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
-				if ( $title === null ) {
-					$errs[] = self::makeErr(
-						'apierror-invalidtitle',
-						'Invalid thumbnail title.',
-						[ 'name' => $val ]
-					);
-				} else {
-					$file = [ $title->getDBkey(), $dims ];
-					$manualKey = md5( json_encode( $file ) );
-					$files[$manualKey] = $file;
+
+			if (
+				isset( $files[$infoKey] )
+				|| $env->bumpWt2HtmlResourceUse( 'image' )
+			) {
+				$files[$infoKey] = $file;
+
+				$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
+				if ( $manualthumb !== null ) {
+					$val = $manualthumb->value['txt'];
+					$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
+					if ( $title === null ) {
+						$errs[] = self::makeErr(
+							'apierror-invalidtitle',
+							'Invalid thumbnail title.',
+							[ 'name' => $val ]
+						);
+					} else {
+						$file = [ $title->getDBkey(), $dims ];
+						$manualKey = md5( json_encode( $file ) );
+						if (
+							isset( $files[$manualKey] )
+							|| $env->bumpWt2HtmlResourceUse( 'image' )
+						) {
+							$files[$manualKey] = $file;
+						} else {
+							// false signals, that the media limit was reached
+							$manualKey = false;
+						}
+					}
 				}
+			} else {
+				// false signals, that the media limit was reached
+				$infoKey = false;
 			}
 
 			$validContainers[] = [
@@ -732,8 +750,17 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$hasThumb = $hasThumb || DOMUtils::hasTypeOf( $container, 'mw:File/Thumb' );
 
 			$broken = false;
-			$info = $files[$c['infoKey']];
-			if ( !$info ) {
+			// In case of image limit was reached, set media container in error state
+			if ( $c['infoKey'] === false ) {
+				$broken = true;
+				// TODO lint this or add category in follow up patch
+				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
+				$errs[] = self::makeErr(
+					'apierror-imagelimitexceeded',
+					'Image is not rendered due to image limit was exceeded',
+					[]
+				);
+			} elseif ( !$files[$c['infoKey']] ) {
 				$broken = true;
 				$env->getDataAccess()->addTrackingCategory(
 					$env->getPageConfig(),
@@ -741,11 +768,21 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					'broken-file-category'
 				);
 				$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
-			} elseif ( isset( $info['thumberror'] ) ) {
-				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
+			} elseif ( isset( $files[$c['infoKey']]['thumberror'] ) ) {
+				$errs[] = self::makeErr( 'apierror-unknownerror', $files[$c['infoKey']]['thumberror'] );
 			}
 
-			if ( $c['manualKey'] !== null ) {
+			$info = $files[$c['infoKey']] ?? null;
+
+			if ( $c['manualKey'] === false ) {
+				// TODO lint this or add category in follow up patch
+				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
+				$errs[] = self::makeErr(
+					'apierror-imagelimitexceeded',
+					'Image is not rendered due to image limit was exceeded',
+					[]
+				);
+			} elseif ( $c['manualKey'] !== null ) {
 				$manualinfo = $files[$c['manualKey']];
 				if ( !$manualinfo ) {
 					$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
