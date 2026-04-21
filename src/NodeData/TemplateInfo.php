@@ -58,6 +58,15 @@ class TemplateInfo implements JsonCodecable {
 	 */
 	public ?int $i = null;
 
+	/**
+	 * These are temporary internal properties that should not end up in the
+	 * json array.  They are pulled out into the parts array in the
+	 * DOMRangeBuilder.  At present, they are set in the ExternalLinkHandler
+	 * when breaking apart an href into url and content.
+	 */
+	public ?string $prePart = null;
+	public ?string $postPart = null;
+
 	public function __clone() {
 		foreach ( $this->paramInfos as &$pi ) {
 			$pi = clone $pi;

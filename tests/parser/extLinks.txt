@@ -788,6 +788,23 @@ T2289: literal double quote in bracketed URL
 !!end
 
 !! test
+Extlink with templated url terminating chars
+!! wikitext
+http://www.example.com/{{1x|<b>html</b>}}
+[http://www.example.com/{{1x|<b>html</b>}}]
+{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}
+!! html/php
+<p><a rel="nofollow" class="external free" href="http://www.example.com/">http://www.example.com/</a><b>html</b>
+<a rel="nofollow" class="external text" href="http://www.example.com/"><b>html</b></a>
+<span><a rel="nofollow" class="external text" href="http://www.example.com/"><b>html</b></a></span>
+</p>
+!! html/parsoid
+<p><a typeof="mw:Transclusion mw:ExpandedAttrs" about="#mwt4" rel="mw:ExtLink nofollow" href="http://www.example.com/" class="external free" data-mw='{"attribs":[[{"txt":"href"},{"html":"http://www.example.com/&lt;b about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"stx\":\"html\",\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,41,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;lt;b>html&amp;lt;/b>\"}},\"i\":0}}]}&apos;>html&lt;/b>"}]],"parts":["http://www.example.com/",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;b>html&lt;/b>"}},"i":0}}]}'>http://www.example.com/</a><b about="#mwt4" data-parsoid='{"stx":"html"}'>html</b>
+<a typeof="mw:Transclusion mw:ExpandedAttrs" about="#mwt8" rel="mw:ExtLink nofollow" href="http://www.example.com/" class="external text" data-mw='{"attribs":[[{"txt":"href"},{"html":"http://www.example.com/&lt;b about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"stx\":\"html\",\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[66,84,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;lt;b>html&amp;lt;/b>\"}},\"i\":0}}]}&apos;>html&lt;/b>"}]],"parts":["[http://www.example.com/",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;b>html&lt;/b>"}},"i":0}},"]"]}'><b>html</b></a>
+<span typeof="mw:Extension/spantag mw:Transclusion" about="#mwt9" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"[http://www.example.com/{{1x|&lt;b>html&lt;/b>}}]"},"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;spantag>[http://www.example.com/{{1x|&lt;b>html&lt;/b>}}]&lt;/spantag>"}},"i":0}}]}'><a rel="mw:ExtLink nofollow" href="http://www.example.com/" class="external text"><b data-parsoid='{"stx":"html"}'>html</b></a></span></p>
+!! end
+
+!! test
 External links: multiple legal whitespace is fine, Magnus. Don't break it please. (T7081)
 !! wikitext
 [http://www.example.com  test]

@@ -4,16 +4,23 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class ExternalLinkHandler extends XMLTagBasedHandler {
@@ -75,9 +82,33 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 	private function onUrlLink( Token $token ): ?array {
 		$env = $this->env;
 		$origHref = $token->getAttributeV( 'href' );
-		$href = TokenUtils::tokensToString( $origHref );
 		$dataParsoid = clone $token->dataParsoid;
 		$dataMw = $token->dataMw ? clone $token->dataMw : null;
+
+		$hrefTokens = TokenUtils::tokensToString( $origHref, true, [
+			'includeEntities' => true,
+			'includeUrlLink' => true,
+		] );
+
+		// We assume that, if $hrefTokens is an array, then some part of
+		// it is templated.  However, in some cases (like the content of
+		// templated extensions), we may be expanding templates but not
+		// wrappping them, in which case we won't find tplarginfo
+		$wrapTemplates = !$this->options['inTemplate'];
+		$tplarginfo = null;
+		if ( is_array( $hrefTokens ) ) {
+			if ( $wrapTemplates ) {
+				$tplarginfo = $this->getTemplateInfo( $token );
+			}
+			$max = count( $origHref ) - count( $hrefTokens[1] );
+			// Conservatively, only include the rest of the tokens as content
+			// if we aren't wrapping or if we find template info
+			$content = ( !$wrapTemplates || $tplarginfo ) ? $hrefTokens[1] : [];
+		} else {
+			$max = null;
+			$content = [];
+		}
+		$href = TokenUtils::tokensToString( $origHref, false, [], $max );
 
 		if ( $this->hasImageLink( $href ) ) {
 			$checkAlt = explode( '/', $href );
@@ -115,17 +146,19 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 
 			$dp = new DataParsoid;
 			$dp->tsr = $dataParsoid->tsr->expandTsrK()->value;
-			return [
+
+			$ret = array_merge( [
 				$builtTag,
 				// Make sure there are no IDN-ignored characters in the text so
 				// the user doesn't accidentally copy any.
 				Sanitizer::cleanUrl( $env->getSiteConfig(), $href, 'wikilink' ), // mode could be 'wikilink'
-				new EndTagTk(
-					'a',
-					[],
-					$dp
-				)
-			];
+				new EndTagTk( 'a', [], $dp )
+			], $content );
+
+			if ( $tplarginfo !== null ) {
+				$this->wrapReturn( $token, $tplarginfo, $ret );
+			}
+			return $ret;
 		}
 	}
 
@@ -138,17 +171,29 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 		$env = $this->env;
 		$origHref = $token->getAttributeV( 'href' );
 		$hasExpandedAttrs = TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' );
-		$href = TokenUtils::tokensToString( $origHref );
-		$hrefWithEntities = TokenUtils::tokensToString( $origHref, false, [
-				'includeEntities' => true
-			]
-		);
-		$content = $token->getAttributeV( 'mw:content' );
 		$dataParsoid = clone $token->dataParsoid;
 		$dataMw = $token->dataMw ? clone $token->dataMw : null;
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);
+
+		$content = $token->getAttributeV( 'mw:content' );
+		if ( !is_array( $content ) ) {
+			$content = [ $content ];
+		}
+
+		$hrefTokens = TokenUtils::tokensToString( $origHref, true, [
+			'includeEntities' => true,
+			'includeUrlLink' => true,
+		] );
+		if ( is_array( $hrefTokens ) ) {
+			$max = count( $origHref ) - count( $hrefTokens[1] );
+			$hrefWithEntities = $hrefTokens[0];
+		} else {
+			$max = null;
+			$hrefWithEntities = $hrefTokens;
+		}
+		$href = TokenUtils::tokensToString( $origHref, false, [], $max );
 
 		if ( $magLinkType ) {
 			$newHref = $href;
@@ -175,13 +220,30 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
 			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $dataMw );
-			$tokens = array_merge( [ $aStart ],
-				is_array( $content ) ? $content : [ $content ], [ new EndTagTk( 'a' ) ] );
+			$tokens = array_merge( [ $aStart ], $content, [ new EndTagTk( 'a' ) ] );
 			return $tokens;
-		} elseif ( ( !$hasExpandedAttrs && is_string( $origHref ) ) ||
-					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
+		} elseif (
+			( !$hasExpandedAttrs && is_string( $origHref ) ) ||
+			$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
 		) {
-			if ( is_array( $content ) && count( $content ) === 1 && is_string( $content[0] ) ) {
+			// We assume that, if $hrefTokens is an array, then some part of
+			// it is templated.  However, in some cases (like the content of
+			// templated extensions), we may be expanding templates but not
+			// wrappping them, in which case we won't find tplarginfo
+			$wrapTemplates = !$this->options['inTemplate'];
+			$tplarginfo = null;
+			if ( is_array( $hrefTokens ) ) {
+				if ( $wrapTemplates ) {
+					$tplarginfo = $this->getTemplateInfo( $token );
+				}
+				// Conservatively, only include the rest of the tokens as content
+				// if we aren't wrapping or if we find template info
+				if ( !$wrapTemplates || $tplarginfo ) {
+					$content = array_merge( $hrefTokens[1], $content );
+				}
+			}
+
+			if ( count( $content ) === 1 && is_string( $content[0] ) ) {
 				$src = $content[0];
 				if ( $env->getSiteConfig()->hasValidProtocol( $src ) &&
 					$this->urlParser->tokenizeURL( $src ) !== false &&
@@ -202,7 +264,8 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 			// combine with existing rdfa attrs
 			// href is set explicitly below
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
-				$token->attribs, false, null, $newAttrs )['attribs'];
+				$token->attribs, false, null, $newAttrs
+			)['attribs'];
 			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $dataMw );
 
 			if ( !$this->options['inTemplate'] ) {
@@ -228,11 +291,79 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 
-			return [ $aStart, $content, new EndTagTk( 'a' ) ];
+			$ret = [ $aStart, $content, new EndTagTk( 'a' ) ];
+			if ( $tplarginfo !== null ) {
+				$this->wrapReturn( $token, $tplarginfo, $ret );
+			}
+			return $ret;
 		} else {
 			// Not a link, convert href to plain text.
 			return WikiLinkHandler::bailTokens( $this->manager, $token );
 		}
+	}
+
+	private function getTemplateInfo( Token $token ): ?TemplateInfo {
+		$df = WTSUtils::getAttrFromDataMw(
+			$token->dataMw, 'href', true
+		)->value['html'] ?? null;
+		if ( $df == null ) {
+			return null;
+		}
+
+		$tpl = null;
+		DOMUtils::visitDOM( $df, static function ( Node $node ) use ( &$tpl ) {
+			if (
+				$tpl == null && $node instanceof Element &&
+				WTUtils::matchTplType( $node )
+			) {
+				$tpl = $node;
+			}
+		} );
+		if ( $tpl === null ) {
+			return null;
+		}
+
+		$tplarginfo = null;
+		foreach ( ( DOMDataUtils::getDataMw( $tpl )->parts ?? [] ) as $part ) {
+			if ( $part instanceof TemplateInfo ) {
+				$tplarginfo = clone $part;
+				$tplDsr = DOMDataUtils::getDataParsoid( $tpl )->dsr;
+				$tkTsr = $token->dataParsoid->tsr;
+				$str = $tkTsr->source->getSrcText();
+				if ( $tplDsr->start > $tkTsr->start ) {
+					$tplarginfo->prePart = PHPUtils::safeSubstr(
+						$str, $tkTsr->start, $tplDsr->start - $tkTsr->start
+					);
+				}
+				if ( $tkTsr->end > $tplDsr->end ) {
+					$tplarginfo->postPart = PHPUtils::safeSubstr(
+						$str, $tplDsr->end, $tkTsr->end - $tplDsr->end
+					);
+				}
+				break;
+			}
+		}
+		return $tplarginfo;
+	}
+
+	private function wrapReturn( Token $token, TemplateInfo $tplarginfo, array &$ret ) {
+		$dp = new DataParsoid;
+		$dp->tsr = clone $token->dataParsoid->tsr;
+		$dp->getTemp()->tplarginfo = $tplarginfo;
+
+		$aboutId = $this->env->newAboutId();
+		$attrs = [
+			new KV( 'typeof', 'mw:Transclusion' ),
+			new KV( 'about', $aboutId )
+		];
+		$startMeta = new SelfclosingTagTk( 'meta', $attrs, $dp );
+		array_unshift( $ret, $startMeta );
+		$attrs = [
+			new KV( 'typeof', 'mw:Transclusion/End' ),
+			new KV( 'about', $aboutId )
+		];
+		$endMeta = new SelfclosingTagTk( 'meta', $attrs, $dp );
+		array_push( $ret, $endMeta );
 	}
 
 	/** @inheritDoc */

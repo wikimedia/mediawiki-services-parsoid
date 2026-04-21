@@ -657,12 +657,15 @@ class TokenUtils {
 	 * @param bool $strict Whether to abort as soon as we find a token we
 	 *   can't stringify.
 	 * @param array<string,bool> $opts
+	 * @param ?int $max Maximum tokens to process
 	 * @return string|list{string,array<Token|string>}
 	 *   The stringified tokens. If $strict is true, returns a two-element
 	 *   array containing string prefix and the remainder of the tokens as
 	 *   soon as we encounter something we can't stringify.
 	 */
-	public static function tokensToString( $tokens, bool $strict = false, array $opts = [] ) {
+	public static function tokensToString(
+		$tokens, bool $strict = false, array $opts = [], ?int $max = null
+	) {
 		if ( is_string( $tokens ) ) {
 			return $tokens;
 		}
@@ -672,7 +675,7 @@ class TokenUtils {
 		}
 
 		$out = '';
-		for ( $i = 0, $l = count( $tokens ); $i < $l; $i++ ) {
+		for ( $i = 0, $l = count( $tokens ); $i < min( $l, $max ?? $l ); $i++ ) {
 			$token = $tokens[$i];
 			if ( $token === null ) {
 				throw new UnreachableException( "No nulls expected." );
@@ -699,6 +702,15 @@ class TokenUtils {
 				$i += 2; // Skip child and end tag.
 			} elseif ( $token instanceof TagTk && $token->getName() === 'listItem' ) {
 				$out .= $token->getAttributeKV( 'bullets' )->srcOffsets->value->substr();
+			} elseif (
+				!empty( $opts['includeUrlLink'] ) &&
+				$token instanceof TagTk && $token->getName() === 'a' &&
+				( $token->dataParsoid->stx ?? '' ) === 'url'
+			) {
+				// WikiLinkHandler::stringifyOptionTokens includes these
+				// unconditionally but also entity encodes any pipes
+				$out .= $tokens[$i + 1];
+				$i += 2;
 			} elseif (
 				// This option shouldn't be used if the tokens have been
 				// expanded to DOM

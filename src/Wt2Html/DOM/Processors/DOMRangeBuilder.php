@@ -959,7 +959,13 @@ class DOMRangeBuilder {
 						} else {
 							$a->info->type = 'template';
 						}
+						if ( $a->info->prePart !== null ) {
+							$parts[] = $a->info->prePart;
+						}
 						$parts[] = $a->info;
+						if ( $a->info->postPart !== null ) {
+							$parts[] = $a->info->postPart;
+						}
 						// FIXME: Except for v3 parser functions, we
 						// throw away parameter order and rebuild it
 						// again in WikitextSerializer.  We could add

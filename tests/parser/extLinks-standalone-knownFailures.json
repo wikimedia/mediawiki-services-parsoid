@@ -45,6 +45,16 @@
     "External links: raw ampersand": {
         "html2wt": "Old & use: http://x&y\n"
     },
+    "Extlink with templated url terminating chars": {
+        "selser [[0,0,4,0,2,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>1cw6pzk[http://www.example.com/{{1x|<b>html</b>}}]dmrqzy\n{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,4,0,0,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>w2mwl4[http://www.example.com/{{1x|<b>html</b>}}]\n{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,4,0,3,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>1tpifbf[http://www.example.com/{{1x|<b>html</b>}}]{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,2,0,0,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>3pfwc8\n[http://www.example.com/{{1x|<b>html</b>}}]\n{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,2,0,3,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>10b3xgv\n[http://www.example.com/{{1x|<b>html</b>}}]{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,2,0,4,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>109am5t\n[http://www.example.com/{{1x|<b>html</b>}}]1alecbx{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,4,0,4,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>1461p52[http://www.example.com/{{1x|<b>html</b>}}]1fgrz88{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}",
+        "selser [[0,0,2,0,2,0]]": "http://www.example.com/{{1x|<b>html</b>}}<nowiki/>pbjowp\n[http://www.example.com/{{1x|<b>html</b>}}]xyf7xa\n{{1x|<spantag>[http://www.example.com/{{1x|<b>html</b>}}]</spantag>}}"
+    },
     "IPv6 urls, autolink format (T23261)": {
         "html2wt": "http://[2404:130:0:1000::187:2]/index.php\n\nExamples from RFC 2373, section 2.2:\n\n* http://[1080::8:800:200C:417A]/unicast\n* http://[FF01::101]/multicast\n* http://[::1]/loopback\n* http://[::]/unspecified\n* http://[::13.1.68.3]/ipv4compat\n* http://[::FFFF:129.144.52.38]/ipv4compat\n\nExamples from RFC 2732, section 2:\n\n* http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html\n* http://[1080:0:0:0:8:800:200C:417A]/index.html\n* http://[3ffe:2a00:100:7031::1]\n* http://[1080::8:800:200C:417A]/foo\n* http://[::192.9.5.5]/ipng\n* http://[::FFFF:129.144.52.38]:80/index.html\n* http://[2010:836B:4179::836B:4179]"
     },
