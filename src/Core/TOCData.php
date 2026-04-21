@@ -7,6 +7,7 @@ use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Table of Contents data, including an array of section metadata.
@@ -15,7 +16,7 @@ use Wikimedia\Parsoid\Utils\CompatJsonCodec;
  * with extension data, but may include additional ToC properties in
  * the future.
  */
-class TOCData implements \JsonSerializable, JsonCodecable {
+class TOCData implements JsonCodecable {
 	use JsonCodecableTrait;
 
 	/**
@@ -110,13 +111,11 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 * each time.  If you want to collect multiple pieces of data under a
 	 * single key, use ::appendExtensionData().
 	 *
-	 * @note Only scalar values (numbers, strings, or arrays) are
-	 * supported as a value.  (A future revision will allow anything
-	 * that core's JsonCodec can handle.)  Attempts to set other types
-	 * as extension data values will break ParserCache for the page.
-	 *
-	 * @todo When values more complex than scalar values get supported,
-	 * __clone needs to be updated accordingly.
+	 * @note Only scalars (numbers, strings, or arrays) or
+	 * `JsonCodecable` objects are supported for `$value`. Attempts to set
+	 * other types as extension data values will break ParserCache for the
+	 * page.  Object values should support the built-in PHP `clone`
+	 * operator.
 	 *
 	 * @param string $key The key for accessing the data. Extensions
 	 *   should take care to avoid conflicts in naming keys. It is
@@ -263,6 +262,8 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 		$metadata->number = $numbering;
 	}
 
+	// JsonCodecable interface
+
 	/**
 	 * Serialize all data in the TOCData as JSON.
 	 *
@@ -272,24 +273,6 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 *
 	 * @inheritDoc
 	 */
-	public function jsonSerialize(): array {
-		# T312589 explicitly calling jsonSerialize() on the elements of
-		# $this->sections will be unnecessary in the future.
-		$sections = array_map(
-			static function ( SectionMetadata $s ) {
-				return $s->jsonSerialize();
-			},
-			$this->sections
-		);
-		return [
-			'sections' => $sections,
-			'extensionData' => $this->extensionData,
-		];
-	}
-
-	// JsonCodecable interface
-
-	/** @inheritDoc */
 	public function toJsonArray(): array {
 		return [
 			'sections' => $this->sections,
@@ -339,8 +322,7 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	}
 
 	public function __clone() {
-		foreach ( $this->sections as $k => $v ) {
-			$this->sections[$k] = clone $v;
-		}
+		$this->sections = Utils::cloneArray( $this->sections );
+		$this->extensionData = Utils::cloneArray( $this->extensionData );
 	}
 }

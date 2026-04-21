@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Core;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Section metadata for generating TOC.
@@ -23,19 +24,19 @@ use Wikimedia\Parsoid\Utils\CompatJsonCodec;
  * Linker.php::tocLine() and ::makeHeadline() demonstrate how these
  * properties are used to create headings and table of contents lines.
  */
-class SectionMetadata implements \JsonSerializable, JsonCodecable {
+class SectionMetadata implements JsonCodecable {
 	use JsonCodecableTrait;
 
 	/**
-	 * The heading tag level: a 1 here means an <H1> tag was used, a
-	 * 2 means an <H2> tag was used, etc.
+	 * The heading tag level: a 1 here means an `<H1>` tag was used, a
+	 * 2 means an `<H2>` tag was used, etc.
 	 */
 	public int $hLevel;
 
 	/**
 	 * This is a one-indexed TOC level and the nesting level.
-	 * So, if a page has a H2-H4-H6, then, those levels 2,4,6
-	 * correspond to TOC-levels 1,2,3.
+	 * If a page has a H2-H4-H6 then those `hLevel`s 2,4,6
+	 * correspond to `tocLevel`s 1,2,3.
 	 */
 	public int $tocLevel;
 
@@ -47,23 +48,23 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 * - processes extension strip markers
 	 * - removes style, script tags
 	 * - strips all HTML tags except the following tags (from Parser.php)
-	 *   . <sup> and <sub> (T10393)
-	 *   . <i> (T28375)
-	 *   . <b> (r105284)
-	 *   . <bdi> (T74884)
-	 *   . <span dir="rtl"> and <span dir="ltr"> (T37167)
-	 *   . <s> and <strike> (T35715)
-	 *   . <q> (T251672)
-	 *   We strip any parameter from accepted tags, except dir="rtl|ltr" from <span>,
-	 *   to allow setting directionality in toc items.
+	 *   . `<sup>` and `<sub>` (T10393)
+	 *   . `<i>` (T28375)
+	 *   . `<b>` (r105284)
+	 *   . `<bdi>` (T74884)
+	 *   . `<span dir="rtl">` and `<span dir="ltr">` (T37167)
+	 *   . `<s>` and `<strike>` (T35715)
+	 *   . `<q>` (T251672)
+	 *   We strip any attribute from accepted tags, except `dir="rtl|ltr"`
+	 *   from `<span>` to allow setting directionality in toc items.
 	 *
-	 * @note This is in the default/mixed variant and should be converted
-	 *    into the proper user language variant before output.
+	 * @note Parsoid creates this in the default/mixed variant and
+	 * converts into the proper user language variant during postprocessing.
 	 */
 	public string $line;
 
 	/**
-	 * TOC number string (3.1.3, 4.5.2, etc.)
+	 * TOC number string (`3.1.3`, `4.5.2`, etc.)
 	 *
 	 * @note In the legacy parser, this is localized from creation, while in
 	 * Parsoid this is initially a sequence of dot-separated ascii digits and
@@ -73,24 +74,25 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 
 	/**
 	 * Section id (integer, assigned in depth first traversal order)
-	 * Template generated sections get a "T-" prefix.
+	 * Template-generated sections get a "T-" prefix.
 	 */
 	public string $index;
 
 	/**
 	 * The title of the page that generated this heading.
 	 * For template-generated sections, this will be the template title.
-	 * This string is in "prefixed DB key" format.
+	 * This string is in "prefixed DB key" format, which means spaces
+	 * will be replaced by underscores in the title.
 	 */
 	public ?string $fromTitle;
 
 	/**
 	 * Codepoint offset where the section shows up in wikitext; this is null
 	 * if this section comes from a template, if it comes from a literal
-	 * HTML <h_> tag, or otherwise doesn't correspond to a "preprocessor
-	 * section".
+	 * HTML `<h_>` tag in the wikitext, or otherwise doesn't correspond to a
+	 * "preprocessor section".
 	 * @note This is measured in codepoints, not bytes; you should use
-	 * appropriate multi-byte aware string functions, *not* substr().
+	 * appropriate multi-byte aware string functions, *not* `substr()`.
 	 * Similarly, in JavaScript, be careful not to confuse JavaScript
 	 * UCS-2 "characters" with codepoints.
 	 */
@@ -101,7 +103,7 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 *
 	 * This property is the "true" value of the ID attribute, and should be
 	 * used when looking up a heading or setting an attribute, for example
-	 * using Document.getElementById() or Element.setAttribute('id',...).
+	 * using `Document.getElementById()` or `Element.setAttribute('id',...)`.
 	 *
 	 * This value is *not* HTML-entity escaped; if you are writing HTML
 	 * as a literal string, you should still entity-escape ampersands and
@@ -117,7 +119,7 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 * - normalizes section name whitespace
 	 * - decodes char references
 	 * - makes it a valid HTML id attribute value
-	 *   (HTML5 / HTML4 based on $wgFragmentMode property)
+	 *   (HTML5 / HTML4 based on `$wgFragmentMode` property)
 	 * - dedupes (case-insensitively) identical anchors by adding "_$n" suffixes
 	 */
 	public string $anchor;
@@ -210,13 +212,11 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 * each time.  If you want to collect multiple pieces of data under a
 	 * single key, use ::appendExtensionData().
 	 *
-	 * @note Only scalar values (numbers, strings, or arrays) are
-	 * supported as a value.  (A future revision will allow anything
-	 * that core's JsonCodec can handle.)  Attempts to set other types
-	 * as extension data values will break ParserCache for the page.
-	 *
-	 * @todo When more complex values than scalar values are supported,
-	 * TOCData::__clone should be updated to take that into account.
+	 * @note Only scalars (numbers, strings, or arrays) or
+	 * `JsonCodecable` objects are supported for `$value`. Attempts to set
+	 * other types as extension data values will break ParserCache for the
+	 * page.  Object values should support the built-in PHP `clone`
+	 * operator.
 	 *
 	 * @param string $key The key for accessing the data. Extensions
 	 *   should take care to avoid conflicts in naming keys. It is
@@ -330,13 +330,6 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 		return $ret;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function jsonSerialize(): array {
-		return $this->toLegacy();
-	}
-
 	// JsonCodecable interface
 
 	/** @inheritDoc */
@@ -429,5 +422,9 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 		}
 
 		return $buf;
+	}
+
+	public function __clone() {
+		$this->extensionData = Utils::cloneArray( $this->extensionData );
 	}
 }
