@@ -1159,9 +1159,17 @@ T378404: Don't armor inward-pointing French quotes
 French: These « quotes » should be protected.
 
 Croatian: These »quotes« shouldn't be armored.
+
+Test accented characters: »čć« »žđ« »šç«
+!! html/php
+<p>French: These «&#160;quotes&#160;» should be protected.
+</p><p>Croatian: These »quotes« shouldn't be armored.
+</p><p>Test accented characters: »čć« »žđ« »šç«
+</p>
 !! html/parsoid
 <p>French: These «<span typeof="mw:DisplaySpace"> </span>quotes<span typeof="mw:DisplaySpace"> </span>» should be protected.</p>
 <p>Croatian: These »quotes« shouldn't be armored.</p>
+<p>Test accented characters: »čć« »žđ« »šç«</p>
 !! end
 
 !! test

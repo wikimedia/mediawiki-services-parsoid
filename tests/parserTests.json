@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "1eeccc2d758e5c7e829fe6380954de5e9343f14f",
+		"latestCommit": "fc72b5b442005d7749615781e1e6a0d663671fd5",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -35,7 +35,7 @@
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
-				"expectedSHA1": "44f7bc4f12275ddf1b3a4a650c75c8420123ad30"
+				"expectedSHA1": "3348e949a2357ccb1eae9e1ad193aa95036e5380"
 			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
@@ -47,7 +47,7 @@
 			},
 			"indicators.txt": {
 				"path": "tests/parser/indicators.txt",
-				"expectedSHA1": "63bcf50cfe089b254f358f12523fa39aa1f87185"
+				"expectedSHA1": "c8d460f39c2d13306654c29404214ccde1a1754c"
 			},
 			"interlanguageLinks.txt": {
 				"path": "tests/parser/interlanguageLinks.txt",
@@ -59,7 +59,7 @@
 			},
 			"langParserTests.txt": {
 				"path": "tests/parser/langParserTests.txt",
-				"expectedSHA1": "41aca051c33817643f7cd5d041fa99d413687f43"
+				"expectedSHA1": "8890a204ea16543622b10eaebe90ee90a5f03997"
 			},
 			"langParserTests2.txt": {
 				"path": "tests/parser/langParserTests2.txt",
@@ -75,11 +75,11 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "7c4a048cd53b273026897bce3cf77b66d3968855"
+				"expectedSHA1": "cbd95d4300e6ef1039e3812c477726f89f691958"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "88e5b894e87666a645280f39f4c228e50ec0af8f"
+				"expectedSHA1": "56e36951403909aa92eee4730b5a81855b61de9d"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -107,7 +107,7 @@
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
-				"expectedSHA1": "c441d650d9309f49a631869c52ba85b9e6fab62b"
+				"expectedSHA1": "c20dda2a0e684250f82649816fe1a5babd1303d3"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
