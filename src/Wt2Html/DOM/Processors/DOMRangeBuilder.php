@@ -1482,12 +1482,19 @@ class DOMRangeBuilder {
 
 	private function isStashableNode( Node $node ): bool {
 		return (
+			(
 				WTUtils::isRenderingTransparentNode( $node ) &&
-				// these metas count as rendering transparent, but let's not touch them - they're probably irrelevant
-				// for our case, and require fiddling with the pre handling more than necessary.
+				// These metas count as rendering transparent, but let's not touch them
+				// They're probably irrelevant for our case, and require fiddling with
+				// pre handling more than necessary.
 				!DOMUtils::hasTypeOf( $node, 'mw:IndentPreWS' )
 			) ||
 			$this->isNewlineWrappingSpan( $node ) ||
-			DOMUtils::nodeName( $node ) === 'style';
+			DOMUtils::nodeName( $node ) === 'style'
+		) &&
+		// This is conservative because we could restrict it to just
+		// <style> tags above, but this broader check is easier to
+		// reason about and verify that there aren't edge cases.
+		!DOMUtils::isFosterablePosition( $node );
 	}
 }

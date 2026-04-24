@@ -374,4 +374,31 @@ EOT;
 		$this->assertStringNotContainsString( '<default:math', $html );
 		$this->assertStringContainsString( '<math ', $html );
 	}
+
+	/**
+	 * Ensure that DOMRangeBuilder doesn't span-wrap style tags in
+	 * fosterable positions because <style> tags aren't fosterable
+	 * but span tags are!
+	 *
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\DOMRangeBuilder
+	 */
+	public function testSkipWrappingStyleTagsInFosterablePosition(): void {
+		$description = "Regression Specs: should not split p-wrappers around templatestyles";
+		$wt = "{{1x|\n" .
+			"{{{!}}\n\n" .
+			"<templatestyles src='Template:Quote/styles.css' />\n\n" .
+			"{{!}}}" .
+			"foo" .
+			"}}";
+		$docBody = $this->parseWT( $wt );
+
+		// If table content is fostered out of the table, about continuity
+		// will be broken and the assertion will fail.
+		$node = $docBody->firstChild;
+		$about = DOMCompat::getAttribute( $node, 'about' );
+		while ( $node !== null ) {
+			$this->assertSame( $about, DOMCompat::getAttribute( $node, 'about' ) );
+			$node = $node->nextSibling;
+		}
+	}
 }
