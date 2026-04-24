@@ -118,7 +118,7 @@ const forceUpdate = Promise.async(function *(targetRepo, branch) {
 	const url = {
 		host: 'gerrit.wikimedia.org',
 		path: gerritPath,
-		headers: { 'user-agent': 'wikimedia-parsoid' },
+		headers: { 'user-agent': process.env.GERRITUA || 'wikimedia-parsoid' },
 	};
 	const gitCommit = JSON.parse(yield new Promise(function(resolve, reject) {
 		https.get(url, function(result) {
