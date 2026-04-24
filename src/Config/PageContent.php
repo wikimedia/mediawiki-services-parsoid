@@ -18,7 +18,10 @@ abstract class PageContent {
 	/**
 	 * Return the revision ID of this page, or null if it is unknown.
 	 */
-	abstract public function getRevisionId(): ?int;
+	public function getRevisionId(): ?int {
+		// Temporary stub until 1.46-wmf.26 includes an implementation.
+		return null;
+	}
 
 	/**
 	 * Return the roles available in this page
