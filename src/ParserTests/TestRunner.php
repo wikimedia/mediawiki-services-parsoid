@@ -1182,7 +1182,7 @@ class TestRunner {
 		// Ensure ParserHook is always registered!
 		$teardown[] = $this->siteConfig->registerParserTestExtension( ParserHook::class );
 
-		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
+		$test->testAllModes( $targetModes, $options, Closure::fromCallable( $this->runTest( ... ) ) );
 
 		foreach ( array_reverse( $teardown ) as $t ) {
 			$t();
