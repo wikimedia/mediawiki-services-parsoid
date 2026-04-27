@@ -106,6 +106,14 @@ class BasePageBundle implements JsonCodecable {
 		);
 	}
 
+	public function isEmpty(): bool {
+		return $this->parsoid === null &&
+			$this->mw === null &&
+			$this->version === null &&
+			$this->headers === null &&
+			$this->contentmodel === null;
+	}
+
 	// JsonCodecable -------------
 
 	/** @inheritDoc */
