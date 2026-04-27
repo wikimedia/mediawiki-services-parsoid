@@ -2,6 +2,26 @@
     "-{}- tags within headlines (within html for parserConvert())": {
         "html2wt": "== -{Naslov}- ==\n\nNote that even an unprotected headline ID is not affected by language\nconversion:\n\n== Latinski ==\n"
     },
+    "Filter rules with BCP 47 codes": {
+        "html2wt": "-{zh-Hant-TW|-{zh-tw:Taiwan; zh-hk:Hong Kong; zh-cn:China}-}-"
+    },
+    "Nested raw markup": {
+        "wt2wt": "-{R|raw1 -{raw2}- -{R|raw3}-}-\n\n-{R|raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [2,0,0]": "dze4ys\n\n-{raw1 -{raw2}- -{R|raw3}-}-\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [3,4,0]": "f9ybf6\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [2,2,0]": "mfnaew\n\n-{raw1 -{raw2}- -{R|raw3}-}-\n\n1axz5z5\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [[3],0,0]": "\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [4,0,2]": "bn670y\n\n1t06e1\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [0,0,3]": "-{raw1 -{raw2}- -{R|raw3}-}-\n",
+        "selser [1,0,[1]]": "-{raw1 -{raw2}- -{R|raw3}-}-\n\n-{R|raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [2,2,4]": "vcy4yw\n\n-{raw1 -{raw2}- -{R|raw3}-}-\n\n1m2ayei\n\njk72fb",
+        "selser [1,2,3]": "-{raw1 -{raw2}- -{R|raw3}-}-\n\n10xez6d\n",
+        "selser [2,2,3]": "hw2ndq\n\n-{raw1 -{raw2}- -{R|raw3}-}-\n\n19nkqtx\n",
+        "selser [2,0,[3]]": "yql7w5\n\n-{raw1 -{raw2}- -{R|raw3}-}-\n\n",
+        "selser [[1],0,2]": "-{R|raw1 -{raw2}- -{R|raw3}-}-\n\n1fwx1cw\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [1,0,[2]]": "-{raw1 -{raw2}- -{R|raw3}-}-\n\nqnh93b-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-",
+        "selser [[2],2,0]": "1psvv66-{raw1 -{raw2}- -{R|raw3}-}-\n\n14iz57x\n\n-{raw -{sr-Cyrl;|filter}- -{sr-Latn:foo;sr-Cyrl:bar}- -{xyz=>sr-Cyrl:bat}-}-"
+    },
     "T153140: Don't break table handling if language converter markup is in the cell.": {
         "wt2wt": "{|\n|-\n|<nowiki/>-{R|B}-\n|}",
         "selser [2]": "a5ione\n{|\n|-\n| -{R|B}-\n|}",
@@ -13,5 +33,11 @@
         "selser [[0,[1,2]]]": "{|\n|- data-foobar=\"1i6qbai\"\n| -{R|B}-<!--17qpaqz-->\n|}",
         "selser [[0,[[0,2],4]]]": "{|\n|-\n|1owe1ce\n| -{R|B}-<!--a2zy4x-->\n|}",
         "selser [[4,1]]": "{|<!--1i1athc-->\n|-\n| -{R|B}-\n|}"
+    },
+    "T424391: Nested language converter markup in links": {
+        "wt2wt": "-{R| [http://www.paris.fr -{paris.fr}-] }-",
+        "selser [1]": "-{ [http://www.paris.fr -{paris.fr}-] }-",
+        "selser [2]": "1rsckpm\n\n-{ [http://www.paris.fr -{paris.fr}-] }-",
+        "selser [[2]]": "nnybf5-{ [http://www.paris.fr -{paris.fr}-] }-"
     }
 }
