@@ -119,7 +119,7 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 				$builtTag,
 				// Make sure there are no IDN-ignored characters in the text so
 				// the user doesn't accidentally copy any.
-				Sanitizer::cleanUrl( $env->getSiteConfig(), $href, 'wikilink' ), // mode could be 'wikilink'
+				Sanitizer::cleanUrl( $env->getSiteConfig(), $href, '' ), // mode could be 'wikilink'
 				new EndTagTk(
 					'a',
 					[],

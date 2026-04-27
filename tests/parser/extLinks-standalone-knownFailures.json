@@ -1,8 +1,4 @@
 {
-    "%7C in URL": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><a rel=\"mw:ExtLink nofollow\" href=\"http://testing.123?4=5%7C6\" class=\"external free\" data-parsoid='{\"stx\":\"url\",\"dsr\":[0,26,0,0]}'>http://testing.123?4=5%7C6</a></p>",
-        "html2wt": "http://testing.123?4=5%7C6"
-    },
     "Bracketed external links with template-generated invalid target": {
         "html2wt": "[http:/example.com title]\n"
     },

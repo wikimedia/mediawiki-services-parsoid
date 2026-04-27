@@ -478,14 +478,7 @@
         "html2wt": "* irc://%0Aa"
     },
     "Handling of &#x0A; in URLs": {
-        "wt2wt": "*[irc://&#x0A;a irc://a]",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,25,0,0]}'><li data-parsoid='{\"dsr\":[0,25,1,0,1,0]}'><a rel=\"mw:ExtLink nofollow\" href=\"irc://%0Aa\" class=\"external text\" data-parsoid='{\"a\":{\"href\":\"irc://%0Aa\"},\"sa\":{\"href\":\"irc://&amp;#x0A;a\"},\"dsr\":[2,25,15,1]}'>irc://a</a></li></ul>",
-        "html2wt": "* [irc://&#x0A;a irc://a]",
-        "selser [2]": "1tji0lu\n*irc://&#x0A;a",
-        "selser [[[2]]]": "*17as2be<nowiki/>irc://&#x0A;a",
-        "selser [1]": "*irc://&#x0A;a",
-        "selser [[2]]": "* 1lgciqp\n*irc://&#x0A;a",
-        "selser [[1]]": "*irc://&#x0A;a"
+        "html2wt": "* irc://&#x0A;a"
     },
     "Horizontal ruler (should it add that extra space?)": {
         "wt2wt": "<hr>\n<hr>\nfoo <hr> bar",

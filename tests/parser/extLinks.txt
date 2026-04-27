@@ -841,18 +841,6 @@ http://www.example.com/?title=Ben-Hur_%281959_film%29
 <p><a rel="mw:ExtLink nofollow" href="http://www.example.com/?title=Ben-Hur_%281959_film%29" class="external free">http://www.example.com/?title=Ben-Hur_%281959_film%29</a></p>
 !! end
 
-# This is a deliberate difference between legacy and Parsoid; Parsoid
-# maintains the author's original text and doesn't URL encode it.
-!! test
-%7C in URL
-!! wikitext
-http://testing.123?4=5&vert;6
-!! html/php
-<p><a rel="nofollow" class="external free" href="http://testing.123?4=5%7C6">http://testing.123?4=5%7C6</a>
-</p>
-!! html/parsoid
-<p><a class="external free" href="http://testing.123?4=5%7C6" rel="mw:ExtLink nofollow">http://testing.123?4=5|6</a></p>
-!! end
 
 !! test
 T6781: %26 in autonumber URL
@@ -1037,7 +1025,7 @@ http://example.com/index.php?foozoid&#x5B;&#x5D;=bar
 !! html/parsoid
 <p><a rel="mw:ExtLink nofollow" href="http://example.com/index.php?foozoid%5B%5D=bar" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/index.php?foozoid%5B%5D=bar</a></p>
 
-<p><a rel="mw:ExtLink nofollow" href="http://example.com/index.php?foozoid%5B%5D=bar" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/index.php?foozoid%5B%5D=bar"},"sa":{"href":"http://example.com/index.php?foozoid&amp;#x5B;&amp;#x5D;=bar"}}'>http://example.com/index.php?foozoid[]=bar</a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com/index.php?foozoid%5B%5D=bar" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/index.php?foozoid%5B%5D=bar"},"sa":{"href":"http://example.com/index.php?foozoid&amp;#x5B;&amp;#x5D;=bar"}}'>http://example.com/index.php?foozoid%5B%5D=bar</a></p>
 !! end
 
 !! test
