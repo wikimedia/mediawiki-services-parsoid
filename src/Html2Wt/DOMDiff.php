@@ -13,6 +13,8 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwI18n;
+use Wikimedia\Parsoid\NodeData\DataMwVariant;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -71,23 +73,29 @@ class DOMDiff {
 			'data-mw' => function (
 				Element $nodeA, DataMw $dmwA, Element $nodeB, DataMw $dmwB
 			): bool {
-				if ( isset( $dmwA->caption ) && isset( $dmwB->caption ) ) {
-					if ( !$this->treeEquals( $dmwA->caption, $dmwB->caption, true ) ) {
-						return false;
-					}
-					$dmwA = (array)$dmwA;
-					$dmwB = (array)$dmwB;
-					unset( $dmwA['caption'] );
-					unset( $dmwB['caption'] );
-				}
-				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
-				return $dmwA == $dmwB;
+				return $dmwA->equalsWithComparator(
+					$dmwB, fn ( $a, $b ) => $this->treeEquals( $a, $b, true )
+				);
 			},
 			'data-parsoid' => static function (
 				Element $nodeA, DataParsoid $dpA, Element $nodeB, DataParsoid $dpB
 			): bool {
 				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 				return $dpA == $dpB;
+			},
+			'data-mw-i18n' => static function (
+				Element $nodeA, DataMwI18n $dmwi18nA, Element $nodeB, DataMwI18n $dmwi18nB
+			): bool {
+				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
+				return $dmwi18nA == $dmwi18nB;
+			},
+			'data-mw-variant' => function (
+				Element $nodeA, DataMwVariant $dmwvA, Element $nodeB, DataMwVariant $dmwvB
+			): bool {
+				return $dmwvA->equalsWithComparator(
+					$dmwvB,
+					fn ( $dfA, $dfB ) => $this->treeEquals( $dfA, $dfB, true )
+				);
 			},
 		];
 	}

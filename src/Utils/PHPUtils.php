@@ -313,6 +313,47 @@ class PHPUtils {
 	}
 
 	/**
+	 * Compare the contents of two arrays for equality, given a
+	 * equality comparison function for elements of the array.
+	 * Arrays are equal if they have the same size and element values
+	 * for equal keys are equal.
+	 *
+	 * For convenience, `null` can be passed in as well, and the function
+	 * only returns true if the other argument is also `null`.  This avoids
+	 * `null` checks in the caller in many cases.
+	 *
+	 * @param ?array $arrA
+	 * @param ?array $arrB
+	 * @param callable(mixed,mixed):bool $elementEquals A function to compare
+	 *  non-null elements of $arrA and $arrB for equality.
+	 * @return bool True if $arrA and $arrB are equal.
+	 */
+	public static function arrayEquals( ?array $arrA, ?array $arrB, callable $elementEquals ): bool {
+		if ( $arrA === null ) {
+			return $arrB === null;
+		}
+		if ( $arrB === null ) {
+			return false;
+		}
+		if ( count( $arrA ) !== count( $arrB ) ) {
+			return false;
+		}
+		foreach ( $arrA as $i => $elemA ) {
+			$elemB = $arrB[$i] ?? null;
+			if ( $elemA === null ) {
+				if ( $elemB !== null ) {
+					return false;
+				}
+			} elseif ( $elemB === null ) {
+				return false;
+			} elseif ( !( $elementEquals( $elemA, $elemB ) ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Convert an iterable to an array.
 	 *
 	 * This function is similar to *but not the same as* the built-in

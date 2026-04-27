@@ -32,6 +32,12 @@ class VariantOneWay implements JsonCodecable {
 	) {
 	}
 
+	public function equalsWithComparator( VariantOneWay $other, callable $docFragEquals ): bool {
+		return ( $this->lang === $other->lang ) &&
+			$docFragEquals( $this->from, $other->from ) &&
+			$docFragEquals( $this->to, $other->to );
+	}
+
 	public function __clone() {
 		// Deep clone DocumentFragments
 		// (Note that from/to can't be readonly properties until PHP 8.3:

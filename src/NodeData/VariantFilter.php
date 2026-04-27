@@ -29,6 +29,11 @@ class VariantFilter implements JsonCodecable {
 	) {
 	}
 
+	public function equalsWithComparator( VariantFilter $other, callable $docFragEquals ): bool {
+		return ( $this->langs === $other->langs ) &&
+			$docFragEquals( $this->text, $other->text );
+	}
+
 	public function __clone() {
 		// Deep clone DocumentFragments
 		// (Note that from/to can't be readonly properties until PHP 8.3:

@@ -8,6 +8,7 @@ use Wikimedia\JsonCodec\JsonCodecInterface;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\JsonCodecableWithCodecTrait;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\RichCodecable;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
@@ -44,6 +45,36 @@ class DataMwVariant implements RichCodecable {
 	public ?bool $rt = null;
 
 	public ?DocumentFragment $name = null;
+
+	/**
+	 * Compare this DataMwVariant with an $other DataMwVariant for equality,
+	 * given a function to compare DocumentFragments.
+	 */
+	public function equalsWithComparator( DataMwVariant $other, callable $docFragEquals ): bool {
+		return (
+			$this->show === $other->show &&
+			$this->add === $other->add &&
+			$this->error === $other->error &&
+			$this->title === $other->title &&
+			$this->describe === $other->describe &&
+			$this->remove === $other->remove &&
+			$this->rt === $other->rt &&
+			( $this->disabled === null ) === ( $other->disabled === null ) &&
+			( $this->filter === null ) === ( $other->filter === null ) &&
+			( $this->name === null ) === ( $other->name === null ) &&
+			( $this->disabled === null || $docFragEquals( $this->disabled, $other->disabled ) ) &&
+			( $this->filter === null || $this->filter->equalsWithComparator( $other->filter, $docFragEquals ) ) &&
+			( $this->name === null || $docFragEquals( $this->name, $other->name ) ) &&
+			PHPUtils::arrayEquals(
+				$this->twoway, $other->twoway,
+				static fn ( $twA, $twB ) => $twA->equalsWithComparator( $twB, $docFragEquals )
+			) &&
+			PHPUtils::arrayEquals(
+				$this->oneway, $other->oneway,
+				static fn ( $owA, $owB ) => $owA->equalsWithComparator( $owB, $docFragEquals )
+			)
+		);
+	}
 
 	public function __clone() {
 		// Deep clone non-primitive properties

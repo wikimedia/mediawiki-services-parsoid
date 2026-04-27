@@ -125,6 +125,26 @@ class DataMw implements JsonCodecable, RichCodecable {
 		$this->extAttribs->set( $name, $value );
 	}
 
+	public function equalsWithComparator( DataMw $other, callable $docFragEquals ): bool {
+		$propsA = (array)$this;
+		$propsB = (array)$other;
+		foreach ( [ 'caption', 'html' ] as $field ) {
+			$fA = $propsA[$field] ?? null;
+			$fB = $propsB[$field] ?? null;
+			if ( ( $fA === null ) !== ( $fB === null ) ) {
+				return false;
+			}
+			if ( $fA !== null ) {
+				if ( !$docFragEquals( $fA, $fB ) ) {
+					return false;
+				}
+				unset( $propsA[$field] );
+				unset( $propsB[$field] );
+			}
+		}
+		return $propsA == $propsB;
+	}
+
 	public function __clone() {
 		// Deep clone non-primitive properties
 

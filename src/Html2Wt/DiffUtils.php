@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataMwI18n;
 use Wikimedia\Parsoid\NodeData\DataParsoidDiff;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -157,6 +158,14 @@ class DiffUtils {
 		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) ) {
 			$h['data-mw'] = DOMDataUtils::getDataMw( $node );
 		}
+		if ( !in_array( 'data-mw-variant', $ignoreableAttribs, true ) ) {
+			$h['data-mw-variant'] = DOMDataUtils::getDataMwVariant( $node );
+		}
+		if ( !in_array( 'data-mw-i18n', $ignoreableAttribs, true ) ) {
+			$h['data-mw-i18n'] = DOMDataUtils::getAttributeObject( $node, 'data-mw-i18n', DataMwI18n::hint() );
+		}
+		// data-parsoid-diff is also a rich attribute, but should
+		// always be ignored.
 		return $h;
 	}
 

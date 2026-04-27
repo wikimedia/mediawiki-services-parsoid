@@ -217,4 +217,32 @@ class PHPUtilsTest extends TestCase {
 		$this->assertSame( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ], $b );
 	}
 
+	/**
+	 * @covers ::arrayEquals
+	 */
+	public function testArrayEquals() {
+		// case-insensitive element comparison function
+		$elemCmp = static fn ( string $a, string $b ) => strtolower( $a ) === strtolower( $b );
+		$this->assertTrue( PHPUtils::arrayEquals( null, null, $elemCmp ) );
+		$this->assertFalse( PHPUtils::arrayEquals( null, [ "a" ], $elemCmp ) );
+		$this->assertFalse( PHPUtils::arrayEquals( [ "2" ], null, $elemCmp ) );
+		$this->assertTrue( PHPUtils::arrayEquals( [ "a", "b" ], [ "a", "b" ], $elemCmp ) );
+		$this->assertFalse( PHPUtils::arrayEquals( [], [ "a", "b" ], $elemCmp ) );
+		$this->assertFalse( PHPUtils::arrayEquals( [ "a", "b" ], [ "b", "c" ], $elemCmp ) );
+		$this->assertTrue( PHPUtils::arrayEquals( [ "a", "b" ], [ "A", "b" ], $elemCmp ) );
+		// handle null values
+		$this->assertFalse( PHPUtils::arrayEquals( [ null, "b" ], [ "b" ], $elemCmp ) );
+		$this->assertTrue( PHPUtils::arrayEquals( [ null, "b" ], [ null, "b" ], $elemCmp ) );
+		// keyed maps
+		$this->assertTrue( PHPUtils::arrayEquals( [
+			"a" => "b", "c" => "d"
+		], [
+			"c" => "d", "a" => "b"
+		], $elemCmp ) );
+		$this->assertFalse( PHPUtils::arrayEquals( [
+			"a" => "b", "c" => "d"
+		], [
+			"a" => "b", "d" => "e"
+		], $elemCmp ) );
+	}
 }
