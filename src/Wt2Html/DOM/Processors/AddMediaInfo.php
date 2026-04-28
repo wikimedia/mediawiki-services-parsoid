@@ -640,7 +640,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					: ( $starttime->value['txt'] ?? '' );
 				$seek = self::parseTimeString( $seek );
 				if ( $seek !== null ) {
-					$dims['seek'] = $seek;
+					// Cast this back to a string since TMH's validateParam
+					// expects it that way
+					$dims['seek'] = (string)$seek;
 				}
 			}
 
