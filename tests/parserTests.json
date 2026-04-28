@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "b1940ff49eb19244ddea31ab26bd052dfcb51e7b",
+		"latestCommit": "7e2879fabd1e0fc657c68a68559991b0e118fec1",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -117,11 +117,11 @@
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "45745d6d3facc08d92980c69d690a673eb1125fc",
+		"latestCommit": "e03b3137eb512cff8214f77d13e7e8f319bd3e8f",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "fbf20107153b3c6c7e8d6f8b4125855f52443bd6"
+				"expectedSHA1": "df4c7bffe0c6baa36b6c3389234f3a90ea964b60"
 			}
 		}
 	}
