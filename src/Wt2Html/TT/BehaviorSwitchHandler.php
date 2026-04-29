@@ -47,6 +47,7 @@ class BehaviorSwitchHandler extends XMLTagBasedHandler {
 				self::OUTPUT_FLAG_FROM_BEHAVIOR_SWITCH[$magicWord], true
 			);
 		}
+		$env->getMetadata()->setUnsortedPageProperty( $magicWord );
 		if (
 			$magicWord === 'hiddencat' &&
 			$env->getPageConfig()->getLinkTarget()->getNamespace() === 14 // NS_CATEGORY
