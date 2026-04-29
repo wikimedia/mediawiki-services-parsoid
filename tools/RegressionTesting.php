@@ -38,12 +38,32 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		);
 		$this->addOption(
 			"uid",
-			"The bastion username you use to login to parsoidtest1001/testreduce1002",
+			"The bastion username you use to login to the remote hosts",
 			false, true, 'u'
+		);
+		$this->addOptionWithDefault(
+			"testreduce-server",
+			"Hostname of the testreduce server",
+			'testreduce1002.eqiad.wmnet'
+		);
+		$this->addOptionWithDefault(
+			"parsoidtest-server",
+			"Hostname of the parsoidtest server",
+			'parsoidtest1001.eqiad.wmnet'
+		);
+		$this->addOptionWithDefault(
+			"proxyURL",
+			"Proxy URL (including port) passed to runRtTests.js",
+			'http://parsoidtest1001.eqiad.wmnet:80'
 		);
 		$this->addOption(
 			"contentVersion",
 			"The outputContentVersion to use, if different from the default",
+			false, true
+		);
+		$this->addOption(
+			"headers",
+			"Extra HTTP headers to pass to runRtTests.js as a JSON string, e.g. '{\"X-Foo\":\"bar\"}'",
 			false, true
 		);
 		$this->addOption(
@@ -67,6 +87,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->addOptionWithDefault(
 			"updateTestreduce",
 			"Should testreduce1002 also be updated? (default true)",
+			true );
+		$this->addOptionWithDefault(
+			"restartPHP",
+			"Restart php8.3-fpm.service after git checkout? (default true)",
 			true );
 		$this->setAllowUnregisteredOptions( true );
 	}
@@ -132,8 +156,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function hostname( ?string $host = null ): string {
 		if ( $host === null ) {
-			// default hostname
-			$host = 'testreduce1002.eqiad.wmnet';
+			$host = $this->getOption( 'testreduce-server' );
 		}
 		if ( $this->hasOption( 'uid' ) ) {
 			$host = $this->getOption( 'uid' ) . "@$host";
@@ -151,6 +174,18 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			return [];
 		}
 		return [ '--outputContentVersion', $this->getOption( 'contentVersion' ) ];
+	}
+
+	/**
+	 * Return the command-line argument fragment to use if extra HTTP headers
+	 * were passed as a command-line option.
+	 * @return string[]
+	 */
+	private function headers(): array {
+		if ( !$this->hasOption( 'headers' ) ) {
+			return [];
+		}
+		return [ '--headers', $this->getOption( 'headers' ) ];
 	}
 
 	/**
@@ -175,36 +210,34 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	public function runTest( $commit ): void {
 		$cdDir = self::cmd( 'cd /srv/parsoid-testing' );
-		$restartPHP = self::cmd( 'sudo systemctl restart php8.3-fpm.service' );
 		$resultPath = "/tmp/results.$commit.json";
+		$needsPHPRestart = ScriptUtils::booleanOption( $this->getOption( 'restartPHP' ) );
+		$restartCmd = self::cmd( '&& sudo systemctl restart php8.3-fpm.service' );
+		$restartOperation = $needsPHPRestart ? $restartCmd : [];
 		$testScript = self::cmd(
 			$cdDir, '&&',
 			'node tools/runRtTests.js',
-			'--proxyURL http://parsoidtest1001.eqiad.wmnet:80',
+			'--proxyURL ' . $this->getOption( 'proxyURL' ),
 			'--parsoidURL http://DOMAIN/w/rest.php',
 			$this->outputContentVersion(),
+			$this->headers(),
 			[ '-f', $this->titlesPath ],
 			[ '-o', $resultPath ]
 		);
 
 		$this->dashes( "Checking out $commit on parsoidtest1001" );
-		$this->ssh( self::cmd(
-			'umask 0002', '&&',
-			$cdDir, '&&',
-			"git fetch", '&&',
-			'git checkout', [ $commit ], '&&',
-			$restartPHP
-		), 'parsoidtest1001.eqiad.wmnet' );
+		$this->ssh( array_merge(
+			self::cmd( 'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ] ),
+			$restartOperation
+		), $this->getOption( 'parsoidtest-server' ) );
 		if ( ScriptUtils::booleanOption( $this->getOption( 'updateTestreduce' ) ) ) {
 			# Check out on testreduce1002 as well to ensure HTML version changes
 			# don't trip up our test script and we don't have to mess with passing in
 			# the --contentVersion option in most scenarios
 			$this->dashes( "Checking out $commit on testreduce1002" );
 			$this->ssh( self::cmd(
-				'umask 0002', '&&',
-				$cdDir, '&&',
-				"git fetch", '&&',
-				'git checkout', [ $commit ] ), 'testreduce1002.eqiad.wmnet' );
+				'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ]
+			), $this->getOption( 'testreduce-server' ) );
 		}
 
 		$this->dashes( "Running tests" );

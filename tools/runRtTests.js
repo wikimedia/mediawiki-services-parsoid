@@ -43,6 +43,11 @@ const opts = yargs
 		boolean: false,
 		default: null,
 	},
+	headers: {
+		description: '(OPTIONAL) Extra HTTP headers as a JSON string, e.g. \'{"X-Foo":"bar"}\'',
+		boolean: false,
+		default: null,
+	},
 	// FIXME: Add an option for the regression url.
 });
 
@@ -80,6 +85,9 @@ Promise.async(function *() {
 			const parsoidURLOpts = { baseUrl: argv.parsoidURL };
 			if (argv.proxyURL) {
 				parsoidURLOpts.proxy = { host: argv.proxyURL };
+			}
+			if (argv.headers) {
+				parsoidURLOpts.headers = JSON.parse(argv.headers);
 			}
 			return rtTest.runTests(
 				t.title,

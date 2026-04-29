@@ -2,24 +2,40 @@
 
 set -eu -o pipefail
 
+restart_fpm=true
+args=()
+for arg in "$@"; do
+	if [ "$arg" = "--no-restart-fpm" ]; then
+		restart_fpm=false
+	else
+		args+=("$arg")
+	fi
+done
+set -- "${args[@]}"
+
 if [ $# -lt 2 ]
 then
-	echo "USAGE: start-rt-test.sh <uid> <rt-test-id>"
-	echo " - <uid> is your bastion uid you use to log in to parsoidtest1001/testreduce1002"
+	echo "USAGE: start-rt-test.sh <uid> <rt-test-id> [parsoid-host] [testreduce-host] [--no-restart-fpm]"
+	echo " - <uid> is your bastion uid you use to log in to the parsoid and testreduce hosts"
 	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
+	echo " - <parsoid-host> hostname running the Parsoid REST API (default: parsoidtest1001.eqiad.wmnet)"
+	echo " - <testreduce-host> hostname running the testreduce service (default: testreduce1002.eqiad.wmnet)"
+	echo " - --no-restart-fpm skip restarting php8.3-fpm on the parsoid host"
 	exit 1
 fi
 
 uid=$1
 testid=$2
+parsoid_host=${3:-parsoidtest1001.eqiad.wmnet}
+testreduce_host=${4:-testreduce1002.eqiad.wmnet}
 
 # By convention we truncate testids to 8 characters, but some users
 # copy-and-paste full git hashes on the command line.  Normalize.
 testid=$(echo -n "$testid" | head -c 8)
 
-# Update code on parsoidtest1001 since RT testing scripts will hit the Parsoid REST API on parsoidtest1001
-echo "---- Updating code on parsoidtest1001 ----"
-ssh "$uid"@parsoidtest1001.eqiad.wmnet <<EOF
+# Update code on parsoid host since RT testing scripts will hit the Parsoid REST API there
+echo "---- Updating code on $parsoid_host ----"
+ssh "$uid"@"$parsoid_host" <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
 
@@ -32,11 +48,13 @@ if [[ \$(git diff --stat) != '' ]]; then
 fi
 git checkout $testid
 git log --oneline -n 1
-sudo systemctl restart php8.3-fpm.service
+if $restart_fpm; then
+  sudo systemctl restart php8.3-fpm.service
+fi
 EOF
 
-echo "---- Starting test run $testid on testreduce1002 ----"
-ssh "$uid"@testreduce1002.eqiad.wmnet <<EOF
+echo "---- Starting test run $testid on $testreduce_host ----"
+ssh "$uid"@"$testreduce_host" <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
 
