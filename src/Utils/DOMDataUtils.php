@@ -135,7 +135,9 @@ class DOMDataUtils {
 		return self::isPrepared( $doc ) && self::getBag( $doc )->loaded;
 	}
 
-	public static function prepareAndLoadDoc( Document $doc, array $options = [] ): void {
+	public static function prepareAndLoadDoc(
+		Document $doc, SiteConfig $siteConfig, array $options = []
+	): void {
 		$bag = new DataBag();
 		$codec = new DOMDataCodec( $doc, [] );
 		self::setExtensionData( $doc, "bag", $bag );

@@ -28,15 +28,16 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::storeInPageBundle
 	 */
 	public function testStoreInPageBundle() {
+		$siteConfig = new MockSiteConfig( [] );
 		$dpb = DomPageBundle::fromHtmlPageBundle( HtmlPageBundle::newEmpty(
 			"<p>Hello, world</p>"
 		) );
-		DOMDataUtils::prepareAndLoadDoc( $dpb->doc );
+		DOMDataUtils::prepareAndLoadDoc( $dpb->doc, siteConfig: $siteConfig );
 		$p = DOMCompat::querySelector( $dpb->doc, 'p' );
 		TestingAccessWrapper::newFromClass( DOMDataUtils::class )->storeInPageBundle( $dpb, $p, (object)[
 			'parsoid' => '{"go":"team"}',
 			'mw' => '{"test":"me"}',
-		], DOMDataUtils::usedIdIndex( new MockSiteConfig( [] ), $p->ownerDocument ) );
+		], DOMDataUtils::usedIdIndex( $siteConfig, $p->ownerDocument ) );
 		$id = DOMCompat::getAttribute( $p, 'id' ) ?? '';
 		$this->assertNotEquals( '', $id );
 		// Use the 'native' getElementById, not DOMCompat::getElementById,
@@ -51,7 +52,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeMissing() {
-		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>", siteConfig: $siteConfig
+		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Reserved HTML attribute
@@ -69,8 +73,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeBackCompat1() {
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"rich\":{\"bar\":42}}]]}'>Hello, world</p>"
+			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"rich\":{\"bar\":42}}]]}'>Hello, world</p>",
+			siteConfig: $siteConfig
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
@@ -96,8 +102,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeBackCompat2() {
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"rich\":{\"bar\":42}}],[{\"txt\":\"bar\",\"html\":\"&lt;b>bar&lt;/b>\"},{\"html\":\"xyz\"}]]}'>Hello, world</p>"
+			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"rich\":{\"bar\":42}}],[{\"txt\":\"bar\",\"html\":\"&lt;b>bar&lt;/b>\"},{\"html\":\"xyz\"}]]}'>Hello, world</p>",
+			siteConfig: $siteConfig
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
@@ -128,8 +136,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * Persistent attributes should not be removed, only set to null
 	 */
 	public function testRemovalOfPersistentDataAttributes() {
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p>Hello, world</p>"
+			"<p>Hello, world</p>", siteConfig: $siteConfig
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$data = DOMDataUtils::getNodeData( $p );
@@ -149,7 +158,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testRichAttributeObject() {
 		$rd = [];
-		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>", siteConfig: $siteConfig
+		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		$attrNames = [ 'foo', 'data-mw-foo' ];
@@ -185,7 +197,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			'Hello, world</p>',
 			$html
 		);
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Values should be preserved!
@@ -203,7 +215,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getAttributeObjectDefault
 	 */
 	public function testRichAttributeObjectNested() {
-		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>", siteConfig: $siteConfig
+		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$this->assertNull( DOMDataUtils::getAttributeObject( $p, 'data-mw-foo', SampleRichData::hint() ) );
 
@@ -262,7 +277,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testRichAttributeDom() {
 		$f = [];
-		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<p>Hello, world</p>", siteConfig: $siteConfig
+		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$attrNames = [ 'title', 'data-mw-foo' ];
 		foreach ( $attrNames as $attr ) {
@@ -299,7 +317,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		}
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
-			$siteConfig = new MockSiteConfig( [] );
 			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
@@ -337,7 +354,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				$html,
 				"useFragmentBank=" . ( $useFragmentBank ? "true" : "false" )
 			);
-			$doc = ContentUtils::createAndLoadDocument( $html );
+			$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 			$p = DOMCompat::querySelector( $doc, 'p' );
 			foreach ( $attrNames as $attr ) {
 				// Values should be preserved!
@@ -384,7 +401,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		}
 		// Serialize and deserialize (both serializations)
 		foreach ( [ true, false ] as $useFragmentBank ) {
-			$siteConfig = new MockSiteConfig( [] );
 			$options = [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
@@ -433,7 +449,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'</body></html>',
 				$html
 			);
-			$doc = ContentUtils::createAndLoadDocument( $html );
+			$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 			$p = DOMCompat::querySelector( $doc, 'p' );
 			foreach ( $attrNames as $attr ) {
 				$f = DOMDataUtils::getAttributeDOM( $p, $attr );
@@ -456,7 +472,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	public function testRichAttributeDomPageBundle( bool $useFragmentBank ) {
 		$env = new MockEnv( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p>Hello, world</p>", [ 'serializeNewEmptyDp' => true ]
+			"<p>Hello, world</p>",
+			[ 'serializeNewEmptyDp' => true ],
+			siteConfig: $env->getSiteConfig(),
 		);
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$dp = DOMDataUtils::getDataParsoid( $p );
@@ -469,7 +487,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 
 		// Serialize
 		$html = DomPageBundle::fromLoadedDocument(
-			$doc, siteConfig: new MockSiteConfig( [] ), options: [
+			$doc, siteConfig: $env->getSiteConfig(), options: [
 				'useFragmentBank' => $useFragmentBank,
 			] )->toSingleDocumentHtml();
 		$this->assertSame(
@@ -507,7 +525,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 
 		// Reload data parsoid from page bundle
 		$pb = DomPageBundle::fromSingleDocument( DOMUtils::parseHTML( $html ) );
-		$doc = $pb->toDom();
+		$doc = $pb->toDom( siteConfig: $env->getSiteConfig() );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$dp = DOMDataUtils::getDataParsoid( $p );
 		$this->assertSame( 'test1', $dp->src );
@@ -527,8 +545,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testCloneDocument() {
 		// Create a document with some data-parsoid and rich attributes
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<p>Hello, world</p>", [ 'serializeNewEmptyDp' => true ]
+			"<p>Hello, world</p>",
+			[ 'serializeNewEmptyDp' => true ],
+			siteConfig: $siteConfig,
 		);
 
 		$p = DOMCompat::querySelector( $doc, 'p' );
@@ -575,9 +596,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testCloneInlineAttrsDocument() {
 		// Create a document with some data-parsoid and rich attributes
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			'<p><span typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
-			[ 'serializeNewEmptyDp' => true ]
+			[ 'serializeNewEmptyDp' => true ],
+			siteConfig: $siteConfig,
 		);
 
 		// Clone the document before loading anything from $doc.
@@ -619,7 +642,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testCloneInlineAttrsDocumentFragment() {
 		// Create a document with some data-parsoid and rich attributes
-		$doc = ContentUtils::createAndLoadDocument( '' );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument( '', siteConfig: $siteConfig );
 		$frag = ContentUtils::createAndLoadDocumentFragment(
 			$doc,
 			'<p><span typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>'
@@ -668,9 +692,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
 			mw: [ 'ids' => [] ],
 		);
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
-			[ 'loadFromPageBundle' => $inPb ]
+			[ 'loadFromPageBundle' => $inPb ],
+			siteConfig: $siteConfig,
 		);
 
 		// Clone the document before loading anything from $doc.
@@ -729,12 +755,15 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testClonePageBundleAttrsDocumentFragment() {
 		// Create a document with some data-parsoid and rich attributes
+		$siteConfig = new MockSiteConfig( [] );
 		$inPb = new BasePageBundle(
 			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
 			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
 			mw: [ 'ids' => [] ],
 		);
-		$doc = ContentUtils::createAndLoadDocument( '', [ 'loadFromPageBundle' => $inPb ] );
+		$doc = ContentUtils::createAndLoadDocument(
+			'', [ 'loadFromPageBundle' => $inPb ], siteConfig: $siteConfig,
+		);
 		$frag = ContentUtils::createAndLoadDocumentFragment(
 			$doc,
 			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
@@ -793,12 +822,15 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testFragmentCloningAndDedupeNodeData() {
 		// Create a document with some data-parsoid and rich attributes
+		$siteConfig = new MockSiteConfig( [] );
 		$inPb = new BasePageBundle(
 			counters: [ 'nodedata' => 2, 'annotation' => 0, 'transclusion' => 1 ],
 			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ], "mwAB" => [ "c" => "d" ], "mwAC" => [ "e" => "f" ] ] ],
 			mw: [ 'ids' => [] ],
 		);
-		$doc = ContentUtils::createAndLoadDocument( '', [ 'loadFromPageBundle' => $inPb ] );
+		$doc = ContentUtils::createAndLoadDocument(
+			'', [ 'loadFromPageBundle' => $inPb ], siteConfig: $siteConfig,
+		);
 		$frag = ContentUtils::createAndLoadDocumentFragment(
 			$doc,
 			'<p id="mwAA"><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>',
@@ -834,8 +866,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testInlineAttrsToPageBundleDataParsoidLazyLoading(): void {
 		// inline dp -> pagebundle dp
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>'
+			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>',
+			siteConfig: $siteConfig,
 		);
 
 		// Verify laziness
@@ -880,9 +914,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			parsoid: [ 'ids' => [] ],
 			mw: [ 'ids' => [] ],
 		);
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>',
-			[ 'loadFromPageBundle' => $inPb ]
+			[ 'loadFromPageBundle' => $inPb ],
+			siteConfig: $siteConfig,
 		);
 
 		// Verify laziness
@@ -919,9 +955,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			parsoid: [ 'ids' => [] ],
 			mw: [ 'ids' => [] ],
 		);
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			'<p data-parsoid=\'{"a":"b"}\' data-mw=\'{"c":"d"}\'>Hello, world</p>',
-			[ 'loadFromPageBundle' => $inPb ]
+			[ 'loadFromPageBundle' => $inPb ],
+			siteConfig: $siteConfig,
 		);
 		$body = DOMCompat::getBody( $doc );
 		'@phan-var Element $p'; // @var Element $p
@@ -959,9 +997,11 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			parsoid: [ 'ids' => [ "mwAA" => [ "a" => "b" ] ] ],
 			mw: [ 'ids' => [] ],
 		);
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			'<p id="mwAA" data-mw=\'{"c":"d"}\'>Hello, world</p>',
-			[ 'loadFromPageBundle' => $inPb ]
+			[ 'loadFromPageBundle' => $inPb ],
+			siteConfig: $siteConfig,
 		);
 
 		$body = DOMCompat::getBody( $doc );
@@ -1000,7 +1040,12 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		);
 		// NOTE: <p> has inline data-parsoid that overrides the pagebundle value
 		$origHtml = '<p id="mwAA" data-parsoid=\'{"x":"y"}\'><span id="mwAB" typeof="mw:LanguageVariant" data-mw-variant=\'{"disabled":{"t":"&lt;span id=\"mwAC\" typeof=\"mw:Entity\">foo&lt;/span>"}}\'></span></p>';
-		$doc = ContentUtils::createAndLoadDocument( $origHtml, [ 'loadFromPageBundle' => $inPb ] );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			$origHtml,
+			[ 'loadFromPageBundle' => $inPb ],
+			siteConfig: $siteConfig,
+		);
 
 		$body = DOMCompat::getBody( $doc );
 		$p = $body->firstChild;

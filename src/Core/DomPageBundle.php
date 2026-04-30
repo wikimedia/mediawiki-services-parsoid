@@ -131,8 +131,13 @@ class DomPageBundle extends BasePageBundle {
 	 * @param ?array<string,DocumentFragment> &$fragments Additional fragments
 	 *  present in the page bundle, which will also be loaded as necessary.
 	 *  This is an output parameter.
+	 * @param ?SiteConfig $siteConfig used to initialize the document codec
 	 */
-	public function toDom( bool $load = true, ?array $options = null, ?array &$fragments = null ): Document {
+	public function toDom(
+		bool $load = true, ?array $options = null,
+		?array &$fragments = null,
+		?SiteConfig $siteConfig = null
+	): Document {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->doc;
 		$options ??= [];
@@ -143,11 +148,18 @@ class DomPageBundle extends BasePageBundle {
 			}
 			$options['loadFromPageBundle'] = $this;
 			$options['fragments'] = $this->fragments;
-			DOMDataUtils::prepareAndLoadDoc( $doc, $options );
+			$siteConfig ??= $options['siteConfig'] ?? null;
+			if ( $siteConfig === null ) {
+				PHPUtils::deprecated( __METHOD__ . ' without SiteConfig', '0.24' );
+				$siteConfig = new MockSiteConfig( [] );
+			}
+			DOMDataUtils::prepareAndLoadDoc( $doc, $siteConfig, $options );
 		} else {
 			PHPUtils::deprecated( __METHOD__ . ' with $load=false', '0.23' );
 			$doc = $this->toInlineAttributeDocument(
-				siteConfig: new MockSiteConfig( [] ), options: $options, fragments: $fragments
+				siteConfig: $siteConfig ?? new MockSiteConfig( [] ),
+				options: $options,
+				fragments: $fragments
 			);
 		}
 		$this->invalid = true;
@@ -270,7 +282,7 @@ class DomPageBundle extends BasePageBundle {
 		?array &$fragments = null,
 	): Document {
 		Assert::invariant( !$this->invalid, "invalidated" );
-		$doc = $this->toDom( true, null, $fragments );
+		$doc = $this->toDom( siteConfig: $siteConfig, fragments: $fragments );
 		$options = [
 			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 			'fragments' => array_values( $fragments )

@@ -717,7 +717,7 @@ class Env {
 			}
 			$this->remexPipeline = new RemexPipeline( $this );
 			// Prepare and load.
-			DOMDataUtils::prepareAndLoadDoc( $this->topLevelDoc, [ 'serializeNewEmptyDp' => true ] );
+			DOMDataUtils::prepareAndLoadDoc( $this->topLevelDoc, $this->siteConfig, [ 'serializeNewEmptyDp' => true ] );
 		}
 	}
 

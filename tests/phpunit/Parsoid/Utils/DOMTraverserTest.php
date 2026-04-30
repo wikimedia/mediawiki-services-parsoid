@@ -45,7 +45,7 @@ class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 </body></html>
 HTML;
 		if ( $withTplInfo || $processAttrEmbeddedHTML ) {
-			$doc = ContentUtils::createAndLoadDocument( $html );
+			$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $env->getSiteConfig() );
 		} else {
 			$doc = DOMUtils::parseHTML( $html );
 		}

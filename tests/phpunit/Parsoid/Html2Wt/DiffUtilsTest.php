@@ -211,8 +211,12 @@ class DiffUtilsTest extends TestCase {
 	private function parseAndDiff( string $html1, string $html2 ): Element {
 		$mockEnv = new MockEnv( [] );
 
-		$doc1 = ContentUtils::createAndLoadDocument( $html1 );
-		$doc2 = ContentUtils::createAndLoadDocument( $html2 );
+		$doc1 = ContentUtils::createAndLoadDocument(
+			$html1, siteConfig: $mockEnv->getSiteConfig()
+		);
+		$doc2 = ContentUtils::createAndLoadDocument(
+			$html2, siteConfig: $mockEnv->getSiteConfig()
+		);
 
 		$body1 = DOMCompat::getBody( $doc1 );
 		$body2 = DOMCompat::getBody( $doc2 );

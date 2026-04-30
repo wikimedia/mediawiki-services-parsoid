@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
@@ -72,13 +73,19 @@ class ContentUtils {
 	 *
 	 * @param string $html
 	 * @param array $options
+	 * @param ?SiteConfig $siteConfig
 	 * @return Document
 	 */
 	public static function createAndLoadDocument(
-		string $html, array $options = []
+		string $html, array $options = [], ?SiteConfig $siteConfig = null
 	): Document {
 		$doc = DOMUtils::parseHTML( $html, validateXMLNames: true );
-		DOMDataUtils::prepareAndLoadDoc( $doc, $options );
+		$siteConfig ??= $options['siteConfig'] ?? null;
+		if ( $siteConfig === null ) {
+			PHPUtils::deprecated( __METHOD__ . ' without SiteConfig', '0.24' );
+			$siteConfig = new MockSiteConfig( [] );
+		}
+		DOMDataUtils::prepareAndLoadDoc( $doc, $siteConfig, $options );
 		return $doc;
 	}
 

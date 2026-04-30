@@ -129,7 +129,9 @@ class ContentModelHandler extends IContentModelHandler {
 			$env->setupTopLevelDoc( $topLevelDoc );
 			DOMDataUtils::getBag( $topLevelDoc )->serializeNewEmptyDp = false;
 		} else {
-			$doc = ContentUtils::createAndLoadDocument( $selserData->revHTML );
+			$doc = ContentUtils::createAndLoadDocument(
+				$selserData->revHTML, siteConfig: $env->getSiteConfig(),
+			);
 		}
 
 		$this->canonicalizeDOM( $env, $doc, false );
@@ -174,7 +176,9 @@ class ContentModelHandler extends IContentModelHandler {
 
 		if ( $selectiveUpdateData ) {
 			$doc = ContentUtils::createAndLoadDocument(
-				$selectiveUpdateData->revHTML, [ 'serializeNewEmptyDp' => true ] // isSelectiveUpdate
+				$selectiveUpdateData->revHTML,
+				[ 'serializeNewEmptyDp' => true ], // isSelectiveUpdate
+				siteConfig: $env->getSiteConfig(),
 			);
 			Assert::invariant(
 				!DomPageBundle::isSingleDocument( $doc ),

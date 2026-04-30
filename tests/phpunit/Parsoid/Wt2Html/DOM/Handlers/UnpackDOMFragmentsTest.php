@@ -34,7 +34,7 @@ class UnpackDOMFragmentsTest extends TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 
 		// Prevent GC from reclaiming $doc once we exit this function.
 		// Necessary hack because we use PHPDOM which wraps libxml.

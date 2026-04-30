@@ -32,7 +32,9 @@ class MetaHandlerTest extends TestCase {
 	}
 
 	protected function processMeta( MockEnv $env, SerializerState $state, string $html, string $res ): void {
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument(
+			$html, siteConfig: $env->getSiteConfig()
+		);
 		$metaNode = DOMCompat::getBody( $doc )->firstChild;
 
 		$state->currLine->text = '';

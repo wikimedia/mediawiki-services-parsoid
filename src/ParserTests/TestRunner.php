@@ -383,7 +383,7 @@ class TestRunner {
 				!DOMDataUtils::isPreparedAndLoaded( $doc ),
 				"doc should not be prepared and loaded already"
 		);
-		DOMDataUtils::prepareAndLoadDoc( $doc );
+		DOMDataUtils::prepareAndLoadDoc( $doc, $env->getSiteConfig() );
 
 		$env->setupTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );

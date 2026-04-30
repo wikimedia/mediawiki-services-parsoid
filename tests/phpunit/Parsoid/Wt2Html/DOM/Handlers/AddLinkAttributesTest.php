@@ -19,7 +19,7 @@ class AddLinkAttributesTest extends TestCase {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'pagens' => $pageNs ], null );
 		$mockEnv = new MockEnv( [ 'pageConfig' => $pageConfig, "siteConfig" => $siteConfig ] );
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( null, false, true );
 		$traverser->addHandler( 'a', AddLinkAttributes::handler( ... ) );
@@ -35,7 +35,7 @@ class AddLinkAttributesTest extends TestCase {
 		$siteConfig = new MockSiteConfig( [ 'externallinktarget' => $target ] );
 		$pageConfig = new MockPageConfig( $siteConfig, [], null );
 		$mockEnv = new MockEnv( [ 'pageConfig' => $pageConfig, "siteConfig" => $siteConfig ] );
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( null, false, true );
 		$traverser->addHandler( 'a', AddLinkAttributes::handler( ... ) );

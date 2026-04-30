@@ -5,6 +5,7 @@ namespace Test\Parsoid\Utils;
 
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Core\DOMCompat;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -23,12 +24,14 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideCommentEncoding
 	 */
 	public function testCommentEncoding( string $wikitext, string $html, int $length ) {
+		$siteConfig = new MockSiteConfig( [] );
 		$actualHtml = WTUtils::encodeComment( $wikitext );
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
 		$this->assertEquals( $wikitext, $actualWt );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<html><body><!--$html--></body></html>"
+			"<html><body><!--$html--></body></html>",
+			siteConfig: $siteConfig,
 		);
 		$body = $doc->getElementsByTagName( "body" )->item( 0 );
 		$node = $body->firstChild;
@@ -52,7 +55,10 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::createPageContentI18nFragment
 	 */
 	public function testCreatePageContentI18nFragment() {
-		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body></body></html>", siteConfig: $siteConfig
+		);
 		$fragment = WTUtils::createPageContentI18nFragment( $doc, 'key.of.message' );
 		DOMDataUtils::visitAndStoreDataAttribs( $fragment, [ 'discardDataParsoid' => true ] );
 		$actualHtml = DOMUtils::getFragmentInnerHTML( $fragment );
@@ -65,7 +71,10 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::createInterfaceI18nFragment
 	 */
 	public function testCreateInterfaceI18nFragment() {
-		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body></body></html>", siteConfig: $siteConfig,
+		);
 		$fragment = WTUtils::createInterfaceI18nFragment( $doc, 'key.of.message', [ 'Foo' ] );
 		DOMDataUtils::visitAndStoreDataAttribs( $fragment, [ 'discardDataParsoid' => true ] );
 		$actualHtml = DOMUtils::getFragmentInnerHTML( $fragment );
@@ -78,7 +87,10 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::createLangI18nFragment
 	 */
 	public function testCreateLangI18nFragment() {
-		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body></body></html>", siteConfig: $siteConfig,
+		);
 		$lang = new Bcp47CodeValue( 'fr' );
 		$fragment = WTUtils::createLangI18nFragment( $doc, $lang, 'key.of.message' );
 		DOMDataUtils::visitAndStoreDataAttribs( $fragment, [ 'discardDataParsoid' => true ] );
@@ -94,7 +106,11 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::addLangI18nAttribute
 	 */
 	public function testAddI18nAttributes() {
-		$doc = ContentUtils::createAndLoadDocument( "<html><body><span>hello</span></body></html>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body><span>hello</span></body></html>",
+			siteConfig: $siteConfig,
+		);
 		$span = DOMCompat::getBody( $doc )->firstChild;
 		WTUtils::addPageContentI18nAttribute( $span, 'param1', 'key1' );
 		WTUtils::addInterfaceI18nAttribute( $span, 'param2', 'key2', [ 'Foo' ] );
@@ -117,8 +133,10 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	public function testAddI18nAttributesNumeric() {
 		// Passing this test depends on Ie63649f5b6717eb8e1c8fbaa030ea0042de59b3a
 		// which is in wikimedia/json-codec 3.0.2
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
-			"<html><body><span>hello</span></body></html>"
+			"<html><body><span>hello</span></body></html>",
+			siteConfig: $siteConfig,
 		);
 		$body = DOMCompat::getBody( $doc );
 		$span = $body->firstChild;
@@ -148,13 +166,18 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::createInterfaceI18nFragment
 	 */
 	public function testCombinedI18n() {
-		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body></body></html>", siteConfig: $siteConfig,
+		);
 		$fragment = WTUtils::createInterfaceI18nFragment( $doc, 'key.of.message', [ 'Foo' ] );
 		WTUtils::addPageContentI18nAttribute( $fragment->firstChild, 'attr1', 'key1' );
 		DOMDataUtils::visitAndStoreDataAttribs( $fragment, [ 'discardDataParsoid' => true ] );
 
 		$newDoc = ContentUtils::createAndLoadDocument(
-			'<html><body>' . DOMUtils::getFragmentInnerHTML( $fragment ) . '</body></html>' );
+			'<html><body>' . DOMUtils::getFragmentInnerHTML( $fragment ) . '</body></html>',
+			siteConfig: $siteConfig,
+		);
 		$span = DOMCompat::getBody( $newDoc )->firstChild;
 		$typeof = DOMCompat::attributes( $span )['typeof'];
 		self::assertEquals( 'mw:I18n mw:LocalizedAttrs', $typeof );
@@ -174,11 +197,13 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodedCommentLength
 	 */
 	public function testDecodedCommentLength() {
+		$siteConfig = new MockSiteConfig( [] );
 		$doc = ContentUtils::createAndLoadDocument(
 			"<html><body><div>" .
 			"<p><!--c1--></p>" .
 			"a <meta typeof='mw:Placeholder/UnclosedComment'/><!--c2\n-->" .
-			"</body></html>"
+			"</body></html>",
+			siteConfig: $siteConfig,
 		);
 		$body = DOMCompat::getBody( $doc );
 		$body->setAttribute( 'hasUnclosedComment', "1" );
@@ -194,8 +219,9 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::fromEncapsulatedContent
 	 */
 	public function testContentTypes(): void {
+		$siteConfig = new MockSiteConfig( [] );
 		$html = "<span about='#mwt5' typeof='mw:Extension/foo' data-mw='{}'>bar</span>";
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$body = DOMCompat::getBody( $doc );
 
 		$node = $body->firstChild; // span wrapper
@@ -215,7 +241,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		// We don't care about id schema as long as typeof matches
 		// We might change aboud id schema in the future
 		$html = "<span about='abcd' typeof='mw:Extension/foo' data-mw='{}'>bar</span>";
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$body = DOMCompat::getBody( $doc );
 		self::assertTrue( WTUtils::fromExtensionContent( $node, "foo" ) );
 		self::assertFalse( WTUtils::fromTemplatedContent( $node ) );
@@ -223,14 +249,14 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 		// Didn't bother filling about data-mw here
 		$html = "<span about='#mwt1' typeof='mw:Transclusion' data-mw='{}'>bar</span>";
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$node = DOMCompat::getBody( $doc )->firstChild; // span wrapper
 		self::assertFalse( WTUtils::fromExtensionContent( $node ) );
 		self::assertTrue( WTUtils::fromTemplatedContent( $node ) );
 		self::assertTrue( WTUtils::fromEncapsulatedContent( $node ) );
 
 		$html = "<span about='#mwt1' typeof='mw:Transclusion' data-mw='{}'>bar</span><span about='#mwt1'>baz</span>";
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$firstSpan = DOMCompat::getBody( $doc )->firstChild; // span wrapper
 		$secondSpan = $firstSpan->nextSibling;
 		self::assertFalse( WTUtils::fromExtensionContent( $firstSpan ) );
@@ -240,7 +266,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		self::assertTrue( WTUtils::fromEncapsulatedContent( $secondSpan ) );
 
 		$html = "<div about='#mwa1' typeof='mw:ExtendedAnnRange' data-mw='{}'>bar</div>";
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$firstSpan = DOMCompat::getBody( $doc )->firstChild; // span wrapper
 		self::assertFalse( WTUtils::fromExtensionContent( $firstSpan ) );
 		self::assertFalse( WTUtils::fromTemplatedContent( $firstSpan ) );

@@ -22,7 +22,7 @@ class ProcessTreeBuilderFixupsTest extends TestCase {
 	public function testRun( string $html, string $expected ) {
 		$addRedLinks = new ProcessTreeBuilderFixups();
 		$env = new MockEnv( [] );
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $env->getSiteConfig() );
 		$body = DOMCompat::getBody( $doc );
 		$addRedLinks->run( $env, $body, [], true );
 		$actual = ContentUtils::ppToXML( $body, [ 'innerXML' => true ] );

@@ -20,11 +20,12 @@ class RemoveRedLinksTest extends TestCase {
 	 * @dataProvider provideRedLinks
 	 */
 	public function testRun( string $html, string $expected, string $message ) {
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$body = DOMCompat::getBody( $doc );
 		$redLinkRemover = new DOMTraverser( false, true );
 		$redLinkRemover->addHandler( 'a', [ RemoveRedLinks::class, 'handler' ] );
-		$redLinkRemover->traverse( new MockSiteConfig( [] ), $body, null );
+		$redLinkRemover->traverse( $siteConfig, $body, null );
 		$actual = ContentUtils::ppToXML( $body, [ 'discardDataParsoid' => true, 'innerXML' => true ] );
 		$this->assertEquals( $expected, $actual, $message );
 	}

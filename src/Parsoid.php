@@ -499,7 +499,7 @@ class Parsoid {
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
 		}
-		$envOptions['topLevelDoc'] = self::prepareAndLoadDocOrBundle( $doc );
+		$envOptions['topLevelDoc'] = self::prepareAndLoadDocOrBundle( $doc, $this->siteConfig );
 		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
@@ -604,7 +604,7 @@ class Parsoid {
 	): HtmlPageBundle {
 		$envOptions = [
 			'pageBundle' => true,
-			'topLevelDoc' => self::prepareAndLoadDocOrBundle( $pb ),
+			'topLevelDoc' => self::prepareAndLoadDocOrBundle( $pb, $this->siteConfig ),
 		];
 		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
@@ -818,9 +818,10 @@ class Parsoid {
 	 * to a "prepared and loaded" document suitable to be given to
 	 * Env::setupTopLevelDoc()
 	 * @param Document|HtmlPageBundle|DomPageBundle $topLevelDoc
+	 * @param SiteConfig $siteConfig
 	 * @return Document
 	 */
-	private static function prepareAndLoadDocOrBundle( $topLevelDoc ): Document {
+	private static function prepareAndLoadDocOrBundle( $topLevelDoc, $siteConfig ): Document {
 		// Recognize a "single document" page bundle.
 		if (
 			$topLevelDoc instanceof Document &&
@@ -836,7 +837,7 @@ class Parsoid {
 		// (without necessarily having to add attributes to the DOM)
 		if ( $topLevelDoc instanceof DomPageBundle ) {
 			// Skip preparation and loading, it's already done.
-			return $topLevelDoc->toDom();
+			return $topLevelDoc->toDom( siteConfig: $siteConfig );
 		}
 
 		// This is an unprepared/unloaded Document.
@@ -844,7 +845,7 @@ class Parsoid {
 			!DOMDataUtils::isPreparedAndLoaded( $topLevelDoc ),
 			"toplevelDoc should not be prepared and loaded already"
 		);
-		DOMDataUtils::prepareAndLoadDoc( $topLevelDoc );
+		DOMDataUtils::prepareAndLoadDoc( $topLevelDoc, $siteConfig );
 		return $topLevelDoc;
 	}
 

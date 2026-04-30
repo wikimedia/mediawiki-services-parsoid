@@ -115,9 +115,10 @@ EOF
  </body>
 </html>
 EOF;
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		$dpb = DomPageBundle::fromLoadedDocument(
-			$doc, siteConfig: new MockSiteConfig( [] )
+			$doc, siteConfig: $siteConfig
 		);
 		self::assertIsArray( $dpb->parsoid['ids'] );
 		$html2 = $dpb->toSingleDocumentHtml();
@@ -144,14 +145,15 @@ EOF
 		$this->assertEquals( $data['pageBundleBefore'], $dpb->toJsonArray(), "pageBundleBefore" );
 
 		// Now create a new standalone fragment
-		$doc = $dpb->toDom();
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = $dpb->toDom( siteConfig: $siteConfig );
 		$df = ContentUtils::createAndLoadDocumentFragment(
 			$doc, $data['newFragment']
 		);
 		// Serialialize back to DomPageBundle.
 		$dpb = DomPageBundle::fromLoadedDocument(
 			$doc,
-			siteConfig: new MockSiteConfig( [] ),
+			siteConfig: $siteConfig,
 			fragments: [ 'hello' => $df ],
 		);
 		// And check that it looks right!

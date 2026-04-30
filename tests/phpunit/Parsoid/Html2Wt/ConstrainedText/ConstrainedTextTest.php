@@ -32,7 +32,9 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 			'linkPrefixRegex' => $t->linkPrefixRegex ?? null,
 			'linkTrailRegex' => $t->linkTrailRegex ?? null,
 		] );
-		$doc = ContentUtils::createAndLoadDocument( $t->html );
+		$doc = ContentUtils::createAndLoadDocument(
+			$t->html, siteConfig: $env->getSiteConfig()
+		);
 		$node = DOMCompat::getBody( $doc )->firstChild;
 		'@phan-var Element $node'; // @var Element $node
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );

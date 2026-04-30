@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Zest\Zest;
 
@@ -52,7 +53,8 @@ class SerializerStateTest extends TestCase {
 	 */
 	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ): Element {
 		$document = ContentUtils::createAndLoadDocument(
-			"<html><body>$html</body></html>"
+			"<html><body>$html</body></html>",
+			siteConfig: new MockSiteConfig( [] ),
 		);
 		return Zest::find( $selector, $document )[0];
 	}

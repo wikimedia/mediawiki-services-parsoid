@@ -38,7 +38,7 @@ class ContentUtilsTest extends TestCase {
 				]
 			] ] );
 
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 		ContentUtils::processAttributeEmbeddedDom( $siteConfig, DOMCompat::getBody( $doc )->firstChild,
 			static function () {
 				return true;

@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -79,9 +80,10 @@ class JSONTest extends TestCase {
 			'</tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
 
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$siteConfig = new MockSiteConfig( [] );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 
-		$opts = [ 'topLevelDoc' => $doc ];
+		$opts = [ 'topLevelDoc' => $doc, 'siteConfig' => $siteConfig, ];
 		$env = new MockEnv( $opts );
 		$API = new ParsoidExtensionAPI( $env );
 		$json = new JSON();

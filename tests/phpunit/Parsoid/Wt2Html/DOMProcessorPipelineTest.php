@@ -36,7 +36,9 @@ class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 		];
 		$dpp->resetState( $opts );
 		$dpp->setFrame( $mockEnv->topFrame );
-		$document = ContentUtils::createAndLoadDocument( $html, [ 'serializeNewEmptyDp' => true ] );
+		$document = ContentUtils::createAndLoadDocument( $html, [
+			'serializeNewEmptyDp' => true,
+		], siteConfig: $mockEnv->getSiteConfig() );
 		$body = DOMCompat::getBody( $document );
 		DOMUtils::visitDOM( $body, static function ( Node $node, array $options ) {
 			// Force data-parsoid to be loaded since lazy-loading code won't

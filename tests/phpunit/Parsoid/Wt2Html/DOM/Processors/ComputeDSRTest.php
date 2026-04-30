@@ -93,7 +93,7 @@ class ComputeDSRTest extends TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$doc = ContentUtils::createAndLoadDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html, siteConfig: $siteConfig );
 
 		foreach ( $specs as $spec ) {
 			$this->validateSpec( $wt, DOMCompat::getBody( $doc ), $spec );

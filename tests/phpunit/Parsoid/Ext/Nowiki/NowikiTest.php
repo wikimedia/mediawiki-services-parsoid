@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 
 class NowikiTest extends TestCase {
@@ -26,7 +27,8 @@ class NowikiTest extends TestCase {
 	 */
 	private function getNode( string $html = '<div id="main"></div>', string $selector = '#main' ): Element {
 		$document = ContentUtils::createAndLoadDocument(
-			"<html><body>$html</body></html>"
+			"<html><body>$html</body></html>",
+			siteConfig: new MockSiteConfig( [] ),
 		);
 		return DOMCompat::querySelector( $document, $selector );
 	}
