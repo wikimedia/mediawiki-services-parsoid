@@ -1340,18 +1340,6 @@ class DOMRangeBuilder {
 		}
 	}
 
-	private function canSwallowRenderingTransparentNodes( ?Element $node, Element $wrapper ): bool {
-		return $node !== null && DOMUtils::nodeName( $node ) === 'div' &&
-			DOMCompat::getAttribute( $node, 'about' ) == DOMCompat::getAttribute( $wrapper, 'about' ) &&
-			(
-				// data-mw will not be transferred to $node if $wrapper has mw:Transclusion
-				!DOMUtils::hasTypeOf( $wrapper, 'mw:Transclusion' ) ||
-				// data-mw will be transferred to $node here. Conservatively
-				// require no existing data-mw $node to guarantee we won't clobber it.
-				DOMDataUtils::getNodeData( $node )->mw === null
-			);
-	}
-
 	/**
 	 * Processes a contiguous range of stashable nodes (category links and newline wrapping spans)
 	 * to put them in a mw-empty-elt wrapping span.
@@ -1359,11 +1347,8 @@ class DOMRangeBuilder {
 	 * For all sequence of contiguous (up to white space) sol-transparent links
 	 * and empty-line wrapping spans that come from the same transclusion range,
 	 * and that are either at the boundary of a transclusion or between two
-	 * elements of type table or div:
-	 * - if they have a valid div before or after that can contain them (and
-	 *   that is part of that same transclusion range), we stash them there
-	 * - if not, we create a wrapping span with class mw-empty-elt where
-	 *   they are and stash them there.
+	 * elements of type table or div, we create a wrapping span with class mw-empty-elt
+	 * where they are and stash them there.
 	 * We actually drop empty-line spans and non-element nodes.
 	 *
 	 * Empty spans get deleted in Wt2Html/DOM/Handlers/CleanUp, unless
@@ -1406,23 +1391,15 @@ class DOMRangeBuilder {
 			return true;
 		}
 
-		if ( $this->canSwallowRenderingTransparentNodes( $prev, $start ) ) {
-			$target = $prev;
-			$before = null;
-		} elseif ( $this->canSwallowRenderingTransparentNodes( $next, $start ) ) {
-			$target = $next;
-			$before = $target->firstChild;
-		} else {
-			$target = $start->ownerDocument->createElement( 'span' );
-			$target->setAttribute( 'class', 'mw-empty-elt' );
-			$targetDp = DOMDataUtils::getDataParsoid( $target );
-			$targetDp->autoInsertedStart = true;
-			$targetDp->autoInsertedEnd = true;
-			$before = null;
-			$start->parentNode->insertBefore( $target, $start );
-			if ( $start->hasAttribute( 'about' ) ) {
-				$target->setAttribute( 'about', DOMCompat::getAttribute( $start, 'about' ) );
-			}
+		$target = $start->ownerDocument->createElement( 'span' );
+		$target->setAttribute( 'class', 'mw-empty-elt' );
+		$targetDp = DOMDataUtils::getDataParsoid( $target );
+		$targetDp->autoInsertedStart = true;
+		$targetDp->autoInsertedEnd = true;
+		$before = null;
+		$start->parentNode->insertBefore( $target, $start );
+		if ( $start->hasAttribute( 'about' ) ) {
+			$target->setAttribute( 'about', DOMCompat::getAttribute( $start, 'about' ) );
 		}
 
 		if ( DOMUtils::hasTypeOf( $start, 'mw:Transclusion' ) ) {
