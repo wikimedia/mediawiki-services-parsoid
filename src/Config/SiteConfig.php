@@ -819,7 +819,7 @@ abstract class SiteConfig {
 				$content = PHPUtils::jsonEncode( $jsConfigVars );
 			}
 		} catch ( \Exception ) {
-			// Similar to ResourceLoader::makeConfigSetScript.  See T289358
+			// See T289358
 			$this->getLogger()->log(
 				LogLevel::WARNING,
 				'JSON serialization of config data failed. ' .
