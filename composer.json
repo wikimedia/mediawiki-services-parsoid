@@ -18,7 +18,9 @@
 		"wiki": "https://www.mediawiki.org/wiki/Parsoid"
 	},
 	"suggest": {
-		"wikimedia/langconv": "Provides script conversion support"
+		"wikimedia/langconv": "Provides script conversion support",
+		"ext-readline": "Needed to support repl.php",
+		"ext-excimer": "Needed to support flamegraphs in parse.php"
 	},
 	"conflict": {
 		"wikimedia/langconv": "<0.4.2"
