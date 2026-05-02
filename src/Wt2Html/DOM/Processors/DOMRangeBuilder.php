@@ -1464,7 +1464,12 @@ class DOMRangeBuilder {
 				// These metas count as rendering transparent, but let's not touch them
 				// They're probably irrelevant for our case, and require fiddling with
 				// pre handling more than necessary.
-				!DOMUtils::hasTypeOf( $node, 'mw:IndentPreWS' )
+				!DOMUtils::hasTypeOf( $node, 'mw:IndentPreWS' ) &&
+				!(
+					$node instanceof Element &&
+					DOMUtils::nodeName( $node ) === 'meta' &&
+					DOMCompat::getAttribute( $node, 'property' ) === 'mw:PageProp/toc'
+				)
 			) ||
 			$this->isNewlineWrappingSpan( $node ) ||
 			DOMUtils::nodeName( $node ) === 'style'

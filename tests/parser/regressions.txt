@@ -285,3 +285,15 @@ parsoid=html2wt
 !! wikitext
 {{fullurl:User talk:cscott|action=edit&section=new}}
 !! end
+
+!! test
+T425107: TOC shouldn't be stashed
+!! wikitext
+<div></div>
+{{1x|__TOC__}}
+<div></div>
+!! html/parsoid
+<div></div>
+<meta data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"__TOC__"}},"i":0}}]}' property="mw:PageProp/toc" typeof="mw:Transclusion"/>
+<div></div>
+!!end
