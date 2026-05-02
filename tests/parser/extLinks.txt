@@ -389,6 +389,8 @@ A [https://no-nofollow.org/foobar link], and another [https://example.org link].
 
 !! test
 External image
+!! options
+wgAllowExternalImages=true
 !! wikitext
 External image: http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png
 !! html
@@ -398,6 +400,8 @@ External image: http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png
 
 !! test
 External image from https
+!! options
+wgAllowExternalImages=true
 !! wikitext
 External image from https: https://meta.wikimedia.org/upload/f/f1/Ncwikicol.png
 !! html
@@ -481,6 +485,8 @@ URL in text: [http://example.com http://example.com]
 
 !! test
 External links: Clickable images
+!! options
+wgAllowExternalImages=true
 !! wikitext
 ja-style clickable images: [http://example.com http://meta.wikimedia.org/upload/f/f1/Ncwikicol.png]
 !! html/php

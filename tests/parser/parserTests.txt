@@ -12989,6 +12989,8 @@ T21052 U+3000 IDEOGRAPHIC SPACE should terminate bracketed external links
 
 !! test
 T21052 U+3000 IDEOGRAPHIC SPACE should terminate external images links
+!! options
+wgAllowExternalImages=true
 !! wikitext
 http://www.example.org/pic.png　<-- U+3000 (vim: ^Vu3000)
 !! html

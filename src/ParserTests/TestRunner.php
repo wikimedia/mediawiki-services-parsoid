@@ -1148,11 +1148,11 @@ class TestRunner {
 				$this->siteConfig->enableSubpagesForNS( 0 );
 			}
 
-			$allowedPrefixes = [ '' ]; // all allowed
+			$allowedPrefixes = [];
 			if ( isset( $testOpts['wgallowexternalimages'] ) &&
-				!preg_match( '/^(1|true|)$/D', $testOpts['wgallowexternalimages'] )
+				preg_match( '/^(1|true|)$/D', $testOpts['wgallowexternalimages'] )
 			) {
-				$allowedPrefixes = [];
+				$allowedPrefixes = [ '' ]; // all allowed
 			}
 			$this->siteConfig->allowedExternalImagePrefixes = $allowedPrefixes;
 
