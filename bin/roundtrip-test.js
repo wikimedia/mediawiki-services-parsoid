@@ -936,6 +936,11 @@ if (require.main === module) {
 			boolean: true,
 			default: false,
 		},
+		json: {
+			description: 'Use json callback',
+			boolean: true,
+			default: false,
+		},
 		prefix: {
 			description: 'Deprecated.  Please provide a domain.',
 			boolean: false,
@@ -1014,9 +1019,11 @@ if (require.main === module) {
 		if (argv.headers) {
 			argv.parsoidURLOpts.headers = JSON.parse(argv.headers);
 		}
-		var formatter = ScriptUtils.booleanOption(argv.xml) ? xmlFormat : plainFormat;
+		const jsonArg = ScriptUtils.booleanOption(argv.json);
+		const xmlArg = ScriptUtils.booleanOption(argv.xml);
+		var formatter = jsonArg ? jsonFormat : xmlArg ? xmlFormat : plainFormat;
 		var r = yield runTests(title, argv, formatter);
-		console.log(r.output);
+		console.log(ScriptUtils.booleanOption(argv.json) ? JSON.stringify(r.output) : r.output);
 		if (argv.check) {
 			process.exit(r.exitCode);
 		}
