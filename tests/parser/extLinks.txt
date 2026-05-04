@@ -736,6 +736,40 @@ T2289: literal ">"-token in bracketed URL
 !!end
 
 !! test
+Include directive in url
+!! wikitext
+http://www.example.com/<noinclude>html</noinclude> test
+
+[http://www.example.com/<noinclude>html</noinclude> test]
+!! html/php
+<p><a rel="nofollow" class="external free" href="http://www.example.com/html">http://www.example.com/html</a> test
+</p><p><a rel="nofollow" class="external text" href="http://www.example.com/html">test</a>
+</p>
+!! html/parsoid
+<p><a typeof="mw:ExpandedAttrs" about="#mwt1" rel="mw:ExtLink nofollow" href="http://www.example.com/html" class="external free" data-mw='{"attribs":[[{"txt":"href"},{"html":"http://www.example.com/&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[23,34,null,null]}&apos;/>html&lt;meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid=&apos;{\"src\":\"&amp;lt;/noinclude>\",\"dsr\":[38,50,null,null]}&apos;/>"}]]}'>http://www.example.com/html</a> test</p>
+
+<p><a typeof="mw:ExpandedAttrs" about="#mwt2" rel="mw:ExtLink nofollow" href="http://www.example.com/html" class="external text" data-mw='{"attribs":[[{"txt":"href"},{"html":"http://www.example.com/&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[81,92,null,null]}&apos;/>html&lt;meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid=&apos;{\"src\":\"&amp;lt;/noinclude>\",\"dsr\":[96,108,null,null]}&apos;/>"}]]}'>test</a></p>
+!! end
+
+!! test
+Nowiki in url
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+http://www.example.com/<nowiki>html</nowiki> test
+
+[http://www.example.com/<nowiki>html</nowiki> test]
+!! html/php
+<p><a rel="nofollow" class="external free" href="http://www.example.com/">http://www.example.com/</a>html test
+</p><p><a rel="nofollow" class="external text" href="http://www.example.com/">html test</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:ExtLink nofollow" href="http://www.example.com/" class="external free" data-parsoid='{"stx":"url","dsr":[0,23,0,0]}'>http://www.example.com/</a><span typeof="mw:Nowiki" data-parsoid='{"dsr":[23,44,8,9]}'>html</span> test</p>
+
+<p><a rel="mw:ExtLink nofollow" href="http://www.example.com/" class="external text" data-parsoid='{"dsr":[51,102,24,1]}'><span typeof="mw:Nowiki" data-parsoid='{"dsr":[75,96,8,9]}'>html</span> test</a></p>
+!! end
+
+!! test
 T2289: literal double quote at end of URL
 !! wikitext
 http://www.example.com/"hello"

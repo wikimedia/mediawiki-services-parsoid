@@ -795,8 +795,7 @@ url =
 	path:(
 		!inline_breaks @(
 			no_punctuation_char
-			/ comment
-			/ tplarg_or_template
+			/ url_directive
 			/ ['{]
 			/ ! ( "&" ( [lL][tT] / [gG][tT] ) ";" )
 				@(
@@ -824,8 +823,7 @@ autourl =
 		path:(
 			!inline_breaks @(
 				no_punctuation_char
-				/ comment
-				/ tplarg_or_template
+				/ url_directive
 				/ $("'" !"'") // single quotes are ok, double quotes are bad
 				/ "{"
 				/ ! ( rhe:raw_htmlentity &{ return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; } )
@@ -3049,12 +3047,15 @@ include_limits =
 // 'Preprocessor' directive- higher-level things that can occur in otherwise
 // plain-text content.
 directive =
+	url_directive
+	/ wellformed_extension_tag
+	/ & "&" @htmlentity
+
+url_directive =
 	comment
 	/ annotation_tag
-	/ wellformed_extension_tag
 	/ tplarg_or_template
 	/ & "-{" @lang_variant_or_tpl
-	/ & "&" @htmlentity
 	/ include_limits
 
 wikilink_preprocessor_text =
@@ -3075,7 +3076,7 @@ extlink_nonipv6url =
 extlink_nonipv6url_parameterized =
 	r:(
 		$[^<[{\n\r|!\]}\-\t&="' \u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000]+
-		/ !inline_breaks @( directive / [&|{\-!}=] )
+		/ !inline_breaks @( url_directive / & "&" @htmlentity / [&|{\-!}=] )
 		/ $(['] ![']) // single quotes are ok, double quotes are bad
 	)+ {
 		return TokenizerUtils::flattenString( $r );
