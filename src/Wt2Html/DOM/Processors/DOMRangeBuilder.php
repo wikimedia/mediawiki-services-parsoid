@@ -1402,10 +1402,10 @@ class DOMRangeBuilder {
 			$target->setAttribute( 'about', DOMCompat::getAttribute( $start, 'about' ) );
 		}
 
-		if ( DOMUtils::hasTypeOf( $start, 'mw:Transclusion' ) ) {
+		$tplType = WTUtils::matchTplType( $start );
+		if ( $tplType !== null ) {
 			$newRangeStart = $target;
-
-			DOMUtils::removeTypeOf( $start, 'mw:Transclusion' );
+			DOMUtils::removeTypeOf( $start, $tplType );
 			$rangeDmw = DOMDataUtils::getDataMw( $start );
 			$rangeDp = DOMDataUtils::getDataParsoid( $start );
 
@@ -1414,7 +1414,7 @@ class DOMRangeBuilder {
 				$range->start = $newRangeStart;
 			}
 
-			DOMUtils::addTypeOf( $newRangeStart, 'mw:Transclusion' );
+			DOMUtils::addTypeOf( $newRangeStart, $tplType );
 
 			$pfkey = WTUtils::getPFragmentHandlerKey( $start );
 			if ( $pfkey ) {
