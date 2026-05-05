@@ -9,6 +9,7 @@ checkout_cmd=""
 restart_fpm=true
 parsoid_host="parsoidtest1001.eqiad.wmnet"
 testreduce_host="testreduce1002.eqiad.wmnet"
+deploy_mw_parsoid=false
 
 usage() {
 	echo "USAGE: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] [--no-restart-fpm] <rt-test-id>"
@@ -19,6 +20,7 @@ usage() {
 	echo " - --parsoid-host hostname running the Parsoid REST API (default: parsoidtest1001.eqiad.wmnet)"
 	echo " - --testreduce-host hostname running the testreduce service (default: testreduce1002.eqiad.wmnet)"
 	echo " - --no-restart-fpm skip restarting php8.3-fpm on the parsoid host"
+	echo " - --deploy-mw-parsoid deploy mw-parsoid via helmfile before starting the test (default: skip)"
 	exit 1
 }
 
@@ -43,6 +45,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--no-restart-fpm)
 			restart_fpm=false
+			shift
+			;;
+		--deploy-mw-parsoid)
+			deploy_mw_parsoid=true
 			shift
 			;;
 		-*)
@@ -85,6 +91,11 @@ fi
 # By convention we truncate testids to 8 characters, but some users
 # copy-and-paste full git hashes on the command line.  Normalize.
 testid=$(echo -n "$testid" | head -c 8)
+
+if $deploy_mw_parsoid; then
+	echo "---- Deploying mw-parsoid ----"
+	"$(dirname "$0")/deploy-mw-parsoid.sh" "$uid"
+fi
 
 # Update code on parsoid host since RT testing scripts will hit the Parsoid REST API there
 echo "---- Updating code on $parsoid_host ----"

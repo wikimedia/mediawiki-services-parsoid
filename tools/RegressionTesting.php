@@ -92,6 +92,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"restartPHP",
 			"Restart php8.3-fpm.service after git checkout? (default true)",
 			true );
+		$this->addOptionWithDefault(
+			"deploy-mw-parsoid",
+			"Deploy mw-parsoid via helmfile before running tests (default false)",
+			false );
 		$this->setAllowUnregisteredOptions( true );
 	}
 
@@ -463,6 +467,12 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	/** @inheritDoc */
 	public function execute() {
 		$this->maybeHelp();
+
+		if ( ScriptUtils::booleanOption( $this->getOption( 'deploy-mw-parsoid' ) ) ) {
+			$this->dashes( "Deploying mw-parsoid" );
+			$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh', [ $this->getOption( 'uid' ) ] ) );
+		}
+
 		$titles = [];
 
 		if ( $this->hasOption( 'url' ) ) {
