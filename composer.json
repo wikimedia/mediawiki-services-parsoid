@@ -47,7 +47,7 @@
 	},
 	"require-dev": {
 		"ext-curl": "*",
-		"mediawiki/mediawiki-codesniffer": "50.0.0",
+		"mediawiki/mediawiki-codesniffer": "51.0.0",
 		"mediawiki/mediawiki-phan-config": "0.20.0",
 		"mediawiki/minus-x": "2.0.1",
 		"monolog/monolog": "^2.2.0",

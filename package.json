@@ -19,11 +19,11 @@
 		"yargs": "^16.2.0"
 	},
 	"devDependencies": {
-		"api-testing": "1.7.2",
+		"api-testing": "1.7.3",
 		"chai": "^4.1.2",
 		"colors": "^1.2.4",
 		"eslint": "8.57.0",
-		"eslint-config-wikimedia": "0.32.3",
+		"eslint-config-wikimedia": "0.32.4",
 		"mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
 		"nock": "^9.2.5"
 	},
