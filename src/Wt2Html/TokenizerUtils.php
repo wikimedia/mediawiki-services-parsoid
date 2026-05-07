@@ -180,6 +180,7 @@ class TokenizerUtils {
 			$attrs = $attrInfo[0];
 			if ( !$attrs ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
+				$dp->getTemp()->attrSrc = '';
 			}
 			if ( ( !$attrs && $attrInfo[2] ) || $attrInfo[2] !== '|' ) {
 				// Variation from default
