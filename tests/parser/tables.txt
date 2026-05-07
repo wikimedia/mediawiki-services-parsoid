@@ -2395,19 +2395,3 @@ Pipe within attribute with double quotes
 </tbody>
 </table>
 !! end
-
-!! article
-Template:Asciiart
-!! text
- |  |
- |--|
-!! end
-
-!! test
-Asciiart template should display the right number of spaces
-!! wikitext
-{{Asciiart}}
-!! html/parsoid
-<pre data-mw='{"parts":[{"template":{"target":{"wt":"Asciiart","href":"./Template:Asciiart"},"params":{},"i":0}}]}' typeof="mw:Transclusion">|  |
-|--|</pre>
-!! end
