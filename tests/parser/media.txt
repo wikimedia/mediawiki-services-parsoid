@@ -843,6 +843,10 @@ File:Foobar.jpg|alt=http://testing.123?4=5&vert;6|caption
 </ul>
 !! end
 
+## FIXME(T404241): There should probably be some sort of indication that this
+## has an expanded attribute in Parsoid's output.
+## Also, note the inconsistency in the gallery line caption parsing vs the
+## wikilink in the legacy output.  Parsoid's output is preferable
 !! test
 Link media option with template with arguments
 !! wikitext

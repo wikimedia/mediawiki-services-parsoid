@@ -787,6 +787,9 @@ T2289: literal double quote in bracketed URL
 </p>
 !!end
 
+## FIXME(T404241): Note that the mw:ExpandedAttrs href in the data-mw attribs
+## is a bit bogus here since it still contains the content that terminated the
+## url.  However, mw:Transclusion takes precedence when serializing
 !! test
 Extlink with templated url terminating chars
 !! wikitext
