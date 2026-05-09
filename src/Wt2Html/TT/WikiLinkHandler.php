@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Language\Language;
@@ -1577,7 +1578,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 
 		$anchor = new TagTk( 'a' );
-		$anchor->setAttribute( 'href', $this->specialFilePath( $target->title ) );
+		$anchor->setAttribute( 'href', $this->getUploadUrl( $target->title ) );
 		$anchor->setAttribute( 'class', 'new' );
 		$anchor->setAttribute( 'title', $target->title->getPrefixedText() );
 
@@ -1645,9 +1646,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		return $tokens;
 	}
 
-	private function specialFilePath( Title $title ): string {
-		$filePath = Sanitizer::sanitizeTitleURI( $title->getDBkey(), false );
-		return "./Special:FilePath/{$filePath}";
+	/**
+	 * Get a URL pointing to Special:Upload or a customized upload URL, depending on the site config.
+	 */
+	private function getUploadUrl( LinkTarget $title ): string {
+		return $this->env->getSiteConfig()->getUploadUrl( $title );
 	}
 
 	/**
@@ -1659,8 +1662,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 */
 	private function linkToMedia( Token $token, stdClass $target, array $errs, ?array $info ): array {
 		// Only pass in the url, since media links should not link to the thumburl
-		$imgHref = $info['url'] ?? $this->specialFilePath( $target->title );  // Copied from getPath
-		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
+		$imgHref = $info['url'] ?? $this->getUploadUrl( $target->title );  // Copied from getPath
 
 		$link = new TagTk( 'a' );
 
@@ -1683,7 +1685,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		);
 
 		// Normalize title according to how PHP parser does it currently
-		$link->setAttribute( 'title', str_replace( '_', ' ', $imgHrefFileName ) );
+		if ( isset( $info['url'] ) ) {
+			$normalizedFileName = preg_replace( '#.*/#', '', $info['url'], 1 );
+		} else {
+			$normalizedFileName = $target->title->getDBkey();
+		}
+		$link->setAttribute( 'title', str_replace( '_', ' ', $normalizedFileName ) );
 
 		if ( count( $errs ) > 0 ) {
 			// Set RDFa type to mw:Error so VE and other clients

@@ -2050,6 +2050,11 @@ abstract class SiteConfig {
 	abstract public function getExternalLinkTarget();
 
 	/**
+	 * The URL that can be used to upload files. Red file links will point there.
+	 */
+	abstract public function getUploadUrl( LinkTarget $fileName ): string;
+
+	/**
 	 * Logs a warning that a deprecated feature was used.
 	 *
 	 * Can be overridden to use similar functionality in the

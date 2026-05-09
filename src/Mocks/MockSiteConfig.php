@@ -449,6 +449,12 @@ class MockSiteConfig extends SiteConfig {
 		return $this->externalLinkTarget;
 	}
 
+	/** @inheritDoc */
+	public function getUploadUrl( LinkTarget $fileName ): string {
+		$encodedFileName = str_replace( [ '%3A', '%2A' ], [ ':', '*' ], urlencode( $fileName->getDBkey() ) );
+		return './Special:Upload?wpDestFile=' . $encodedFileName;
+	}
+
 	/** @var ?MockMetrics */
 	private $metrics;
 

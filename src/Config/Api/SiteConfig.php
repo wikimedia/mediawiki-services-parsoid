@@ -9,6 +9,7 @@ use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
@@ -889,5 +890,12 @@ class SiteConfig extends ISiteConfig {
 	public function getExternalLinkTarget() {
 		$this->loadSiteData();
 		return $this->siteData['externallinktarget'] ?? false;
+	}
+
+	/** @inheritDoc */
+	public function getUploadUrl( LinkTarget $fileName ): string {
+		$specialUploadName = $this->getSpecialPageAliases( 'Upload' )[0] ?? 'Upload';
+		$encodedFileName = str_replace( [ '%3A', '%2A' ], [ ':', '*' ], urlencode( $fileName->getDBkey() ) );
+		return "./Special:$specialUploadName?wpDestFile={$encodedFileName}";
 	}
 }
