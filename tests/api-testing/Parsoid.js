@@ -81,7 +81,7 @@ describe('Parsoid API', function() {
 	const client = new REST();
 	const parsedUrl = new url.URL(client.req.app);
 	const hostname = parsedUrl.hostname;
-	const mockDomain = client.pathPrefix = `rest.php/${ hostname }`;
+	const mockDomain = client.pathPrefix = `/rest.php/${ hostname }`;
 	const page = utils.title( 'Lint Page ' );
 	const pageEncoded = encodeURIComponent( page );
 	let revid, oldrevid;
@@ -152,7 +152,7 @@ describe('Parsoid API', function() {
 	describe('domain check', function() {
 		it('should apply to /v3/transform endpoint', function(done) {
 			client.req
-				.get('rest.php/the.wrong.domain/v3/page/wikitext/' + pageEncoded )
+				.get('/rest.php/the.wrong.domain/v3/page/wikitext/' + pageEncoded )
 				.expect(function(res) {
 					res.status.should.equal(400, res.text);
 					res.body.error.should.equal('parameter-validation-failed');
@@ -163,7 +163,7 @@ describe('Parsoid API', function() {
 
 		it('should apply to /v3/transform endpoint', function(done) {
 			client.req
-				.post('rest.php/the.wrong.domain/v3/transform/wikitext/to/html/')
+				.post('/rest.php/the.wrong.domain/v3/transform/wikitext/to/html/')
 				.send({ wikitext: '== h2 ==' })
 				.expect(function(res) {
 					res.status.should.equal(400, res.text);
