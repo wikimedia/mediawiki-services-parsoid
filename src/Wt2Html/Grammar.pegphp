@@ -890,8 +890,8 @@ tplarg_or_template =
 		&('{{' &(triple_brace+ not_a_brace) tplarg) @(template/broken_template)
 		/ &('{{' parsoid_fragment_marker_literal) @(template/broken_template)
 		/ '{' parsoid_fragment_marker
-		/ @$('{' &(triple_brace+ not_a_brace))? @tplarg
-		/ @$('{' &('{{' not_a_brace))? @template
+		/ $('{' &(triple_brace+ not_a_brace))? tplarg
+		/ $('{' &('{{' not_a_brace))? template
 		/ broken_template
 	)
 
@@ -1129,9 +1129,9 @@ inlineline_in_tpls =
 lang_variant_or_tpl =
 	&('-{' &(triple_brace+ not_a_brace) tplarg) @lang_variant
 	/ &('-{' parsoid_fragment_marker_literal) @lang_variant
-	/ @$('-' &(triple_brace+ not_a_brace)) @tplarg
+	/ $('-' &(triple_brace+ not_a_brace)) tplarg
 	/ '-' parsoid_fragment_marker
-	/ @$('-' &('{{' triple_brace* not_a_brace)) @template
+	/ $('-' &('{{' triple_brace* not_a_brace)) template
 	/ &'-{' @lang_variant
 
 broken_lang_variant =
