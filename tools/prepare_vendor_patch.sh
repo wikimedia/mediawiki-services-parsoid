@@ -142,13 +142,20 @@ vstring=$(echo "$newTag" | sed 's/v//g;')
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
 
-# Wait a bit for changes to propagate to packagist
-sleep 2
-echo "Ready to prepare vendor patch. Please verify that packagist has the new tag."
-echo "Visit https://packagist.org/packages/wikimedia/parsoid"
-echo "and   https://repo.packagist.org/p2/wikimedia/parsoid.json to verify."
-echo "(The latter is what composer uses, and it can take ~15min to update.)"
-waitForConfirmation
+# Wait for new tag to propagate to packagist
+echo "Waiting for $newTag to appear on packagist (this can take ~15 min)..."
+startTime=$SECONDS
+while true; do
+	elapsed=$(( SECONDS - startTime ))
+	mins=$(( elapsed / 60 ))
+	secs=$(( elapsed % 60 ))
+	if $composer show -a wikimedia/parsoid "$newTag" > /dev/null 2>&1; then
+		printf '\nTag %s found on packagist! (waited %dm%02ds)\n' "$newTag" "$mins" "$secs"
+		break
+	fi
+	printf '\r  Not yet available (we'\''ve waited %dm%02ds)...' "$mins" "$secs"
+	sleep 30
+done
 echo
 
 # update packages
