@@ -125,5 +125,8 @@
     },
     "Parsoid-specific image handling - simple image with size and middle alignment": {
         "html2wt": "[[File:Foobar.jpg|middle|50x50px]]"
+    },
+    "T374445: Non extlink in media caption": {
+        "selser [[0,[4,2,0,1]],4,[0,4],3,0]": "[[File:Foobar.jpg|thumb|1vxv5ivrl4h7m<nowiki/>[[Link1]]<nowiki>]</nowiki>]]czuge6[[File:Foobar.jpg|thumb]]\n[[File:Foobar.jpg|thumb|[[Link1|[meh]]]]]"
     }
 }

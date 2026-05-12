@@ -675,17 +675,14 @@ extlink "extlink" =
 		content:inlineline<extlink>?
 		p3:POSITION
 		"]"
-		preproc:<&preproc>
-		& {
-			// Prevent the extlink from stealing a closing bracket
-			// from a wikilink
-			$c = $this->input[$p3 + 1] ?? '';
-			if ( $c !== ']' || $preproc !== ']]' ) {
-				return true;
-			}
-			preg_match( '/^]+/', substr( $this->input, $p3 ), $matches );
-			return strlen( $matches[0] ) % 2;
-		}
+		// Prevent the extlink from stealing a closing bracket from a wikilink
+		&(
+			// Presumably you can write this as !<preproc==']]'>
+			// but that seems to generate a type error
+			preproc:<&preproc>
+			&{ return $preproc !== ']]'; }
+			/ ']]'* ( !']' / eof )
+		)
 		{
 			$tsr1 = new SourceRange( $p0, $p1, $this->source );
 			$tsr2 = new SourceRange( $p2, $p3, $this->source );
@@ -1500,16 +1497,25 @@ wikilink_preproc_internal =
 link_text = link_text_parameterized<equal = false, linkdesc = true>
 
 link_text_parameterized =
+	p:POSITION
 	c:(
 		// This group is similar to "block_line" but "list_item"
 		// is omitted since `doBlockLevels` happens after
 		// `handleInternalLinks2`, where newlines are stripped.
 		(sol (heading / hr / full_table_in_link_caption))
 		/ urltext
-		/ (
-			!inline_breaks
-			@( inline_element / '[' text_char+ ']' $(&(!']' / ']]')) / . )
+		/ p2:POSITION @']' &(
+			!']'
+			// Only if there's an opening bracket in the link text
+			/ &{
+				$text = substr( $this->input, $p, $p2 - $p );
+				return ( strpos( $text, '[' ) !== false );
+			}
+			// And, similarly to extlink, that we aren't stealing
+			// a closing bracket from a wikilink
+			']]'+ ( !']' / eof )
 		)
+		/ !inline_breaks @( inline_element / . )
 	)+ {
 		return TokenizerUtils::flattenStringlist( $c );
 	}
