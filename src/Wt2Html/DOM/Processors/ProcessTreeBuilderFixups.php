@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -37,6 +38,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 
 				// Delete empty auto-inserted elements
 				if ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) &&
+					!DOMUtils::hasTypeOf( $c, "mw:DOMFragment" ) &&
 					( !$c->hasChildNodes() ||
 						( DiffDOMUtils::hasNChildren( $c, 1 ) &&
 							!( $c->firstChild instanceof Element ) &&
