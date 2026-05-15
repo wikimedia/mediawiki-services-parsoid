@@ -1398,6 +1398,7 @@ class DOMRangeBuilder {
 		$targetDp = DOMDataUtils::getDataParsoid( $target );
 		$targetDp->autoInsertedStart = true;
 		$targetDp->autoInsertedEnd = true;
+		$targetDp->setTempFlag( TempData::WRAPPER );
 		$before = null;
 		$start->parentNode->insertBefore( $target, $start );
 		if ( $start->hasAttribute( 'about' ) ) {
