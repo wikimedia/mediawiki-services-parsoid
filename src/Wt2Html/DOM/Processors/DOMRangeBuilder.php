@@ -1474,7 +1474,7 @@ class DOMRangeBuilder {
 				)
 			) ||
 			DOMUtils::isNewlineWrappingSpan( $node ) ||
-			DOMUtils::nodeName( $node ) === 'style'
+			( DOMUtils::nodeName( $node ) === 'style' && !DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) )
 		) &&
 		// This is conservative because we could restrict it to just
 		// <style> tags above, but this broader check is easier to
