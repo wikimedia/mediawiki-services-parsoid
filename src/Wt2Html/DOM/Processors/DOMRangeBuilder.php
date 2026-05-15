@@ -784,10 +784,6 @@ class DOMRangeBuilder {
 		}
 	}
 
-	private function isNewlineWrappingSpan( Node $elt ): bool {
-		return DOMUtils::nodeName( $elt ) === 'span' && preg_match( "/^\n+$/", $elt->textContent );
-	}
-
 	/**
 	 * Add markers to the DOM around the non-overlapping ranges.
 	 *
@@ -1331,7 +1327,7 @@ class DOMRangeBuilder {
 		$end = $range->end->nextSibling;
 		while ( $elt && $elt !== $end ) {
 			if ( WTUtils::isRenderingTransparentNode( $elt ) ||
-				$this->isNewlineWrappingSpan( $elt ) ||
+				DOMUtils::isNewlineWrappingSpan( $elt ) ||
 				DOMUtils::nodeName( $elt ) === 'style'
 			) {
 				$res = $this->handleFirstRenderingTransparentNode( $elt, $range );
@@ -1477,7 +1473,7 @@ class DOMRangeBuilder {
 					DOMCompat::getAttribute( $node, 'property' ) === 'mw:PageProp/toc'
 				)
 			) ||
-			$this->isNewlineWrappingSpan( $node ) ||
+			DOMUtils::isNewlineWrappingSpan( $node ) ||
 			DOMUtils::nodeName( $node ) === 'style'
 		) &&
 		// This is conservative because we could restrict it to just

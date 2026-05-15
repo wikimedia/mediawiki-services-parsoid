@@ -359,4 +359,17 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$html = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] )['html'];
 		$this->assertEquals( '<mw:editsection>foo</mw:editsection>', $html );
 	}
+
+	/**
+	 * @covers ::isNewlineWrappingSpan
+	 */
+	public function testNewLineWrappingSpan() {
+		$doc = DOMUtils::parseHTML( "<span>\n\n</span>" );
+		$el = DOMCompat::querySelector( $doc, 'span' );
+		$this->assertTrue( DOMUtils::isNewlineWrappingSpan( $el ) );
+
+		$doc = DOMUtils::parseHTML( "<span>\n<img src='./Foo.png' alt='foo'/>\n</span>" );
+		$el = DOMCompat::querySelector( $doc, 'span' );
+		$this->assertFalse( DOMUtils::isNewlineWrappingSpan( $el ) );
+	}
 }

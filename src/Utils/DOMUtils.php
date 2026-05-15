@@ -848,4 +848,11 @@ class DOMUtils {
 		// PHP 8.4 in production, which uses uppercase node names.
 		return $node instanceof \DOMNode ? $node->nodeName : strtolower( $node->nodeName );
 	}
+
+	public static function isNewlineWrappingSpan( Node $elt ): bool {
+		return self::nodeName( $elt ) === 'span' &&
+			$elt->firstChild === $elt->lastChild &&
+			$elt->firstChild instanceof Text &&
+			preg_match( "/^\n+$/", $elt->textContent );
+	}
 }
