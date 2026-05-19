@@ -10,7 +10,6 @@ if [ $# -lt 2 ]; then
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX HEAD"
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX"
 	echo "You have to skip OR provide both repo values on the CLI"
-	echo "A specific composer install can be passed via the MW_COMPOSER env variable."
 	echo "The task id refers to the associated release phab task."
 	exit 1
 fi
@@ -31,15 +30,6 @@ waitForConfirmation() {
 
 pwd="$PWD"
 newTagSha=$(git rev-list -n 1 "HEAD") # DEFAULT
-
-# Check composer version
-composer="${MW_COMPOSER:-composer}"
-composerVersion=$($composer --version 2> /dev/null | cut -d ' ' -f 3)
-readmeVersion="2.9.1"
-if [ "$composerVersion" != "$readmeVersion" ]; then
-	echo "Composer ($composerVersion) should be the same version as in the vendor README ($readmeVersion)."
-	exit 1
-fi
 
 if [ $# -gt 3 ]; then
 	newTagSha=$4
@@ -71,6 +61,28 @@ if [ ! -d "$coreRepo" ]; then
 	echo "Core repo $coreRepo doesn't exist. Please verify and try again."
 	exit 1
 fi
+
+# Extract docker image from vendor README and build the composer command
+dockerImage=$(grep 'docker run' "$vendorRepo/README.md" | grep 'update --no-dev' \
+	| sed -e 's/ update --no-dev.*//' | awk '{print $NF}')
+if [ -z "$dockerImage" ] || [[ "$dockerImage" != "docker-registry.wikimedia.org/"* ]]; then
+	echo "Could not extract valid docker image from $vendorRepo/README.md — check for format changes."
+	exit 1
+fi
+echo "Using docker image from vendor README: $dockerImage"
+
+# Sanity check: verify the docker image entrypoint runs composer
+if ! docker inspect "$dockerImage" > /dev/null 2>&1; then
+	echo "Pulling docker image for sanity check..."
+	docker pull "$dockerImage"
+fi
+entrypoint=$(docker inspect --format '{{json .Config.Entrypoint}}' "$dockerImage")
+if ! echo "$entrypoint" | grep -qE '(^|["/])composer"'; then
+	echo "Sanity check failed: $dockerImage entrypoint does not appear to run composer."
+	echo "Entrypoint: $entrypoint"
+	exit 1
+fi
+composer="docker run --rm -it -u $(id -u):$(id -g) -v $vendorRepo/.git:/src/.git:ro -v $vendorRepo:/src -w /src $dockerImage"
 
 # lower-case tag names
 oldTag=$(echo $1 | tr '[:upper:]' '[:lower:]')
