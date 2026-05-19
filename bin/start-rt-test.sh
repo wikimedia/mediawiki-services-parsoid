@@ -94,7 +94,7 @@ testid=$(echo -n "$testid" | head -c 8)
 
 if $deploy_mw_parsoid; then
 	echo "---- Deploying mw-parsoid ----"
-	"$(dirname "$0")/deploy-mw-parsoid.sh" "$uid"
+	"$(dirname "$0")/deploy-mw-parsoid.sh" ${uid:+"-u" "${uid%@}"}
 fi
 
 # Update code on parsoid host since RT testing scripts will hit the Parsoid REST API there
