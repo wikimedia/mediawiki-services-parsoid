@@ -98,6 +98,16 @@ interface LinkTarget extends Stringable {
 	public function createFragmentTarget( string $fragment );
 
 	/**
+	 * Create a new LinkTarget with no fragment on the same page.
+	 *
+	 * It is expected that the same type of object will be returned, but the
+	 * only requirement is that it is a LinkTarget.
+	 *
+	 * @return LinkTarget
+	 */
+	public function removeFragmentTarget(): LinkTarget;
+
+	/**
 	 * Whether this LinkTarget has an interwiki component.
 	 *
 	 * @return bool

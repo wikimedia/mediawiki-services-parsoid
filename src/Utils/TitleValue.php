@@ -21,17 +21,17 @@ class TitleValue implements LinkTarget {
 	/** @var string */
 	private $dbkey;
 
-	/** @var string */
+	/** @var ?string */
 	private $fragment;
 
 	/**
 	 * @param int $namespaceId
 	 * @param string $dbkey Page DBkey (with underscores, not spaces)
-	 * @param string $fragment Fragment suffix, or empty string if none
+	 * @param string|null $fragment Fragment suffix, or `null` if none
 	 * @param string $interwiki Interwiki prefix, or empty string if none
 	 */
 	private function __construct(
-		int $namespaceId, string $dbkey, string $fragment = '', string $interwiki = ''
+		int $namespaceId, string $dbkey, ?string $fragment = null, string $interwiki = ''
 	) {
 		$this->namespaceId = $namespaceId;
 		$this->dbkey = strtr( $dbkey, ' ', '_' );
@@ -59,7 +59,7 @@ class TitleValue implements LinkTarget {
 		string $fragment = '',
 		string $interwiki = ''
 	): ?TitleValue {
-		return new static( $namespace, $title, $fragment, $interwiki );
+		return new static( $namespace, $title, $fragment ?: null, $interwiki );
 	}
 
 	/** @inheritDoc */
@@ -68,8 +68,13 @@ class TitleValue implements LinkTarget {
 	}
 
 	/** @inheritDoc */
+	public function hasFragment(): bool {
+		return $this->fragment !== null;
+	}
+
+	/** @inheritDoc */
 	public function getFragment(): string {
-		return $this->fragment;
+		return $this->fragment ?? '';
 	}
 
 	/** @inheritDoc */
@@ -79,7 +84,16 @@ class TitleValue implements LinkTarget {
 
 	/** @inheritDoc */
 	public function createFragmentTarget( string $fragment ): self {
-		return new static( $this->namespaceId, $this->dbkey, $fragment, $this->interwiki );
+		return new static( $this->namespaceId, $this->dbkey, $fragment ?: null, $this->interwiki );
+	}
+
+	/**
+	 * Improved version of ::createFragmentTarget() that doesn't conflate
+	 * "empty fragment" with "no fragment".
+	 */
+	public function removeFragmentTarget(): self {
+		return $this->fragment === null ? $this :
+			new static( $this->namespaceId, $this->dbkey, null, $this->interwiki );
 	}
 
 	/** @inheritDoc */

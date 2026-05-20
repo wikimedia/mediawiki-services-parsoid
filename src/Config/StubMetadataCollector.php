@@ -183,7 +183,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	/** @inheritDoc */
 	public function addLink( LinkTarget $link, $id = null ): void {
 		# Fragments are stripped when collecting.
-		$link = $link->createFragmentTarget( '' );
+		$link = $link->removeFragmentTarget();
 		$type = self::LINKTYPE_LOCAL;
 
 		if ( $link->isExternal() ) {
@@ -207,7 +207,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	/** @inheritDoc */
 	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void {
 		# Fragments are stripped when collecting.
-		$link = $name->createFragmentTarget( '' );
+		$link = $name->removeFragmentTarget();
 		$this->collect(
 			self::LINKTYPE_MEDIA,
 			$this->linkToString( $link ),
@@ -244,7 +244,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 */
 	public function addTemplate( LinkTarget $link, int $page_id, int $rev_id ): void {
 		# Fragments are stripped when collecting.
-		$link = $link->createFragmentTarget( '' );
+		$link = $link->removeFragmentTarget();
 		// XXX should store the page_id and rev_id
 		$this->collect(
 			self::LINKTYPE_TEMPLATE,

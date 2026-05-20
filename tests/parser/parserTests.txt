@@ -2971,6 +2971,20 @@ parsoid=html2wt
 !! end
 
 !! test
+Empty title wikilink (legacy parser behavior is wrong, see T19006)
+!! wikitext
+[[#]]
+[[#|x]]
+!! html/php
+<p><a href="/wiki/">#</a>
+<a href="/wiki/">x</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Parser_test#" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#"},"sa":{"href":"#"}}'>#</a>
+<a rel="mw:WikiLink" href="./Parser_test#" class="mw-selflink-fragment" data-parsoid='{"stx":"piped","a":{"href":"./Parser_test#"},"sa":{"href":"#"}}'>x</a></p>
+!! end
+
+!! test
 1. Interaction of linktrail and template encapsulation
 !! wikitext
 {{1x|[[Foo]]}}l

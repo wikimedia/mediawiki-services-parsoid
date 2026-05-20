@@ -25,7 +25,7 @@ class Title implements LinkTarget {
 	/** @var string */
 	private $dbkey;
 
-	/** @var string */
+	/** @var ?string */
 	private $fragment;
 
 	// cached values of prefixed title/key
@@ -37,7 +37,7 @@ class Title implements LinkTarget {
 	 * @param string $key Page DBkey (with underscores, not spaces)
 	 * @param int $namespaceId
 	 * @param string $namespaceName (with spaces, not underscores)
-	 * @param ?string $fragment
+	 * @param ?string $fragment (null for no fragment)
 	 */
 	private function __construct(
 		string $interwiki, string $key, int $namespaceId, string $namespaceName, ?string $fragment = null
@@ -46,7 +46,7 @@ class Title implements LinkTarget {
 		$this->dbkey = $key;
 		$this->namespaceId = $namespaceId;
 		$this->namespaceName = $namespaceName;
-		$this->fragment = $fragment ?? '';
+		$this->fragment = $fragment;
 	}
 
 	public static function newFromText(
@@ -357,6 +357,15 @@ class Title implements LinkTarget {
 	}
 
 	/**
+	 * Whether the link target has a fragment.
+	 *
+	 * @return bool
+	 */
+	public function hasFragment(): bool {
+		return $this->fragment !== null;
+	}
+
+	/**
 	 * Get the link fragment in text form (i.e. the bit after the hash `#`).
 	 *
 	 * @return string link fragment
@@ -420,6 +429,15 @@ class Title implements LinkTarget {
 	}
 
 	/**
+	 * Improved version of ::createFragmentTarget() that doesn't conflate
+	 * "empty fragment" with "no fragment".
+	 */
+	public function removeFragmentTarget(): self {
+		return $this->fragment === null ? $this :
+			new self( $this->interwiki, $this->dbkey, $this->namespaceId, $this->namespaceName, null );
+	}
+
+	/**
 	 * Convert LinkTarget from core (or other implementation) into a
 	 * Parsoid Title.
 	 *
@@ -443,7 +461,7 @@ class Title implements LinkTarget {
 			$linkTarget->getDBkey(),
 			$linkTarget->getNamespace(),
 			$namespaceName,
-			$linkTarget->getFragment()
+			$linkTarget->hasFragment() ? $linkTarget->getFragment() : null,
 		);
 	}
 }

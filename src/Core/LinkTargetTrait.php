@@ -53,6 +53,21 @@ trait LinkTargetTrait {
 	}
 
 	/**
+	 * Create a new LinkTarget with no fragment on the same page.
+	 *
+	 * It is expected that the same type of object will be returned, but the
+	 * only requirement is that it is a LinkTarget.
+	 *
+	 * @return LinkTarget
+	 */
+	public function removeFragmentTarget(): LinkTarget {
+		// We're trying to deprecate this calling pattern (T19006)
+		// but it will work for transition purposes.
+		'@phan-var LinkTarget $this';
+		return $this->createFragmentTarget( '' );
+	}
+
+	/**
 	 * Get the main part of the link target, in text form.
 	 *
 	 * The main part is the link target without namespace prefix or hash fragment.
