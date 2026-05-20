@@ -120,6 +120,10 @@ if ( $parsoidMode === 'integrated' ) {
 
 	abstract class Maintenance extends OptsProcessor {
 		public function addDefaultParams(): void {
+			if ( $this->suppressParsoidModeOptions() ) {
+				parent::addDefaultParams();
+				return;
+			}
 			$this->addOption(
 				'integrated',
 				'Run parsoid integrated with a host MediaWiki installation ' .
@@ -135,6 +139,11 @@ if ( $parsoidMode === 'integrated' ) {
 				'Use mock environment instead of api or standalone'
 			);
 			parent::addDefaultParams();
+		}
+
+		/** Allow subclasses to suppress the --integrated/--standalone options */
+		public function suppressParsoidModeOptions(): bool {
+			return false;
 		}
 
 		/**
