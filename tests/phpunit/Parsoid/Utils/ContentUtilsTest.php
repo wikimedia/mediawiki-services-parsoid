@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Test\Utils;
+namespace Test\Parsoid\Utils;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\DOMCompat;
