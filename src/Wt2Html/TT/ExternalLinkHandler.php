@@ -103,6 +103,9 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 			$max = count( $origHref ) - count( $hrefTokens[1] );
 			// Conservatively, only include the rest of the tokens as content
 			// if we aren't wrapping or if we find template info
+			// For example, we might have bailed on the template
+			// (convertToString) in which case we need another way to avoid
+			// dirtying when roundtripping
 			$content = ( !$wrapTemplates || $tplarginfo ) ? $hrefTokens[1] : [];
 		} else {
 			$max = null;
@@ -238,6 +241,9 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 				}
 				// Conservatively, only include the rest of the tokens as content
 				// if we aren't wrapping or if we find template info
+				// For example, we might have bailed on the template
+				// (convertToString) in which case we need another way to avoid
+				// dirtying when roundtripping
 				if ( !$wrapTemplates || $tplarginfo ) {
 					$content = array_merge( $hrefTokens[1], $content );
 				}
@@ -303,6 +309,11 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 	}
 
 	private function getTemplateInfo( Token $token ): ?TemplateInfo {
+		// The token should have expanded attributes
+		if ( $token->dataMw === null ) {
+			return null;
+		}
+
 		$df = WTSUtils::getAttrFromDataMw(
 			$token->dataMw, 'href', true
 		)->value['html'] ?? null;
