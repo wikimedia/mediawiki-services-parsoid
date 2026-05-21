@@ -470,7 +470,9 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		if ( ScriptUtils::booleanOption( $this->getOption( 'deploy-mw-parsoid' ) ) ) {
 			$this->dashes( "Deploying mw-parsoid" );
-			$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh', [ $this->getOption( 'uid' ) ] ) );
+			$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh',
+				$this->hasOption( 'uid' ) ? [ '-u', $this->getOption( 'uid' ) ] : []
+			) );
 		}
 
 		$titles = [];
