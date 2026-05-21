@@ -241,7 +241,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = $this->getSiteConfig( [ 'getSpecialNSAliases', 'getSpecialPageAliases' ] );
 		$siteConfig->method( 'getSpecialNSAliases' )->willReturn( [ 'Special', 'special' ] );
 		$siteConfig->method( 'getSpecialPageAliases' )->
-			will( $this->returnCallBack( [ $this, 'mockSpecialPageAlias' ] ) );
+			willReturnCallback( [ $this, 'mockSpecialPageAlias' ] );
 
 		$matcher = $siteConfig->getExtResourceURLPatternMatcher();
 		$this->assertSame( $res, $matcher( $input ) );
