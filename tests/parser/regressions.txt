@@ -314,6 +314,25 @@ T426371: Templated captions with leading category links should not break the cap
 <figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=[[Category:Foo]]&lt;div>foo&lt;/div>}}"}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>foo&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
 !! end
 
+!! article
+Template:mwParamRegressionTester
+!!text
+| foo
+
+| style="{{{SomeStyle}}}" | bar
+!! endarticle
+
+# FIXME: T427098
+!! test
+DOMRangeBuilder: mw:Param metas should not get a rendering-transparent-content wrapper
+!! wikitext
+{{mwParamRegressionTester}}
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"mwParamRegressionTester","href":"./Template:MwParamRegressionTester"},"params":{},"i":0}}]}'>| foo</p><span about="#mwt1">
+
+</span><p about="#mwt1">| style="<meta typeof="mw:Param" about="#mwt2"/>{{{SomeStyle}}}<meta typeof="mw:Param/End" about="#mwt2"/>" | bar</p>
+!! end
+
 !! test
 T426645: Broken template in autolink url
 !! options
