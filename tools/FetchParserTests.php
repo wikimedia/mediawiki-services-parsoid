@@ -26,6 +26,7 @@ require_once __DIR__ . '/Maintenance.php';
  */
 class FetchParserTests extends Maintenance {
 	use ExtendedOptsProcessor;
+	use ShellUtils;
 
 	private string $testDir;
 	private string $testFilesPath;
@@ -66,7 +67,7 @@ class FetchParserTests extends Maintenance {
 		}
 		$this->userAgent = $ua;
 
-		$parsoidRoot = realpath( __DIR__ . '/..' );
+		$parsoidRoot = realpath( self::$parsoidRoot );
 		$this->testDir = "{$parsoidRoot}/tests/parser";
 		$this->testFilesPath = "{$parsoidRoot}/tests/parserTests.json";
 		$this->testFiles = json_decode(
@@ -112,18 +113,7 @@ class FetchParserTests extends Maintenance {
 
 	private function gerritFetch( string $path ): string {
 		$url = "https://gerrit.wikimedia.org{$path}";
-		$context = stream_context_create( [
-			'http' => [
-				'method' => 'GET',
-				'header' => "User-Agent: {$this->userAgent}\r\n",
-				'ignore_errors' => true,
-			],
-		] );
-		$result = file_get_contents( $url, false, $context );
-		if ( $result === false ) {
-			throw new \RuntimeException( "Failed to fetch: {$url}" );
-		}
-		return $result;
+		return self::fetchUrl( $url, userAgent: $this->userAgent );
 	}
 
 	private function fetchFile(

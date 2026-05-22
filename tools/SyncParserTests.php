@@ -1,15 +1,19 @@
-#!/usr/bin/env node
+#!/usr/bin/env php
+<?php
+declare( strict_types = 1 );
 
-"use strict";
+// phpcs:disable Generic.Files.LineLength.TooLong
 
-require('../core-upgrade.js');
+namespace Wikimedia\Parsoid\Tools;
+
+require_once __DIR__ . '/Maintenance.php';
+require_once __DIR__ . '/ShellUtils.php';
 
 /**
+ * Synchronize Parsoid parser tests with parser tests in other repos.
+ *
  * == USAGE ==
  *
- * Script to synchronize parsoid parserTests with parserTests in other repos.
- *
- * Basic use:
  * $PARSOID is the path to a checked out git copy of Parsoid
  * $TARGET_REPO identifies which set of parserTests we're synchronizing.
  *   This should be one of the top-level keys in tests/parserTests.json,
@@ -19,10 +23,10 @@ require('../core-upgrade.js');
  * $REPO_PATH is the path to a checked out git copy of the repo containing
  *   the parserTest file on your local machine.
  * $BRANCH is a branch name for the patch to $TARGET_REPO (ie, 'ptsync-<date>')
- * $BASE is typically master, but might be a release branch
+ * $BASE is typically 'master', but might be a release branch like 'REL1_47'
  *
  *   $ cd $PARSOID
- *   $ tools/sync-parserTests.js $TARGET_REPO $REPO_PATH $BRANCH [$BASE]
+ *   $ php tools/SyncParserTests.php $TARGET_REPO $REPO_PATH $BRANCH [$BASE]
  *   $ cd $REPO_PATH
  *   $ git rebase --keep-empty $BASE
  *     ... resolve conflicts, sigh ...
@@ -32,7 +36,7 @@ require('../core-upgrade.js');
  *   For extension repos, for every file with parsoid-compatible
  *   flags set, you may need to adjust tests appropriately in some cases
  *   and/or update known failures as below:
- *   $ php tests/parser/parserTests.php <all-enabled-parsoid-mode-flags> --updateKnownFailures --dir $PARSOID/tests/parser
+ *   $ php tests/parser/parserTests.php --updateKnownFailures --dir $PARSOID/tests/parser
  *
  *   $ git review  (only if the patch is not empty, see below)
  *
@@ -120,145 +124,128 @@ require('../core-upgrade.js');
  * update, the next sync from Parsoid will start from an older
  * baseline and introduce pointless merge conflicts to resolve.
  */
+class SyncParserTests extends Maintenance {
+	use ExtendedOptsProcessor;
+	use ShellUtils;
 
-const yargs = require('yargs');
-const childProcess = require('pn/child_process');
-const path = require('path');
-const fs = require('pn/fs');
-const Promise = require('../lib/utils/promise.js');
-const testDir = path.join(__dirname, '../tests/');
-const testFilesPath = path.join(testDir, 'parserTests.json');
-const testFiles = require(testFilesPath);
+	/** @var string Absolute path to the target repo working directory */
+	private string $mwpath;
 
-const strip = function(s) {
-	return s.replace(/(^\s+)|(\s+$)/g, '');
-};
-
-Promise.async(function *() {
-	// Option parsing and helpful messages.
-	const usage = 'Usage: $0  <target-repo-key> <repo-path> <branch>';
-	const opts = yargs
-	.usage(usage)
-	.help(false)
-	.options({
-		'help': { description: 'Show this message' },
-	});
-	const argv = opts.argv;
-	if (argv.help || argv._.length < 3 || argv._.length > 4) {
-		opts.showHelp();
-		let morehelp = yield fs.readFile(__filename, 'utf8');
-		morehelp = strip(morehelp.split(/== [A-Z]* ==/, 2)[1]);
-		console.log(morehelp.replace(/^ {3}/mg, ''));
-		return;
+	public function __construct() {
+		parent::__construct();
+		$this->addDescription(
+			'Synchronize Parsoid parser tests with parser tests in other repos. ' .
+			'See the script source for detailed usage.'
+		);
+		$this->addArg( 'target-repo-key', 'Key from parserTests.json (e.g. "core", "TMH"); default: "core"', false );
+		$this->addArg( 'repo-path', 'Path to checked-out git copy of the target repo; defaults to $MW_CORE_REPO when target-repo-key is "core"', false );
+		$this->addArg( 'branch', 'Branch name for the patch (default: "ptsync-YYYYMMDD")', false );
+		$this->addArg( 'base', 'Base branch to rebase onto (default: master)', false );
 	}
 
-	// Ok, let's do this thing!
-	const targetRepo = argv._[0];
-	if (!testFiles.hasOwnProperty(targetRepo)) {
-		console.warn(targetRepo + ' not defined in parserTests.json');
-		return;
-	}
+	public function execute(): void {
+		$this->maybeHelp();
 
-	if (targetRepo === 'parsoid') {
-		console.warn('Nothing to sync for Parsoid-only files.');
-		return;
-	}
+		$testFilesPath = realpath( self::$parsoidRoot . '/tests/parserTests.json' );
+		$testFiles = json_decode(
+			file_get_contents( $testFilesPath ), true, 512, JSON_THROW_ON_ERROR
+		);
 
-	const mwexec = function(cmd) {
-		// Execute `cmd` in the mwpath directory.
-		return new Promise(function(resolve, reject) {
-			console.log('>>>', cmd.join(' '));
-			childProcess.spawn(cmd[0], cmd.slice(1), {
-				cwd: mwpath,
-				env: process.env,
-				stdio: 'inherit',
-			}).on('close', function(code) {
-				if (code === 0) {
-					resolve(code);
-				} else {
-					reject(code);
-				}
-			}).on('error', reject);
-		});
-	};
-
-	let phash = null;
-	let firstTarget = true;
-	const mwpath = path.resolve(argv._[1]);
-	const repoInfo = testFiles[targetRepo];
-	const oldCommitHash = repoInfo.latestCommit;
-	const targets = repoInfo.targets;
-	const branch = argv._[2];
-	const base = argv._[3] || 'origin/master';
-	const changedFiles = [];
-	for (const targetName in targets) {
-		console.log("Processing " + targetName);
-
-		// A bit of user-friendly logging.
-		if (firstTarget) {
-			// Fetch current Parsoid git hash.
-			const result = yield childProcess.execFile(
-				'git', ['log', '--max-count=1', '--pretty=format:%H'], {
-					cwd: __dirname,
-					env: process.env,
-				}).promise;
-			phash = strip(result.stdout);
-			console.log('Parsoid git HEAD is', phash);
-			console.log('>>> cd', mwpath);
-			yield mwexec('git fetch origin'.split(' '));
-
-			// Create/checkout a branch, based on the previous sync point.
-			yield mwexec(['git', 'checkout', '-b', branch, oldCommitHash]);
+		$targetRepo = $this->getArg( 0, 'core' );
+		if ( !isset( $testFiles[$targetRepo] ) ) {
+			$this->fatalError( "$targetRepo not defined in parserTests.json\n" );
+		}
+		if ( $targetRepo === 'parsoid' ) {
+			$this->fatalError( "Nothing to sync for Parsoid-only files.\n" );
 		}
 
-		// Copy our locally-modified parser tests over to the target repo
-		const targetInfo = targets[targetName];
-		const parsoidFile = path.join(__dirname, '..', 'tests', 'parser', targetName);
-		const targetFile = path.join(mwpath, targetInfo.path);
-		// Support file renaming!
-		if (targetInfo.oldPath) {
-			const targetOldFile = path.join(mwpath, targetInfo.oldPath);
-			// If this exists, do a git-mv to the new path before copying
-			// the Parsoid file over.
-			if (yield fs.exists(targetOldFile)) {
-				yield mwexec(['git', 'mv', targetInfo.oldPath, targetInfo.path]);
+		$repoPathArg = $this->getArg( 1 );
+		if ( $repoPathArg === null && $targetRepo === 'core' ) {
+			$repoPathArg = getenv( 'MW_CORE_REPO' ) ?: null;
+		}
+		if ( $repoPathArg === null ) {
+			$this->fatalError( "repo-path is required\n" );
+		}
+		$mwpath = realpath( $repoPathArg );
+		if ( $mwpath === false || !is_dir( $mwpath ) ) {
+			$this->fatalError( "repo-path does not exist: $repoPathArg\n" );
+		}
+		$this->mwpath = $mwpath;
+
+		$branch = $this->getArg( 2, 'ptsync-' . date( 'Ymd' ) );
+		$base = $this->getArg( 3, 'master' );
+
+		$repoInfo = $testFiles[$targetRepo];
+		$oldCommitHash = $repoInfo['latestCommit'];
+		$targets = $repoInfo['targets'];
+
+		$phash = null;
+		$firstTarget = true;
+		$changedFiles = [];
+
+		foreach ( $targets as $targetName => $targetInfo ) {
+			$this->output( "Processing $targetName\n" );
+
+			if ( $firstTarget ) {
+				// Fetch current Parsoid git hash.
+				$phash = self::execCapture(
+					[ 'git', 'log', '--max-count=1', '--pretty=format:%H' ],
+				);
+				$this->output( "Parsoid git HEAD is $phash\n" );
+				$this->output( ">>> cd $this->mwpath\n" );
+				self::exec( [ 'git', 'fetch', 'origin' ], $this->mwpath );
+
+				// Create/checkout a branch, based on the previous sync point.
+				self::exec( [ 'git', 'checkout', '-b', $branch, $oldCommitHash ], $this->mwpath );
+			}
+
+			$parsoidFile = realpath( self::$parsoidRoot . "/tests/parser/{$targetName}" );
+			$targetFile = $this->mwpath . '/' . $targetInfo['path'];
+
+			// Support file renaming: if an oldPath is set and the old file exists,
+			// git-mv it to the new path before copying the Parsoid file over.
+			if ( isset( $targetInfo['oldPath'] ) ) {
+				$targetOldFile = $this->mwpath . '/' . $targetInfo['oldPath'];
+				if ( file_exists( $targetOldFile ) ) {
+					self::exec( [ 'git', 'mv', $targetInfo['oldPath'], $targetInfo['path'] ], $this->mwpath );
+				}
+			}
+
+			try {
+				$data = file_get_contents( $parsoidFile );
+				if ( $data === false ) {
+					throw new \RuntimeException( "Could not read $parsoidFile" );
+				}
+				$this->output( ">>> cp $parsoidFile $targetFile\n" );
+				if ( file_put_contents( $targetFile, $data ) === false ) {
+					throw new \RuntimeException( "Could not write $targetFile" );
+				}
+				$changedFiles[] = $targetInfo['path'];
+				$firstTarget = false;
+			} catch ( \RuntimeException $e ) {
+				// cleanup: abandon the branch we created
+				self::exec( [ 'git', 'checkout', "origin/$base" ], $this->mwpath );
+				self::exec( [ 'git', 'branch', '-d', $branch ], $this->mwpath );
+				throw $e;
 			}
 		}
-		try {
-			const data = yield fs.readFile(parsoidFile);
-			console.log('>>>', 'cp', parsoidFile, targetFile);
-			yield fs.writeFile(targetFile, data);
-			changedFiles.push(targetInfo.path);
-			firstTarget = false;
-		} catch (e) {
-			// cleanup
-			yield mwexec(`git checkout ${ base }`.split(' '));
-			yield mwexec(['git', 'branch', '-d', branch]);
-			throw e;
-		}
+
+		// Make a new commit with an appropriate message.
+		// Note --allow-empty: sometimes there are no parsoid-side changes to merge.
+		$commitmsg = "Sync up $targetRepo repo with Parsoid\n\nThis now aligns with Parsoid commit $phash";
+		self::exec( [ 'git', 'add', ...$changedFiles ], $this->mwpath );
+		self::exec( [ 'git', 'commit', '--allow-empty', '-m', $commitmsg ], $this->mwpath );
+
+		// Give further instructions.
+		$this->output( "\n" );
+		$this->output( "Success!  Now:\n" );
+		$this->output( " cd {$this->mwpath}\n" );
+		$this->output( " git rebase --keep-empty origin/{$base}\n" );
+		$this->output( " .. fix any conflicts .. \n" );
+		$this->output( " php tests/parser/parserTests.php\n" );
+		$this->output( " git review\n" );
 	}
+}
 
-	// Make a new commit with an appropriate message.
-	let commitmsg = 'Sync up ' + targetRepo + ' repo with Parsoid';
-	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
-	// Note the --allow-empty, because sometimes there are no parsoid-side
-	// changes to merge. (We just need to get changes from upstream.)
-	yield mwexec(['git', 'add'].concat(changedFiles));
-	yield mwexec(['git', 'commit', '--allow-empty', '-m', commitmsg]);
-
-	// ok, we were successful at making the commit.  Give further instructions.
-	console.log();
-	console.log('Success!  Now:');
-	console.log(' cd', mwpath);
-	console.log(' git rebase --keep-empty', base);
-	console.log(' .. fix any conflicts .. ');
-	console.log(' php tests/parser/parserTests.php');
-	console.log(' git review');
-
-	// XXX to rebase semi-automatically, we might do something like:
-	//  yield mwexec(`git rebase ${ base }`.split(' '));
-	// XXX but it seems rather confusing to do it this way, since the
-	// current working directory when we finish is still parsoid.
-
-	process.exit(0);
-})().done();
+$maintClass = SyncParserTests::class;
+require_once PARSOID_RUN_MAINTENANCE_IF_MAIN;
