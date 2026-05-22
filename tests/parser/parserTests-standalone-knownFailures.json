@@ -520,7 +520,7 @@
         "selser [[4,2]]": "{|<!--1whfqxl--><!--zxj2in-->\n|quux\n|- id=foo | style='color: red'\n|bar\n|}",
         "selser [[3,2]]": "{|<!--19fpekv-->\n|quux\n|- id=foo | style='color: red'\n|bar\n|}"
     },
-    "Incorrecly removing closing slashes from correctly formed XHTML": {
+    "Incorrectly removing closing slashes from correctly formed XHTML": {
         "html2html": "\n\n",
         "html2wt": "\n\n"
     },
