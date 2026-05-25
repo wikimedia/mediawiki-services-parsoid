@@ -322,15 +322,18 @@ Template:mwParamRegressionTester
 | style="{{{SomeStyle}}}" | bar
 !! endarticle
 
-# FIXME: T427098
 !! test
-DOMRangeBuilder: mw:Param metas should not get a rendering-transparent-content wrapper
+TSP should not introduce mw:Param tokens when reprocessing templated content
 !! wikitext
 {{mwParamRegressionTester}}
+!! html/php
+<p>| foo
+</p><p>| style="{{{SomeStyle}}}" | bar
+</p>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"mwParamRegressionTester","href":"./Template:MwParamRegressionTester"},"params":{},"i":0}}]}'>| foo</p><span about="#mwt1">
 
-</span><p about="#mwt1">| style="<meta typeof="mw:Param" about="#mwt2"/>{{{SomeStyle}}}<meta typeof="mw:Param/End" about="#mwt2"/>" | bar</p>
+</span><p about="#mwt1">| style="{{{SomeStyle}}}" | bar</p>
 !! end
 
 !! test

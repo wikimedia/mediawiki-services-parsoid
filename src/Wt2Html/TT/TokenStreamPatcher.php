@@ -139,7 +139,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * TokenStreamPatcher, ie. expanded to the end of stage 2
 	 */
 	private function reprocessTokens(
-		?SourceRange $srcOffsets, string $str, bool $sol, ?string $startRule = null, ?array $pipelineOpts = []
+		?SourceRange $srcOffsets, string $str, bool $sol, ?string $startRule = null
 	): array {
 		$missingSrcOffsets = ( $srcOffsets === null );
 		// Use 'start' and 'source' of $srcOffsets but recompute the 'end'
@@ -148,6 +148,12 @@ class TokenStreamPatcher extends LineBasedHandler {
 			( $srcOffsets->start ?? 0 ) + strlen( $str ),
 			$srcOffsets->source ?? new SourceString( $str )
 		);
+		// This string effectively came from a template, so tag it as 'inTemplate'
+		$inTemplate = ( $this->tplInfo !== null );
+		$pipelineOpts = [
+			'inTemplate' => $inTemplate,
+			'expandTemplates' => !$inTemplate,
+		];
 		$toks = (array)PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -159,7 +165,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 				// processTrReparseBuf gets us here from a top-level content pipeline,
 				// but the content itself came from a template. In that situation, the
 				// pipeline isn't processing top-level content, and isn't at 'toplevel'.
-				'toplevel' => $this->atTopLevel && !isset( $pipelineOpts['inTemplate'] ),
+				'toplevel' => $this->atTopLevel && !$inTemplate,
 				'srcOffsets' => $srcOffsets,
 			] + ( $startRule !== null ? [ 'startRule' => $startRule ] : [] )
 		);
@@ -245,9 +251,8 @@ class TokenStreamPatcher extends LineBasedHandler {
 			( $tr->dataParsoid->getTemp()->attrSrc ?? '' ) .
 			$extraAttrSrc;
 
-		// This string effectively came from a template, so tag it as 'inTemplate'
 		$newTRTokens = $this->reprocessTokens(
-			null, $freshSrc, true, "table_row_tag", [ 'inTemplate' => true ]
+			null, $freshSrc, true, "table_row_tag"
 		);
 		// Remove mw:ExpandedAttributes info since this is already
 		// embedded inside an outer template wrapper.
