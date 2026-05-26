@@ -96,6 +96,11 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"deploy-mw-parsoid",
 			"Deploy mw-parsoid via helmfile before running tests (default false)",
 			false );
+		$this->addOptionWithDefault(
+			"parsoidURL",
+			"rest.php endpoint of a running Parsoid instance.",
+			"http://DOMAIN/w/rest.php" );
+
 		$this->setAllowUnregisteredOptions( true );
 	}
 
@@ -218,11 +223,19 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$needsPHPRestart = ScriptUtils::booleanOption( $this->getOption( 'restartPHP' ) );
 		$restartCmd = self::cmd( '&& sudo systemctl restart php8.3-fpm.service' );
 		$restartOperation = $needsPHPRestart ? $restartCmd : [];
+		$proxyURL = [];
+		if ( $this->getOption( 'proxyURL' ) ) {
+			$proxyURL = '--proxyURL ' . $this->getOption( 'proxyURL' );
+		}
+		$parsoidURL = [];
+		if ( $this->getOption( 'parsoidURL' ) ) {
+			$parsoidURL = '--parsoidURL ' . $this->getOption( 'parsoidURL' );
+		}
 		$testScript = self::cmd(
 			$cdDir, '&&',
 			'node tools/runRtTests.js',
-			'--proxyURL ' . $this->getOption( 'proxyURL' ),
-			'--parsoidURL http://DOMAIN/w/rest.php',
+			$proxyURL,
+			$parsoidURL,
 			$this->outputContentVersion(),
 			$this->headers(),
 			[ '-f', $this->titlesPath ],
