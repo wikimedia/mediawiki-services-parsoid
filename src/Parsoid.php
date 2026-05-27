@@ -207,7 +207,7 @@ class Parsoid {
 			// be returning plain/stored docs here.  Prepare and load them
 			// for consistency.
 			$dpb = new DomPageBundle( $doc );
-			$doc = $dpb->toDom();
+			$doc = $dpb->toDom( siteConfig: $this->siteConfig );
 		}
 		return [ $env, $doc, $contentmodel ];
 	}

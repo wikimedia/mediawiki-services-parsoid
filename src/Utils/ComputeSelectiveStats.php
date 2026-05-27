@@ -68,8 +68,12 @@ class ComputeSelectiveStats {
 		}
 
 		// Parse to DOM and diff
-		$oldDoc = DomPageBundle::fromHtmlPageBundle( $oldPb )->toDom();
-		$newDoc = DomPageBundle::fromHtmlPageBundle( $newPb )->toDom();
+		$oldDoc = DomPageBundle::fromHtmlPageBundle( $oldPb )->toDom(
+			siteConfig: $env->getSiteConfig()
+		);
+		$newDoc = DomPageBundle::fromHtmlPageBundle( $newPb )->toDom(
+			siteConfig: $env->getSiteConfig()
+		);
 		$dd = new DOMDiff( $env );
 		// Don't skip over template content!
 		$dd->skipEncapsulatedContent = false;
