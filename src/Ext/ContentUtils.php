@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Utils\ContentUtils as CU;
@@ -18,12 +19,13 @@ class ContentUtils {
 	 *
 	 * @param string $html
 	 * @param array $options
+	 * @param ?SiteConfig $siteConfig
 	 * @return Document
 	 */
 	public static function createAndLoadDocument(
-		string $html, array $options = []
+		string $html, array $options = [], ?SiteConfig $siteConfig = null
 	): Document {
-		return CU::createAndLoadDocument( $html, $options );
+		return CU::createAndLoadDocument( $html, $options, $siteConfig );
 	}
 
 	/**
