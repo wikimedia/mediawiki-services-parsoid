@@ -27,6 +27,7 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\NodeData\DataMwError;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -1137,6 +1138,37 @@ class ParsoidExtensionAPI {
 			$this->env->getPageConfig(),
 			$this->env->getMetadata(),
 			$key
+		);
+	}
+
+	/**
+	 * The #tag parserfunction is used for eager expansion of extension tag
+	 * content.  Nowikis are used to escape arguments to the parserfunction
+	 * from that expansion.  This method removes the escapes and returns the
+	 * protected content.
+	 *
+	 * Similar to the call to unstripNoWiki in CoreParserFunctions::tagObj
+	 */
+	public function removeNowikiEscapesFromContent( string $content ): string {
+		return preg_replace_callback(
+			'/{{#parsoid\0fragment:\d+}}/s',
+			function ( $matches ) {
+				$pFragment = $this->env->getPFragment( $matches[0] );
+				$fragment = DOMUtils::parseHTMLToFragment(
+					$this->getTopLevelDoc(),
+					$pFragment->asHtmlString( $this )
+				);
+				if (
+					DiffDOMUtils::hasNChildren( $fragment, 1 ) &&
+					DOMUtils::nodeName( $fragment->firstChild ) === 'span' &&
+					DOMUtils::hasTypeOf( $fragment->firstChild, 'mw:Nowiki' )
+				) {
+					return $fragment->textContent;
+				} else {
+					return $matches[0];
+				}
+			},
+			$content
 		);
 	}
 }

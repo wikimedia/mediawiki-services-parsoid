@@ -131,6 +131,9 @@ class TestUtils {
 		// Eliminate a source of indeterminacy from leaked strip markers
 		$out = preg_replace( '/UNIQ-.*?-QINU/u', '', $out );
 
+		// FIXME(T415591): Normalize fragments markers leaking into src strings
+		$out = preg_replace( '/fragment:\d+}}/u', 'fragment}}', $out );
+
 		// Normalize COINS ids -- they aren't stable
 		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/iu', '', $out );
 

@@ -26,11 +26,6 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 				[
 					'name' => 'pre',
 					'handler' => self::class,
-					'options' => [
-						// Strip nowiki markers from #tag parser-function
-						// arguments (T299103)
-						'stripNowiki' => true,
-					],
 				]
 			]
 		];
@@ -57,6 +52,11 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 
 		Sanitizer::applySanitizedArgs( $extApi->getSiteConfig(), $pre, $args );
 		DOMDataUtils::getDataParsoid( $pre )->stx = 'html';
+
+		// #tag parserfunction may return nowikis as a fragments in the
+		// body which is needed for when we're processing format wikitext
+		// above
+		$content = $extApi->removeNowikiEscapesFromContent( $content );
 
 		// Support nowikis in pre.  Do this before stripping newlines, see test,
 		// "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)"
