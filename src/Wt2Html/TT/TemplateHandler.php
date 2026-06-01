@@ -602,7 +602,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 			return new TemplateExpansionResult( $error, false, $encap );
 		}
 
-		// XXX: notes from brion's mediawiki.parser.environment
+		// XXX: notes from brooke's mediawiki.parser.environment
 		// resolve template name
 		// load template w/ canonical name
 		// load template w/ variant names (language variants)

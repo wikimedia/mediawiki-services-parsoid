@@ -1,6 +1,6 @@
 /**
  * PEG.js grammar for reading MediaWiki parser tests files
- * 2011-07-20 Brion Vibber <brion@pobox.com>
+ * 2011-07-20 Brooke Vibber <bvibber@pobox.com>
  */
 {
 /* File-scope initializer */

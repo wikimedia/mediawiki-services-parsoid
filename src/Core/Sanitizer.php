@@ -13,7 +13,7 @@ declare( strict_types = 1 );
  * and periodically updated before being back to PHP. This code should be
  * periodically resynced with core sanitizer changes.
  *
- * Copyright © 2002-2005 Brooke Vibber <bvibber@wikimedia.org> et al
+ * Copyright © 2002-2005 Brooke Vibber <bvibber@pobox.com> et al
  * https://www.mediawiki.org/
  *
  * @license GPL-2.0-or-later
