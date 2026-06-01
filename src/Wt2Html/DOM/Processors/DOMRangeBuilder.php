@@ -1445,6 +1445,7 @@ class DOMRangeBuilder {
 	}
 
 	private function shouldStashRenderingTransparentNodes( ?Element $prev, ?Element $next, Element $node ): bool {
+		$about = DOMCompat::getAttribute( $node, "about" );
 		return (
 				// start of a template
 				$prev === null ||
@@ -1456,7 +1457,7 @@ class DOMRangeBuilder {
 			(
 				// end of a template (or start of a new one)
 				$next === null ||
-				WTUtils::isTplMarkerMeta( $next ) ||
+				DOMCompat::getAttribute( $next, "about" ) !== $about ||
 				// or before a div or a table
 				in_array( DOMUtils::nodeName( $next ), [ 'div', 'table' ], true )
 			 );

@@ -26,6 +26,7 @@ class LiFixups {
 			$prev = $tplRoot->previousSibling;
 			while ( $c !== $prev ) {
 				if ( !WTUtils::isSolTransparentLink( $c ) &&
+					( $c instanceof Element && !DOMUtils::hasClass( $c, 'mw-empty-elt' ) ) &&
 					!( DOMUtils::nodeName( $c ) === 'span' && preg_match( '/^\s*$/D', $c->textContent ) )
 				) {
 					return [ 'tplRoot' => $tplRoot, 'migratable' => false ];
@@ -70,7 +71,7 @@ class LiFixups {
 				}
 			} elseif ( $c instanceof Comment ) {
 				$sentinel = $c;
-			} elseif ( !WTUtils::isSolTransparentLink( $c ) ) {
+			} elseif ( !WTUtils::isSolTransparentLink( $c ) && !DOMUtils::hasClass( $c, 'mw-empty-elt' ) ) {
 				// We are done if we hit anything but text
 				// or sol-transparent links.
 				break;
