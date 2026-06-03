@@ -108,6 +108,8 @@ class ListFrame {
 			$this->haveDD = false; // reset
 		}
 
+		$this->listTk->listType ??= $container['list'];
+
 		return [
 			new TagTk( $container['list'], [], $dp1 ),
 			new TagTk( $container['item'], [], $dp2 )

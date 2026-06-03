@@ -75,7 +75,13 @@ class ParagraphWrapper extends LineBasedHandler {
 	 * @inheritDoc
 	 */
 	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
-		if ( $ctk instanceof ListTk || $ctk instanceof IndentPreTk || $ctk instanceof EmptyLineTk ) {
+		if ( $ctk instanceof ListTk ) {
+			if ( $ctk->isDLDDList() ) {
+				return $tokensHandler->process( $ctk->getNestedTokens() );
+			} else {
+				return null;
+			}
+		} elseif ( $ctk instanceof IndentPreTk || $ctk instanceof EmptyLineTk ) {
 			return null;
 		} else {
 			throw new UnreachableException(
