@@ -3,6 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
+/**
+ * @phan-file-suppress PhanTypeMismatchArgumentSuperType
+ */
+
 use Error;
 use SplObjectStorage;
 use Wikimedia\Assert\Assert;

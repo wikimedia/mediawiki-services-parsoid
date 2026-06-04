@@ -479,6 +479,7 @@ class SerializerState {
 	public function updateModificationFlags( Node $node ): void {
 		$this->prevNodeUnmodified = $this->currNodeUnmodified;
 		$this->currNodeUnmodified = false;
+		// @phan-suppress-next-line PhanTypeMismatchProperty
 		$this->prevNode = $node;
 	}
 

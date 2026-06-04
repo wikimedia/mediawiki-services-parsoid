@@ -134,6 +134,7 @@ class BasePageBundle implements JsonCodecable {
 			$json['parsoid']['counter'] = $json['counters']['nodedata'];
 		}
 		return new BasePageBundle(
+			// @phan-suppress-next-line PhanTypeMismatchArgument
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
 			version: $json['version'] ?? null,

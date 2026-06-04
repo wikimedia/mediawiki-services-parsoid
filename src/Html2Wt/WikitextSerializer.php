@@ -1241,6 +1241,7 @@ class WikitextSerializer {
 		$nodeName = DOMUtils::nodeName( $node );
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
+		// @phan-suppress-next-line PhanTypeMismatchProperty
 		$state->currNode = $node;
 
 		if ( $state->selserMode ) {
