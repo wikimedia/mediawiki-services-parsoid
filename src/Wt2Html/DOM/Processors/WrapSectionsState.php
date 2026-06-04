@@ -64,6 +64,7 @@ class WrapSectionsState {
 	) {
 		$this->env = $env;
 		$this->frame = $frame;
+		// @phan-suppress-next-line PhanTypeMismatchProperty
 		$this->rootNode = $rootNode;
 		$this->doc = $rootNode->ownerDocument;
 	}

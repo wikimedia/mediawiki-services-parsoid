@@ -188,9 +188,9 @@ class LanguageVariantHandler extends TokenHandler {
 				if ( isset( $dataMWV['add'] ) || isset( $dataMWV['remove'] ) ) {
 					$variants = [ '*' ];
 					$twoway = array_map( static function ( string $code ) use ( $texts, &$sawTwoway ) {
+						$sawTwoway = true;
 						return [ 'l' => $code, 't' => $texts[0]['text'] ];
 					}, $variants );
-					$sawTwoway = true;
 				} else {
 					$dataMWV['disabled'] = true;
 					unset( $dataMWV['describe'] );

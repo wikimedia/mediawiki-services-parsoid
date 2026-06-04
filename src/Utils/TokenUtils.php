@@ -494,7 +494,7 @@ class TokenUtils {
 			}
 		} );
 		self::convertOffsets( $s, $from, $to, $offsets );
-		self::collectOffsets( $tokens, static function ( $sr ) use ( &$offsets ) {
+		self::collectOffsets( $tokens, static function ( $sr ) {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust widths back from being character offsets
 				if ( $sr->openWidth !== null ) {
@@ -636,6 +636,7 @@ class TokenUtils {
 				self::hasDOMFragmentType( $token )
 			) {
 				// Handle dom fragments
+				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				$domFragment = $opts['env']->getDOMFragment(
 					$token->dataParsoid->html
 				);
