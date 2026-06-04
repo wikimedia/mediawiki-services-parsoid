@@ -602,7 +602,7 @@ class PegTokenizerTest extends \PHPUnit\Framework\TestCase {
 	public function testPreprocPiecesPerformance( $prefix, $repeat, $suffix, $limit ) {
 		// This test could exhaust the C stack if pcov is enabled and the
 		// stack is configured with an unusually low limit. (T422865)
-		if ( extension_loaded( 'pcov' ) ) {
+		if ( extension_loaded( 'pcov' ) || extension_loaded( 'xdebug' ) ) {
 			$this->markTestSkipped( 'test uses recursion -- T422865' );
 		}
 		$iterations = 1000;
