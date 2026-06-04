@@ -121,6 +121,7 @@ wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_f
 # Libraries with stubs which make phan unhappy
 # (Id0196efe83ea8ee8a35041da27bc87fd57070ed4)
 wfCollectPhpFiles( 'vendor/marc-mabe/php-enum/stubs', $cfg['exclude_file_list'] );
+wfCollectPhpFiles( 'vendor/symfony/polyfill-php80', $cfg['exclude_file_list'] );
 
 // Exclude src/DOM in favour of .phan/stubs/DomImpl.php
 wfCollectPhpFiles( 'src/DOM', $cfg['exclude_file_list'] );
@@ -146,6 +147,12 @@ $cfg['exclude_file_list'][] = "src/Core/PageBundle.php";
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
 $cfg['suppress_issue_types'][] = 'PhanTypePossiblyInvalidDimOffset';
 $cfg['suppress_issue_types'][] = 'MediaWikiNoEmptyIfDefined';
+$cfg['suppress_issue_types'][] = 'PhanUnusedVariableCaughtException';
+$cfg['suppress_issue_types'][] = 'PhanUnusedClosureUseVariable';
+$cfg['suppress_issue_types'][] = 'PhanGenericMissingParameters';
+$cfg['suppress_issue_types'][] = 'PhanTemplateTypeNotUsedInFunctionReturn';
+$cfg['suppress_issue_types'][] = 'PhanUnusedPrivateMethodParameter';
+$cfg['suppress_issue_types'][] = 'PhanThrowTypeAbsent';
 
 // This is too spammy for now. TODO enable
 $cfg['null_casts_as_any_type'] = true;

@@ -1042,6 +1042,7 @@ class TestRunner {
 		// Filter out html2* tests if we don't have an HTML section
 		// (Most likely there's either a metadata section or a html/php
 		// section but not html/parsoid section.)
+		// @phan-suppress-next-line PhanImpossibleTypeComparison
 		if ( $test->parsoidHtml === null && !isset( $test->sections['html/parsoid+standalone'] ) ) {
 			$targetModes = array_diff( $targetModes, [ 'html2wt', 'html2html' ] );
 		}
@@ -1065,6 +1066,7 @@ class TestRunner {
 		// be consistent with the test runner in the core repo.
 		$teardown = $this->addArticle( new Article( [
 			'title' => $test->pageName(),
+			// @phan-suppress-next-line PhanCoalescingNeverNull
 			'text' => $test->wikitext ?? '',
 			// Fake it
 			'type' => 'article',

@@ -317,6 +317,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			);
 			// Destructive update for compatibility; this is deprecated!
 			unset( $this->storage[$which][$key] );
+			// @phan-suppress-next-line PhanPossiblyInfiniteRecursionSameParams
 			$this->collect( $which, $key, $value, $strategy );
 			return;
 		}
@@ -330,6 +331,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			);
 			// Destructive update for compatibility; this is deprecated!
 			unset( $this->storage[$which][$key] );
+			// @phan-suppress-next-line PhanPossiblyInfiniteRecursionSameParams
 			$this->collect( $which, $key, $value, $strategy );
 			return;
 		} elseif ( $strategy === self::MERGE_STRATEGY_UNION ) {

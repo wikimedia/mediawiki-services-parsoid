@@ -293,6 +293,7 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataParsoid->stx ?? '' ) !== 'html' ) {
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
+						// @phan-suppress-next-line PhanTypeMismatchProperty
 						$this->tplStartToken = $token;
 					}
 					$this->srcOffset = $token->dataParsoid->tsr->end ?? null;

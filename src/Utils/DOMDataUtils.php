@@ -81,7 +81,6 @@ class DOMDataUtils {
 			return $doc->getExtensionData( "bag" ) !== null;
 		}
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		return isset( $doc->bag );
 	}
 
@@ -277,6 +276,7 @@ class DOMDataUtils {
 	 */
 	private static function getDataMwI18n( Element $node ): ?DataMwI18n {
 		// No default value; returns null if not present.
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return self::getAttributeObject( $node, 'data-mw-i18n', DataMwI18n::hint() );
 	}
 
@@ -290,6 +290,7 @@ class DOMDataUtils {
 	 * @return DataMwI18n $i18n
 	 */
 	private static function getDataMwI18nDefault( Element $node ): DataMwI18n {
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return self::getAttributeObjectDefault( $node, 'data-mw-i18n', DataMwI18n::hint() );
 	}
 
@@ -366,6 +367,7 @@ class DOMDataUtils {
 	 */
 	public static function getDataParsoidDiff( Element $node ): ?DataParsoidDiff {
 		// No default value; returns null if not present.
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return self::getAttributeObject( $node, 'data-parsoid-diff', DataParsoidDiff::hint() );
 	}
 
@@ -376,6 +378,7 @@ class DOMDataUtils {
 	 * @return DataParsoidDiff
 	 */
 	public static function getDataParsoidDiffDefault( Element $node ): DataParsoidDiff {
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return self::getAttributeObjectDefault( $node, 'data-parsoid-diff', DataParsoidDiff::hint() );
 	}
 
@@ -1070,11 +1073,9 @@ class DOMDataUtils {
 	 * @phan-template T
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
-	 * @phan-suppress-next-line PhanTypeMismatchDeclaredParam
 	 * @param T $value The new (object) value for the attribute
 	 * @param class-string<T>|Hint<T>|null $classHint Optional serialization hint
 	 * @phpcs:ignore MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
-	 * @phan-suppress-next-next-line PhanTemplateTypeNotUsedInFunctionReturn
 	 */
 	public static function setAttributeObject(
 		Element $node, string $name, object $value, $classHint = null
@@ -1187,6 +1188,7 @@ class DOMDataUtils {
 	): ?DocumentFragment {
 		// As it turns out, the implementation for a DocumentFragment is
 		// the same; all the implementation differences are in the codec
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return self::getAttributeObject(
 			$node, $name, DocumentFragment::class
 		);

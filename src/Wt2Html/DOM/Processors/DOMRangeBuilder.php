@@ -55,6 +55,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * FIXME: At some point, more of the details should be extracted and documented
  * in pseudo-code as an algorithm.
  * @module
+ * @phan-file-suppress PhanTypeMismatchArgumentSuperType
  */
 class DOMRangeBuilder {
 
@@ -585,7 +586,7 @@ class DOMRangeBuilder {
 
 			$this->verifyTplInfoExpectation( $templateInfo, $tmp );
 
-			$this->env->trace( "{$this->traceType}/merge", static function () use ( &$DOMDataUtils, &$r ) {
+			$this->env->trace( "{$this->traceType}/merge", static function () use ( &$r ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $r->start );
 				$dp2 = DOMDataUtils::getDataParsoid( $r->end );
