@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -707,9 +708,15 @@ class TokenUtils {
 				$token instanceof TagTk && $token->getName() === 'a' &&
 				( $token->dataParsoid->stx ?? '' ) === 'url'
 			) {
-				// WikiLinkHandler::stringifyOptionTokens includes these
+				// WikiLinkHandler::stringifyOptionTokens includes urllinks
 				// unconditionally but also entity encodes any pipes
-				$out .= $tokens[$i + 1];
+				//
+				// Urlencoding characters not found in the legacy parser's
+				// Parser::EXT_LINK_URL_CLASS is very specific to the use in
+				// the ExternalLinkHandler but if they were part of the
+				// urllink then they were entity encoded in the source and
+				// should be protected for when we try to tokenize as a url
+				$out .= Sanitizer::encodeUrlForExtLink( $tokens[$i + 1] );
 				$i += 2;
 			} elseif (
 				// This option shouldn't be used if the tokens have been

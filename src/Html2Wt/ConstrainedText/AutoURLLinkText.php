@@ -24,7 +24,7 @@ class AutoURLLinkText extends RegExpConstrainedText {
 		);
 	}
 
-	// This regexp comes from the legacy parser's EXT_LINK_URL_CLASS regexp.
+	// This regexp comes from the legacy parser's Parser::EXT_LINK_URL_CLASS regexp.
 	private const EXT_LINK_URL_CLASS =
 		'^\[\]<>"\x00-\x20\x7F\x{00A0}\x{1680}\x{180E}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}';
 	// This set of trailing punctuation comes from Parser.php::makeFreeExternalLink

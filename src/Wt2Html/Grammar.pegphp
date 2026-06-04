@@ -783,8 +783,8 @@ url_protocol =
 // no punctuation, and '{<' to trigger directives
 no_punctuation_char = [^ \]\[\r\n"'<>\x00-\x20\x7f&\u00A0\u1680\u180E\u2000-\u200A\u202F\u205F\u3000{]
 
-// this is the general url rule
-// on the PHP side, the path part matches EXT_LINK_URL_CLASS
+// This is the general url rule in the legacy parser,
+// the `path` portion matches its Parser::EXT_LINK_URL_CLASS
 // which is '[^][<>"\\x00-\\x20\\x7F\p{Zs}]'
 url =
 	proto:url_protocol
@@ -807,10 +807,10 @@ url =
 		return TokenizerUtils::flattenString( array_merge( [ $proto, $addr ], $path ) );
 	}
 
-// this is the somewhat-restricted rule used in autolinks
+// This is the somewhat-restricted rule used in autolinks
 // See Parser::doMagicLinks and Parser.php::makeFreeExternalLink.
-// The `path` portion matches EXT_LINK_URL_CLASS, as in the general
-// url rule.  As in PHP, we do some fancy fixup to yank out
+// The `path` portion matches Parser::EXT_LINK_URL_CLASS, as in the general
+// url rule.  As in the legacy parser, we do some fancy fixup to yank out
 // trailing punctuation, perhaps including parentheses.
 autourl =
 	! '//' // protocol-relative autolinks not allowed (T32269)

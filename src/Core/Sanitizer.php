@@ -948,6 +948,19 @@ class Sanitizer {
 	}
 
 	/**
+	 * Urlencode chars not in the legacy parser's Parser::EXT_LINK_URL_CLASS
+	 *
+	 * The pipe char is an exception introduced in core commit 2519512
+	 */
+	public static function encodeUrlForExtLink( string $href ): string {
+		return preg_replace_callback(
+			'/([\][<>"\x00-\x20\x7F\|])/', static function ( $matches ) {
+				return urlencode( $matches[0] );
+			}, $href
+		) ?? $href;
+	}
+
+	/**
 	 * @param SiteConfig $siteConfig
 	 * @param string $href
 	 * @param string $mode
@@ -955,11 +968,7 @@ class Sanitizer {
 	 */
 	public static function cleanUrl( SiteConfig $siteConfig, string $href, string $mode ): ?string {
 		if ( $mode !== 'wikilink' ) {
-			$href = preg_replace_callback(
-				'/([\][<>"\x00-\x20\x7F\|])/', static function ( $matches ) {
-					return urlencode( $matches[0] );
-				}, $href
-			);
+			$href = self::encodeUrlForExtLink( $href );
 		}
 
 		$matched = preg_match( '#^((?:[a-zA-Z][^:/]*:)?(?://)?)([^/]+)(/?.*)#', $href, $bits );

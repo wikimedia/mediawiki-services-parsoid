@@ -451,7 +451,7 @@ class LinkHandlerUtils {
 	 * @return string
 	 */
 	private static function escapeExtLinkURL( string $urlStr ): string {
-		// this regexp is the negation of EXT_LINK_URL_CLASS in the PHP parser
+		// This regexp is the negation of the legacy parser's Parser::EXT_LINK_URL_CLASS
 		return preg_replace(
 			// IPv6 host names are bracketed with [].  Entity-decode these.
 			'!^([a-z][^:/]*:)?//&#x5B;([0-9a-f:.]+)&#x5D;(:\d|/|$)!iD',
