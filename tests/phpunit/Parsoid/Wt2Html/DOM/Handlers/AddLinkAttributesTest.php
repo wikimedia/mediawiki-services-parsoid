@@ -76,7 +76,7 @@ class AddLinkAttributesTest extends TestCase {
 				"_blank",
 				// The mocked SiteConfig excludes example.com from the "nofollow" rule, hence why
 				// it's not added here
-				'<a href="http://www.example.com/plop" rel="mw:ExtLink noreferrer noopener"' .
+				'<a href="http://www.example.com/plop" rel="mw:ExtLink"' .
 				' class="external text" target="_blank">example.com</a>'
 			],
 			[

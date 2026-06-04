@@ -1044,12 +1044,8 @@ class Env {
 		$target = $siteConfig->getExternalLinkTarget();
 		if ( $target ) {
 			$attribs['target'] = $target;
-			if ( !in_array( $target, [ '_self', '_parent', '_top' ], true ) ) {
-				// T133507. New windows can navigate parent cross-origin.
-				// Including noreferrer due to lacking browser
-				// support of noopener. Eventually noreferrer should be removed.
-				array_push( $attribs['rel'], 'noreferrer', 'noopener' );
-			}
+			// T133507/T427561: we used to set `rel` attributes here, but
+			// no longer need to do so.
 		}
 		return $attribs;
 	}
