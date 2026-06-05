@@ -16,5 +16,8 @@
     },
     "Magic Word: {{USERLANGUAGE}} enabled": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"USERLANGUAGE\",\"function\":\"userlanguage\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_userlanguage missing in Parsoid.</span></p>"
+    },
+    "__NOINDEX__ overrides __INDEX__ (T10068, T16899)": {
+        "selser [4,2,1,3,0]": "uinwwg\n\nlih1uf __NOINDEX__ __INDEX__"
     }
 }

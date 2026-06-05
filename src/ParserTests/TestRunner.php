@@ -682,6 +682,7 @@ class TestRunner {
 			$test->sections['metadata/parsoid+standalone'] ??
 			// specific results for parsoid
 			$test->sections['metadata/parsoid'] ??
+			$test->sections['metadata/standalone'] ??
 			// generic for all parsers (even standalone)
 			$test->sections['metadata'] ??
 			// missing (== use legacy combined output format)

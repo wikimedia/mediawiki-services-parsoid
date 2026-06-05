@@ -565,7 +565,7 @@ hi
 <p>hi
 </p>
 <div>
-<div class="mw-heading mw-heading3"><h3 id="ho">ho</h3></div>
+<h3 id="ho" class="mw-html-heading">ho</h3>
 </div>
 <div class="mw-heading mw-heading2"><h2 id="hi">hi</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: hi">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <div class="mw-heading mw-heading2"><h2 id="ho_2">ho</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: ho">edit</a><span class="mw-editsection-bracket">]</span></span></div>
@@ -681,9 +681,9 @@ foo
 <p>foo
 </p>
 
-<div class="mw-heading mw-heading1"><h1 id="a">a</h1></div>
+<h1 id="a" class="mw-html-heading">a</h1>
 <div class="mw-heading mw-heading1"><h1 id="b">b</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></div>
-<div class="mw-heading mw-heading1"><h1 id="c">c</h1></div>
+<h1 id="c" class="mw-html-heading">c</h1>
 <div class="mw-heading mw-heading1"><h1 id="d">d</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: d">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 <section data-mw-section-id="0"><p>foo</p>
