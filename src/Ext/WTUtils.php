@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\WTUtils as WTU;
@@ -40,4 +41,7 @@ class WTUtils {
 		return WTU::isLiteralHTMLNode( $node );
 	}
 
+	public static function getDOMFragmentContents( Node $node, bool $clearAfter = false ): DocumentFragment {
+		return WTU::getDOMFragmentContents( $node, clearAfter: $clearAfter );
+	}
 }

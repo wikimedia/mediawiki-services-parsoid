@@ -773,7 +773,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 						$caption->firstChild &&
 						DOMUtils::hasTypeOf( $caption->firstChild, 'mw:DOMFragment' )
 					) {
-						$caption = DOMDataUtils::getDataParsoid( $caption->firstChild )->html;
+						$caption = WTUtils::getDOMFragmentContents( $caption->firstChild );
 					}
 				}
 				$captionText = trim( WTUtils::textContentFromCaption( $caption ) );

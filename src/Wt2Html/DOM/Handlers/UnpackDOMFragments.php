@@ -113,7 +113,7 @@ class UnpackDOMFragments {
 
 		$env = $state->env;
 		$placeholderDP = DOMDataUtils::getDataParsoid( $placeholder );
-		$fragmentDOM = $placeholderDP->html;
+		$fragmentDOM = WTUtils::getDOMFragmentContents( $placeholder, clearAfter: true );
 		$fragmentContent = $fragmentDOM->firstChild;
 		$placeholderParent = $placeholder->parentNode;
 
@@ -338,7 +338,6 @@ class UnpackDOMFragments {
 
 		// Empty out $fragmentDOM since the call below asserts it
 		DOMCompat::replaceChildren( $fragmentDOM );
-		unset( $placeholderDP->html );
 
 		return $nextNode;
 	}

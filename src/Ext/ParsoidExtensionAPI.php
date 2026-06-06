@@ -350,7 +350,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function getContentDOM( $contentIdOrElement ): DocumentFragment {
 		if ( $contentIdOrElement instanceof Element ) {
-			return DOMDataUtils::getDataParsoid( $contentIdOrElement )->html;
+			return WTUtils::getDOMFragmentContents( $contentIdOrElement );
 		}
 		// Back-compat for old code which passes a string ID.
 		$bag = DOMDataUtils::getBag( $this->getTopLevelDoc() );
@@ -381,8 +381,7 @@ class ParsoidExtensionAPI {
 	 * Remove the DOMFragment referenced from this node.
 	 */
 	public function clearContentId( Element $node ): void {
-		$dp = DOMDataUtils::getDataParsoid( $node );
-		unset( $dp->html );
+		WTUtils::getDOMFragmentContents( $node, clearAfter: true );
 	}
 
 	/**

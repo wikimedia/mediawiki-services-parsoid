@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class PWrap implements Wt2HtmlDOMProcessor {
@@ -63,7 +64,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		}
 		'@phan-var Element $n'; // @var Element $n
 		if ( DOMUtils::hasTypeOf( $n, 'mw:DOMFragment' ) ) {
-			$domFragment = DOMDataUtils::getDataParsoid( $n )->html;
+			$domFragment = WTUtils::getDOMFragmentContents( $n );
 			return self::pWrapOptionalChildren( $env, $domFragment );
 		} elseif (
 			DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) ||

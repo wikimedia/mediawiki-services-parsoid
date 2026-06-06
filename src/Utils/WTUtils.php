@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\Env;
@@ -418,6 +419,21 @@ class WTUtils {
 	 */
 	public static function isSealedFragmentOfType( Node $node, string $type ): bool {
 		return DOMUtils::hasTypeOf( $node, "mw:DOMFragment/sealed/$type" );
+	}
+
+	/**
+	 * Return the contents of a DOMFragment wrapper.
+	 */
+	public static function getDOMFragmentContents( Node $node, bool $clearAfter = false ): DocumentFragment {
+		Assert::invariant( self::isDOMFragmentWrapper( $node ), "not a mw:DOMFragment" );
+		'@phan-var Element $node'; // if it is a wrapper
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$df = $dp->html;
+		'@phan-var DocumentFragment $df'; // non-null
+		if ( $clearAfter ) {
+			unset( $dp->html );
+		}
+		return $df;
 	}
 
 	/**
