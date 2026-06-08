@@ -35,8 +35,3 @@ $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
 
 // Proofreadpage extension parsoid testing
 $wgProofreadPageUseParsoid = true;
-
-// Use a dedicated cache prefix and low TTL for parsoid testing instance
-// Enables using mw-parsoid instance with public traffic without affecting prod cache
-$wgCachePrefix = "mw-parsoid";
-$wgParserCacheExpireTime = 3600;
