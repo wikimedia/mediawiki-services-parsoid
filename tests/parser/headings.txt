@@ -80,13 +80,17 @@ parsoid={
 <h3>c</h3>
 ===d===
 <h2>e</h2>
-!! metadata
+!! metadata/php
 Sections:
  h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:a line:a
  h2 index: toclevel:1 number:2 title:NULL off:NULL anchor/linkAnchor:b line:b
   h3 index: toclevel:2 number:2.1 title:NULL off:NULL anchor/linkAnchor:c line:c
   h3 index:2 toclevel:2 number:2.2 title:Parser_test off:28 anchor/linkAnchor:d line:d
  h2 index: toclevel:1 number:3 title:NULL off:NULL anchor/linkAnchor:e line:e
+!! metadata/parsoid
+Sections:
+ h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:a line:a
+  h3 index:2 toclevel:2 number:1.1 title:Parser_test off:28 anchor/linkAnchor:d line:d
 !! end
 
 !! test
@@ -106,14 +110,16 @@ ho
 <h2 id="hi" class="mw-html-heading">hi</h2>
 <p>ho
 </p>
-!! html/parsoid
-<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;h2>hi&lt;/h2>\nho\n"}},"i":0}}]}'>
-</span><h2 about="#mwt1" id="hi">hi</h2><span about="#mwt1">
-</span><p about="#mwt1">ho</p><span about="#mwt1">
-</span></section>
-!! metadata
+!! metadata/php
 Sections:
  h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:hi line:hi
+!! html/parsoid
+<section data-mw-section-id="0"><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;h2>hi&lt;/h2>\nho\n"}},"i":0}}]}'>
+</span><h2 about="#mwt1" id="hi" data-parsoid='{"stx":"html"}'>hi</h2><span about="#mwt1">
+</span><p about="#mwt1">ho</p><span about="#mwt1">
+</span></section>
+!! metadata/parsoid
+Sections:
 !! end
 
 !! test
@@ -438,12 +444,14 @@ parsoid={
 	"wrapSections": true
 }
 !! wikitext
-{{#if:1|<h2>foo</h2>|unused}}
+{{#if:1|
+==foo==
+|unused}}
 ==bar==
 !! metadata
 Sections:
  h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:foo line:foo
- h2 index:1 toclevel:1 number:2 title:Parser_test off:30 anchor/linkAnchor:bar line:bar
+ h2 index:2 toclevel:1 number:2 title:Parser_test off:27 anchor/linkAnchor:bar line:bar
 !! end
 
 !! test
@@ -2713,9 +2721,9 @@ Sections:
  h2 index: toclevel:1 number:3 title:NULL off:NULL anchor/linkAnchor:HTML_heading_with_attributes.21 line:HTML heading with attributes!
  h2 index:2 toclevel:1 number:4 title:Parser_test off:211 anchor/linkAnchor:Normal_heading_with_existing_wrapper.21 line:Normal heading with existing wrapper!
 !! html/parsoid
-<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="Normal_heading!" data-parsoid='{}'><span id="Normal_heading.21" typeof="mw:FallbackId"></span>Normal heading!</h2>
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h2 id="Normal_heading!" data-parsoid='{}'><span id="Normal_heading.21" typeof="mw:FallbackId"></span>Normal heading!</h2>
 
-</section><section data-mw-section-id="-1"><h2 id="HTML_heading!" data-parsoid='{"stx":"html"}'><span id="HTML_heading.21" typeof="mw:FallbackId"></span>HTML heading!</h2>
+<h2 id="HTML_heading!" data-parsoid='{"stx":"html"}'><span id="HTML_heading.21" typeof="mw:FallbackId"></span>HTML heading!</h2>
 
 <h2 style="border: 1px solid green; background: lightgreen; padding: 5px; font-size: 1.5em;" id="HTML_heading_with_attributes!" data-parsoid='{"stx":"html"}'><span id="HTML_heading_with_attributes.21" typeof="mw:FallbackId"></span>HTML heading with attributes!</h2>
 
@@ -2725,8 +2733,7 @@ Sections:
 !! metadata/parsoid
 Sections:
  h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:Normal_heading! line:Normal heading!
- h2 index: toclevel:1 number:2 title:NULL off:NULL anchor/linkAnchor:HTML_heading! line:HTML heading!
- h2 index:2 toclevel:1 number:3 title:Parser_test off:211 anchor/linkAnchor:Normal_heading_with_existing_wrapper! line:Normal heading with existing wrapper!
+ h2 index:2 toclevel:1 number:2 title:Parser_test off:211 anchor/linkAnchor:Normal_heading_with_existing_wrapper! line:Normal heading with existing wrapper!
 !! end
 
 !! test

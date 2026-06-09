@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
-use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\SectionMetadata;
 use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -93,12 +92,9 @@ class WrapSectionsState {
 		$this->oldLevel = $newLevel;
 		$dp = DOMDataUtils::getDataParsoid( $heading );
 
-		if (
-			// Literal HTML tags in wikitext don't get section edit links
-			WTUtils::isLiteralHTMLNode( $heading ) ||
-			// Neither do cases where the legacy preprocessor didn't tokenize a heading
-			!isset( $dp->tmp->headingIndex )
-		) {
+		// Cases where the legacy preprocessor didn't tokenize a heading
+		// don't get section edit links
+		if ( !isset( $dp->tmp->headingIndex ) ) {
 			$metadata->fromTitle = null;
 			$metadata->index = '';
 			$metadata->codepointOffset = null;
@@ -288,27 +284,7 @@ class WrapSectionsState {
 	// Similar to HandleParsoidSectionLinks::isHtmlHeading in OTP
 	private static function isHtmlHeading( Element $h ): bool {
 		// FIXME(T100856): stx info probably shouldn't be in data-parsoid
-		if ( !WTUtils::isLiteralHTMLNode( $h ) ) {
-			return false;
-		}
-
-		foreach ( $h->attributes as $attr ) {
-			// Condition matches DiscussionTool's CommentFormatter::handleHeading
-			if (
-				!in_array( $attr->name, [ 'id', 'data-object-id', 'about', 'typeof' ], true ) &&
-				!Sanitizer::isReservedDataAttribute( $attr->name )
-			) {
-				return true;
-			}
-		}
-
-		// Id is ignored above since it's a special case, make use of metadata
-		// to determine if it came from wikitext
-		if ( DOMDataUtils::getDataParsoid( $h )->reusedId ?? false ) {
-			return true;
-		}
-
-		return false;
+		return WTUtils::isLiteralHTMLNode( $h );
 	}
 
 	private static function isWrappableHeading( Node $node ): bool {
@@ -406,11 +382,7 @@ class WrapSectionsState {
 				$level = (int)DOMUtils::nodeName( $node )[1];
 
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( WTUtils::isLiteralHTMLNode( $node ) ) {
-					// HTML <h*> tags get section wrappers, but the sections are uneditable
-					// via the section editing API.
-					$this->sectionNumber = -1;
-				} elseif ( isset( $dp->tmp->headingIndex ) ) {
+				if ( isset( $dp->tmp->headingIndex ) ) {
 					// This could be just `$this->sectionNumber++` without the
 					// complicated if-guard if T214538 were fixed in core;
 					// see T213468 where this more-complicated behavior was
