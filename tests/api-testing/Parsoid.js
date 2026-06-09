@@ -201,6 +201,11 @@ describe('Parsoid API', function() {
 				.expect(function(res) {
 					validateDoc(domino.createDocument(res.text), 'H2', true);
 				})
+				.expect(function(res) {
+					// The default flavor is a full document carrying inline data-parsoid.
+					res.text.should.match(/<html[\s>]/);
+					res.text.should.match(/\bdata-parsoid\s*=/);
+				})
 				.end(done);
 		});
 
@@ -394,6 +399,10 @@ describe('Parsoid API', function() {
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
+				// The pagebundle html.body is a full document, and keeps data-parsoid in
+				// the separate map (it is NOT inlined into html.body).
+				html.should.match(/<html[\s>]/);
+				html.should.not.match(/data-parsoid=/);
 			}))
 			.end(done);
 		});
@@ -988,6 +997,53 @@ describe('Parsoid API', function() {
 				res.body.html.body.should.not.match(/<section/);
 			})
 			.end(done);
+		});
+
+		describe('Variant conversion (shape invariance)', function() {
+			const AL = 'en-x-piglatin';
+
+			it('keeps wikitext->html a full document with inline data-parsoid under variant conversion', function(done) {
+				client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/html/')
+				.set('Accept-Language', AL)
+				.send({ wikitext: 'Hello world' })
+				.expect(status200)
+				.expect(function(res) {
+					// shape + inline data-parsoid must survive conversion...
+					res.text.should.match(/<html[\s>]/);
+					res.text.should.match(/\bdata-parsoid\s*=/);
+					// ...and conversion actually happened.
+					res.text.should.match(/data-mw-variant|Ellohay/);
+				})
+				.end(done);
+			});
+
+			it('keeps body_only output body-only under variant conversion', function(done) {
+				client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/html/')
+				.set('Accept-Language', AL)
+				.send({ wikitext: 'Hello world', body_only: 1 })
+				.expect(status200)
+				.expect(function(res) {
+					res.text.should.not.match(/<body/);
+					res.text.should.match(/<p/);
+					res.text.should.match(/Ellohay/); // conversion still ran
+				})
+				.end(done);
+			});
+
+			it('keeps pagebundle html.body a full document under variant conversion', function(done) {
+				client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
+				.set('Accept-Language', AL)
+				.send({ wikitext: 'Hello world' })
+				.expect(validPageBundleResponse())
+				.expect(function(res) {
+					res.body.html.body.should.match(/<html[\s>]/);
+					res.body.html.body.should.not.match(/data-parsoid=/);
+				})
+				.end(done);
+			});
 		});
 
 		it('should not include captured offsets', function(done) {
