@@ -16,6 +16,10 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
+/**
+ * This stage is moving to core (T393925) and new feature development
+ * should be done there (PageBundleParserOutputConverter).
+ */
 class AddMetaData implements Wt2HtmlDOMProcessor {
 	private array $metadataMap;
 	private ?DOMProcessorPipeline $parentPipeline;
