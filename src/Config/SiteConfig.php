@@ -1567,6 +1567,10 @@ abstract class SiteConfig {
 		// as we process the extension modules.
 		$this->pFragmentHandlerFuncSynonyms = [ [], [], ];
 
+		// Reset the list of t299103Tags; they will be recreated
+		// as we process the extension modules.
+		$this->t299103Tags = [];
+
 		$this->getExtensionModules();
 		foreach ( $this->extModules as $extId => $module ) {
 			$this->processExtensionModule( $module, $this->extModuleOwner[$extId] );
@@ -1578,6 +1582,7 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	public function tagNeedsNowikiStrippedInTagPF( string $lowerTagName ): bool {
+		$this->getExtConfig();
 		return isset( $this->t299103Tags[$lowerTagName] );
 	}
 
