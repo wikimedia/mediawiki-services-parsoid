@@ -8752,13 +8752,6 @@
                 "fishbowl": ""
             },
             {
-                "url": "https://api.wikimedia.org",
-                "dbname": "apiportalwiki",
-                "code": "apiportal",
-                "lang": "en",
-                "sitename": "API Portal"
-            },
-            {
                 "url": "https://ar.wikimedia.org",
                 "dbname": "arwikimedia",
                 "code": "arwikimedia",
