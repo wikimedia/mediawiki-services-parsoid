@@ -114,8 +114,11 @@ class DisplaySpace {
 	 * @return bool|Element
 	 */
 	public static function textHandler( Node $node ) {
-		// Go to next sibling if we encounter pre or raw text elements
-		if ( DOMUtils::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
+		// Go to next sibling if we encounter pre, svg or raw text elements
+		if ( DOMUtils::nodeName( $node ) === 'pre' ||
+			DOMUtils::nodeName( $node ) === 'svg' ||
+			DOMUtils::isRawTextElement( $node )
+		) {
 			return $node->nextSibling;
 		}
 
