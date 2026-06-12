@@ -156,7 +156,7 @@ class ApiHelper {
 			sleep( $seconds );
 			return $this->makeCurlRequest( $params );
 			# Make sure you're using the --record options, and try using
-			# --apiToken (see https://api.wikimedia.org/wiki/Rate_limits)
+			# --apiToken (see https://www.mediawiki.org/wiki/Wikimedia_APIs/Rate_limits)
 		}
 		if ( $code !== 200 ) {
 			throw new \RuntimeException( "HTTP request failed: HTTP code $code" );

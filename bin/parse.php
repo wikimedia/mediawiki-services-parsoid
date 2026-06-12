@@ -271,7 +271,7 @@ class Parse extends ParseUtils {
 		);
 		$this->addOption(
 			'apiToken',
-			# See https://api.wikimedia.org/wiki/Authentication#Personal_API_tokens
+			# See https://www.mediawiki.org/wiki/Wikimedia_APIs/Authentication#Owner-only_consumer
 			'Specify a personal API token; use @<filename> to load from a file',
 			false,
 			true
