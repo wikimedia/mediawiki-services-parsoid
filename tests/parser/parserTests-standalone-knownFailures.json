@@ -695,12 +695,12 @@
         "selser [4,0,[3],4,3,2,[3],0,0]": "i81tua\n\n\n3o2wz7\n\nrh4a4n\n\nmailto:inline@mail.tld"
     },
     "T8563: Section extraction for section shown by <includeonly>": {
-        "wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_T-2\" data-parsoid='{\"dsr\":[53,68,2,2]}'>Section T-2</h2>",
+        "wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 data-mw-wikitext=\"\" id=\"Section_T-2\" data-parsoid='{\"dsr\":[53,68,2,2]}'>Section T-2</h2>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,32,8,9]}'>==Section T-2==</span></p>",
         "html2wt": "<nowiki>==Section T-2==</nowiki>"
     },
     "T8563: Section extraction for section suppressed by <includeonly>": {
-        "wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>",
+        "wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 data-mw-wikitext=\"\" id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,30,8,9]}'>==Section 1==</span></p>",
         "html2wt": "<nowiki>==Section 1==</nowiki>"
     },
@@ -1058,7 +1058,7 @@
     },
     "anchorencode encodes like the TOC generator: (T20431)": {
         "wt2wt": "===_ +:.3A%3A _ &&amp;]] x===\n{{anchorencode: _ +:.3A%3A _ &&amp;<nowiki>]] x</nowiki>}}\n\n__NOEDITSECTION__",
-        "html2html": "<h3 id=\"+:.3A%3A_&amp;&amp;]]_x\" data-parsoid='{\"dsr\":[0,31,3,3,-1,1]}'><span id=\".2B:.3A.253A_.26.26.5D.5D_x\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[3,3,null,null]}'></span>_ +:.3A%3A _ &amp;<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;amp;\",\"srcContent\":\"&amp;\",\"dsr\":[18,23,null,null]}'>&amp;</span>]] x</h3>\n<p data-parsoid='{\"dsr\":[32,90,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[32,90,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode: _ +:.3A%3A _ &amp;&amp;amp;&lt;nowiki>]] x&lt;/nowiki>\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}'>+:.3A%253A_&amp;&amp;</span></p>\n<meta property=\"mw:PageProp/noeditsection\" data-parsoid='{\"src\":\"__NOEDITSECTION__\",\"magicSrc\":\"__NOEDITSECTION__\",\"dsr\":[91,108,null,null]}'/>\n",
+        "html2html": "<h3 data-mw-wikitext=\"\" id=\"+:.3A%3A_&amp;&amp;]]_x\" data-parsoid='{\"dsr\":[0,31,3,3,-1,1]}'><span id=\".2B:.3A.253A_.26.26.5D.5D_x\" typeof=\"mw:FallbackId\" data-parsoid='{\"dsr\":[3,3,null,null]}'></span>_ +:.3A%3A _ &amp;<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;amp;\",\"srcContent\":\"&amp;\",\"dsr\":[18,23,null,null]}'>&amp;</span>]] x</h3>\n<p data-parsoid='{\"dsr\":[32,90,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[32,90,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode: _ +:.3A%3A _ &amp;&amp;amp;&lt;nowiki>]] x&lt;/nowiki>\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}'>+:.3A%253A_&amp;&amp;</span></p>\n<meta property=\"mw:PageProp/noeditsection\" data-parsoid='{\"src\":\"__NOEDITSECTION__\",\"magicSrc\":\"__NOEDITSECTION__\",\"dsr\":[91,108,null,null]}'/>\n",
         "html2wt": "=== _ +:.3A%3A _ &&amp;]] x ===\n{{anchorencode: _ +:.3A%3A _ &&amp;<nowiki>]] x</nowiki>}}\n__NOEDITSECTION__\n",
         "selser [1,0,0,0,0]": "===_ +:.3A%3A _ &&amp;]] x===\n{{anchorencode: _ +:.3A%3A _ &&amp;]] x}}\n\n__NOEDITSECTION__",
         "selser [1,0,0,2,3]": "===_ +:.3A%3A _ &&amp;]] x===\n{{anchorencode: _ +:.3A%3A _ &&amp;]] x}}\n\n1busfv4\n",

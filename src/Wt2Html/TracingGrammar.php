@@ -2077,7 +2077,8 @@ private function a170($s, $ce, $endTPos, $spc, &$headingIndex, $noHeadingIndex, 
 				}
 			}
 
-			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
+			$attribs = [ new KV('data-mw-wikitext', '') ];
+			$res = [ new TagTk( 'h' . $level, $attribs, $tagDP ) ];
 			PHPUtils::pushArray( $res, $c );
 			$endTagDP = new DataParsoid;
 			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos, $this->source );

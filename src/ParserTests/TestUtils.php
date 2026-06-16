@@ -141,7 +141,8 @@ class TestUtils {
 		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
 
 		// unnecessary attributes, we don't need to check these.
-		$unnecessaryAttribs = 'data-mw-original-href|data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab';
+		// phpcs:ignore Generic.Files.LineLength.TooLong
+		$unnecessaryAttribs = 'data-mw-original-href|data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|data-mw-wikitext';
 		if ( $parsoidOnly ) {
 			$unnecessaryAttribs = "/ ($unnecessaryAttribs)=";
 			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );

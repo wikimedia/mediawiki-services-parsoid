@@ -24,7 +24,7 @@
     },
     "Annotation around a heading should not break the heading": {
         "wt2wt": "<dummyanno>\n==plop==\n</dummyanno>",
-        "html2html": "<meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[0,11,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[0,11]}'/>\n<h2 id=\"plop\" data-parsoid='{\"dsr\":[12,20,2,2]}'>plop</h2>\n<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[21,33,null,null]}' data-mw='{\"wtOffsets\":[21,33]}'/>",
+        "html2html": "<meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[0,11,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[0,11]}'/>\n<h2 data-mw-wikitext=\"\" id=\"plop\" data-parsoid='{\"dsr\":[12,20,2,2]}'>plop</h2>\n<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[21,33,null,null]}' data-mw='{\"wtOffsets\":[21,33]}'/>",
         "html2wt": "<dummyanno>\n==plop==\n</dummyanno>",
         "selser [0,[2],0]": "<dummyanno>==1k8ainxplop==</dummyanno>",
         "selser [0,1,0]": "<dummyanno>==plop==</dummyanno>",
@@ -47,7 +47,7 @@
         "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
     },
     "Annotations should not be hoisted out of headers": {
-        "html2html": "<h2 id=\"Organizational_and_Planning_Projects\" data-parsoid='{\"dsr\":[0,77,2,2,1,1]}'><meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[3,14,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[3,14]}'/><!--T:19--> Organizational and Planning Projects<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[62,74,null,null]}' data-mw='{\"wtOffsets\":[62,74]}'/></h2>\n",
+        "html2html": "<h2 data-mw-wikitext=\"\" id=\"Organizational_and_Planning_Projects\" data-parsoid='{\"dsr\":[0,77,2,2,1,1]}'><meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[3,14,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[3,14]}'/><!--T:19--> Organizational and Planning Projects<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[62,74,null,null]}' data-mw='{\"wtOffsets\":[62,74]}'/></h2>\n",
         "html2wt": "== <dummyanno><!--T:19--> Organizational and Planning Projects</dummyanno> ==\n"
     },
     "End dummyanno tag at the end of a paragraph and beginning within <i> should extend to the end of <i> but not the whole paragraph": {
