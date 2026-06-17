@@ -614,6 +614,8 @@ class MockDataAccess extends DataAccess {
 			$ret = 'purple';
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {
 			$ret = (string)$revid;
+		} elseif ( $wikitext === '{{pretest}}' ) {
+			$ret = '<pre format="wikitext">{{1x|test}}</pre>';
 		} elseif ( $wikitext === '{{mangle}}' ) {
 			$ret = 'hi';
 			$metadata->addCategory(

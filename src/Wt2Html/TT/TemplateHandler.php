@@ -1097,6 +1097,24 @@ class TemplateHandler extends XMLTagBasedHandler {
 		);
 		$res = $this->expandTemplate( $state );
 		$toks = $res->tokens;
+
+		if (
+			$this->env->linting( 'pre-expansion' ) &&
+			( $this->options['inTemplate'] ?? false ) &&
+			( $this->options['extTag'] ?? '' ) === 'pre'
+		) {
+			// T353697: Temporarily lint template expansion in wikitext format
+			// pre extension tags to migrate escape mechanisms
+			$name = PHPUtils::stripPrefix( $this->env->makeLink(
+				$this->manager->getFrame()->getTitle() ), './'
+			);
+			$lint = [
+				'dsr' => new DomSourceRange( 0, 0, null, null, source: null ),
+				'templateInfo' => [ 'name' => $name ],
+			];
+			$this->env->recordLint( 'pre-expansion', $lint );
+		}
+
 		if ( $res->encap ) {
 			$toks = $this->encapTokens( $state, $toks );
 		}

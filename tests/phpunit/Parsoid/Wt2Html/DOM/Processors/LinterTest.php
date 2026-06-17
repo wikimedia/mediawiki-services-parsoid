@@ -1973,4 +1973,18 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '{{{name}}}', $result[0]['params']['details'][0], $desc );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler::onTemplate
+	 */
+	public function testPreExpansion(): void {
+		$desc = 'should not lint expansion in direct use';
+		$result = $this->wtToLint( "<pre format='wikitext'>{{1x|test}}</pre>" );
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = "should lint expansion nested in a template";
+		$result = $this->wtToLint( '{{pretest}}' );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'pre-expansion', $result[0]['type'], $desc );
+	}
+
 }
