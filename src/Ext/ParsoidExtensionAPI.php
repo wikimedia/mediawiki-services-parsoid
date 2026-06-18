@@ -433,7 +433,7 @@ class ParsoidExtensionAPI {
 					// Full pipeline for processing content
 					'pipelineType' => 'wikitext-to-fragment',
 					'pipelineOpts' => [
-						'expandTemplates' => true,
+						'expandTemplates' => $parseOpts['expandTemplates'] ?? true,
 						'extTag' => $parseOpts['extTag'] ?? null,
 						'extTagOpts' => $parseOpts['extTagOpts'] ?? null,
 						'inTemplate' => $this->inTemplate(),

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\NodeData;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\Tokens\VariantInfo;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -60,6 +61,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * Magic link type
  * @property string|null $ref
+ *
+ * Page title and index from the preprocessor
+ * @property ?array{0:Title,1:int} $headingData
  */
 #[\AllowDynamicProperties]
 class TempData {
