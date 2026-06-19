@@ -314,6 +314,14 @@ T426371: Templated captions with leading category links should not break the cap
 <figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=[[Category:Foo]]&lt;div>foo&lt;/div>}}"}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>foo&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
 !! end
 
+!! test
+T429688: do not stash fragments if they contain non-stashable content
+!! wikitext
+{{1x|[https://www.garesetconnexions.sncf/fr/gares-services/frmor[[Category:Page utilisant P3104]]/ La gare de Moret-Veneux-les-Sablons]}}
+!! html/parsoid
+<p data-parsoid='{"dsr":[0,137,0,0]}'><a rel="mw:ExtLink nofollow" href="https://www.garesetconnexions.sncf/fr/gares-services/frmor" about="#mwt1" typeof="mw:Transclusion" class="external text" data-parsoid='{"pi":[[{"k":"1"}]],"dsr":[0,137,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[https://www.garesetconnexions.sncf/fr/gares-services/frmor[[Category:Page utilisant P3104]]/ La gare de Moret-Veneux-les-Sablons]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Page_utilisant_P3104"/>/ La gare de Moret-Veneux-les-Sablons</a></p>
+!! end
+
 !! article
 Template:mwParamRegressionTester
 !!text

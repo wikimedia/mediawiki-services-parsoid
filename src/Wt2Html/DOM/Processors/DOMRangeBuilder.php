@@ -1464,7 +1464,7 @@ class DOMRangeBuilder {
 	}
 
 	private function isStashableElt( Element $elt ): bool {
-		return (
+		$stashable = (
 			(
 				WTUtils::isRenderingTransparentNode( $elt ) &&
 				(
@@ -1490,5 +1490,15 @@ class DOMRangeBuilder {
 		// <style> tags above, but this broader check is easier to
 		// reason about and verify that there aren't edge cases.
 		!DOMUtils::isFosterablePosition( $elt );
+
+		if ( $stashable && WTUtils::isDOMFragmentWrapper( $elt ) ) {
+			foreach ( DOMUtils::childNodes( WTUtils::getDOMFragmentContents( $elt, false ) ) as $child ) {
+				if ( !$child instanceof Element || !self::isStashableElt( $child ) ) {
+					return false;
+				}
+			}
+		}
+
+		return $stashable;
 	}
 }
