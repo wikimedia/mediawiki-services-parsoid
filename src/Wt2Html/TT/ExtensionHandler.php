@@ -161,7 +161,11 @@ class ExtensionHandler extends XMLTagBasedHandler {
 		}
 
 		$start = hrtime( true );
-		$domFragment = PipelineUtils::parseToHTML( $env, $token->getAttributeV( 'source' ) );
+		$domFragment = PipelineUtils::parseToHTML(
+			$env,
+			$token->getAttributeV( 'source' ),
+			$this->manager->getFrame(),
+		);
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
 			$profile->bumpMWTime( "Extension", hrtime( true ) - $start, "api" );

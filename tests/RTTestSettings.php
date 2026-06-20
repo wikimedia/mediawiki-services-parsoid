@@ -38,4 +38,4 @@ $wgProofreadPageUseParsoid = true;
 
 // T391624: Return HeadingPFragment types from the legacy preprocessor
 // for section edit link context
-$wgReturnExperimentalPFragmentTypes = [ 'HeadingPFragment' ];
+$wgReturnExperimentalPFragmentTypes = [ 'HeadingPFragment', 'ExtTagPFragment' ];

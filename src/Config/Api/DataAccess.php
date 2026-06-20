@@ -328,13 +328,14 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
+	public function parseWikitextWithTitle(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext
+		string $wikitext,
+		?LinkTarget $titleOverride = null,
 	): string {
 		$revid = $pageConfig->getRevisionId();
-		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$pageConfigTitle = $this->toPrefixedText( $titleOverride ?? $pageConfig->getLinkTarget() );
 		$key = implode( ':', [ 'parse', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
 		if ( $data === null ) {

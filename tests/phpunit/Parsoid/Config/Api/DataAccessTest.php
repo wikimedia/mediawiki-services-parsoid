@@ -104,7 +104,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'parse', $siteConfig );
 		$metadata = new StubMetadataCollector( $siteConfig );
-		$ret = $da->parseWikitext(
+		$ret = $da->parseWikitextWithTitle(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);
 		$this->assertEquals(
@@ -126,7 +126,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
 			$ret,
-			$da->parseWikitext(
+			$da->parseWikitextWithTitle(
 				$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 			)
 		);

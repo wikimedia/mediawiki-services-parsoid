@@ -193,7 +193,9 @@ class PipelineUtils {
 		if ( !empty( $opts['processInNewFrame'] ) ) {
 			$source = new SourceString( $wikitext );
 			$srcOffsets = SourceRange::fromSource( $source );
-			$frame = $frame->newChild( $frame->getTitle(), [], $source );
+			$title = $opts['newFrameTitle'] ?? $frame->getTitle();
+			$title = Title::newFromLinkTarget( $title, $env->getSiteConfig() );
+			$frame = $frame->newChild( $title, [], $source );
 		}
 		// $srcOffsets shouldn't really be null, but if it is...
 		$srcOffsets ??= SourceRange::fromSource( new SourceString( $wikitext ) );
@@ -907,9 +909,10 @@ class PipelineUtils {
 	/**
 	 * Fetches output of encapsulations that return HTML from the legacy parser
 	 */
-	public static function parseToHTML( Env $env, string $source ): ?DocumentFragment {
-		$ret = $env->getDataAccess()->parseWikitext(
-			$env->getPageConfig(), $env->getMetadata(), $source
+	public static function parseToHTML( Env $env, string $source, Frame $frame ): ?DocumentFragment {
+		$ret = $env->getDataAccess()->parseWikitextWithTitle(
+			$env->getPageConfig(), $env->getMetadata(), $source,
+			$frame->getTitle(),
 		);
 		return $ret === '' ? null : DOMUtils::parseHTMLToFragment(
 				$env->getTopLevelDoc(), DOMUtils::stripPWrapper( $ret )
