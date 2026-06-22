@@ -106,6 +106,9 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			'fromColonEscapedText' => null
 		];
 
+		// Capture the title to resolve before handling colon escape
+		$title = Utils::decodeURIComponent( $info->href );
+
 		if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
 			$info->fromColonEscapedText = true;
 			// Remove the colon escape
@@ -135,7 +138,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			throw new InternalException( 'Multiple colons prefixing href.' );
 		}
 
-		$title = $env->resolveTitle( Utils::decodeURIComponent( $info->href ) );
 		$hrefBits = self::hrefParts( $info->href );
 		if ( $hrefBits ) {
 			$nsPrefix = $hrefBits['prefix'];

@@ -481,15 +481,26 @@ class LinkHandlerUtils {
 		$linkTitle = $env->makeTitleFromText( $linkTarget );
 		$categoryNs = $env->getSiteConfig()->canonicalNamespaceId( 'category' );
 		$fileNs = $env->getSiteConfig()->canonicalNamespaceId( 'file' );
+		$linkHref = $linkData->href ?? '';
 
-		if ( ( $linkTitle->getNamespace() === $categoryNs || $linkTitle->getNamespace() === $fileNs ) &&
-			$linkData->type === 'mw:WikiLink' &&
-			$linkTarget[0] !== ':' ) {
-			// Escape category and file links
+		$isWikiLink = $linkData->type === 'mw:WikiLink';
+		$isCategoryOrFile = $linkTitle->getNamespace() === $categoryNs || $linkTitle->getNamespace() === $fileNs;
+		$hasSubpages = $env->getSiteConfig()->namespaceHasSubpages( $env->getContextTitle()->getNamespace() );
+		$isSlashPrefixedPage = str_starts_with( $linkTarget, '/' ) &&
+			str_starts_with( $linkHref, '/' ) &&
+			$hasSubpages;
+
+		// ensure interwiki links can't be confused with interlanguage links.
+		$isInterwikiLang = !empty( $linkData->isInterwikiLang ) && $linkData->type !== 'mw:PageProp/Language';
+
+		if (
+			$isWikiLink &&
+			( $linkTarget[0] !== ':' ) &&
+			( $isInterwikiLang || $isCategoryOrFile || $isSlashPrefixedPage )
+		) {
 			return ':' . $linkTarget;
-		} else {
-			return $linkTarget;
 		}
+		return $linkTarget;
 	}
 
 	/**
@@ -751,14 +762,6 @@ class LinkHandlerUtils {
 					} else {
 						$linkTarget = $escapedTgt->linkTarget;
 					}
-				}
-				if ( !empty( $linkData->isInterwikiLang ) &&
-					$linkTarget[0] !== ':' &&
-					$linkData->type !== 'mw:PageProp/Language'
-				) {
-					// ensure interwiki links can't be confused with
-					// interlanguage links.
-					$linkTarget = ':' . $linkTarget;
 				}
 			}
 		} elseif ( self::isURLLink( $state->getEnv(), $node, $linkData )

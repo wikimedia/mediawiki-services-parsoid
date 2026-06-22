@@ -7272,6 +7272,22 @@ Disabled subpages
 !! end
 
 !! test
+T221028: Colon-escaped and non-colon-escaped slash links in NS with subpages enabled
+!! options
+subpage title=[[Subpage test]]
+!! wikitext
+[[:/subpage]]
+[[/newpage]]
+!! html/php
+<p><a href="/index.php?title=/subpage&amp;action=edit&amp;redlink=1" class="new" title="/subpage (page does not exist)">/subpage</a>
+<a href="/index.php?title=Subpage_test/newpage&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/newpage (page does not exist)">/newpage</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href=".//subpage?action=edit&amp;redlink=1" title="/subpage" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["/subpage"]}}'>/subpage</a>
+<a rel="mw:WikiLink" href="./Subpage_test/newpage?action=edit&amp;redlink=1" title="Subpage test/newpage" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Subpage test/newpage"]}}'>/newpage</a></p>
+!! end
+
+!! test
 T2561: {{/Subpage}}
 !! options
 subpage title=[[Page]]
