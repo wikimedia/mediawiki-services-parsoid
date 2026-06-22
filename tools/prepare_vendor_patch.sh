@@ -62,6 +62,10 @@ if [ ! -d "$coreRepo" ]; then
 	exit 1
 fi
 
+# Resolve relative paths
+vendorRepo=$(realpath -- "$vendorRepo")
+coreRepo=$(realpath -- "$coreRepo")
+
 # Extract docker image from vendor README and build the composer command
 dockerImage=$(grep 'docker run' "$vendorRepo/README.md" | grep 'update --no-dev' \
 	| sed -e 's/ update --no-dev.*//' | awk '{print $NF}')
@@ -85,8 +89,8 @@ fi
 composer="docker run --rm -it -u $(id -u):$(id -g) -v $vendorRepo/.git:/src/.git:ro -v $vendorRepo:/src -w /src $dockerImage"
 
 # lower-case tag names
-oldTag=$(echo $1 | tr '[:upper:]' '[:lower:]')
-newTag=$(echo $2 | tr '[:upper:]' '[:lower:]')
+oldTag=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+newTag=$(echo "$2" | tr '[:upper:]' '[:lower:]')
 
 if [[ $1 == V* ]]; then
 	echo "Lowercased tag from $1 to $oldTag"
@@ -150,7 +154,7 @@ cd "$vendorRepo"
 ## checkout master branch and update
 git checkout master
 git pull origin master --rebase
-vstring=$(echo "$newTag" | sed 's/v//g;')
+vstring="${newTag//v/}"
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
 
@@ -177,7 +181,7 @@ echo
 
 # Generate commit
 echo "Preparing vendor patch"
-git checkout -B $3
+git checkout -B "$3"
 git add -A wikimedia/parsoid composer.lock composer.json composer
 git commit -m "Bump wikimedia/parsoid to $vstring
 
@@ -197,7 +201,7 @@ echo "Bumping Parsoid version in core and preparing patch"
 
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
-git checkout -B $3
+git checkout -B "$3"
 git commit composer.json -m "Bump wikimedia/parsoid to $vstring
 
 Bug: $3
