@@ -148,7 +148,7 @@ class WrapSectionsState {
 			// Note that our DSR counts *are* byte counts, while this core
 			// interface expects *codepoint* counts.  We are going to convert
 			// these in a batch (for efficiency) in ::convertTOCOffsets() below
-			$metadata->codepointOffset = $dp->dsr->start ?? -1;
+			$metadata->codepointOffset = $dp->dsr->start ?? null;
 		}
 
 		$metadata->anchor = DOMCompat::getAttribute( $heading, 'id' );
