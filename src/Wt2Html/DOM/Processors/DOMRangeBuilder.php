@@ -1335,7 +1335,7 @@ class DOMRangeBuilder {
 					$elt = $res;
 					continue;
 				}
-			} else {
+			} elseif ( DOMUtils::isRemexBlockNode( $elt ) ) {
 				$traverser->traverse( null, $elt );
 			}
 			$elt = $elt->nextSibling;

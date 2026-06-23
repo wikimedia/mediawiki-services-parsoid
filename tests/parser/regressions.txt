@@ -319,7 +319,15 @@ T429688: do not stash fragments if they contain non-stashable content
 !! wikitext
 {{1x|[https://www.garesetconnexions.sncf/fr/gares-services/frmor[[Category:Page utilisant P3104]]/ La gare de Moret-Veneux-les-Sablons]}}
 !! html/parsoid
-<p data-parsoid='{"dsr":[0,137,0,0]}'><a rel="mw:ExtLink nofollow" href="https://www.garesetconnexions.sncf/fr/gares-services/frmor" about="#mwt1" typeof="mw:Transclusion" class="external text" data-parsoid='{"pi":[[{"k":"1"}]],"dsr":[0,137,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[https://www.garesetconnexions.sncf/fr/gares-services/frmor[[Category:Page utilisant P3104]]/ La gare de Moret-Veneux-les-Sablons]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Page_utilisant_P3104"/>/ La gare de Moret-Veneux-les-Sablons</a></p>
+<p><a rel="mw:ExtLink nofollow" href="https://www.garesetconnexions.sncf/fr/gares-services/frmor" about="#mwt1" typeof="mw:Transclusion" class="external text" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[https://www.garesetconnexions.sncf/fr/gares-services/frmor[[Category:Page utilisant P3104]]/ La gare de Moret-Veneux-les-Sablons]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Page_utilisant_P3104"/>/ La gare de Moret-Veneux-les-Sablons</a></p>
+!! end
+
+!! test
+Only wrap stashable content in block nodes
+!! wikitext
+{{1x|[http://test.com [[Category:Test]]]}}
+!! html/parsoid
+<p><a rel="mw:ExtLink nofollow" href="http://test.com" about="#mwt1" typeof="mw:Transclusion" class="external text" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[http://test.com [[Category:Test]]]"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Test"/></a></p>
 !! end
 
 !! article
