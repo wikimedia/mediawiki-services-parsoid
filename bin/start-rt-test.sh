@@ -6,21 +6,17 @@ uid=""
 changeid=""
 testid=""
 checkout_cmd=""
-restart_fpm=true
-parsoid_host="parsoidtest1001.eqiad.wmnet"
-testreduce_host="testreduce1002.eqiad.wmnet"
-deploy_mw_parsoid=false
+parsoid_host="mw-experimental.eqiad.wmnet"
+testreduce_host="ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud"
 
 usage() {
-	echo "USAGE: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] [--no-restart-fpm] <rt-test-id>"
-	echo "   or: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] [--no-restart-fpm] --gerrit <changeid>"
+	echo "USAGE: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] <rt-test-id>"
+	echo "   or: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] --gerrit <changeid>"
 	echo " - -u <uid> is your bastion uid you use to log in to the parsoid and testreduce hosts"
 	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
 	echo " - <changeid> is a numeric gerrit change id for a parsoid patch"
-	echo " - --parsoid-host hostname running the Parsoid REST API (default: parsoidtest1001.eqiad.wmnet)"
-	echo " - --testreduce-host hostname running the testreduce service (default: testreduce1002.eqiad.wmnet)"
-	echo " - --no-restart-fpm skip restarting php8.3-fpm on the parsoid host"
-	echo " - --deploy-mw-parsoid deploy mw-parsoid via helmfile before starting the test (default: skip)"
+	echo " - --parsoid-host hostname running the Parsoid REST API (default: mw-experimental.eqiad.wmnet)"
+	echo " - --testreduce-host hostname running the testreduce service (default: ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud)"
 	exit 1
 }
 
@@ -42,14 +38,6 @@ while [[ $# -gt 0 ]]; do
 		--testreduce-host)
 			testreduce_host="$2"
 			shift 2
-			;;
-		--no-restart-fpm)
-			restart_fpm=false
-			shift
-			;;
-		--deploy-mw-parsoid)
-			deploy_mw_parsoid=true
-			shift
 			;;
 		-*)
 			echo "Unknown option: $1"
@@ -92,10 +80,8 @@ fi
 # copy-and-paste full git hashes on the command line.  Normalize.
 testid=$(echo -n "$testid" | head -c 8)
 
-if $deploy_mw_parsoid; then
-	echo "---- Deploying mw-parsoid ----"
-	"$(dirname "$0")/deploy-mw-parsoid.sh" ${uid:+"-u" "${uid%@}"}
-fi
+echo "---- Deploying mw-parsoid ----"
+"$(dirname "$0")/deploy-mw-parsoid.sh" ${uid:+"-u" "${uid%@}"}
 
 # Update code on parsoid host since RT testing scripts will hit the Parsoid REST API there
 echo "---- Updating code on $parsoid_host ----"
@@ -113,9 +99,6 @@ fi
 $checkout_cmd
 git checkout $testid
 git log --oneline -n 1
-if $restart_fpm; then
-  sudo systemctl restart php8.3-fpm.service
-fi
 EOF
 
 echo "---- Starting test run $testid on $testreduce_host ----"
@@ -132,7 +115,7 @@ sudo service parsoid-rt-client stop
 echo 'Updating deploy repo checkout ...'
 cd /srv/parsoid-testing
 
-# Strictly speaking, it is not necessary to update code on testreduce1002
+# Strictly speaking, it is not necessary to update code on testreduce host
 # It is only needed if rt-testing related code is updated.
 # But, it is simpler to just update it every single time.
 umask 0002 # Make sure everyone in wikidev group can write

@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Tools;
 use Error;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\ScriptUtils;
 
 require_once __DIR__ . '/Maintenance.php';
 
@@ -44,27 +43,27 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->addOptionWithDefault(
 			"testreduce-server",
 			"Hostname of the testreduce server",
-			'testreduce1002.eqiad.wmnet'
+			'ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud'
 		);
 		$this->addOptionWithDefault(
 			"parsoidtest-server",
 			"Hostname of the parsoidtest server",
-			'parsoidtest1001.eqiad.wmnet'
+			'mw-experimental.eqiad.wmnet'
 		);
 		$this->addOptionWithDefault(
 			"proxyURL",
 			"Proxy URL (including port) passed to runRtTests.js",
-			'http://parsoidtest1001.eqiad.wmnet:80'
+			''
 		);
 		$this->addOption(
 			"contentVersion",
 			"The outputContentVersion to use, if different from the default",
 			false, true
 		);
-		$this->addOption(
+		$this->addOptionWithDefault(
 			"headers",
 			"Extra HTTP headers to pass to runRtTests.js as a JSON string, e.g. '{\"X-Foo\":\"bar\"}'",
-			false, true
+			'{\"X-Wikimedia-Debug\":\"k8s-mw-parsoid-eqiad\"}', true
 		);
 		$this->addOption(
 			"titles",
@@ -77,29 +76,9 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'http://localhost:8003/regressions/between/<good>/<bad>'
 		);
 		$this->addOptionWithDefault(
-			"nSem",
-			"Number of semantic errors to check, -1 means 'all of them'",
-			-1 /* default */, 'n' );
-		$this->addOptionWithDefault(
-			"nSyn",
-			"Number of syntactic errors to check, -1 means 'all of them'",
-			25 /* default */, 'm' );
-		$this->addOptionWithDefault(
-			"updateTestreduce",
-			"Should testreduce1002 also be updated? (default true)",
-			true );
-		$this->addOptionWithDefault(
-			"restartPHP",
-			"Restart php8.3-fpm.service after git checkout? (default true)",
-			true );
-		$this->addOptionWithDefault(
-			"deploy-mw-parsoid",
-			"Deploy mw-parsoid via helmfile before running tests (default false)",
-			false );
-		$this->addOptionWithDefault(
 			"parsoidURL",
 			"rest.php endpoint of a running Parsoid instance.",
-			"http://DOMAIN/w/rest.php" );
+			"https://DOMAIN/w/rest.php" );
 
 		$this->setAllowUnregisteredOptions( true );
 	}
@@ -191,7 +170,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @return string[]
 	 */
 	private function headers(): array {
-		if ( !$this->hasOption( 'headers' ) ) {
+		if ( !$this->getOption( 'headers' ) ) {
 			return [];
 		}
 		return [ '--headers', $this->getOption( 'headers' ) ];
@@ -220,9 +199,6 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	public function runTest( $commit ): void {
 		$cdDir = self::cmd( 'cd /srv/parsoid-testing' );
 		$resultPath = "/tmp/results.$commit.json";
-		$needsPHPRestart = ScriptUtils::booleanOption( $this->getOption( 'restartPHP' ) );
-		$restartCmd = self::cmd( '&& sudo systemctl restart php8.3-fpm.service' );
-		$restartOperation = $needsPHPRestart ? $restartCmd : [];
 		$proxyURL = [];
 		if ( $this->getOption( 'proxyURL' ) ) {
 			$proxyURL = '--proxyURL ' . $this->getOption( 'proxyURL' );
@@ -242,20 +218,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			[ '-o', $resultPath ]
 		);
 
-		$this->dashes( "Checking out $commit on parsoidtest1001" );
-		$this->ssh( array_merge(
-			self::cmd( 'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ] ),
-			$restartOperation
+		$this->dashes( "Checking out $commit on parsoid host" );
+		$this->ssh( self::cmd(
+			'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ]
 		), $this->getOption( 'parsoidtest-server' ) );
-		if ( ScriptUtils::booleanOption( $this->getOption( 'updateTestreduce' ) ) ) {
-			# Check out on testreduce1002 as well to ensure HTML version changes
-			# don't trip up our test script and we don't have to mess with passing in
-			# the --contentVersion option in most scenarios
-			$this->dashes( "Checking out $commit on testreduce1002" );
-			$this->ssh( self::cmd(
-				'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ]
-			), $this->getOption( 'testreduce-server' ) );
-		}
 
 		$this->dashes( "Running tests" );
 		$this->ssh( self::cmd(
@@ -481,12 +447,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	public function execute() {
 		$this->maybeHelp();
 
-		if ( ScriptUtils::booleanOption( $this->getOption( 'deploy-mw-parsoid' ) ) ) {
-			$this->dashes( "Deploying mw-parsoid" );
-			$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh',
-				$this->hasOption( 'uid' ) ? [ '-u', $this->getOption( 'uid' ) ] : []
-			) );
-		}
+		$this->dashes( "Deploying mw-parsoid" );
+		$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh',
+			$this->hasOption( 'uid' ) ? [ '-u', $this->getOption( 'uid' ) ] : []
+		) );
 
 		$titles = [];
 
