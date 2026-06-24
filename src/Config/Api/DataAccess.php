@@ -334,8 +334,8 @@ class DataAccess extends IDataAccess {
 		string $wikitext,
 		?LinkTarget $titleOverride = null,
 	): string {
-		$revid = $pageConfig->getRevisionId();
 		$pageConfigTitle = $this->toPrefixedText( $titleOverride ?? $pageConfig->getLinkTarget() );
+		$revid = $titleOverride ? null : $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'parse', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
 		if ( $data === null ) {
