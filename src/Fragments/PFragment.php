@@ -100,6 +100,9 @@ abstract class PFragment implements JsonCodecable {
 		HtmlPFragment::class,
 		DomPFragment::class,
 		LiteralStringPFragment::class,
+		// Internal fragment types
+		HeadingPFragment::class,
+		ExtTagPFragment::class,
 	];
 
 	protected function __construct( ?DomSourceRange $srcOffsets ) {
