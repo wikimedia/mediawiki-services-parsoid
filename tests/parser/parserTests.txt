@@ -791,6 +791,8 @@ parsoid=wt2html
 
 !! test
 Self-closed tag hooks
+!! options
+showindicators
 !! wikitext
 <pre />
 <gallery />
@@ -799,11 +801,13 @@ Self-closed tag hooks
 <pre></pre>
 <ul class="gallery mw-gallery-traditional">
 </ul>
+!! metadata
+something=
 !! html/parsoid
 <pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{}}'></pre>
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt5" data-mw='{"name":"gallery","attrs":{}}'>
 </ul>
-<meta typeof="mw:Extension/indicator" about="#mwt6" data-mw='{"name":"indicator","attrs":{"name":"something"},"html":""}'/>
+<meta typeof="mw:Extension/indicator" about="#mwt6" data-mw='{"name":"indicator","attrs":{"name":"something"}}'/>
 !! end
 
 ###

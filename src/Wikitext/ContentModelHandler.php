@@ -155,6 +155,7 @@ class ContentModelHandler extends IContentModelHandler {
 			$dmw = DOMDataUtils::getDataMw( $meta );
 			$name = $dmw->getExtAttrib( 'name' );
 			$iData[$name] = $dmw->html;
+			unset( $dmw->html );
 		}
 
 		// set indicator metadata for unique keys
