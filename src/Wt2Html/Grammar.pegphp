@@ -676,13 +676,7 @@ extlink "extlink" =
 		p3:POSITION
 		"]"
 		// Prevent the extlink from stealing a closing bracket from a wikilink
-		&(
-			// Presumably you can write this as !<preproc==']]'>
-			// but that seems to generate a type error
-			preproc:<&preproc>
-			&{ return $preproc !== ']]'; }
-			/ ']]'* ( !']' / eof )
-		)
+		&( !<preproc==']]'> / ']]'* ( !']' / eof ) )
 		{
 			$tsr1 = new SourceRange( $p0, $p1, $this->source );
 			$tsr2 = new SourceRange( $p2, $p3, $this->source );
