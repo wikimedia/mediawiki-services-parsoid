@@ -51,17 +51,17 @@ class GrammarCacheEntry {
 	public $nextPos;
 	public $result;
 	public $headingIndex;
-	public $preproc_sol;
 	public $preproc;
+	public $preproc_sol;
 	public $th;
 
 
-	public function __construct( $nextPos, $result, $headingIndex, $preproc_sol, $preproc, $th ) {
+	public function __construct( $nextPos, $result, $headingIndex, $preproc, $preproc_sol, $th ) {
 		$this->nextPos = $nextPos;
 		$this->result = $result;
 		$this->headingIndex = $headingIndex;
-		$this->preproc_sol = $preproc_sol;
 		$this->preproc = $preproc;
+		$this->preproc_sol = $preproc_sol;
 		$this->th = $th;
 
 	}
@@ -358,39 +358,40 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 116 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
 117 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
 118 => ["type" => "class", "value" => "[^ \\t\\n\\r\\x0c:\\[]", "description" => "[^ \\t\\n\\r\\x0c:\\[]"],
-119 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
-120 => ["type" => "other", "description" => "table_content_line"],
-121 => ["type" => "other", "description" => "table_end_tag"],
-122 => ["type" => "other", "description" => "RFC"],
-123 => ["type" => "other", "description" => "PMID"],
-124 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
-125 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
-126 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
-127 => ["type" => "other", "description" => "wikilink_preproc_internal"],
-128 => ["type" => "other", "description" => "table_heading_tags"],
-129 => ["type" => "other", "description" => "table_row_tag"],
-130 => ["type" => "other", "description" => "table_data_tags"],
-131 => ["type" => "other", "description" => "table_caption_tag"],
-132 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
-133 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
-134 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
-135 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
-136 => ["type" => "other", "description" => "lang_variant_flag"],
-137 => ["type" => "other", "description" => "lang_variant_name"],
-138 => ["type" => "other", "description" => "lang_variant_nowiki"],
-139 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
-140 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
-141 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
-142 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
-143 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
-144 => ["type" => "class", "value" => "[^{}|;\\[\\]]", "description" => "[^{}|;\\[\\]]"],
-145 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
-146 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
-147 => ["type" => "other", "description" => "nowiki_text"],
-148 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
-149 => ["type" => "other", "description" => "nowiki"],
-150 => ["type" => "other", "description" => "full_table_in_link_caption"],
-151 => ["type" => "other", "description" => "embedded_full_table"],
+119 => ["type" => "other", "description" => "heading_preproc"],
+120 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
+121 => ["type" => "other", "description" => "table_content_line"],
+122 => ["type" => "other", "description" => "table_end_tag"],
+123 => ["type" => "other", "description" => "RFC"],
+124 => ["type" => "other", "description" => "PMID"],
+125 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
+126 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
+127 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
+128 => ["type" => "other", "description" => "wikilink_preproc_internal"],
+129 => ["type" => "other", "description" => "table_heading_tags"],
+130 => ["type" => "other", "description" => "table_row_tag"],
+131 => ["type" => "other", "description" => "table_data_tags"],
+132 => ["type" => "other", "description" => "table_caption_tag"],
+133 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
+134 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
+135 => ["type" => "other", "description" => "table_heading_tags_parameterized"],
+136 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
+137 => ["type" => "other", "description" => "lang_variant_flag"],
+138 => ["type" => "other", "description" => "lang_variant_name"],
+139 => ["type" => "other", "description" => "lang_variant_nowiki"],
+140 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
+141 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
+142 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
+143 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
+144 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
+145 => ["type" => "class", "value" => "[^{}|;\\[\\]]", "description" => "[^{}|;\\[\\]]"],
+146 => ["type" => "class", "value" => "[a-z]", "description" => "[a-z]"],
+147 => ["type" => "class", "value" => "[-a-zA-Z]", "description" => "[-a-zA-Z]"],
+148 => ["type" => "other", "description" => "nowiki_text"],
+149 => ["type" => "literal", "value" => "!!", "description" => "\"!!\""],
+150 => ["type" => "other", "description" => "nowiki"],
+151 => ["type" => "other", "description" => "full_table_in_link_caption"],
+152 => ["type" => "other", "description" => "embedded_full_table"],
 	];
 
 	// actions
@@ -1622,118 +1623,36 @@ private function a123($rw) {
 			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
 		
 }
-private function a124($s, $ill) {
- return $ill ?: []; 
-}
-private function a125($s, $ce) {
- return $ce || strlen( $s ) > 2; 
-}
-private function a126($s, $ce, $endTPos, $spc) {
- return $this->endOffset() === $this->inputLength; 
-}
-private function a127($s, $ce, $endTPos, $spc, &$headingIndex) {
-
-			$c = null;
-			$e = null;
-			$level = null;
-			if ( $ce ) {
-				$c = $ce[0];
-				$e = $ce[1];
-				$level = min( strlen( $s ), strlen( $e ) );
-			} else {
-				// split up equal signs into two equal parts, with at least
-				// one character in the middle.
-				$level = (int)floor( ( strlen( $s ) - 1 ) / 2 );
-				$c = [ str_repeat( '=', strlen( $s ) - 2 * $level ) ];
-				$s = $e = str_repeat( '=', $level );
-			}
-			$level = min( 6, $level );
-			// convert surplus equals into text
-			if ( strlen( $s ) > $level ) {
-				$extras1 = substr( $s, 0, strlen( $s ) - $level );
-				if ( is_string( $c[0] ) ) {
-					$c[0] = $extras1 . $c[0];
-				} else {
-					array_unshift( $c, $extras1 );
-				}
-			}
-			if ( strlen( $e ) > $level ) {
-				$extras2 = substr( $e, 0, strlen( $e ) - $level );
-				$lastElem = PHPUtils::lastItem( $c );
-				if ( is_string( $lastElem ) ) {
-					$c[count( $c ) - 1] .= $extras2;
-				} else {
-					$c[] = $extras2;
-				}
-			}
-
-			$tagDP = new DataParsoid;
-			$tagDP->tsr = $this->tsrOffsets( 'start' );
-			$tagDP->tsr->end += $level;
-
-			// Match the old parser's behavior by
-			// (a) making headingIndex part of tokenizer state
-			//   (don't reuse pipeline! see $this->resetState above)
-			// (b) assigning the index when ==*== is tokenized,
-			//   even if we're inside a template argument
-			//   or other context which won't end up putting the heading
-			//   on the output page.  T213468/T214538
-
-			// Unlike hasSOLTransparentAtStart, trailing whitespace and comments
-			// are allowed
-			$hasSOLTransparentAtEnd = !preg_match(
-				Utils::COMMENT_OR_WS_REGEXP,
-				substr( $this->input, $endTPos, $this->endOffset() - $endTPos )
-			);
-
-			// If either of these are true, the legacy preprocessor won't tokenize
-			// a heading and therefore won't assign them a heading index.  They
-			// will however parse as headings in the legacy parser's second pass,
-			// once sol transparent tokens have been stripped.
-			if ( !$this->hasSOLTransparentAtStart && !$hasSOLTransparentAtEnd ) {
-				$headingIndex++;
-				$tagDP->getTemp()->headingIndex = $headingIndex;
-			}
-
-			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
-			PHPUtils::pushArray( $res, $c );
-			$endTagDP = new DataParsoid;
-			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos, $this->source );
-			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
-			PHPUtils::pushArray( $res, $spc );
-			return $res;
-		
-}
-private function a128($d) {
+private function a124($d) {
  return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; 
 }
-private function a129($d) {
+private function a125($d) {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a130($d) {
+private function a126($d) {
 
 		// Use the sol flag only at the start of the input
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
-private function a131($d) {
+private function a127($d) {
 
 		return [];
 	
 }
-private function a132($d, $sp, $elc, $st) {
+private function a128($d, $sp, $elc, $st) {
 
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
-private function a133($d) {
+private function a129($d) {
  return null; 
 }
-private function a134($d) {
+private function a130($d) {
  return true; 
 }
-private function a135($d, $lineContent) {
+private function a131($d, $lineContent) {
 
 		$dataParsoid = new DataParsoid;
 		$dataParsoid->tsr = $this->tsrOffsets();
@@ -1746,18 +1665,18 @@ private function a135($d, $lineContent) {
 		return [new SelfclosingTagTk( 'hr', [], $dataParsoid )];
 	
 }
-private function a136($sc, $tl) {
+private function a132($sc, $tl) {
 
 		return array_merge($sc, $tl);
 	
 }
-private function a137() {
+private function a133() {
  return $this->startOffset(); 
 }
-private function a138($lv0) {
+private function a134($lv0) {
  return $this->env->langConverterEnabled(); 
 }
-private function a139($lv0, $ff) {
+private function a135($lv0, $ff) {
 
 			// if flags contains 'R', then don't treat ; or : specially inside.
 			if ( isset( $ff['flags'] ) ) {
@@ -1768,27 +1687,27 @@ private function a139($lv0, $ff) {
 			return $ff;
 		
 }
-private function a140($lv0) {
+private function a136($lv0) {
  return !$this->env->langConverterEnabled(); 
 }
-private function a141($lv0) {
+private function a137($lv0) {
 
 			// if language converter not enabled, don't try to parse inside.
 			return [ 'raw' => true ];
 		
 }
-private function a142($lv0, $f) {
+private function a138($lv0, $f) {
  return $f['raw']; 
 }
-private function a143($lv0, $f, $lv) {
+private function a139($lv0, $f, $lv) {
 
 			return [ new VariantOption( textTokens: $lv ) ];
 		
 }
-private function a144($lv0, $f) {
+private function a140($lv0, $f) {
  return !$f['raw']; 
 }
-private function a145($lv0, $f, $ts, $lv1) {
+private function a141($lv0, $f, $ts, $lv1) {
 
 		if ( !$this->env->langConverterEnabled() ) {
 			return [ '-{', $ts[0]->textTokens['tokens'], '}-' ];
@@ -1839,27 +1758,27 @@ private function a145($lv0, $f, $ts, $lv1) {
 		];
 	
 }
-private function a146($r, &$preproc) {
+private function a142($r, &$preproc) {
 
 		$preproc = null;
 		return $r;
 	
 }
-private function a147($tagType) {
+private function a143($tagType) {
 
 		return ( $tagType === 'html' || $tagType === '' );
 	
 }
-private function a148($extToken) {
+private function a144($extToken) {
  return $extToken->getName() === 'extension'; 
 }
-private function a149($extToken) {
+private function a145($extToken) {
  return $extToken; 
 }
-private function a150($proto, $addr, $rhe) {
+private function a146($proto, $addr, $rhe) {
  return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; 
 }
-private function a151($proto, $addr, $path) {
+private function a147($proto, $addr, $path) {
 
 			// as in Parser.php::makeFreeExternalLink, we're going to
 			// yank trailing punctuation out of this match.
@@ -1880,10 +1799,10 @@ private function a151($proto, $addr, $path) {
 			return $url;
 		
 }
-private function a152($r) {
+private function a148($r) {
  return $r !== null; 
 }
-private function a153($r) {
+private function a149($r) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1892,16 +1811,16 @@ private function a153($r) {
 		return $res;
 	
 }
-private function a154($ref, $he) {
+private function a150($ref, $he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
 }
-private function a155($ref, $he) {
+private function a151($ref, $he) {
  return $he; 
 }
-private function a156($ref, $sp, $identifier) {
+private function a152($ref, $sp, $identifier) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a157($ref, $sp, $identifier) {
+private function a153($ref, $sp, $identifier) {
 
 		$base_urls = [
 			'RFC' => 'https://datatracker.ietf.org/doc/html/rfc%s',
@@ -1923,25 +1842,25 @@ private function a157($ref, $sp, $identifier) {
 		];
 	
 }
-private function a158() {
+private function a154() {
  return $this->siteConfig->magicLinkEnabled("ISBN"); 
 }
-private function a159($he) {
+private function a155($he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
 }
-private function a160($he) {
+private function a156($he) {
  return $he; 
 }
-private function a161($sp, $he) {
+private function a157($sp, $he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
 }
-private function a162($sp, $he) {
+private function a158($sp, $he) {
  return $he; 
 }
-private function a163($sp, $isbn) {
+private function a159($sp, $isbn) {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a164($sp, $isbn) {
+private function a160($sp, $isbn) {
 
 			// Convert isbn token-and-entity array to stripped string.
 			$stripped = '';
@@ -1953,14 +1872,14 @@ private function a164($sp, $isbn) {
 			return strtoupper( preg_replace( '/[^\dX]/i', '', $stripped ) );
 		
 }
-private function a165($sp, $isbn, $isbncode) {
+private function a161($sp, $isbn, $isbncode) {
 
 		// ISBNs can only be 10 or 13 digits long (with a specific format)
 		return strlen( $isbncode ) === 10
 			|| ( strlen( $isbncode ) === 13 && preg_match( '/^97[89]/', $isbncode ) );
 	
 }
-private function a166($sp, $isbn, $isbncode) {
+private function a162($sp, $isbn, $isbncode) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1978,7 +1897,7 @@ private function a166($sp, $isbn, $isbncode) {
 		];
 	
 }
-private function a167($t) {
+private function a163($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
 		$dp = $t->dataParsoid;
@@ -2092,15 +2011,15 @@ private function a167($t) {
 		], $dp );
 	
 }
-private function a168(&$preproc) {
+private function a164(&$preproc) {
  $preproc = null; return true; 
 }
-private function a169(&$preproc, $a) {
+private function a165(&$preproc, $a) {
 
 		return $a;
 	
 }
-private function a170($il) {
+private function a166($il) {
 
 		// il is guaranteed to be an array -- so, tu.flattenIfArray will
 		// always return an array
@@ -2110,6 +2029,94 @@ private function a170($il) {
 		}
 		return $r;
 	
+}
+private function a167($s, $ill) {
+ return $ill ?: []; 
+}
+private function a168($s, $ce) {
+ return $ce || strlen( $s ) > 2; 
+}
+private function a169($s, $ce, $endTPos, $spc) {
+ return $this->endOffset() === $this->inputLength; 
+}
+private function a170($s, $ce, $endTPos, $spc, &$headingIndex, &$preproc) {
+
+			$c = null;
+			$e = null;
+			$level = null;
+			if ( $ce ) {
+				$c = $ce[0];
+				$e = $ce[1];
+				$level = min( strlen( $s ), strlen( $e ) );
+			} else {
+				// split up equal signs into two equal parts, with at least
+				// one character in the middle.
+				$level = (int)floor( ( strlen( $s ) - 1 ) / 2 );
+				$c = [ str_repeat( '=', strlen( $s ) - 2 * $level ) ];
+				$s = $e = str_repeat( '=', $level );
+			}
+			$level = min( 6, $level );
+			// convert surplus equals into text
+			if ( strlen( $s ) > $level ) {
+				$extras1 = substr( $s, 0, strlen( $s ) - $level );
+				if ( is_string( $c[0] ) ) {
+					$c[0] = $extras1 . $c[0];
+				} else {
+					array_unshift( $c, $extras1 );
+				}
+			}
+			if ( strlen( $e ) > $level ) {
+				$extras2 = substr( $e, 0, strlen( $e ) - $level );
+				$lastElem = PHPUtils::lastItem( $c );
+				if ( is_string( $lastElem ) ) {
+					$c[count( $c ) - 1] .= $extras2;
+				} else {
+					$c[] = $extras2;
+				}
+			}
+
+			$tagDP = new DataParsoid;
+			$tagDP->tsr = $this->tsrOffsets( 'start' );
+			$tagDP->tsr->end += $level;
+
+			// Match the old parser's behavior by
+			// (a) making headingIndex part of tokenizer state
+			//   (don't reuse pipeline! see $this->resetState above)
+			// (b) assigning the index when ==*== is tokenized,
+			//   even if we're inside a template argument
+			//   or other context which won't end up putting the heading
+			//   on the output page.  T213468/T214538
+
+			// Unlike hasSOLTransparentAtStart, trailing whitespace and comments
+			// are allowed
+			$hasSOLTransparentAtEnd = !preg_match(
+				Utils::COMMENT_OR_WS_REGEXP,
+				substr( $this->input, $endTPos, $this->endOffset() - $endTPos )
+			);
+
+			$hasOpenPreproc = ( $preproc !== '==' );
+
+			// If any of these are true, the legacy preprocessor won't tokenize
+			// a heading and therefore won't assign them a heading index.  They
+			// will however parse as headings in the legacy parser's second pass,
+			// once sol transparent tokens have been stripped.
+			if (
+				!$this->hasSOLTransparentAtStart &&
+				!$hasSOLTransparentAtEnd &&
+				!$hasOpenPreproc
+			) {
+				$headingIndex++;
+				$tagDP->getTemp()->headingIndex = $headingIndex;
+			}
+
+			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
+			PHPUtils::pushArray( $res, $c );
+			$endTagDP = new DataParsoid;
+			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos, $this->source );
+			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
+			PHPUtils::pushArray( $res, $spc );
+			return $res;
+		
 }
 private function a171($p, $b) {
 
@@ -2546,7 +2553,7 @@ private function a207($r) {
   }
 }
 private function parsestart($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([332, $boolParams & 0x8000, $param_th, $param_preproc]);
+  $key = json_encode([334, $boolParams & 0x8000, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2566,14 +2573,14 @@ private function parsestart($silence, $boolParams, &$param_th, &$param_preproc) 
     $this->currPos,
     $r4,
     self::$UNDEFINED,
-    self::$UNDEFINED,
     $r3 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r4;
 }
 private function parsetable_row_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([600, $boolParams & 0xf7d7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([604, $boolParams & 0xf7d7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2676,14 +2683,14 @@ private function parsetable_row_tag($silence, $boolParams, $param_tagType, &$par
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_start_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([594, $boolParams & 0xf7d7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([598, $boolParams & 0xf7d7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2760,14 +2767,14 @@ private function parsetable_start_tag($silence, $boolParams, $param_tagType, &$p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseurl($silence, $boolParams, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([396, $boolParams & 0x8000, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([400, $boolParams & 0x8000, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3122,14 +3129,14 @@ private function parseurl($silence, $boolParams, &$param_preproc, &$param_th, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parserow_syntax_table_args($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([618, $boolParams & 0xf777, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([622, $boolParams & 0xf777, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3222,14 +3229,14 @@ private function parserow_syntax_table_args($silence, $boolParams, $param_tagTyp
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_attributes($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([338, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([340, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3309,14 +3316,14 @@ private function parsetable_attributes($silence, $boolParams, $param_tagType, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsegeneric_newline_attributes($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([336, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([338, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3344,14 +3351,14 @@ private function parsegeneric_newline_attributes($silence, $boolParams, $param_t
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetplarg_or_template_or_bust($silence, $boolParams, &$param_headingIndex, &$param_th, &$param_preproc) {
-  $key = json_encode([406, $boolParams & 0x8000, $param_headingIndex, $param_th, $param_preproc]);
+  $key = json_encode([410, $boolParams & 0x8000, $param_headingIndex, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3399,14 +3406,14 @@ private function parsetplarg_or_template_or_bust($silence, $boolParams, &$param_
     $this->currPos,
     $r5,
     $r2 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseextlink($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([384, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([388, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3691,14 +3698,14 @@ private function parseextlink($silence, $boolParams, $param_tagType, &$param_pre
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselist_item($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([572, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([576, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3796,14 +3803,14 @@ private function parselist_item($silence, $boolParams, $param_tagType, &$param_p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsepreproc_pieces($silence, &$param_headingIndex) {
-  $key = json_encode([478, $param_headingIndex]);
+  $key = json_encode([482, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3831,7 +3838,7 @@ private function parsepreproc_pieces($silence, &$param_headingIndex) {
   return $r3;
 }
 private function parsepreproc_find_only_include($silence) {
-  $key = 520;
+  $key = 524;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3895,7 +3902,7 @@ private function parsepreproc_find_only_include($silence) {
   return $r2;
 }
 private function parsetemplate($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex) {
-  $key = json_encode([408, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
+  $key = json_encode([412, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3967,7 +3974,7 @@ private function parsetemplate($silence, $boolParams, $param_tagType, &$param_th
   return $r4;
 }
 private function parsetemplate3($silence, &$param_headingIndex) {
-  $key = json_encode([404, $param_headingIndex]);
+  $key = json_encode([408, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4025,7 +4032,7 @@ private function parsetemplate3($silence, &$param_headingIndex) {
   return $r3;
 }
 private function parsetlb($silence, $boolParams, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([342, $boolParams & 0x8000, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([344, $boolParams & 0x8000, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4081,14 +4088,14 @@ private function parsetlb($silence, $boolParams, &$param_th, &$param_headingInde
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsestart_with_headingIndex($boolParams, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([334, $boolParams & 0x8000, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([336, $boolParams & 0x8000, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4152,8 +4159,8 @@ private function parsestart_with_headingIndex($boolParams, &$param_th, &$param_h
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
@@ -4167,7 +4174,7 @@ private function parsePOSITION($silence) {
   return $r1;
 }
 private function parseunreachable($silence) {
-  $key = 596;
+  $key = 600;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4200,7 +4207,7 @@ private function parseunreachable($silence) {
   return $r2;
 }
 private function parseurl_protocol($silence) {
-  $key = 394;
+  $key = 398;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4297,7 +4304,7 @@ private function parseurl_protocol($silence) {
   return $r2;
 }
 private function parseipv6urladdr($silence) {
-  $key = 400;
+  $key = 404;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4407,7 +4414,7 @@ private function discardinline_breaks($boolParams, $param_tagType, &$param_prepr
   return $r1;
 }
 private function parseurl_directive($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([634, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([638, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4564,14 +4571,14 @@ private function parseurl_directive($silence, $boolParams, $param_tagType, &$par
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsehtmlentity($silence) {
-  $key = 626;
+  $key = 630;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4616,7 +4623,7 @@ private function parsehtmlentity($silence) {
   return $r2;
 }
 private function parsetable_attribute($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([556, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([560, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4687,14 +4694,14 @@ private function parsetable_attribute($boolParams, $param_tagType, &$param_prepr
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsebroken_table_attribute_name_char() {
-  $key = 562;
+  $key = 566;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4726,7 +4733,7 @@ private function parsebroken_table_attribute_name_char() {
   return $r2;
 }
 private function parsegeneric_newline_attribute($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([554, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([558, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4849,14 +4856,14 @@ private function parsegeneric_newline_attribute($boolParams, $param_tagType, &$p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetplarg_or_template($silence, $boolParams, &$param_headingIndex, $param_tagType, &$param_th, &$param_preproc) {
-  $key = json_encode([402, $boolParams & 0xf7f7, $param_headingIndex, $param_tagType, $param_th, $param_preproc]);
+  $key = json_encode([406, $boolParams & 0xf7f7, $param_headingIndex, $param_tagType, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5667,14 +5674,14 @@ private function parsetplarg_or_template($silence, $boolParams, &$param_headingI
     $this->currPos,
     $r5,
     $r2 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseextlink_nonipv6url($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([638, $boolParams & 0xf3f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([642, $boolParams & 0xf3f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5693,14 +5700,14 @@ private function parseextlink_nonipv6url($boolParams, $param_tagType, &$param_pr
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseinlineline($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([366, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([368, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5819,14 +5826,14 @@ private function parseinlineline($silence, $boolParams, $param_tagType, &$param_
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsedtdd($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([580, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([584, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6004,14 +6011,14 @@ private function parsedtdd($silence, $boolParams, $param_tagType, &$param_prepro
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsehacky_dl_uses($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([576, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([580, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6167,14 +6174,14 @@ private function parsehacky_dl_uses($silence, $boolParams, $param_tagType, &$par
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseli($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([574, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([578, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6267,14 +6274,14 @@ private function parseli($silence, $boolParams, $param_tagType, &$param_preproc,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsepreproc_pieces_with_sol($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([480, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([484, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6324,14 +6331,14 @@ private function parsepreproc_pieces_with_sol($silence, $boolParams, &$param_pre
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardpreproc_only_include_ignore() {
-  $key = 523;
+  $key = 527;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6408,7 +6415,7 @@ private function discardpreproc_only_include_ignore() {
   return $r2;
 }
 private function parsepreproc_only_include_region($silence) {
-  $key = 524;
+  $key = 528;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6498,7 +6505,7 @@ private function parsepreproc_only_include_region($silence) {
   return $r2;
 }
 private function parseparsoid_fragment_marker($silence) {
-  $key = 416;
+  $key = 420;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6543,7 +6550,7 @@ private function parseparsoid_fragment_marker($silence) {
   return $r2;
 }
 private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([412, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([416, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7037,14 +7044,14 @@ private function parsetemplate_preproc($silence, $boolParams, $param_tagType, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsepreproc_piece($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex, $param_preproc_stop) {
-  $key = json_encode([484, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
+  $key = json_encode([488, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8012,14 +8019,14 @@ private function parsepreproc_piece($silence, $boolParams, &$param_preproc_sol, 
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([348, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([350, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8158,7 +8165,7 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $r16 = self::$FAILED;
     goto seq_4;
   }
-  $r16 = $this->parseblock_line($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+  $r16 = $this->parseblock_line($silence, $boolParams, $param_tagType, $param_th, $param_headingIndex, $param_preproc);
   if ($r16===self::$FAILED) {
     $this->currPos = $p9;
     $param_th = $r11;
@@ -8441,14 +8448,14 @@ private function parseblock($silence, $boolParams, $param_tagType, &$param_th, &
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsecomment($silence) {
-  $key = 658;
+  $key = 662;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8567,7 +8574,7 @@ private function parsecomment($silence) {
   return $r2;
 }
 private function parseannotation_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([532, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([536, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8731,14 +8738,14 @@ private function parseannotation_tag($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType, &$param_th, &$param_preproc, &$param_headingIndex) {
-  $key = json_encode([432, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_preproc, $param_headingIndex]);
+  $key = json_encode([436, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_preproc, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9420,14 +9427,14 @@ private function parselang_variant_or_tpl($silence, $boolParams, $param_tagType,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r3 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseinclude_limits($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([630, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([634, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9524,14 +9531,14 @@ private function parseinclude_limits($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseraw_htmlentity($silence) {
-  $key = 624;
+  $key = 628;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9598,7 +9605,7 @@ private function parseraw_htmlentity($silence) {
   return $r2;
 }
 private function parsetable_attribute_name($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([564, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([568, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9653,14 +9660,14 @@ private function parsetable_attribute_name($boolParams, $param_tagType, &$param_
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_att_value($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([570, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([574, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9946,14 +9953,14 @@ private function parsetable_att_value($boolParams, $param_tagType, &$param_prepr
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardspace_or_newline_or_solidus() {
-  $key = 549;
+  $key = 553;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10008,7 +10015,7 @@ private function discardspace_or_newline_or_solidus() {
   return $r2;
 }
 private function parsegeneric_attribute_name($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([560, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([564, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10286,14 +10293,14 @@ private function parsegeneric_attribute_name($boolParams, $param_tagType, &$para
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsegeneric_att_value($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([568, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([572, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10590,14 +10597,14 @@ private function parsegeneric_att_value($boolParams, $param_tagType, &$param_pre
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardhash() {
-  $key = 655;
+  $key = 659;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10623,7 +10630,7 @@ private function discardhash() {
   return $r2;
 }
 private function discardtriple_brace() {
-  $key = 493;
+  $key = 497;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10692,7 +10699,7 @@ private function discardtriple_brace() {
   return $r2;
 }
 private function discardnot_a_brace() {
-  $key = 495;
+  $key = 499;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10747,7 +10754,7 @@ private function discardnot_a_brace() {
   return $r2;
 }
 private function discardtplarg($boolParams, $param_tagType, &$param_th, &$param_headingIndex) {
-  $key = json_encode([419, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
+  $key = json_encode([423, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10859,7 +10866,7 @@ private function discardtplarg($boolParams, $param_tagType, &$param_th, &$param_
   return $r4;
 }
 private function parsebroken_template($silence, &$param_preproc) {
-  $key = json_encode([410, $param_preproc]);
+  $key = json_encode([414, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10892,14 +10899,14 @@ private function parsebroken_template($silence, &$param_preproc) {
     $this->currPos,
     $r3,
     self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r3;
 }
 private function discardparsoid_fragment_marker_literal() {
-  $key = 415;
+  $key = 419;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10949,7 +10956,7 @@ private function discardparsoid_fragment_marker_literal() {
   return $r2;
 }
 private function parsetplarg($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex) {
-  $key = json_encode([418, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
+  $key = json_encode([422, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11062,7 +11069,7 @@ private function parsetplarg($silence, $boolParams, $param_tagType, &$param_th, 
   return $r4;
 }
 private function parseextlink_nonipv6url_parameterized($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([640, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([644, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11262,14 +11269,14 @@ private function parseextlink_nonipv6url_parameterized($boolParams, $param_tagTy
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseurltext($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([620, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([624, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11531,14 +11538,14 @@ private function parseurltext($silence, $boolParams, $param_tagType, &$param_pre
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseinline_element($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([372, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([374, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11891,14 +11898,14 @@ private function parseinline_element($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsedtdd_colon($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([578, $boolParams & 0xe7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([582, $boolParams & 0xe7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11955,14 +11962,14 @@ private function parsedtdd_colon($silence, $boolParams, $param_tagType, &$param_
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardpreproc_sol_from_options($boolParams, &$param_preproc_sol) {
-  $key = json_encode([483, $boolParams & 0x8, $param_preproc_sol]);
+  $key = json_encode([487, $boolParams & 0x8, $param_preproc_sol]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12011,14 +12018,14 @@ private function discardpreproc_sol_from_options($boolParams, &$param_preproc_so
     $this->currPos,
     $r3,
     self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r3;
 }
 private function discardpreproc_only_include_start() {
-  $key = 527;
+  $key = 531;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12098,7 +12105,7 @@ private function discardpreproc_only_include_start() {
   return $r2;
 }
 private function parsepreproc_only_include_start($silence) {
-  $key = 526;
+  $key = 530;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12181,7 +12188,7 @@ private function parsepreproc_only_include_start($silence) {
   return $r2;
 }
 private function discardpreproc_piece_angle_contents($param_tag, $param_hash) {
-  $key = json_encode([511, $param_tag, $param_hash]);
+  $key = json_encode([515, $param_tag, $param_hash]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12264,7 +12271,7 @@ private function discardpreproc_piece_angle_contents($param_tag, $param_hash) {
   return $r2;
 }
 private function discardpreproc_piece_angle_close($param_tag, $param_hash) {
-  $key = json_encode([513, $param_tag, $param_hash]);
+  $key = json_encode([517, $param_tag, $param_hash]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12371,7 +12378,7 @@ private function discardpreproc_piece_angle_close($param_tag, $param_hash) {
   return $r2;
 }
 private function parseparsoid_fragment_marker_literal($silence) {
-  $key = 414;
+  $key = 418;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12431,7 +12438,7 @@ private function parseparsoid_fragment_marker_literal($silence) {
   return $r3;
 }
 private function discardcomment() {
-  $key = 659;
+  $key = 663;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12546,7 +12553,7 @@ private function discardcomment() {
   return $r2;
 }
 private function parseinlineline_in_tpls($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([430, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([434, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12611,14 +12618,14 @@ private function parseinlineline_in_tpls($silence, $boolParams, $param_tagType, 
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetemplate_param($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([422, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([426, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12716,14 +12723,14 @@ private function parsetemplate_param($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsepreproc_heading($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex, $param_preproc_stop) {
-  $key = json_encode([502, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
+  $key = json_encode([506, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12775,14 +12782,14 @@ private function parsepreproc_heading($silence, $boolParams, &$param_preproc_sol
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parsepreproc_piece_ignored_chars($silence) {
-  $key = 500;
+  $key = 504;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12813,7 +12820,7 @@ private function parsepreproc_piece_ignored_chars($silence) {
   return $r3;
 }
 private function parsepreproc_pieces_inner($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex, $param_preproc_stop) {
-  $key = json_encode([486, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
+  $key = json_encode([490, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12843,14 +12850,14 @@ private function parsepreproc_pieces_inner($silence, $boolParams, &$param_prepro
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardpreproc_piece_tplarg_lookahead($boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([497, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([501, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12986,14 +12993,14 @@ private function discardpreproc_piece_tplarg_lookahead($boolParams, &$param_prep
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parsepreproc_piece_template($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([490, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([494, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13072,14 +13079,14 @@ private function parsepreproc_piece_template($silence, $boolParams, &$param_prep
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parsepreproc_piece_tplarg($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([488, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([492, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13183,14 +13190,14 @@ private function parsepreproc_piece_tplarg($silence, $boolParams, &$param_prepro
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardpreproc_piece_template_lookahead($boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([499, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([503, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13304,14 +13311,14 @@ private function discardpreproc_piece_template_lookahead($boolParams, &$param_pr
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parsepreproc_piece_angle($silence) {
-  $key = 506;
+  $key = 510;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13700,7 +13707,7 @@ private function parsepreproc_piece_angle($silence) {
   return $r2;
 }
 private function parseredirect($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([344, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([346, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13839,14 +13846,14 @@ private function parseredirect($silence, $boolParams, $param_tagType, &$param_th
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsesol_transparent($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([660, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([664, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13971,48 +13978,48 @@ private function parsesol_transparent($silence, $boolParams, $param_tagType, &$p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
-private function parseblock_line($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([360, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+private function parseblock_line($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex, &$param_preproc) {
+  $key = json_encode([362, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
     $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
     if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
     if ($cached->headingIndex !== self::$UNDEFINED) { $param_headingIndex = $cached->headingIndex; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
     return $cached->result;
   }
   $p1 = $this->currPos;
-  $r2 = $param_preproc;
-  $r3 = $param_th;
-  $r4 = $param_headingIndex;
+  $r2 = $param_th;
+  $r3 = $param_headingIndex;
+  $r4 = $param_preproc;
   // start choice_1
   // start seq_1
   $r6 = $this->input[$this->currPos] ?? '';
   if ($r6 === "=") {
     $r6 = false;
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
   } else {
     $r6 = self::$FAILED;
     if (!$silence) { $this->fail(93); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
-  $r5 = $this->parseheading($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+  $r5 = $this->parseheading($silence, $boolParams, $param_tagType, $param_th, $param_headingIndex);
   if ($r5===self::$FAILED) {
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -14025,9 +14032,9 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $r7 = true;
     $r7 = false;
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
   } else {
     $r7 = self::$FAILED;
     if (!$silence) { $this->fail(94); }
@@ -14037,9 +14044,9 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   $r5 = $this->parselist_item($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   if ($r5===self::$FAILED) {
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -14052,9 +14059,9 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   if ($r8 === "-") {
     $r8 = false;
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
   } else {
     $r8 = self::$FAILED;
     if (!$silence) { $this->fail(95); }
@@ -14064,9 +14071,9 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   $r5 = $this->parsehr($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   if ($r5===self::$FAILED) {
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -14079,9 +14086,9 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
     $r9 = true;
     $r9 = false;
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
   } else {
     $r9 = self::$FAILED;
     $r5 = self::$FAILED;
@@ -14089,16 +14096,16 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   }
   // start seq_5
   $p10 = $this->currPos;
-  $r11 = $param_preproc;
-  $r12 = $param_th;
-  $r13 = $param_headingIndex;
+  $r11 = $param_th;
+  $r12 = $param_headingIndex;
+  $r13 = $param_preproc;
   if (strspn($this->input, "\x09 !<{|", $this->currPos, 1) !== 0) {
     $r14 = true;
     $r14 = false;
     $this->currPos = $p10;
-    $param_preproc = $r11;
-    $param_th = $r12;
-    $param_headingIndex = $r13;
+    $param_th = $r11;
+    $param_headingIndex = $r12;
+    $param_preproc = $r13;
   } else {
     $r14 = self::$FAILED;
     if (!$silence) { $this->fail(96); }
@@ -14108,18 +14115,18 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   $r5 = $this->parsetable_line($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
   if ($r5===self::$FAILED) {
     $this->currPos = $p10;
-    $param_preproc = $r11;
-    $param_th = $r12;
-    $param_headingIndex = $r13;
+    $param_th = $r11;
+    $param_headingIndex = $r12;
+    $param_preproc = $r13;
     $r5 = self::$FAILED;
     goto seq_5;
   }
   seq_5:
   if ($r5===self::$FAILED) {
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $param_preproc = $r4;
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -14130,15 +14137,15 @@ private function parseblock_line($silence, $boolParams, $param_tagType, &$param_
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
-    $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
+    $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
+    $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
     self::$UNDEFINED,
-    $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $r3 !== $param_th ? $param_th : self::$UNDEFINED
+    $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseblock_lines($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([356, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([358, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14489,7 +14496,7 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $r12 = self::$FAILED;
     goto seq_9;
   }
-  $r12 = $this->parseblock_line($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+  $r12 = $this->parseblock_line($silence, $boolParams, $param_tagType, $param_th, $param_headingIndex, $param_preproc);
   if ($r12===self::$FAILED) {
     $this->currPos = $p9;
     $param_preproc = $r17;
@@ -14520,14 +14527,14 @@ private function parseblock_lines($silence, $boolParams, $param_tagType, &$param
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseempty_lines_with_comments($silence) {
-  $key = 662;
+  $key = 666;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14675,7 +14682,7 @@ private function discardnotempty() {
   return true;
 }
 private function parsetvar_old_syntax_closing_HACK($silence, $param_tagType) {
-  $key = json_encode([528, $param_tagType]);
+  $key = json_encode([532, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14733,7 +14740,7 @@ private function parsetvar_old_syntax_closing_HACK($silence, $param_tagType) {
   return $r2;
 }
 private function discardannotation_check($param_tagType) {
-  $key = json_encode([531, $param_tagType]);
+  $key = json_encode([535, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14802,7 +14809,7 @@ private function discardannotation_check($param_tagType) {
   return $r2;
 }
 private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([552, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([556, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14943,14 +14950,14 @@ private function parsexmlish_tag($silence, $boolParams, $param_tagType, &$param_
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant($silence, $boolParams, $param_tagType, &$param_th, &$param_preproc, &$param_headingIndex) {
-  $key = json_encode([436, $boolParams & 0xf7f3, $param_tagType, $param_th, $param_preproc, $param_headingIndex]);
+  $key = json_encode([440, $boolParams & 0xf7f3, $param_tagType, $param_th, $param_preproc, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15021,14 +15028,14 @@ private function parselang_variant($silence, $boolParams, $param_tagType, &$para
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r3 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardinclude_check($param_tagType) {
-  $key = json_encode([629, $param_tagType]);
+  $key = json_encode([633, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15092,7 +15099,7 @@ private function discardinclude_check($param_tagType) {
   return $r2;
 }
 private function parsetable_attribute_name_piece($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([566, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([570, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15294,14 +15301,14 @@ private function parsetable_attribute_name_piece($boolParams, $param_tagType, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_attribute_preprocessor_text_single($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([650, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([654, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15385,14 +15392,14 @@ private function parsetable_attribute_preprocessor_text_single($boolParams, $par
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_attribute_preprocessor_text_double($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([652, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([656, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15476,14 +15483,14 @@ private function parsetable_attribute_preprocessor_text_double($boolParams, $par
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_attribute_preprocessor_text($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([648, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([652, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15571,14 +15578,14 @@ private function parsetable_attribute_preprocessor_text($boolParams, $param_tagT
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsedirective($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([632, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([636, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15681,14 +15688,14 @@ private function parsedirective($silence, $boolParams, $param_tagType, &$param_p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseless_than($param_tagType) {
-  $key = json_encode([558, $param_tagType]);
+  $key = json_encode([562, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15728,7 +15735,7 @@ private function parseless_than($param_tagType) {
   return $r2;
 }
 private function parseattribute_preprocessor_text_single($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([644, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([648, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15869,14 +15876,14 @@ private function parseattribute_preprocessor_text_single($boolParams, $param_tag
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseattribute_preprocessor_text_double($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([646, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([650, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -16017,14 +16024,14 @@ private function parseattribute_preprocessor_text_double($boolParams, $param_tag
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseattribute_preprocessor_text($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([642, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([646, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -16169,14 +16176,14 @@ private function parseattribute_preprocessor_text($boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardtplarg_preproc($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([421, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([425, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -16613,14 +16620,14 @@ private function discardtplarg_preproc($boolParams, $param_tagType, &$param_prep
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([420, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([424, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17076,14 +17083,14 @@ private function parsetplarg_preproc($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseautolink($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([382, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([386, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17227,14 +17234,14 @@ private function parseautolink($silence, $boolParams, $param_tagType, &$param_pr
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discarddouble_underscore() {
-  $key = 381;
+  $key = 385;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17269,7 +17276,7 @@ private function discarddouble_underscore() {
   return $r2;
 }
 private function parsebehavior_switch($silence) {
-  $key = 376;
+  $key = 380;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17378,7 +17385,7 @@ private function parsebehavior_switch($silence) {
   return $r2;
 }
 private function parseangle_bracket_markup($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([370, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([372, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17530,14 +17537,14 @@ private function parseangle_bracket_markup($silence, $boolParams, $param_tagType
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsewikilink($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([464, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([468, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17608,14 +17615,14 @@ private function parsewikilink($silence, $boolParams, $param_tagType, &$param_th
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsequote($silence) {
-  $key = 476;
+  $key = 480;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17674,7 +17681,7 @@ private function parsequote($silence) {
   return $r2;
 }
 private function parseinlineline_break_on_colon($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([582, $boolParams & 0xe7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([586, $boolParams & 0xe7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17693,14 +17700,14 @@ private function parseinlineline_break_on_colon($silence, $boolParams, $param_ta
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsenormalized_tag_name($silence) {
-  $key = 514;
+  $key = 518;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17752,7 +17759,7 @@ private function parsenormalized_tag_name($silence) {
   return $r2;
 }
 private function parsehash_part($silence) {
-  $key = 516;
+  $key = 520;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17815,7 +17822,7 @@ private function parsehash_part($silence) {
   return $r3;
 }
 private function parsenested_inlineline($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([354, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([356, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17856,14 +17863,14 @@ private function parsenested_inlineline($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetemplate_param_name($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([424, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([428, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17902,14 +17909,14 @@ private function parsetemplate_param_name($silence, $boolParams, $param_tagType,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetemplate_param_value($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([426, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([430, $boolParams & 0xf703, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17934,14 +17941,14 @@ private function parsetemplate_param_value($silence, $boolParams, $param_tagType
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsepreproc_heading_find_close($silence, $boolParams, &$param_preproc_sol, &$param_headingIndex, $param_preproc_stop) {
-  $key = json_encode([504, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
+  $key = json_encode([508, $boolParams & 0x8, $param_preproc_sol, $param_headingIndex, $param_preproc_stop]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -17988,14 +17995,14 @@ private function parsepreproc_heading_find_close($silence, $boolParams, &$param_
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardpreproc_piece_tplarg($boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([489, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([493, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18097,14 +18104,14 @@ private function discardpreproc_piece_tplarg($boolParams, &$param_preproc_sol, &
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardpreproc_piece_template($boolParams, &$param_preproc_sol, &$param_headingIndex) {
-  $key = json_encode([491, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
+  $key = json_encode([495, $boolParams & 0x808, $param_preproc_sol, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18180,14 +18187,14 @@ private function discardpreproc_piece_template($boolParams, &$param_preproc_sol,
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED,
+    $r2 !== $param_preproc_sol ? $param_preproc_sol : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function discardtag_trailing_context() {
-  $key = 519;
+  $key = 523;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18229,7 +18236,7 @@ private function discardtag_trailing_context() {
   return $r2;
 }
 private function discardpreproc_piece_angle_attribs() {
-  $key = 509;
+  $key = 513;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18360,7 +18367,7 @@ private function discardpreproc_piece_angle_attribs() {
   return $r2;
 }
 private function parseredirect_word($silence) {
-  $key = 346;
+  $key = 348;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18417,248 +18424,53 @@ private function parseredirect_word($silence) {
   );
   return $r3;
 }
-private function parseheading($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([374, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+private function parseheading($silence, $boolParams, $param_tagType, &$param_th, &$param_headingIndex) {
+  $key = json_encode([376, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
     $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
     if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
     if ($cached->headingIndex !== self::$UNDEFINED) { $param_headingIndex = $cached->headingIndex; }
     return $cached->result;
   }
   $p1 = $this->currPos;
-  $r2 = $param_preproc;
-  $r3 = $param_th;
-  $r4 = $param_headingIndex;
+  $r2 = $param_th;
+  $r3 = $param_headingIndex;
   // start seq_1
-  if (($this->input[$this->currPos] ?? null) === "=") {
-    $r6 = true;
-    $r6 = false;
+  $r5 = $this->input[$this->currPos] ?? '';
+  if ($r5 === "=") {
+    $r5 = false;
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
   } else {
-    $r6 = self::$FAILED;
     $r5 = self::$FAILED;
+    if (!$silence) { $this->fail(119); }
+    $r4 = self::$FAILED;
     goto seq_1;
   }
-  $p7 = $this->currPos;
-  // start seq_2
-  $p8 = $this->currPos;
-  $r9 = $param_preproc;
-  $r10 = $param_th;
-  $r11 = $param_headingIndex;
-  $p13 = $this->currPos;
-  $r12 = self::$FAILED;
-  for (;;) {
-    if (($this->input[$this->currPos] ?? null) === "=") {
-      $r14 = true;
-      $this->currPos++;
-      $r12 = true;
-    } else {
-      if (!$silence) { $this->fail(84); }
-      $r14 = self::$FAILED;
-      break;
-    }
-  }
-  // s <- $r12
-  if ($r12!==self::$FAILED) {
-    $r12 = substr($this->input, $p13, $this->currPos - $p13);
-  } else {
-    $r12 = self::$FAILED;
-    $r5 = self::$FAILED;
-    goto seq_2;
-  }
-  // free $r14
-  // free $p13
-  // start seq_3
-  $p13 = $this->currPos;
-  $r15 = $param_preproc;
-  $r16 = $param_th;
-  $r17 = $param_headingIndex;
-  $r19 = $this->parseinlineline($silence, $boolParams | 0x2, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-  if ($r19===self::$FAILED) {
-    $r19 = null;
-  }
-  // ill <- $r19
-  $r18 = $r19;
-  $this->savedPos = $p13;
-  $r18 = $this->a124($r12, $r19);
-  $p20 = $this->currPos;
-  $r21 = self::$FAILED;
-  for (;;) {
-    if (($this->input[$this->currPos] ?? null) === "=") {
-      $r22 = true;
-      $this->currPos++;
-      $r21 = true;
-    } else {
-      if (!$silence) { $this->fail(84); }
-      $r22 = self::$FAILED;
-      break;
-    }
-  }
-  if ($r21!==self::$FAILED) {
-    $r21 = substr($this->input, $p20, $this->currPos - $p20);
-  } else {
-    $r21 = self::$FAILED;
-    $this->currPos = $p13;
-    $param_preproc = $r15;
-    $param_th = $r16;
-    $param_headingIndex = $r17;
-    $r14 = self::$FAILED;
-    goto seq_3;
-  }
-  // free $r22
-  // free $p20
-  $r14 = [$r18,$r21];
-  seq_3:
-  if ($r14===self::$FAILED) {
-    $r14 = null;
-  }
-  // free $r18,$r21
-  // free $p13,$r15,$r16,$r17
-  // ce <- $r14
-  $this->savedPos = $this->currPos;
-  $r17 = $this->a125($r12, $r14);
-  if ($r17) {
-    $r17 = false;
-  } else {
-    $r17 = self::$FAILED;
-    $this->currPos = $p8;
-    $param_preproc = $r9;
-    $param_th = $r10;
-    $param_headingIndex = $r11;
-    $r5 = self::$FAILED;
-    goto seq_2;
-  }
-  $r16 = $this->parsePOSITION($silence);
-  // endTPos <- $r16
-  $r15 = [];
-  for (;;) {
-    // start choice_1
-    $r21 = $this->input[$this->currPos] ?? '';
-    if ($r21 === "\x09" || $r21 === " ") {
-      $this->currPos++;
-      goto choice_1;
-    } else {
-      $r21 = self::$FAILED;
-      if (!$silence) { $this->fail(5); }
-    }
-    // start seq_4
-    $p13 = $this->currPos;
-    $r18 = $param_preproc;
-    $r22 = $param_th;
-    $r23 = $param_headingIndex;
-    if (preg_match("/[<_\\x{ff3f}]/Au", $this->input, $r24, 0, $this->currPos)) {
-      $r24 = $r24[0];
-      $r24 = false;
-      $this->currPos = $p13;
-      $param_preproc = $r18;
-      $param_th = $r22;
-      $param_headingIndex = $r23;
-    } else {
-      $r24 = self::$FAILED;
-      if (!$silence) { $this->fail(62); }
-      $r21 = self::$FAILED;
-      goto seq_4;
-    }
-    $r21 = $this->parsesol_transparent($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
-    if ($r21===self::$FAILED) {
-      $this->currPos = $p13;
-      $param_preproc = $r18;
-      $param_th = $r22;
-      $param_headingIndex = $r23;
-      $r21 = self::$FAILED;
-      goto seq_4;
-    }
-    seq_4:
-    // free $p13,$r18,$r22,$r23
-    choice_1:
-    if ($r21!==self::$FAILED) {
-      $r15[] = $r21;
-    } else {
-      break;
-    }
-  }
-  // spc <- $r15
-  // free $r21
-  // free $r24
-  $p13 = $this->currPos;
-  $r21 = $param_preproc;
-  $r23 = $param_th;
-  $r22 = $param_headingIndex;
-  // start choice_2
-  // start choice_3
-  if (($this->input[$this->currPos] ?? null) === "\x0a") {
-    $r24 = true;
-    goto choice_3;
-  } else {
-    $r24 = self::$FAILED;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
-    $r24 = true;
-  } else {
-    $r24 = self::$FAILED;
-  }
-  choice_3:
-  if ($r24!==self::$FAILED) {
-    goto choice_2;
-  }
-  $this->savedPos = $this->currPos;
-  $r24 = $this->a126($r12, $r14, $r16, $r15);
-  if ($r24) {
-    $r24 = false;
-  } else {
-    $r24 = self::$FAILED;
-  }
-  choice_2:
-  if ($r24!==self::$FAILED) {
-    $r24 = false;
-    $this->currPos = $p13;
-    $param_preproc = $r21;
-    $param_th = $r23;
-    $param_headingIndex = $r22;
-  } else {
-    $this->currPos = $p8;
-    $param_preproc = $r9;
-    $param_th = $r10;
-    $param_headingIndex = $r11;
-    $r5 = self::$FAILED;
-    goto seq_2;
-  }
-  // free $p13,$r21,$r23,$r22
-  $r5 = true;
-  seq_2:
-  if ($r5!==self::$FAILED) {
-    $this->savedPos = $p7;
-    $r5 = $this->a127($r12, $r14, $r16, $r15, $param_headingIndex);
-  } else {
+  $r4 = $this->parseheading_preproc($silence, $boolParams, $param_tagType, self::newRef("=="), $param_th, $param_headingIndex);
+  if ($r4===self::$FAILED) {
     $this->currPos = $p1;
-    $param_preproc = $r2;
-    $param_th = $r3;
-    $param_headingIndex = $r4;
-    $r5 = self::$FAILED;
+    $param_th = $r2;
+    $param_headingIndex = $r3;
+    $r4 = self::$FAILED;
     goto seq_1;
   }
-  // free $r17,$r24
-  // free $p8,$r9,$r10,$r11
-  // free $p7
   seq_1:
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
-    $r5,
-    $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
+    $r4,
+    $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
     self::$UNDEFINED,
-    $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $r3 !== $param_th ? $param_th : self::$UNDEFINED
+    self::$UNDEFINED,
+    $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
-  return $r5;
+  return $r4;
 }
 private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([358, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([360, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -18677,7 +18489,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
     $r6 = true;
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(119); }
+    if (!$silence) { $this->fail(120); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -18711,7 +18523,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   $r13 = $param_headingIndex;
   // start seq_3
   $this->savedPos = $this->currPos;
-  $r15 = $this->a128($r7);
+  $r15 = $this->a124($r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -18738,17 +18550,17 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   choice_3:
   if ($r16!==self::$FAILED) {
     $this->savedPos = $p17;
-    $r16 = $this->a129($r7);
+    $r16 = $this->a125($r7);
     goto choice_2;
   }
   // free $p17
   $p17 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r16 = $this->a130($r7);
+  $r16 = $this->a126($r7);
   if ($r16) {
     $r16 = false;
     $this->savedPos = $p17;
-    $r16 = $this->a131($r7);
+    $r16 = $this->a127($r7);
   } else {
     $r16 = self::$FAILED;
   }
@@ -18838,7 +18650,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   seq_3:
   if ($r14!==self::$FAILED) {
     $this->savedPos = $p10;
-    $r14 = $this->a132($r7, $r16, $r18, $r21);
+    $r14 = $this->a128($r7, $r16, $r18, $r21);
     $r14 = false;
     $this->currPos = $p10;
     $param_preproc = $r11;
@@ -18853,7 +18665,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   seq_2:
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r9 = $this->a133($r7);
+    $r9 = $this->a129($r7);
     goto choice_1;
   }
   // free $r14
@@ -18862,7 +18674,7 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   $p8 = $this->currPos;
   $r9 = true;
   $this->savedPos = $p8;
-  $r9 = $this->a134($r7);
+  $r9 = $this->a130($r7);
   // free $p8
   choice_1:
   // lineContent <- $r9
@@ -18870,21 +18682,21 @@ private function parsehr($silence, $boolParams, $param_tagType, &$param_preproc,
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a135($r7, $r9);
+    $r5 = $this->a131($r7, $r9);
   }
   // free $r6
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_line($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([590, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([594, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19017,7 +18829,7 @@ private function parsetable_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r11;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(120); }
+    if (!$silence) { $this->fail(121); }
     $r10 = self::$FAILED;
     goto seq_4;
   }
@@ -19049,7 +18861,7 @@ private function parsetable_line($silence, $boolParams, $param_tagType, &$param_
     $param_headingIndex = $r9;
   } else {
     $r15 = self::$FAILED;
-    if (!$silence) { $this->fail(121); }
+    if (!$silence) { $this->fail(122); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -19078,21 +18890,21 @@ private function parsetable_line($silence, $boolParams, $param_tagType, &$param_
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a136($r6, $r10);
+    $r5 = $this->a132($r6, $r10);
   }
   // free $r12,$r13,$r14,$r15
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsexmlish_start($silence) {
-  $key = 550;
+  $key = 554;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19147,7 +18959,7 @@ private function parsexmlish_start($silence) {
   return $r2;
 }
 private function parselang_variant_preproc($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([438, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([442, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19167,7 +18979,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
     $r6 = true;
     $this->currPos += 2;
     $this->savedPos = $p1;
-    $r6 = $this->a137();
+    $r6 = $this->a133();
   } else {
     if (!$silence) { $this->fail(56); }
     $r6 = self::$FAILED;
@@ -19182,7 +18994,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   $r11 = $param_th;
   $r12 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r13 = $this->a138($r6);
+  $r13 = $this->a134($r6);
   if ($r13) {
     $r13 = false;
   } else {
@@ -19196,7 +19008,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   seq_2:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a139($r6, $r14);
+    $r7 = $this->a135($r6, $r14);
     goto choice_1;
   }
   // free $r13
@@ -19209,7 +19021,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   $r11 = $param_th;
   $r10 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r13 = $this->a140($r6);
+  $r13 = $this->a136($r6);
   if ($r13) {
     $r13 = false;
   } else {
@@ -19221,7 +19033,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   seq_3:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a141($r6);
+    $r7 = $this->a137($r6);
   }
   // free $r13
   // free $p9,$r12,$r11,$r10
@@ -19244,7 +19056,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   $r12 = $param_th;
   $r13 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r15 = $this->a142($r6, $r7);
+  $r15 = $this->a138($r6, $r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -19258,7 +19070,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   seq_4:
   if ($r10!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r10 = $this->a143($r6, $r7, $r16);
+    $r10 = $this->a139($r6, $r7, $r16);
     goto choice_2;
   }
   // free $r15
@@ -19270,7 +19082,7 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   $r12 = $param_th;
   $r11 = $param_headingIndex;
   $this->savedPos = $this->currPos;
-  $r15 = $this->a144($r6, $r7);
+  $r15 = $this->a140($r6, $r7);
   if ($r15) {
     $r15 = false;
   } else {
@@ -19330,21 +19142,21 @@ private function parselang_variant_preproc($silence, $boolParams, $param_tagType
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a145($r6, $r7, $r10, $r12);
+    $r5 = $this->a141($r6, $r7, $r10, $r12);
   }
   // free $r15,$r11,$r19
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsebroken_lang_variant($silence, &$param_preproc) {
-  $key = json_encode([434, $param_preproc]);
+  $key = json_encode([438, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19369,20 +19181,20 @@ private function parsebroken_lang_variant($silence, &$param_preproc) {
   seq_1:
   if ($r3!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r3 = $this->a146($r4, $param_preproc);
+    $r3 = $this->a142($r4, $param_preproc);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r3,
     self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r3;
 }
 private function discardhtml_or_empty($param_tagType) {
-  $key = json_encode([535, $param_tagType]);
+  $key = json_encode([539, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19393,7 +19205,7 @@ private function discardhtml_or_empty($param_tagType) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a147($param_tagType);
+  $r3 = $this->a143($param_tagType);
   if ($r3) {
     $r3 = false;
   } else {
@@ -19416,7 +19228,7 @@ private function discardhtml_or_empty($param_tagType) {
   return $r2;
 }
 private function discardwikilink($boolParams, $param_tagType, &$param_th, &$param_headingIndex, &$param_preproc) {
-  $key = json_encode([465, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
+  $key = json_encode([469, $boolParams & 0xf7f7, $param_tagType, $param_th, $param_headingIndex, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19485,14 +19297,14 @@ private function discardwikilink($boolParams, $param_tagType, &$param_th, &$para
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r4 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r2 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([368, $boolParams & 0xf757, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([370, $boolParams & 0xf757, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19534,14 +19346,14 @@ private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_t
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsewellformed_extension_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([540, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([544, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19586,7 +19398,7 @@ private function parsewellformed_extension_tag($silence, $boolParams, $param_tag
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a148($r6);
+  $r8 = $this->a144($r6);
   if ($r8) {
     $r8 = false;
   } else {
@@ -19602,21 +19414,21 @@ private function parsewellformed_extension_tag($silence, $boolParams, $param_tag
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a149($r6);
+    $r5 = $this->a145($r6);
   }
   // free $r7,$r8
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseautourl($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([398, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([402, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -19844,7 +19656,7 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
       goto seq_8;
     }
     $this->savedPos = $this->currPos;
-    $r33 = $this->a150($r13, $r15, $r29);
+    $r33 = $this->a146($r13, $r15, $r29);
     if ($r33) {
       $r33 = false;
     } else {
@@ -19976,7 +19788,7 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
   // r <- $r7
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a151($r13, $r15, $r19);
+    $r7 = $this->a147($r13, $r15, $r19);
   } else {
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -19989,7 +19801,7 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
   // free $p9,$r10,$r11,$r12
   // free $p8
   $this->savedPos = $this->currPos;
-  $r12 = $this->a152($r7);
+  $r12 = $this->a148($r7);
   if ($r12) {
     $r12 = false;
   } else {
@@ -20005,21 +19817,21 @@ private function parseautourl($silence, $boolParams, $param_tagType, &$param_pre
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a153($r7);
+    $r5 = $this->a149($r7);
   }
   // free $r6,$r12
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseautoref($silence) {
-  $key = 390;
+  $key = 394;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20037,7 +19849,7 @@ private function parseautoref($silence) {
     $this->currPos = $p1;
   } else {
     $r4 = self::$FAILED;
-    if (!$silence) { $this->fail(122); }
+    if (!$silence) { $this->fail(123); }
     $r3 = self::$FAILED;
     goto seq_2;
   }
@@ -20058,7 +19870,7 @@ private function parseautoref($silence) {
     $this->currPos = $p1;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(123); }
+    if (!$silence) { $this->fail(124); }
     $r3 = self::$FAILED;
     goto seq_3;
   }
@@ -20092,7 +19904,7 @@ private function parseautoref($silence) {
       goto choice_2;
     } else {
       $r7 = self::$FAILED;
-      if (!$silence) { $this->fail(124); }
+      if (!$silence) { $this->fail(125); }
     }
     $p8 = $this->currPos;
     // start seq_4
@@ -20133,7 +19945,7 @@ private function parseautoref($silence) {
     }
     // free $p12
     $this->savedPos = $this->currPos;
-    $r14 = $this->a154($r3, $r11);
+    $r14 = $this->a150($r3, $r11);
     if ($r14) {
       $r14 = false;
     } else {
@@ -20146,7 +19958,7 @@ private function parseautoref($silence) {
     seq_4:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a155($r3, $r11);
+      $r7 = $this->a151($r3, $r11);
     }
     // free $r10,$r13,$r14
     // free $p9
@@ -20185,7 +19997,7 @@ private function parseautoref($silence) {
   // free $p8
   // start choice_3
   $this->savedPos = $this->currPos;
-  $r14 = $this->a156($r3, $r6, $r7);
+  $r14 = $this->a152($r3, $r6, $r7);
   if ($r14) {
     $r14 = false;
     goto choice_3;
@@ -20214,7 +20026,7 @@ private function parseautoref($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a157($r3, $r6, $r7);
+    $r2 = $this->a153($r3, $r6, $r7);
   }
   // free $r4,$r5,$r14
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -20228,7 +20040,7 @@ private function parseautoref($silence) {
   return $r2;
 }
 private function parseisbn($silence) {
-  $key = 392;
+  $key = 396;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20239,7 +20051,7 @@ private function parseisbn($silence) {
   $p1 = $this->currPos;
   // start seq_1
   $this->savedPos = $this->currPos;
-  $r3 = $this->a158();
+  $r3 = $this->a154();
   if ($r3) {
     $r3 = false;
   } else {
@@ -20251,7 +20063,7 @@ private function parseisbn($silence) {
     $r4 = true;
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(125); }
+    if (!$silence) { $this->fail(126); }
     $r4 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -20274,7 +20086,7 @@ private function parseisbn($silence) {
       goto choice_1;
     } else {
       $r6 = self::$FAILED;
-      if (!$silence) { $this->fail(124); }
+      if (!$silence) { $this->fail(125); }
     }
     $p7 = $this->currPos;
     // start seq_2
@@ -20315,7 +20127,7 @@ private function parseisbn($silence) {
     }
     // free $p11
     $this->savedPos = $this->currPos;
-    $r13 = $this->a159($r10);
+    $r13 = $this->a155($r10);
     if ($r13) {
       $r13 = false;
     } else {
@@ -20328,7 +20140,7 @@ private function parseisbn($silence) {
     seq_2:
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a160($r10);
+      $r6 = $this->a156($r10);
     }
     // free $r9,$r12,$r13
     // free $p8
@@ -20382,7 +20194,7 @@ private function parseisbn($silence) {
       goto choice_4;
     } else {
       $r14 = self::$FAILED;
-      if (!$silence) { $this->fail(124); }
+      if (!$silence) { $this->fail(125); }
     }
     // start seq_6
     if (($this->input[$this->currPos] ?? null) === "&") {
@@ -20421,7 +20233,7 @@ private function parseisbn($silence) {
     }
     // free $p11
     $this->savedPos = $this->currPos;
-    $r18 = $this->a161($r5, $r16);
+    $r18 = $this->a157($r5, $r16);
     if ($r18) {
       $r18 = false;
     } else {
@@ -20434,7 +20246,7 @@ private function parseisbn($silence) {
     seq_6:
     if ($r14!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r14 = $this->a162($r5, $r16);
+      $r14 = $this->a158($r5, $r16);
     }
     // free $r15,$r17,$r18
     choice_4:
@@ -20503,7 +20315,7 @@ private function parseisbn($silence) {
     goto choice_8;
   } else {
     $r18 = self::$FAILED;
-    if (!$silence) { $this->fail(124); }
+    if (!$silence) { $this->fail(125); }
   }
   // start seq_9
   if (($this->input[$this->currPos] ?? null) === "&") {
@@ -20542,7 +20354,7 @@ private function parseisbn($silence) {
   }
   // free $p11
   $this->savedPos = $this->currPos;
-  $r19 = $this->a161($r5, $r17);
+  $r19 = $this->a157($r5, $r17);
   if ($r19) {
     $r19 = false;
   } else {
@@ -20555,7 +20367,7 @@ private function parseisbn($silence) {
   seq_9:
   if ($r18!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r18 = $this->a162($r5, $r17);
+    $r18 = $this->a158($r5, $r17);
   }
   // free $r14,$r15,$r19
   choice_8:
@@ -20580,7 +20392,7 @@ private function parseisbn($silence) {
     $this->currPos++;
   } else {
     $r19 = self::$FAILED;
-    if (!$silence) { $this->fail(126); }
+    if (!$silence) { $this->fail(127); }
     $this->currPos = $p8;
     $r9 = self::$FAILED;
     goto seq_8;
@@ -20607,7 +20419,7 @@ private function parseisbn($silence) {
   $p7 = $this->currPos;
   // start choice_9
   $this->savedPos = $this->currPos;
-  $r9 = $this->a163($r5, $r6);
+  $r9 = $this->a159($r5, $r6);
   if ($r9) {
     $r9 = false;
     goto choice_9;
@@ -20630,7 +20442,7 @@ private function parseisbn($silence) {
   // isbncode <- $r9
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r9 = $this->a164($r5, $r6);
+    $r9 = $this->a160($r5, $r6);
   } else {
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -20638,7 +20450,7 @@ private function parseisbn($silence) {
   }
   // free $p7
   $this->savedPos = $this->currPos;
-  $r12 = $this->a165($r5, $r6, $r9);
+  $r12 = $this->a161($r5, $r6, $r9);
   if ($r12) {
     $r12 = false;
   } else {
@@ -20651,7 +20463,7 @@ private function parseisbn($silence) {
   seq_1:
   if ($r2!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r2 = $this->a166($r5, $r6, $r9);
+    $r2 = $this->a162($r5, $r6, $r9);
   }
   // free $r3,$r4,$r12
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -20665,7 +20477,7 @@ private function parseisbn($silence) {
   return $r2;
 }
 private function discardbehavior_text() {
-  $key = 379;
+  $key = 383;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20734,7 +20546,7 @@ private function discardbehavior_text() {
   return $r2;
 }
 private function parsemaybe_extension_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([538, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([542, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20824,21 +20636,21 @@ private function parsemaybe_extension_tag($silence, $boolParams, $param_tagType,
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a167($r8);
+    $r5 = $this->a163($r8);
   }
   // free $r6,$r7,$r13
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([468, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([472, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20863,7 +20675,7 @@ private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$
     $param_headingIndex = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(127); }
+    if (!$silence) { $this->fail(128); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -20920,14 +20732,14 @@ private function parsewikilink_preproc($silence, $boolParams, $param_tagType, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, $param_tagType, &$param_th, &$param_headingIndex) {
-  $key = json_encode([466, $boolParams & 0xf7f7, $param_preproc, $param_tagType, $param_th, $param_headingIndex]);
+  $key = json_encode([470, $boolParams & 0xf7f7, $param_preproc, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -20955,7 +20767,7 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, $p
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a168($param_preproc);
+  $r7 = $this->a164($param_preproc);
   if ($r7) {
     $r7 = false;
   } else {
@@ -21047,21 +20859,21 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, $p
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a169($param_preproc, $r8);
+    $r5 = $this->a165($param_preproc, $r8);
   }
   // free $r6,$r7
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetemplate_param_text($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([428, $boolParams & 0xf713, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([432, $boolParams & 0xf713, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21120,20 +20932,260 @@ private function parsetemplate_param_text($silence, $boolParams, $param_tagType,
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a170($r6);
+    $r5 = $this->a166($r6);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
+    $r3 !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r5;
+}
+private function parseheading_preproc($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
+  $key = json_encode([378, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->headingIndex !== self::$UNDEFINED) { $param_headingIndex = $cached->headingIndex; }
+    return $cached->result;
+  }
+  $p1 = $this->currPos;
+  $r2 = $param_preproc;
+  $r3 = $param_th;
+  $r4 = $param_headingIndex;
+  // start seq_1
+  if (($this->input[$this->currPos] ?? null) === "=") {
+    $r6 = true;
+    $r6 = false;
+    $this->currPos = $p1;
+    $param_preproc = $r2;
+    $param_th = $r3;
+    $param_headingIndex = $r4;
+  } else {
+    $r6 = self::$FAILED;
+    $r5 = self::$FAILED;
+    goto seq_1;
+  }
+  $p7 = $this->currPos;
+  // start seq_2
+  $p8 = $this->currPos;
+  $r9 = $param_preproc;
+  $r10 = $param_th;
+  $r11 = $param_headingIndex;
+  $p13 = $this->currPos;
+  $r12 = self::$FAILED;
+  for (;;) {
+    if (($this->input[$this->currPos] ?? null) === "=") {
+      $r14 = true;
+      $this->currPos++;
+      $r12 = true;
+    } else {
+      if (!$silence) { $this->fail(84); }
+      $r14 = self::$FAILED;
+      break;
+    }
+  }
+  // s <- $r12
+  if ($r12!==self::$FAILED) {
+    $r12 = substr($this->input, $p13, $this->currPos - $p13);
+  } else {
+    $r12 = self::$FAILED;
+    $r5 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $r14
+  // free $p13
+  // start seq_3
+  $p13 = $this->currPos;
+  $r15 = $param_preproc;
+  $r16 = $param_th;
+  $r17 = $param_headingIndex;
+  $r19 = $this->parseinlineline($silence, $boolParams | 0x2, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+  if ($r19===self::$FAILED) {
+    $r19 = null;
+  }
+  // ill <- $r19
+  $r18 = $r19;
+  $this->savedPos = $p13;
+  $r18 = $this->a167($r12, $r19);
+  $p20 = $this->currPos;
+  $r21 = self::$FAILED;
+  for (;;) {
+    if (($this->input[$this->currPos] ?? null) === "=") {
+      $r22 = true;
+      $this->currPos++;
+      $r21 = true;
+    } else {
+      if (!$silence) { $this->fail(84); }
+      $r22 = self::$FAILED;
+      break;
+    }
+  }
+  if ($r21!==self::$FAILED) {
+    $r21 = substr($this->input, $p20, $this->currPos - $p20);
+  } else {
+    $r21 = self::$FAILED;
+    $this->currPos = $p13;
+    $param_preproc = $r15;
+    $param_th = $r16;
+    $param_headingIndex = $r17;
+    $r14 = self::$FAILED;
+    goto seq_3;
+  }
+  // free $r22
+  // free $p20
+  $r14 = [$r18,$r21];
+  seq_3:
+  if ($r14===self::$FAILED) {
+    $r14 = null;
+  }
+  // free $r18,$r21
+  // free $p13,$r15,$r16,$r17
+  // ce <- $r14
+  $this->savedPos = $this->currPos;
+  $r17 = $this->a168($r12, $r14);
+  if ($r17) {
+    $r17 = false;
+  } else {
+    $r17 = self::$FAILED;
+    $this->currPos = $p8;
+    $param_preproc = $r9;
+    $param_th = $r10;
+    $param_headingIndex = $r11;
+    $r5 = self::$FAILED;
+    goto seq_2;
+  }
+  $r16 = $this->parsePOSITION($silence);
+  // endTPos <- $r16
+  $r15 = [];
+  for (;;) {
+    // start choice_1
+    $r21 = $this->input[$this->currPos] ?? '';
+    if ($r21 === "\x09" || $r21 === " ") {
+      $this->currPos++;
+      goto choice_1;
+    } else {
+      $r21 = self::$FAILED;
+      if (!$silence) { $this->fail(5); }
+    }
+    // start seq_4
+    $p13 = $this->currPos;
+    $r18 = $param_preproc;
+    $r22 = $param_th;
+    $r23 = $param_headingIndex;
+    if (preg_match("/[<_\\x{ff3f}]/Au", $this->input, $r24, 0, $this->currPos)) {
+      $r24 = $r24[0];
+      $r24 = false;
+      $this->currPos = $p13;
+      $param_preproc = $r18;
+      $param_th = $r22;
+      $param_headingIndex = $r23;
+    } else {
+      $r24 = self::$FAILED;
+      if (!$silence) { $this->fail(62); }
+      $r21 = self::$FAILED;
+      goto seq_4;
+    }
+    $r21 = $this->parsesol_transparent($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    if ($r21===self::$FAILED) {
+      $this->currPos = $p13;
+      $param_preproc = $r18;
+      $param_th = $r22;
+      $param_headingIndex = $r23;
+      $r21 = self::$FAILED;
+      goto seq_4;
+    }
+    seq_4:
+    // free $p13,$r18,$r22,$r23
+    choice_1:
+    if ($r21!==self::$FAILED) {
+      $r15[] = $r21;
+    } else {
+      break;
+    }
+  }
+  // spc <- $r15
+  // free $r21
+  // free $r24
+  $p13 = $this->currPos;
+  $r21 = $param_preproc;
+  $r23 = $param_th;
+  $r22 = $param_headingIndex;
+  // start choice_2
+  // start choice_3
+  if (($this->input[$this->currPos] ?? null) === "\x0a") {
+    $r24 = true;
+    goto choice_3;
+  } else {
+    $r24 = self::$FAILED;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
+    $r24 = true;
+  } else {
+    $r24 = self::$FAILED;
+  }
+  choice_3:
+  if ($r24!==self::$FAILED) {
+    goto choice_2;
+  }
+  $this->savedPos = $this->currPos;
+  $r24 = $this->a169($r12, $r14, $r16, $r15);
+  if ($r24) {
+    $r24 = false;
+  } else {
+    $r24 = self::$FAILED;
+  }
+  choice_2:
+  if ($r24!==self::$FAILED) {
+    $r24 = false;
+    $this->currPos = $p13;
+    $param_preproc = $r21;
+    $param_th = $r23;
+    $param_headingIndex = $r22;
+  } else {
+    $this->currPos = $p8;
+    $param_preproc = $r9;
+    $param_th = $r10;
+    $param_headingIndex = $r11;
+    $r5 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $p13,$r21,$r23,$r22
+  $r5 = true;
+  seq_2:
+  if ($r5!==self::$FAILED) {
+    $this->savedPos = $p7;
+    $r5 = $this->a170($r12, $r14, $r16, $r15, $param_headingIndex, $param_preproc);
+  } else {
+    $this->currPos = $p1;
+    $param_preproc = $r2;
+    $param_th = $r3;
+    $param_headingIndex = $r4;
+    $r5 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $r17,$r24
+  // free $p8,$r9,$r10,$r11
+  // free $p7
+  seq_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r5,
+    $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
+    $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_content_line($silence, $boolParams, $param_tagType, &$param_preproc, &$param_headingIndex, &$param_th) {
-  $key = json_encode([592, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_headingIndex, $param_th]);
+  $key = json_encode([596, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_headingIndex, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21158,7 +21210,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_th = $r4;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(128); }
+    if (!$silence) { $this->fail(129); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -21185,7 +21237,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_th = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(129); }
+    if (!$silence) { $this->fail(130); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -21212,7 +21264,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_th = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(130); }
+    if (!$silence) { $this->fail(131); }
     $r5 = self::$FAILED;
     goto seq_3;
   }
@@ -21239,7 +21291,7 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $param_th = $r4;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) { $this->fail(131); }
+    if (!$silence) { $this->fail(132); }
     $r5 = self::$FAILED;
     goto seq_4;
   }
@@ -21258,14 +21310,14 @@ private function parsetable_content_line($silence, $boolParams, $param_tagType, 
     $this->currPos,
     $r5,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r4 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_end_tag($silence) {
-  $key = 616;
+  $key = 620;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21325,7 +21377,7 @@ private function parsetable_end_tag($silence) {
   return $r2;
 }
 private function parseopt_lang_variant_flags($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([440, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([444, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21367,14 +21419,14 @@ private function parseopt_lang_variant_flags($silence, $boolParams, $param_tagTy
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_text($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([456, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([460, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21442,14 +21494,14 @@ private function parselang_variant_text($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_option_list($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([448, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([452, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21560,14 +21612,14 @@ private function parselang_variant_option_list($silence, $boolParams, $param_tag
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardwikilink_preproc($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([469, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([473, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21646,14 +21698,14 @@ private function discardwikilink_preproc($boolParams, $param_tagType, &$param_pr
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardbroken_wikilink($boolParams, &$param_preproc, $param_tagType, &$param_th, &$param_headingIndex) {
-  $key = json_encode([467, $boolParams & 0xf7f7, $param_preproc, $param_tagType, $param_th, $param_headingIndex]);
+  $key = json_encode([471, $boolParams & 0xf7f7, $param_preproc, $param_tagType, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21681,7 +21733,7 @@ private function discardbroken_wikilink($boolParams, &$param_preproc, $param_tag
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a168($param_preproc);
+  $r7 = $this->a164($param_preproc);
   if ($r7) {
     $r7 = false;
   } else {
@@ -21770,21 +21822,21 @@ private function discardbroken_wikilink($boolParams, &$param_preproc, $param_tag
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a169($param_preproc, $r8);
+    $r5 = $this->a165($param_preproc, $r8);
   }
   // free $r6,$r7
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseRFC($silence) {
-  $key = 386;
+  $key = 390;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21807,7 +21859,7 @@ private function parseRFC($silence) {
     $r2 = "RFC";
     $this->currPos += 3;
   } else {
-    if (!$silence) { $this->fail(132); }
+    if (!$silence) { $this->fail(133); }
     $r2 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -21825,7 +21877,7 @@ private function parseRFC($silence) {
   return $r2;
 }
 private function parsePMID($silence) {
-  $key = 388;
+  $key = 392;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21848,7 +21900,7 @@ private function parsePMID($silence) {
     $r2 = "PMID";
     $this->currPos += 4;
   } else {
-    if (!$silence) { $this->fail(133); }
+    if (!$silence) { $this->fail(134); }
     $r2 = self::$FAILED;
     $this->currPos = $p1;
     $r2 = self::$FAILED;
@@ -21866,7 +21918,7 @@ private function parsePMID($silence) {
   return $r2;
 }
 private function discardextension_check($param_tagType) {
-  $key = json_encode([537, $param_tagType]);
+  $key = json_encode([541, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21930,7 +21982,7 @@ private function discardextension_check($param_tagType) {
   return $r2;
 }
 private function parsewikilink_preproc_internal($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([470, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([474, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -21998,14 +22050,14 @@ private function parsewikilink_preproc_internal($silence, $boolParams, $param_ta
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsenested_block($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([350, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([352, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22046,14 +22098,14 @@ private function parsenested_block($silence, $boolParams, $param_tagType, &$para
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_heading_tags($silence, $boolParams, $param_tagType, &$param_preproc, &$param_headingIndex) {
-  $key = json_encode([602, $boolParams & 0x77f7, $param_tagType, $param_preproc, $param_headingIndex]);
+  $key = json_encode([606, $boolParams & 0x77f7, $param_tagType, $param_preproc, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22074,7 +22126,7 @@ private function parsetable_heading_tags($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r3;
   } else {
     $r5 = self::$FAILED;
-    if (!$silence) { $this->fail(134); }
+    if (!$silence) { $this->fail(135); }
     $r4 = self::$FAILED;
     goto seq_1;
   }
@@ -22091,14 +22143,14 @@ private function parsetable_heading_tags($silence, $boolParams, $param_tagType, 
     $this->currPos,
     $r4,
     $r3 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r4;
 }
 private function parsetable_data_tags($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([610, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([614, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22186,14 +22238,14 @@ private function parsetable_data_tags($silence, $boolParams, $param_tagType, &$p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_caption_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([598, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([602, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22245,7 +22297,7 @@ private function parsetable_caption_tag($silence, $boolParams, $param_tagType, &
     $r8 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(135); }
+    if (!$silence) { $this->fail(136); }
     $r8 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -22283,14 +22335,14 @@ private function parsetable_caption_tag($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_flags($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([442, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([446, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22326,7 +22378,7 @@ private function parselang_variant_flags($silence, $boolParams, $param_tagType, 
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(136); }
+    if (!$silence) { $this->fail(137); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -22404,14 +22456,14 @@ private function parselang_variant_flags($silence, $boolParams, $param_tagType, 
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_option($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([452, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([456, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22447,7 +22499,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(138); }
     $r8 = self::$FAILED;
     goto seq_2;
   }
@@ -22511,7 +22563,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r16;
   } else {
     $r17 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(139); }
     $r13 = self::$FAILED;
     goto seq_3;
   }
@@ -22562,7 +22614,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r15;
   } else {
     $r14 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(139); }
     $r10 = self::$FAILED;
     goto seq_5;
   }
@@ -22587,7 +22639,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $r15 = true;
     $this->currPos += 2;
   } else {
-    if (!$silence) { $this->fail(139); }
+    if (!$silence) { $this->fail(140); }
     $r15 = self::$FAILED;
     $this->currPos = $p1;
     $param_preproc = $r2;
@@ -22616,7 +22668,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r20;
   } else {
     $r21 = self::$FAILED;
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(138); }
     $r12 = self::$FAILED;
     goto seq_6;
   }
@@ -22680,7 +22732,7 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r25;
   } else {
     $r26 = self::$FAILED;
-    if (!$silence) { $this->fail(138); }
+    if (!$silence) { $this->fail(139); }
     $r22 = self::$FAILED;
     goto seq_7;
   }
@@ -22713,14 +22765,14 @@ private function parselang_variant_option($silence, $boolParams, $param_tagType,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardbogus_lang_variant_option($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([451, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([455, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22742,14 +22794,14 @@ private function discardbogus_lang_variant_option($boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardwikilink_preproc_internal($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([471, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([475, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22815,14 +22867,14 @@ private function discardwikilink_preproc_internal($boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardinlineline($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([367, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([369, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22940,14 +22992,14 @@ private function discardinlineline($boolParams, $param_tagType, &$param_preproc,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsewikilink_preprocessor_text($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([636, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([640, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -22972,7 +23024,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       $r8 = substr($this->input, $p9, $this->currPos - $p9);
     } else {
       $r8 = self::$FAILED;
-      if (!$silence) { $this->fail(140); }
+      if (!$silence) { $this->fail(141); }
       $r8 = self::$FAILED;
     }
     // free $p9
@@ -23062,7 +23114,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r21 = self::$FAILED;
-      if (!$silence) { $this->fail(141); }
+      if (!$silence) { $this->fail(142); }
       $this->currPos = $p19;
       $param_preproc = $r18;
       $param_th = $r17;
@@ -23112,14 +23164,14 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsewikilink_content($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([462, $boolParams & 0xf3e7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([466, $boolParams & 0xf3e7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23187,14 +23239,14 @@ private function parsewikilink_content($silence, $boolParams, $param_tagType, &$
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_heading_tags_parameterized($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([604, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([608, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23213,7 +23265,7 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, $p
     $r6 = true;
     $this->currPos++;
   } else {
-    if (!$silence) { $this->fail(142); }
+    if (!$silence) { $this->fail(143); }
     $r6 = self::$FAILED;
     $r5 = self::$FAILED;
     goto seq_1;
@@ -23233,14 +23285,14 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, $p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_data_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([612, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([616, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23282,14 +23334,14 @@ private function parsetable_data_tag($silence, $boolParams, $param_tagType, &$pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([614, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([618, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23390,14 +23442,14 @@ private function parsetds($silence, $boolParams, $param_tagType, &$param_preproc
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsenested_block_in_table($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([352, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([354, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23797,14 +23849,14 @@ private function parsenested_block_in_table($silence, $boolParams, $param_tagTyp
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_flag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([444, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([448, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -23825,7 +23877,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r6 = self::$FAILED;
-    if (!$silence) { $this->fail(143); }
+    if (!$silence) { $this->fail(144); }
   }
   $r5 = $r6;
   if ($r5!==self::$FAILED) {
@@ -23843,7 +23895,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(137); }
+    if (!$silence) { $this->fail(138); }
     $r7 = self::$FAILED;
     goto seq_1;
   }
@@ -23937,7 +23989,7 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
       self::advanceChar($this->input, $this->currPos);
     } else {
       $r20 = self::$FAILED;
-      if (!$silence) { $this->fail(144); }
+      if (!$silence) { $this->fail(145); }
       $this->currPos = $p11;
       $param_preproc = $r12;
       $param_th = $r13;
@@ -23973,14 +24025,14 @@ private function parselang_variant_flag($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_name($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([446, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([450, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24002,7 +24054,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $this->currPos++;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(145); }
+    if (!$silence) { $this->fail(146); }
     $r5 = self::$FAILED;
     goto seq_1;
   }
@@ -24012,7 +24064,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $r8 = true;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(146); }
+    if (!$silence) { $this->fail(147); }
     $this->currPos = $p1;
     $param_preproc = $r2;
     $param_th = $r3;
@@ -24040,7 +24092,7 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $param_headingIndex = $r4;
   } else {
     $r8 = self::$FAILED;
-    if (!$silence) { $this->fail(147); }
+    if (!$silence) { $this->fail(148); }
     $r5 = self::$FAILED;
     goto seq_2;
   }
@@ -24059,14 +24111,14 @@ private function parselang_variant_name($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_nowiki($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([454, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([458, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24091,7 +24143,7 @@ private function parselang_variant_nowiki($silence, $boolParams, $param_tagType,
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(147); }
+    if (!$silence) { $this->fail(148); }
     $r6 = self::$FAILED;
     goto seq_2;
   }
@@ -24127,14 +24179,14 @@ private function parselang_variant_nowiki($silence, $boolParams, $param_tagType,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_text_no_semi($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([458, $boolParams & 0xf6f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([462, $boolParams & 0xf6f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24153,14 +24205,14 @@ private function parselang_variant_text_no_semi($silence, $boolParams, $param_ta
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([460, $boolParams & 0xf4f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([464, $boolParams & 0xf4f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24179,14 +24231,14 @@ private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, 
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardlang_variant_text($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([457, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([461, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24251,14 +24303,14 @@ private function discardlang_variant_text($boolParams, $param_tagType, &$param_p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselink_text($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([472, $boolParams & 0xf3e7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([476, $boolParams & 0xf3e7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24277,14 +24329,14 @@ private function parselink_text($silence, $boolParams, $param_tagType, &$param_p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsetable_heading_tag($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([606, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([610, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24326,14 +24378,14 @@ private function parsetable_heading_tag($silence, $boolParams, $param_tagType, &
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseths($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([608, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([612, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24361,7 +24413,7 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
       $this->currPos += 2;
       goto choice_1;
     } else {
-      if (!$silence) { $this->fail(148); }
+      if (!$silence) { $this->fail(149); }
       $r12 = self::$FAILED;
     }
     $p13 = $this->currPos;
@@ -24446,14 +24498,14 @@ private function parseths($silence, $boolParams, $param_tagType, &$param_preproc
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardnowiki($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([545, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([549, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24543,14 +24595,14 @@ private function discardnowiki($boolParams, $param_tagType, &$param_preproc, &$p
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([546, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([550, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24574,7 +24626,7 @@ private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param
     $param_headingIndex = $r4;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) { $this->fail(149); }
+    if (!$silence) { $this->fail(150); }
     $r6 = self::$FAILED;
     goto seq_1;
   }
@@ -24599,14 +24651,14 @@ private function parsenowiki_text($silence, $boolParams, $param_tagType, &$param
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parselink_text_parameterized($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([474, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([478, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -24789,7 +24841,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $r21 = self::$FAILED;
       goto seq_6;
     }
-    $r21 = $this->parseheading($silence, $boolParams, $param_tagType, $param_preproc, $param_th, $param_headingIndex);
+    $r21 = $this->parseheading($silence, $boolParams, $param_tagType, $param_th, $param_headingIndex);
     if ($r21===self::$FAILED) {
       $this->currPos = $p16;
       $param_preproc = $r14;
@@ -24849,7 +24901,7 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
       $param_headingIndex = $r19;
     } else {
       $r18 = self::$FAILED;
-      if (!$silence) { $this->fail(150); }
+      if (!$silence) { $this->fail(151); }
       $r21 = self::$FAILED;
       goto seq_8;
     }
@@ -25084,14 +25136,14 @@ private function parselink_text_parameterized($silence, $boolParams, $param_tagT
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function discardnowiki_check($param_tagType) {
-  $key = json_encode([543, $param_tagType]);
+  $key = json_encode([547, $param_tagType]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25155,7 +25207,7 @@ private function discardnowiki_check($param_tagType) {
   return $r2;
 }
 private function discardwellformed_extension_tag($boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([541, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([545, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25199,7 +25251,7 @@ private function discardwellformed_extension_tag($boolParams, $param_tagType, &$
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a148($r6);
+  $r8 = $this->a144($r6);
   if ($r8) {
     $r8 = false;
   } else {
@@ -25215,21 +25267,21 @@ private function discardwellformed_extension_tag($boolParams, $param_tagType, &$
   seq_1:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r5 = $this->a149($r6);
+    $r5 = $this->a145($r6);
   }
   // free $r7,$r8
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsenowiki($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([544, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([548, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25320,14 +25372,14 @@ private function parsenowiki($silence, $boolParams, $param_tagType, &$param_prep
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parsefull_table_in_link_caption($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([584, $boolParams & 0xd7f6, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([588, $boolParams & 0xd7f6, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25368,7 +25420,7 @@ private function parsefull_table_in_link_caption($silence, $boolParams, $param_t
     $param_headingIndex = $r11;
   } else {
     $r12 = self::$FAILED;
-    if (!$silence) { $this->fail(151); }
+    if (!$silence) { $this->fail(152); }
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -25403,14 +25455,14 @@ private function parsefull_table_in_link_caption($silence, $boolParams, $param_t
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseembedded_full_table($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([588, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([592, $boolParams & 0xf7f7, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25557,7 +25609,7 @@ private function parseembedded_full_table($silence, $boolParams, $param_tagType,
         $param_headingIndex = $r26;
       } else {
         $r27 = self::$FAILED;
-        if (!$silence) { $this->fail(120); }
+        if (!$silence) { $this->fail(121); }
         $r22 = self::$FAILED;
         goto seq_6;
       }
@@ -25631,7 +25683,7 @@ private function parseembedded_full_table($silence, $boolParams, $param_tagType,
       $param_headingIndex = $r27;
     } else {
       $r22 = self::$FAILED;
-      if (!$silence) { $this->fail(121); }
+      if (!$silence) { $this->fail(122); }
       $r20 = self::$FAILED;
       goto seq_7;
     }
@@ -25683,14 +25735,14 @@ private function parseembedded_full_table($silence, $boolParams, $param_tagType,
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;
 }
 private function parseembedded_full_table_line_prefix($silence, $boolParams, $param_tagType, &$param_preproc, &$param_th, &$param_headingIndex) {
-  $key = json_encode([586, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
+  $key = json_encode([590, $boolParams & 0xf757, $param_tagType, $param_preproc, $param_th, $param_headingIndex]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -25900,8 +25952,8 @@ private function parseembedded_full_table_line_prefix($silence, $boolParams, $pa
     $this->currPos,
     $r5,
     $r4 !== $param_headingIndex ? $param_headingIndex : self::$UNDEFINED,
-    self::$UNDEFINED,
     $r2 !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED,
     $r3 !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r5;

@@ -520,6 +520,9 @@ inline_element =
 /* Headings  */
 
 heading =
+	heading_preproc<&preproc="==">
+
+heading_preproc =
 	& "=" // guard, to make sure '='+ will match.
 	// XXX: Also check to end to avoid inline parsing?
 	@(
@@ -533,6 +536,7 @@ heading =
 		spc:( space / sol_transparent )*
 		&eolf
 		headingIndex:<&headingIndex>
+		preproc:<&preproc>
 		{
 			$c = null;
 			$e = null;
@@ -587,11 +591,17 @@ heading =
 				substr( $this->input, $endTPos, $this->endOffset() - $endTPos )
 			);
 
-			// If either of these are true, the legacy preprocessor won't tokenize
+			$hasOpenPreproc = ( $preproc !== '==' );
+
+			// If any of these are true, the legacy preprocessor won't tokenize
 			// a heading and therefore won't assign them a heading index.  They
 			// will however parse as headings in the legacy parser's second pass,
 			// once sol transparent tokens have been stripped.
-			if ( !$this->hasSOLTransparentAtStart && !$hasSOLTransparentAtEnd ) {
+			if (
+				!$this->hasSOLTransparentAtStart &&
+				!$hasSOLTransparentAtEnd &&
+				!$hasOpenPreproc
+			) {
 				$headingIndex++;
 				$tagDP->getTemp()->headingIndex = $headingIndex;
 			}

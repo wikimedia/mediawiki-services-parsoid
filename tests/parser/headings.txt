@@ -2996,3 +2996,151 @@ parsoid={
 Sections:
  h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor: line:
 !! end
+
+!! test
+Unclosed wiklink in heading
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+== test [[ 123 ==
+test
+
+== asdf ==
+asdf
+!! html/php
+<div class="mw-heading mw-heading2"><h2 id="test_.5B.5B_123">test [[ 123</h2></div>
+<p>test
+</p>
+<div class="mw-heading mw-heading2"><h2 id="asdf">asdf</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: asdf">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<p>asdf
+</p>
+!! metadata/php
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_.5B.5B_123 line:test [[ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h2 id="test_[[_123"><span id="test_.5B.5B_123" typeof="mw:FallbackId"></span>test [[ 123</h2>
+<p>test</p>
+
+</section><section data-mw-section-id="1"><h2 id="asdf">asdf</h2>
+<p>asdf</p></section>
+!! metadata/parsoid
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_[[_123 line:test [[ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! end
+
+!! test
+Unclosed template in heading
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+== test {{ 123 ==
+test
+
+== asdf ==
+asdf
+!! html/php
+<div class="mw-heading mw-heading2"><h2 id="test_.7B.7B_123">test {{ 123</h2></div>
+<p>test
+</p>
+<div class="mw-heading mw-heading2"><h2 id="asdf">asdf</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: asdf">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<p>asdf
+</p>
+!! metadata/php
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_.7B.7B_123 line:test {{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h2 id="test_{{_123"><span id="test_.7B.7B_123" typeof="mw:FallbackId"></span>test {{ 123</h2>
+<p>test</p>
+
+</section><section data-mw-section-id="1"><h2 id="asdf">asdf</h2>
+<p>asdf</p></section>
+!! metadata/parsoid
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_{{_123 line:test {{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! end
+
+!! test 
+Unclosed templatearg in heading
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+== test {{{ 123 ==
+test
+
+== asdf ==
+asdf
+!! html/php
+<div class="mw-heading mw-heading2"><h2 id="test_.7B.7B.7B_123">test {{{ 123</h2></div>
+<p>test
+</p>
+<div class="mw-heading mw-heading2"><h2 id="asdf">asdf</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: asdf">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<p>asdf
+</p>
+!! metadata/php
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_.7B.7B.7B_123 line:test {{{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:25 anchor/linkAnchor:asdf line:asdf
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h2 id="test_{{{_123"><span id="test_.7B.7B.7B_123" typeof="mw:FallbackId"></span>test {{{ 123</h2>
+<p>test</p>
+
+</section><section data-mw-section-id="1"><h2 id="asdf">asdf</h2>
+<p>asdf</p></section>
+!! metadata/parsoid
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_{{{_123 line:test {{{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:25 anchor/linkAnchor:asdf line:asdf
+!! end
+
+!! test
+Unclosed langconv in heading
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+== test -{ 123 ==
+test
+
+== asdf ==
+asdf
+!! html/php
+<div class="mw-heading mw-heading2"><h2 id="test_-.7B_123">test -{ 123</h2></div>
+<p>test
+</p>
+<div class="mw-heading mw-heading2"><h2 id="asdf">asdf</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: asdf">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<p>asdf
+</p>
+!! metadata/php
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_-.7B_123 line:test -{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h2 id="test_-{_123"><span id="test_-.7B_123" typeof="mw:FallbackId"></span>test -{ 123</h2>
+<p>test</p>
+
+</section><section data-mw-section-id="1"><h2 id="asdf">asdf</h2>
+<p>asdf</p></section>
+!! metadata/parsoid
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:test_-{_123 line:test -{ 123
+ h2 index:1 toclevel:1 number:2 title:Parser_test off:24 anchor/linkAnchor:asdf line:asdf
+!! end
