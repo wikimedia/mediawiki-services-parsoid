@@ -54,7 +54,7 @@ function status200( res ) {
 
 // Return a matcher function that checks whether a content type matches the given parameters.
 function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
-	const pattern = /^([-\w]+\/[-\w]+);(?: charset=utf-8;)? profile="https:\/\/www.mediawiki.org\/wiki\/Specs\/([-\w]+)\/(\d+\.\d+\.\d+)"$/;
+	const pattern = /^([-\w]+\/[-\w]+);(?:\s*charset=utf-8;)?\s*profile="https:\/\/www.mediawiki.org\/wiki\/Specs\/([-\w]+)\/(\d+\.\d+\.\d+)"$/;
 
 	return ( actual ) => {
 		const parts = pattern.exec( actual );
