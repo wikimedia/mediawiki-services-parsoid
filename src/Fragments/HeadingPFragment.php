@@ -33,7 +33,7 @@ class HeadingPFragment extends PFragment {
 	public function asDom( ParsoidExtensionAPI $extApi, bool $release = false ): DocumentFragment {
 		$df = $extApi->wikitextToDOM(
 			$this->wt,
-			[ 'parseOpts' => [ 'expandTemplates' => false ] ],
+			[ 'parseOpts' => [ 'expandTemplates' => false, 'inTemplate' => true ] ],
 			true
 		);
 		if ( DOMUtils::isHeading( $df->firstChild ) ) {

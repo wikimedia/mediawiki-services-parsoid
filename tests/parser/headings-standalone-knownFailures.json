@@ -112,9 +112,6 @@
     "Morwen/13: Unclosed link followed by heading": {
         "html2wt": "[[link\n\n== heading ==\n"
     },
-    "Nested section numbering": {
-        "metadata": "Sections:\n h3 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:out line:out\n h3 index:T-1 toclevel:1 number:2 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_4 line:in 4\n h3 index:T-1 toclevel:1 number:3 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_2 line:in 2\n h3 index:T-2 toclevel:1 number:4 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_3 line:in 3"
-    },
     "Resolving duplicate section names": {
         "html2wt": "== Foo bar ==\n\n== Foo bar ==\n"
     },

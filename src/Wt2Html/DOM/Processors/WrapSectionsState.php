@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
@@ -24,7 +23,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -92,55 +90,11 @@ class WrapSectionsState {
 		$this->oldLevel = $newLevel;
 		$dp = DOMDataUtils::getDataParsoid( $heading );
 
-		// Cases where the legacy preprocessor didn't tokenize a heading
-		// don't get section edit links
-		if ( !isset( $dp->tmp->headingIndex ) ) {
-			$metadata->fromTitle = null;
-			$metadata->index = '';
-			$metadata->codepointOffset = null;
-		} elseif ( isset( $dp->tmp->headingData ) ) {
+		if ( isset( $dp->tmp->headingData ) ) {
 			$metadata->fromTitle = $dp->tmp->headingData[0]->getPrefixedDBKey();
 			$metadata->index = 'T-' . $dp->tmp->headingData[1];
 			$metadata->codepointOffset = null;
-		} elseif ( $this->tplInfo !== null ) {
-			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
-			$metadata->index = ''; // Match legacy parser
-			if ( !isset( $dmw->parts ) ) {
-				// Extension or language-variant
-				// Need to determine what the output should be here
-				$metadata->fromTitle = null;
-			} elseif ( count( $dmw->parts ) > 1 ) {
-				// Multi-part content -- cannot pick a title
-				$metadata->fromTitle = null;
-			} else {
-				$p0 = $dmw->parts[0];
-				if ( !( $p0 instanceof TemplateInfo ) ) {
-					throw new UnreachableException(
-						"a single part will always be a TemplateInfo not a string"
-					);
-				}
-				if ( $p0->type === 'templatearg' ) {
-					// Since we currently don't process templates in Parsoid,
-					// this has to be a top-level {{{...}}} and so the content
-					// comes from the current page. But, legacy parser returns 'false'
-					// for this, so we'll return null as well instead of current title.
-					$metadata->fromTitle = null;
-				} elseif ( $p0->href !== null ) {
-					// Pick template title, but strip leading "./" prefix
-					$tplHref = Utils::decodeURIComponent( $p0->href );
-					$metadata->fromTitle = PHPUtils::stripPrefix( $tplHref, './' );
-					if ( $this->sectionNumber >= 0 ) {
-						// Legacy parser sets this to '' in some cases
-						// See "Templated sections (heading from template arg)" parser test
-						$metadata->index = 'T-' . $this->sectionNumber;
-					}
-				} else {
-					// Legacy parser return null here
-					$metadata->fromTitle = null;
-				}
-			}
-			$metadata->codepointOffset = null;
-		} else {
+		} elseif ( isset( $dp->tmp->headingIndex ) ) {
 			$title = $this->env->getContextTitle();
 			// Use the dbkey (underscores) instead of text (spaces)
 			$metadata->fromTitle = $title->getPrefixedDBKey();
@@ -149,6 +103,12 @@ class WrapSectionsState {
 			// interface expects *codepoint* counts.  We are going to convert
 			// these in a batch (for efficiency) in ::convertTOCOffsets() below
 			$metadata->codepointOffset = $dp->dsr->start ?? null;
+		} else {
+			// Cases where the legacy preprocessor didn't tokenize a heading
+			// don't get section edit links
+			$metadata->fromTitle = null;
+			$metadata->index = '';
+			$metadata->codepointOffset = null;
 		}
 
 		$metadata->anchor = DOMCompat::getAttribute( $heading, 'id' );
