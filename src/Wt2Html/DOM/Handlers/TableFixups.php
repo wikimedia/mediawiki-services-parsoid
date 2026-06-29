@@ -305,7 +305,7 @@ class TableFixups {
 		 * // template boundaries. So, if templates aren't involved,
 		 * // no reason to reparse.
 		 * if ( count( $attributishContent['transclusions'] ) === 0 &&
-		 * 	!WTUtils::fromEncapsulatedContent( $cell )
+		 * 	!WTUtils::fromTemplatedContent( $cell )
 		 * ) {
 		 * 	return;
 		 * }
@@ -506,8 +506,7 @@ class TableFixups {
 
 		// Process attribute wikitext as HTML
 		$leadingPipeChar = DOMUtils::nodeName( $cell ) === 'td' ? '|' : '!';
-		// FIXME: Encapsulated doesn't necessarily mean templated
-		$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
+		$fromTpl = WTUtils::fromTemplatedContent( $cell );
 		if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
 			// Optimization:
 			// - SOL constructs like =-*# won't be found here
@@ -532,7 +531,7 @@ class TableFixups {
 						$cellDp->tsr->start + $attrSrcOffset, $cellDp->tsr->end - 1
 					),
 					'pipelineType' => 'wikitext-to-fragment',
-					'pipelineOpts' => [ 'inlineContext' => true ]
+					'pipelineOpts' => [ 'inTemplate' => $fromTpl, 'inlineContext' => true ]
 				]
 			);
 

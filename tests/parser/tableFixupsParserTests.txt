@@ -863,3 +863,39 @@ parsoid=wt2html
 </tbody>
 </table>
 !! end
+
+!! article
+Template:TblOpen
+!! text
+{|
+!! endarticle
+
+!! article
+Template:Foo
+!! text
+[[Foo]] bar
+!! endarticle
+
+## The input arg is a bunch of characters picked to trigger UTF-8 errors
+## before the patch that added this test. Do not edit the template name
+## or any part of the test since the crash is sensitive to UTF-8 byte offsets.
+## Given that, it is possible that some future code change might make
+## this test useless if source offset computation changes.
+!! test
+Regression test: Don't attempt tplwrap on templated content and cause UTF-8 crashers
+!! options
+parsoid=wt2html
+!! wikitext
+{{TblOpen}}
+|class={{Foo|Рмодбн}} |
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>class=<a href="/index.php?title=Foo&amp;action=edit&amp;redlink=1" class="new" title="Foo (page does not exist)">Foo</a> bar |
+</td></tr></tbody></table>
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"TblOpen","href":"./Template:TblOpen"},"params":{},"i":0}},"\n|class={{Foo|Рмодбн}} |\n|}"]}'>
+<tbody><tr><td about="#mwt3">class=<a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" typeof="mw:LocalizedAttrs" class="new" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'>Foo</a> bar |</td></tr>
+</tbody></table>
+!! end
