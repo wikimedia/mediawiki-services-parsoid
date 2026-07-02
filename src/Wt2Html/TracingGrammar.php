@@ -385,7 +385,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 143 => ["type" => "other", "description" => "lang_variant_nowiki"],
 144 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
 145 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
-146 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
+146 => ["type" => "class", "value" => "[!<\\-\\}\\]]", "description" => "[!<\\-\\}\\]]"],
 147 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
 148 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
 149 => ["type" => "class", "value" => "[^{}|;\\[\\]]", "description" => "[^{}|;\\[\\]]"],
@@ -23935,22 +23935,21 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
     if ($r7!==self::$FAILED) {
       goto choice_3;
     }
-    $p15 = $this->currPos;
     // start seq_2
-    $p19 = $this->currPos;
+    $p15 = $this->currPos;
     $r18 = $param_preproc;
     $r17 = $param_th;
     $r16 = $param_headingIndex;
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
-      $r20 = true;
+      $r19 = true;
     } else {
-      $r20 = self::$FAILED;
+      $r19 = self::$FAILED;
     }
-    if ($r20 === self::$FAILED) {
-      $r20 = false;
+    if ($r19 === self::$FAILED) {
+      $r19 = false;
     } else {
-      $r20 = self::$FAILED;
-      $this->currPos = $p19;
+      $r19 = self::$FAILED;
+      $this->currPos = $p15;
       $param_preproc = $r18;
       $param_th = $r17;
       $param_headingIndex = $r16;
@@ -23958,64 +23957,90 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       goto seq_2;
     }
     // start choice_4
+    $p20 = $this->currPos;
+    // start choice_5
     // start seq_3
-    $p22 = $this->currPos;
-    $r23 = $param_preproc;
-    $r24 = $param_th;
-    $r25 = $param_headingIndex;
+    $p21 = $this->currPos;
+    $r22 = $param_preproc;
+    $r23 = $param_th;
+    $r24 = $param_headingIndex;
     if (strcspn($this->input, "\x0a\x0d!'-:;<=[]{|}", $this->currPos, 1) !== 0) {
-      $r26 = true;
-      $r26 = false;
-      $this->currPos = $p22;
-      $param_preproc = $r23;
-      $param_th = $r24;
-      $param_headingIndex = $r25;
+      $r25 = true;
+      $r25 = false;
+      $this->currPos = $p21;
+      $param_preproc = $r22;
+      $param_th = $r23;
+      $param_headingIndex = $r24;
     } else {
-      $r26 = self::$FAILED;
+      $r25 = self::$FAILED;
       if (!$silence) { $this->fail(77); }
-      $r21 = self::$FAILED;
+      $r7 = self::$FAILED;
       goto seq_3;
     }
-    $r21 = $this->discardtext_char();
-    if ($r21===self::$FAILED) {
-      $this->currPos = $p22;
-      $param_preproc = $r23;
-      $param_th = $r24;
-      $param_headingIndex = $r25;
-      $r21 = self::$FAILED;
+    $r7 = $this->discardtext_char();
+    if ($r7===self::$FAILED) {
+      $this->currPos = $p21;
+      $param_preproc = $r22;
+      $param_th = $r23;
+      $param_headingIndex = $r24;
+      $r7 = self::$FAILED;
       goto seq_3;
     }
     seq_3:
-    if ($r21!==self::$FAILED) {
-      goto choice_4;
+    if ($r7!==self::$FAILED) {
+      goto choice_5;
     }
-    // free $p22,$r23,$r24,$r25
-    if (strspn($this->input, "\x0a\x0d!-<]}", $this->currPos, 1) !== 0) {
-      $r21 = true;
+    // free $p21,$r22,$r23,$r24
+    if (strspn($this->input, "!-<]}", $this->currPos, 1) !== 0) {
+      $r7 = true;
       $this->currPos++;
     } else {
-      $r21 = self::$FAILED;
+      $r7 = self::$FAILED;
       if (!$silence) { $this->fail(146); }
     }
+    choice_5:
+    if ($r7!==self::$FAILED) {
+      $r7 = substr($this->input, $p20, $this->currPos - $p20);
+      goto choice_4;
+    } else {
+      $r7 = self::$FAILED;
+    }
+    // free $p20
+    $p20 = $this->currPos;
+    // start choice_6
+    if (($this->input[$this->currPos] ?? null) === "\x0a") {
+      $r7 = true;
+      $this->currPos++;
+      goto choice_6;
+    } else {
+      if (!$silence) { $this->fail(47); }
+      $r7 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
+      $r7 = true;
+      $this->currPos += 2;
+    } else {
+      if (!$silence) { $this->fail(48); }
+      $r7 = self::$FAILED;
+    }
+    choice_6:
+    if ($r7!==self::$FAILED) {
+      $this->savedPos = $p20;
+      $r7 = $this->a17($r8);
+    }
+    // free $p20
     choice_4:
-    if ($r21===self::$FAILED) {
-      $this->currPos = $p19;
+    if ($r7===self::$FAILED) {
+      $this->currPos = $p15;
       $param_preproc = $r18;
       $param_th = $r17;
       $param_headingIndex = $r16;
       $r7 = self::$FAILED;
       goto seq_2;
     }
-    $r7 = true;
     seq_2:
-    if ($r7!==self::$FAILED) {
-      $r7 = substr($this->input, $p15, $this->currPos - $p15);
-    } else {
-      $r7 = self::$FAILED;
-    }
-    // free $r20,$r21,$r26
-    // free $p19,$r18,$r17,$r16
-    // free $p15
+    // free $r25
+    // free $p15,$r18,$r17,$r16
     choice_3:
     if ($r7===self::$FAILED) {
       $this->currPos = $p9;
@@ -24026,6 +24051,7 @@ return $this->traceCall(function($silence, $boolParams, $param_tagType, &$param_
       goto seq_1;
     }
     seq_1:
+    // free $r19
     // free $p9,$r10,$r11,$r12
     choice_1:
     if ($r7!==self::$FAILED) {

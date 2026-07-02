@@ -691,6 +691,8 @@ class TokenUtils {
 				$out .= $token;
 			} elseif ( $token instanceof PreprocTk ) {
 				$out .= $token->print( pretty: false );
+			} elseif ( !empty( $opts['stringifyNLs'] ) && $token instanceof NlTk ) {
+				$out .= "\n";
 			} elseif (
 				$token instanceof CommentTk ||
 				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )

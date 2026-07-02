@@ -639,6 +639,8 @@ class MockDataAccess extends DataAccess {
 			$lit = LiteralStringPFragment::newFromLiteral( 'meh', null );
 			$wt = '{{loop}}';
 			return WikitextPFragment::newFromSplitWt( [ $lit, $wt ] );
+		} elseif ( $wikitext === '{{MMA record start}}' ) {
+			$ret = "{|\n|-";
 		} else {
 			$ret = '';
 		}

@@ -327,7 +327,9 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 
 		$hrefKV = $token->getAttributeKV( 'href' );
-		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
+		$hrefTokenStr = TokenUtils::tokensToString(
+			$hrefKV->v, false, [ 'stringifyNLs' => true ]
+		);
 
 		// Don't allow internal links to pages containing PROTO:
 		// See Parser::handleInternalLinks2()

@@ -381,7 +381,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 139 => ["type" => "other", "description" => "lang_variant_nowiki"],
 140 => ["type" => "literal", "value" => "=>", "description" => "\"=>\""],
 141 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]} &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]} &\\-]"],
-142 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]\\n\\r]"],
+142 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]]", "description" => "[^-'<[{\\n\\r:;\\]}|!=] or [!<\\-\\}\\]]"],
 143 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
 144 => ["type" => "class", "value" => "[-+A-Z]", "description" => "[-+A-Z]"],
 145 => ["type" => "class", "value" => "[^{}|;\\[\\]]", "description" => "[^{}|;\\[\\]]"],
@@ -23052,51 +23052,74 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
     if ($r7!==self::$FAILED) {
       goto choice_3;
     }
-    $p15 = $this->currPos;
     // start seq_2
-    $p19 = $this->currPos;
+    $p15 = $this->currPos;
     $r18 = $param_preproc;
     $r17 = $param_th;
     $r16 = $param_headingIndex;
     if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
-      $r20 = true;
+      $r19 = true;
     } else {
-      $r20 = self::$FAILED;
+      $r19 = self::$FAILED;
     }
-    if ($r20 === self::$FAILED) {
-      $r20 = false;
+    if ($r19 === self::$FAILED) {
+      $r19 = false;
     } else {
-      $r20 = self::$FAILED;
-      $this->currPos = $p19;
+      $r19 = self::$FAILED;
+      $this->currPos = $p15;
       $param_preproc = $r18;
       $param_th = $r17;
       $param_headingIndex = $r16;
       $r7 = self::$FAILED;
       goto seq_2;
     }
-    if (strcspn($this->input, "':;=[{|", $this->currPos, 1) !== 0) {
-      $r21 = true;
+    // start choice_4
+    $p20 = $this->currPos;
+    if (strcspn($this->input, "\x0a\x0d':;=[{|", $this->currPos, 1) !== 0) {
+      $r7 = true;
       self::advanceChar($this->input, $this->currPos);
+      $r7 = substr($this->input, $p20, $this->currPos - $p20);
+      goto choice_4;
     } else {
-      $r21 = self::$FAILED;
+      $r7 = self::$FAILED;
       if (!$silence) { $this->fail(142); }
-      $this->currPos = $p19;
+      $r7 = self::$FAILED;
+    }
+    // free $p20
+    $p20 = $this->currPos;
+    // start choice_5
+    if (($this->input[$this->currPos] ?? null) === "\x0a") {
+      $r7 = true;
+      $this->currPos++;
+      goto choice_5;
+    } else {
+      if (!$silence) { $this->fail(46); }
+      $r7 = self::$FAILED;
+    }
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
+      $r7 = true;
+      $this->currPos += 2;
+    } else {
+      if (!$silence) { $this->fail(47); }
+      $r7 = self::$FAILED;
+    }
+    choice_5:
+    if ($r7!==self::$FAILED) {
+      $this->savedPos = $p20;
+      $r7 = $this->a17($r8);
+    }
+    // free $p20
+    choice_4:
+    if ($r7===self::$FAILED) {
+      $this->currPos = $p15;
       $param_preproc = $r18;
       $param_th = $r17;
       $param_headingIndex = $r16;
       $r7 = self::$FAILED;
       goto seq_2;
     }
-    $r7 = true;
     seq_2:
-    if ($r7!==self::$FAILED) {
-      $r7 = substr($this->input, $p15, $this->currPos - $p15);
-    } else {
-      $r7 = self::$FAILED;
-    }
-    // free $r20,$r21
-    // free $p19,$r18,$r17,$r16
-    // free $p15
+    // free $p15,$r18,$r17,$r16
     choice_3:
     if ($r7===self::$FAILED) {
       $this->currPos = $p9;
@@ -23107,6 +23130,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, $param_t
       goto seq_1;
     }
     seq_1:
+    // free $r19
     // free $p9,$r10,$r11,$r12
     choice_1:
     if ($r7!==self::$FAILED) {

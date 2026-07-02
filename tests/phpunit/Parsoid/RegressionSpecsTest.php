@@ -427,4 +427,17 @@ EOT;
 			$node = $node->nextSibling;
 		}
 	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TokenStreamPatcher
+	 */
+	public function testNewlinesInExpandedWikilinkTargets(): void {
+		$this->expectNotToPerformAssertions();
+
+		$description = "T430190: Newlines in expanded wikilink targets";
+		$wt = "[[test\n" .
+			"{{MMA record start}}\n" .
+			"]]";
+		$docBody = $this->parseWT( $wt );
+	}
 }
