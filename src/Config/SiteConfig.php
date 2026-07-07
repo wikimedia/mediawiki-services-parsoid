@@ -1992,7 +1992,7 @@ abstract class SiteConfig {
 		'transclusion' => 10000,
 
 		// Max images per page
-		'image' => 1000,
+		'image' => 1250,
 
 		// Max top-level token size
 		'token' => 1000000, // 1M
