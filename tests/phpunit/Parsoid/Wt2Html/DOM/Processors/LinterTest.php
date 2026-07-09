@@ -1985,6 +1985,10 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( '{{pretest}}' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'pre-expansion', $result[0]['type'], $desc );
+
+		$desc = "should not lint expansion nested in a template if template is aborted";
+		$result = $this->wtToLint( '{{pretest2}}' );
+		$this->assertCount( 0, $result, $desc );
 	}
 
 }
