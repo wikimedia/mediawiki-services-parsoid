@@ -196,7 +196,6 @@ class LinkHandlerUtils {
 			'target' => null, // filled in below
 			'tail' => $dp->tail ?? '',
 			'prefix' => $dp->prefix ?? '',
-			'linkType' => null
 		];
 		$rtData->content = new stdClass;
 		$isIW = false;
@@ -769,7 +768,8 @@ class LinkHandlerUtils {
 		) {
 			// Uncomment the above check if we want [[wikipedia:Foo|http://en.wikipedia.org/wiki/Foo]]
 			// for '<a href="http://en.wikipedia.org/wiki/Foo">http://en.wikipedia.org/wiki/Foo</a>'
-			$linkData->linkType = 'mw:URLLink';
+			$state->emitChunk( new AutoURLLinkText( $node->textContent, $node ), $node );
+			return;
 		} else {
 			// Emit piped wikilink syntax
 			$isPiped = true;
@@ -822,10 +822,6 @@ class LinkHandlerUtils {
 			if ( ( !$escapedTgt || !$escapedTgt->invalidLink ) && empty( $target['fromsrc'] ) ) {
 				$linkTarget = self::addColonEscape( $env, $linkTarget, $linkData );
 			}
-		}
-		if ( $linkData->linkType === 'mw:URLLink' ) {
-			$state->emitChunk( new AutoURLLinkText( $node->textContent, $node ), $node );
-			return;
 		}
 
 		if ( !empty( $linkData->isRedirect ) ) {
