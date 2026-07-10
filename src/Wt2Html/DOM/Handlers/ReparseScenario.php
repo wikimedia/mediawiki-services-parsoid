@@ -9,4 +9,5 @@ enum ReparseScenario: string {
 	case MAYBE_COMBINE_WITH_PREV_CELL = "maybe_combine_with_prev_cell";
 	case MAYBE_REPARSE_ATTRS = "maybe_reparse_attrs";
 	case MAYBE_SPLIT_CELL = "maybe_split_cell";
+	case UNDO_TH_TOKENIZING = "undo_th_tokenizing";
 }

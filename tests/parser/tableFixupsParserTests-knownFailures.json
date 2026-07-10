@@ -2,6 +2,9 @@
 	"10. table-fixups td-td cell-combining: prev=double_pipe,no_content; cell=attrs": {
 		"wt2wt": "{|\n| |{{1x|1={{!}}class='x'{{!}}y}}\n|}"
 	},
+	"5. table-fixups td-th cell-combining: prev=attrs, cell=attrs,single-bang,double-pipe": {
+		"wt2html": "<table data-parsoid='{\"dsr\":[0,47,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,45,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,44,0,0]}'><td about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[3,44,null,null]}' data-mw='{\"parts\":[\"|title=&apos;a&apos;\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"! class=&apos;b&apos;{{!}}{{!}}c\"}},\"i\":0}}]}'>title='a'! class='b'</td><th about=\"#mwt\" data-parsoid='{\"stx\":\"row\",\"startTagSrc\":\"||\"}'>c</th></tr>\n</tbody></table>"
+	},
 	"9. table-fixups td-td cell-combining: prev=double_pipe,no_content; cell=no_attrs": {
 		"wt2wt": "{|\n| |{{1x|{{!}}y}}\n|}"
 	},

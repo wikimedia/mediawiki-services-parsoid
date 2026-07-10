@@ -408,7 +408,7 @@ class TableFixups {
 	 *     case, the pipe char could come from content (when the cell has content)
 	 *     OR from the attribute-terminator (when the cell has no content).
 	 *     In the attribute-terminator case, the pipe transfer requires that
-	 *     the openWidth dsr property be decremnted by 1 for the source cell.
+	 *     the openWidth dsr property be decremented by 1 for the source cell.
 	 *
 	 *     This is called from reparseWithPreviousCell( .. )
 	 */
@@ -801,9 +801,20 @@ class TableFixups {
 	}
 
 	/**
-	 * $cell is known to be <td>/<th>
+	 * $cell is known to be <td>/<th>, and known to be a wikitext tag, not HTML tag.
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): ReparseScenario {
+		$prev = $cell->previousSibling;
+		$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
+		if ( DOMUtils::nodeName( $cell ) === 'th' &&
+			$prev !== null && DOMUtils::nodeName( $prev ) === 'td' &&
+			!WTUtils::hasLiteralHTMLMarker( $prevDp )
+		) {
+			// This can only happen in independent-parsing (hence templated) scenarios
+			// The <th> tokenizing has to be undone and combined with the prevous <td>
+			return ReparseScenario::UNDO_TH_TOKENIZING;
+		}
+
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if (
 			// Template wrapping, which happens prior to this pass, may have combined
@@ -821,8 +832,6 @@ class TableFixups {
 			//
 			// So, bail out of scenarios where prevDp comes from a template (the checks
 			// for isValidDSR( $prevDp-> dsr ) and valid opening tag width catch this.
-			$prev = $cell->previousSibling;
-			$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
 			if ( $prevDp &&
 				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
 				Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
@@ -904,10 +913,12 @@ class TableFixups {
 			// for additional processing.
 			return $cell;
 		}
+		$reparseType = self::getReparseType( $cell, $dtState );
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th> when not the first child
 		if ( $cellName === 'th' && $isTemplatedCell &&
+			$reparseType !== ReparseScenario::UNDO_TH_TOKENIZING &&
 			// The ! wouldn't be the first content char if attrs were present
 			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) &&
 			// This is checking that previous sibling is not "\n" which would
@@ -928,12 +939,13 @@ class TableFixups {
 			}
 		}
 
-		$reparseType = self::getReparseType( $cell, $dtState );
 		if ( $reparseType === ReparseScenario::NOT_NEEDED ) {
 			return true;
 		}
 
-		if ( $reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL ) {
+		if ( $reparseType === ReparseScenario::UNDO_TH_TOKENIZING ||
+			$reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL
+		) {
 			if ( self::reparseWithPreviousCell( $dtState, $cell ) ) {
 				return true;
 			} else {

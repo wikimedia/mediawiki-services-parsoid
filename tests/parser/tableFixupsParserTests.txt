@@ -543,9 +543,6 @@ Ensure td-cell-type is switched to th when the first cell in a row is a <th>
 </tbody></table>
 !! end
 
-# NOTE: the whitespace in "! class='x'" is important
-# because "!!class='x'" and ""!! class='x'"" parse differently.
-# That seems like a bug in legacy (which Parsoid replicates).
 !! test
 2. table-fixups th-th cell-combining: cell=attrs
 !! wikitext
@@ -562,6 +559,93 @@ Ensure td-cell-type is switched to th when the first cell in a row is a <th>
 <tbody><tr><th class="x" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"firstWikitextNode":"TH","pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["!",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"! class=\"x\"{{!}}y"}},"i":0}}]}'>y</th></tr>
 </tbody></table>
 
+!! end
+
+## Interesting td-th combination scenarios
+!! test
+1. table-fixups td-th cell-combining: prev=no-attrs,cell=no-attrs,single-bang
+!! wikitext
+{|
+|a{{1x|!b}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>a!b
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td data-mw='{"parts":["|a",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!b"}},"i":0}}]}' typeof="mw:Transclusion">a!b</td></tr>
+</tbody></table>
+!! end
+
+!! test
+2. table-fixups td-th cell-combining: prev=no-attrs,cell=no-attrs,double-bang
+!! wikitext
+{|
+|a{{1x|!!b}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>a!!b
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|a",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!!b"}},"i":0}}]}'>a!!b</td></tr>
+</tbody></table>
+!! end
+
+!! test
+3. table-fixups td-th cell-combining: prev=attrs, cell=attrs,single-bang,single-pipe
+!! wikitext
+{|
+|title='a'{{1x|1=! class='b'{{!}}c}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td title="a" class="b">c
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td class="b" about="#mwt1" data-mw='{"parts":["|title=&apos;a&apos;",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"! class=&apos;b&apos;{{!}}c"}},"i":0}}]}' title="a" typeof="mw:Transclusion" >c</td></tr>
+</tbody></table>
+!! end
+
+!! test
+4. table-fixups td-th cell-combining: prev=attrs, cell=attrs,double-bang,single-pipe
+!! wikitext
+{|
+|title='a'{{1x|1=!! class='b'{{!}}c}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td title="a" class="b">c
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td class="b" about="#mwt1" data-mw='{"parts":["|title=&apos;a&apos;",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!! class=&apos;b&apos;{{!}}c"}},"i":0}}]}' title="a" typeof="mw:Transclusion" >c</td></tr>
+</tbody></table>
+!! end
+
+!! test
+5. table-fixups td-th cell-combining: prev=attrs, cell=attrs,single-bang,double-pipe
+!! wikitext
+{|
+|title='a'{{1x|1=! class='b'{{!}}{{!}}c}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>title='a'! class='b'</td>
+<td>c
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" data-mw='{"parts":["|title=&apos;a&apos;",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"! class=&apos;b&apos;{{!}}{{!}}c"}},"i":0}}]}' typeof="mw:Transclusion" >title='a'! class='b'</td><td about="#mwt1">c</td></tr>
+</tbody></table>
 !! end
 
 !! test
