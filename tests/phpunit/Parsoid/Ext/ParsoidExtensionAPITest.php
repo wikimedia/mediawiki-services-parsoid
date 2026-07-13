@@ -33,9 +33,7 @@ class ParsoidExtensionAPITest extends TestCase {
 				],
 			] );
 		} else {
-			$serializer = new WikitextSerializer( $env, [
-				// serializer options
-			] );
+			$serializer = new WikitextSerializer( $env );
 			$state = TestingAccessWrapper::newFromObject( $serializer )->state;
 			return $state->extApi;
 		}

@@ -62,8 +62,8 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  */
 class WikitextSerializer {
 
-	/** @var string[] */
-	private const IGNORED_ATTRIBUTES = [
+	/** @var array<string,true> */
+	private const array IGNORED_ATTRIBUTES = [
 		'data-parsoid' => true,
 		'data-ve-changed' => true,
 		'data-parsoid-changed' => true,
@@ -72,31 +72,28 @@ class WikitextSerializer {
 		DOMDataUtils::DATA_OBJECT_ATTR_NAME => true,
 	];
 
-	/** @var string Regexp */
-	private const TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
+	private const string TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
 		= '/\n(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
 
-	/** @var string Regexp */
-	private const FORMATSTRING_REGEXP =
+	private const string FORMATSTRING_BLOCK = "{{_\n| _ = _\n}}";
+	private const string FORMATSTRING_INLINE = '{{_|_=_}}';
+	private const string FORMATSTRING_REGEXP =
 		'/^(\n)?(\{\{ *_+)(\n? *\|\n? *_+ *= *)(_+)(\n? *\}\})(\n)?$/D';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*'
+	private const string HEADING_NOWIKI_REGEXP = '/^(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*'
 		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/D';
 
-	/** @var array string[] */
-	private static $separatorREs = [
-		'pureSepRE' => '/^[ \t\r\n]*$/D',
-		'sepPrefixWithNlsRE' => '/^[ \t]*\n+[ \t\r\n]*/',
-		'sepSuffixWithNlsRE' => '/\n[ \t\r\n]*$/D',
-	];
+	private const string PURE_SEPARATOR_RE = '/^[ \t\r\n]*$/D';
+	private const string SEPARATOR_PREFIX_WITH_NLS_RE = '/^[ \t]*\n+[ \t\r\n]*/';
+	private const string SEPARATOR_SUFFIX_WITH_NLS_RE = '/\n[ \t\r\n]*$/D';
 
-	/** @var string[] attribute name => value regexp */
+	/** @var array<string,string> attribute name => value regexp */
 	private array $parsoidAttributes;
 	public Env $env;
 	private SerializerState $state;
 	public WikitextEscapeHandlers $wteHandlers;
-	private ?string $commentsOrAnnotationsRE = null;
+	private ?string $commentsOrAnnotationsRE;
 
 	/** Trace type for Env::trace() */
 	public string $logType;
@@ -107,7 +104,7 @@ class WikitextSerializer {
 	 *   - logType: (string)
 	 *   - extName: (string)
 	 */
-	public function __construct( Env $env, $options ) {
+	public function __construct( Env $env, array $options = [] ) {
 		// This is non-static because we cannot init it statically
 		$this->parsoidAttributes = [
 			'about' => "/^" . CounterType::TRANSCLUSION_ABOUT->getRE() . "$/D",
@@ -644,21 +641,19 @@ class WikitextSerializer {
 		?array $tplData, $prevPart, $nextPart
 	): string {
 		// Parse custom format specification, if present.
-		$defaultBlockSpc = "{{_\n| _ = _\n}}"; // "block"
-		$defaultInlineSpc = '{{_|_=_}}'; // "inline"
-		$isPF = $part->type === 'parserfunction' ||
+		$isParserFunction = $part->type === 'parserfunction' ||
 			$part->type === 'old-parserfunction';
 
 		$format = isset( $tplData['format'] ) ? strtolower( $tplData['format'] ) : null;
 		if ( $format === 'block' ) {
-			$format = $defaultBlockSpc;
+			$format = self::FORMATSTRING_BLOCK;
 		} elseif ( $format === 'inline' ) {
-			$format = $defaultInlineSpc;
+			$format = self::FORMATSTRING_INLINE;
 		}
 		// Check format string for validity.
 		preg_match( self::FORMATSTRING_REGEXP, $format ?? '', $parsedFormat );
 		if ( !$parsedFormat ) {
-			preg_match( self::FORMATSTRING_REGEXP, $defaultInlineSpc, $parsedFormat );
+			preg_match( self::FORMATSTRING_REGEXP, self::FORMATSTRING_INLINE, $parsedFormat );
 			$format = null; // Indicates that no valid custom format was present.
 		}
 		$formatSOL = $parsedFormat[1] ?? '';
@@ -667,12 +662,8 @@ class WikitextSerializer {
 		$formatParamValue = $parsedFormat[4] ?? '';
 		$formatEnd = $parsedFormat[5] ?? '';
 		$formatEOL = $parsedFormat[6] ?? '';
-		$forceTrim = ( $format !== null ) || WTUtils::isNewElt( $node );
-		if ( $isPF ) {
-			// Parser functions have all positional parameters w/ significant
-			// whitespace.
-			$forceTrim = false;
-		}
+		// Parser functions have all positional parameters with significant whitespace.
+		$forceTrim = !$isParserFunction && ( $format !== null || WTUtils::isNewElt( $node ) );
 
 		// Shoehorn formatting of top-level templatearg wikitext into this code.
 		if ( $part->type === 'templatearg' ) {
@@ -862,7 +853,7 @@ class WikitextSerializer {
 				$modFormatParamName = substr( $formatParamName, 1 );
 			}
 			// Parser functions are weird! First separator is a colon not a bar
-			if ( $first && $isPF ) {
+			if ( $first && $isParserFunction ) {
 				# Use the same colon that original used (T415405)
 				$colon = is_string( $dp->colon ?? null ) ? $dp->colon : ':';
 				$modFormatParamName = preg_replace( '/[|]/', $colon, $modFormatParamName, 1 );
@@ -1046,12 +1037,12 @@ class WikitextSerializer {
 		$state = $this->state;
 
 		// Deal with trailing separator-like text (at least 1 newline and other whitespace)
-		preg_match( self::$separatorREs['sepSuffixWithNlsRE'], $res, $newSepMatch );
-		$res = preg_replace( self::$separatorREs['sepSuffixWithNlsRE'], '', $res, 1 );
+		preg_match( self::SEPARATOR_SUFFIX_WITH_NLS_RE, $res, $newSepMatch );
+		$res = preg_replace( self::SEPARATOR_SUFFIX_WITH_NLS_RE, '', $res, 1 );
 
 		if ( !$state->inIndentPre ) {
 			// Strip leading newlines and other whitespace
-			if ( preg_match( self::$separatorREs['sepPrefixWithNlsRE'], $res, $match ) ) {
+			if ( preg_match( self::SEPARATOR_PREFIX_WITH_NLS_RE, $res, $match ) ) {
 				$state->appendSep( $match[0] );
 				$res = substr( $res, strlen( $match[0] ) );
 			}
@@ -1303,7 +1294,7 @@ class WikitextSerializer {
 				if ( !$state->inIndentPre
 					// PORT-FIXME: original uses this->state->serializer->separatorREs
 					// but that does not seem useful
-					&& preg_match( self::$separatorREs['pureSepRE'], $text )
+					&& preg_match( self::PURE_SEPARATOR_RE, $text )
 				) {
 					$state->appendSep( $text );
 					return $node->nextSibling;

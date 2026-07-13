@@ -95,7 +95,7 @@ class TestUtils {
 			//     If possible, get rid of it and diff-mark dependency
 			//     on the env object.
 			$mockEnv = new MockEnv( [] );
-			$mockSerializer = new WikitextSerializer( $mockEnv, [] );
+			$mockSerializer = new WikitextSerializer( $mockEnv );
 			$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 			if ( is_string( $domBody ) ) {
 				// Careful about the lifetime of this document
