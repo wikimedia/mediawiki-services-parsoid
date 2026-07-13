@@ -4405,10 +4405,12 @@ Number of images should be limited
 !! config
 wgParsoidMaximumImages=2
 !! options
+cat
 showflags
 !! wikitext
 [[File:Foobar.jpg| one ]] [[File:File_&_file.jpg| two ]] [[File:Foobar.svg| three ]] [[File:Foobar.jpg| four ]]
-!! metadata/parsoid
+!! metadata/parsoid+standalone
+cat=Pages_where_media_limit_was_reached sort=
 flags=prevent-selective-update
 !! html/parsoid+standalone
 <p><span class="mw-default-size" data-mw='{"caption":" one "}' typeof="mw:File"><a class="mw-file-description" href="./File:Foobar.jpg" title="one"><img alt="one" class="mw-file-element" data-file-height="220" data-file-type="bitmap" data-file-width="1941" decoding="async" height="220" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941"/></a></span> <span class="mw-default-size" data-mw='{"caption":" two "}' typeof="mw:File"><a class="mw-file-description" href="./File:File_&amp;_file.jpg" title="two"><img alt="two" class="mw-file-element" data-file-height="220" data-file-type="bitmap" data-file-width="1941" decoding="async" height="220" resource="./File:File_&amp;_file.jpg" src="http://example.com/images/1/1f/File_%26_file.jpg" width="1941"/></a></span> <span class="mw-default-size" data-mw='{"caption":" three ","errors":[{"key":"apierror-imagelimitexceeded","message":"Image is not rendered due to image limit was exceeded"}]}' typeof="mw:Error mw:File"><a class="new" href="./Special:Upload?wpDestFile=Foobar.svg" title="File:Foobar.svg"><span class="mw-file-element mw-broken-media" resource="./File:Foobar.svg">three</span></a></span> <span class="mw-default-size" data-mw='{"caption":" four "}' typeof="mw:File"><a class="mw-file-description" href="./File:Foobar.jpg" title="four"><img alt="four" class="mw-file-element" data-file-height="220" data-file-type="bitmap" data-file-width="1941" decoding="async" height="220" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" width="1941"/></a></span></p>

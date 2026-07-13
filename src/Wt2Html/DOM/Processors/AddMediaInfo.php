@@ -753,7 +753,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// In case of image limit was reached, set media container in error state
 			if ( $c['infoKey'] === false ) {
 				$broken = true;
-				// TODO lint this or add category in follow up patch
+				$env->getDataAccess()->addTrackingCategory(
+					$env->getPageConfig(),
+					$env->getMetadata(),
+					'media-limit-reached'
+				);
 				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
 				$errs[] = self::makeErr(
 					'apierror-imagelimitexceeded',
@@ -775,7 +779,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$info = $files[$c['infoKey']] ?? null;
 
 			if ( $c['manualKey'] === false ) {
-				// TODO lint this or add category in follow up patch
+				$env->getDataAccess()->addTrackingCategory(
+					$env->getPageConfig(),
+					$env->getMetadata(),
+					'media-limit-reached'
+				);
 				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
 				$errs[] = self::makeErr(
 					'apierror-imagelimitexceeded',

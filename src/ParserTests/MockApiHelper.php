@@ -850,6 +850,7 @@ class MockApiHelper extends ApiHelper {
 		'magiclink-tracking-isbn' => 'Pages using ISBN magic links',
 		'magiclink-tracking-pmid' => 'Pages using PMID magic links',
 		'hidden-category-category' => 'Hidden categories',
+		'media-limit-reached' => 'Pages where media limit was reached',
 	];
 
 	private function processQuery( array $params ): array {

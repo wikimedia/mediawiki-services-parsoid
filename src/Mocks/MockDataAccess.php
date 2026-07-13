@@ -675,6 +675,7 @@ class MockDataAccess extends DataAccess {
 		'magiclink-tracking-isbn' => 'Pages using ISBN magic links',
 		'magiclink-tracking-pmid' => 'Pages using PMID magic links',
 		'hidden-category-category' => 'Hidden categories',
+		'media-limit-reached' => 'Pages where media limit was reached',
 	];
 
 	/** @inheritDoc */
