@@ -2139,51 +2139,6 @@ maybe_extension_tag =
 				$extEndOffset = $dp->tsr->start + strlen( $extSrc );
 				$extEndTagWidth = strlen( $tagContent[1] );
 
-				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
-					// Support nesting in extensions tags while tokenizing in templates
-					// to support the #tag parser function.
-					//
-					// It's necessary to permit this broadly in templates because
-					// there's no way to distinguish whether the nesting happened
-					// while expanding the #tag parser function, or just a general
-					// syntax errors.  In other words,
-					//
-					//   hi<ref>ho<ref>hi</ref>ho</ref>
-					//
-					// and
-					//
-					//   hi{{#tag:ref|ho<ref>hi</ref>ho}}
-					//
-					// found in template are returned indistinguishably after a
-					// preprocessing request, though the old parser renders them
-					// differently.  #tag in template is probably a common enough
-					// use case that we want to accept these false positives,
-					// though another approach could be to drop this code here, and
-					// invoke a native #tag handler and forgo those in templates.
-					//
-					// Expand `extSrc` as long as there is a <tagName> found in the
-					// extension source body.
-					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '(?:[^/>]|/(?!>))*>~i';
-					$s = substr( $extSrc, $dp->tsr->end - $dp->tsr->start );
-					$openTags = 0;
-					while ( true ) {
-						if ( preg_match_all( $startTagRE, $s, $matches ) ) {
-							$openTags += count( $matches[0] );
-						}
-						if ( !$openTags ) {
-							break;
-						}
-						if ( !preg_match( $endTagRE, $this->input, $tagContent, 0, $extEndOffset ) ) {
-							break;
-						}
-						$openTags -= 1;
-						$s = $tagContent[0];
-						$extEndOffset += strlen( $s );
-						$extEndTagWidth = strlen( $tagContent[1] );
-						$extSrc .= $s;
-					}
-				}
-
 				// Extension content source
 				$dp->src = $extSrc;
 				$dp->extTagOffsets = new DomSourceRange(

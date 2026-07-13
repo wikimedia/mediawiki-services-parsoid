@@ -18201,3 +18201,16 @@ Template returning template syntax in html attribute
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"tplrt","href":"./Template:Tplrt"},"params":{},"i":0}}]}'>{{1x|test}}</span></p>
 <div class="{{1x|test}}" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"class"},{"html":"&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"tplrt\",\"href\":\"./Template:Tplrt\"},\"params\":{},\"i\":0}}]}&apos;>{{1x|test}}&lt;/span>"}]]}'>123</div>
 !! end
+
+!! test
+Nested extension tag using the #tag parser function
+!! config
+wgReturnExperimentalPFragmentTypes=[ "ExtTagPFragment" ]
+!! wikitext
+{{#tag:spantag|outer <spantag>inner</spantag>}}
+!! html/php
+<p><span>outer <span>inner</span></span>
+</p>
+!! html/parsoid+integrated
+<p><span data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"outer {{#parsoid\u0000fragment}}"},"parts":[{"template":{"target":{"wt":"#tag:spantag","function":"tag"},"params":{"1":{"wt":"outer &lt;spantag>inner&lt;/spantag>"}},"i":0}}]}' typeof="mw:Extension/spantag mw:Transclusion">outer <span data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"inner"}}' typeof="mw:Extension/spantag">inner</span></span></p>
+!! end
