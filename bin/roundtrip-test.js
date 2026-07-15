@@ -25,6 +25,9 @@ var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var defaultContentVersion = '2.8.0';
 
+// T432282: Id for the body element, this is typically mwAA
+var bodyId = 'mwXXXXXXX';
+
 var MAX_RETRIES = 5;
 
 function displayDiff(type, count) {
@@ -509,6 +512,10 @@ var checkIfSignificant = function(offsets, data) {
 	var oldBody = dummyEnv.createDocument(data.oldHTML.body).body;
 	var newBody = dummyEnv.createDocument(data.newHTML.body).body;
 
+	// T432282: Associate the assigned dsr with the body
+	oldBody.setAttribute( 'id', bodyId );
+	newBody.setAttribute( 'id', bodyId );
+
 	// Merge pagebundles so that HTML nodes can be compared and diff'ed.
 	DOMDataUtils.applyPageBundle(oldBody.ownerDocument, {
 		parsoid: data.oldDp.body,
@@ -861,6 +868,12 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		data.oldHTML = body.html;
 		data.oldDp = body['data-parsoid'];
 		data.oldMw = body['data-mw'];
+
+		// T432282: Add missing dsr for the body element
+		data.oldDp.body.ids[bodyId] = {
+			dsr: [ 0, data.oldWt.length, 0, 0 ], tmp: {}
+		};
+
 		// Now, request the wikitext for the obtained HTML
 		opts = Object.assign({
 			html2wt: true,
