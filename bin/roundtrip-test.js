@@ -742,6 +742,8 @@ var roundTripDiff = Promise.async(function *(profile, parsoidOptions, data) {
 	var body = yield parsoidPost(profile, options);
 	data.newHTML = body.html;
 	data.newDp = body['data-parsoid'];
+	// T432282: Add missing dsr for the body element
+	data.newDp.body.ids[bodyId] = { dsr: [ 0, data.newWt.length, 0, 0 ], tmp: {} };
 	data.newMw = body['data-mw'];
 	return checkIfSignificant(offsets, data);
 });
@@ -870,9 +872,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		data.oldMw = body['data-mw'];
 
 		// T432282: Add missing dsr for the body element
-		data.oldDp.body.ids[bodyId] = {
-			dsr: [ 0, data.oldWt.length, 0, 0 ], tmp: {}
-		};
+		data.oldDp.body.ids[bodyId] = { dsr: [ 0, data.oldWt.length, 0, 0 ], tmp: {} };
 
 		// Now, request the wikitext for the obtained HTML
 		opts = Object.assign({
