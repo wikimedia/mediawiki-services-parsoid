@@ -103,11 +103,11 @@ TestUtils.normalizeOut = function(domBody, options) {
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?"[^\"]*\\?"/g, '');
+		out = out.replace(/ (data-mw-original-href|data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?"[^\"]*\\?"/g, '');
 		// single-quoted variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?'[^\']*\\?'/g, '');
+		out = out.replace(/ (data-mw-original-href|data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?'[^\']*\\?'/g, '');
 		// apos variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=&apos;.*?&apos;/g, '');
+		out = out.replace(/ (data-mw-original-href|data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=&apos;.*?&apos;/g, '');
 
 		// FIXME: strip ids in html in data-mw (note the \\)
 		// DOMDataUtils.applyPageBundle doesn't know about rich attributes
