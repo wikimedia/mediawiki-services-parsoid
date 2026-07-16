@@ -80,6 +80,11 @@ class DOMDiff {
 			'data-parsoid' => static function (
 				Element $nodeA, DataParsoid $dpA, Element $nodeB, DataParsoid $dpB
 			): bool {
+				// Force TempData initialization so that we don't get spurious diffs
+				// based on code paths that might initialize an empty TempData on one
+				// but not both nodes.
+				$dpA->getTemp();
+				$dpB->getTemp();
 				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 				return $dpA == $dpB;
 			},

@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -384,6 +385,15 @@ class TestRunner {
 				"doc should not be prepared and loaded already"
 		);
 		DOMDataUtils::prepareAndLoadDoc( $doc, $env->getSiteConfig() );
+
+		// Introduce randomized getTemp() calls on the edited DOM
+		// on 10% of the nodes. See T409675 for why this exists.
+		// These getTemp() calls shouldn't change test results at all.
+		 DOMUtils::visitDOM( DOMCompat::getBody( $doc ), static function ( Node $node ) {
+			if ( $node instanceof Element && ( rand( 1, 100 ) < 10 ) ) {
+				DOMDataUtils::getDataParsoid( $node )->getTemp();
+			}
+		 } );
 
 		$env->setupTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );
