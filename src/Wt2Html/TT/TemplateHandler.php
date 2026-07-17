@@ -452,12 +452,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 			return null;
 		}
 
-		// `resolveTitle()` adds the namespace prefix when it resolves fragments
-		// and relative titles, and a leading colon should resolve to a template
-		// from the main namespace, hence we omit a default when making a title
-		$namespaceId = strspn( $target, ':#/.' ) ?
-			null : $siteConfig->canonicalNamespaceId( 'template' );
-
 		// Resolve a possibly relative link and
 		// normalize the target before template processing.
 		try {
@@ -466,6 +460,14 @@ class TemplateHandler extends XMLTagBasedHandler {
 			// Invalid template target!
 			return null;
 		}
+
+		// `resolveTitle()` adds the namespace prefix when it resolves fragments
+		// and relative titles, and a leading colon should resolve to a template
+		// from the main namespace, hence we omit a default when making a title.
+		// In addition, [[../Foo]] resolves relative to the current title and
+		// hence doesn't belong to the Template: namespace either.
+		$namespaceId = strspn( $target, ':#/' ) > 0 || str_starts_with( $target, "../" ) ?
+			null : $siteConfig->canonicalNamespaceId( 'template' );
 
 		// Entities in transclusions aren't decoded in the PHP parser
 		// So, treat the title as a url-decoded string!

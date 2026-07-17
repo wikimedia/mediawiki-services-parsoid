@@ -368,3 +368,28 @@ http://example.com/test{{
 !! html/parsoid
 <p><a rel="mw:ExtLink nofollow" href="http://example.com/test{{123+" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/test{{123+"},"sa":{"href":"http://example.com/test{{\n123 [[hmm]]\n}}"}}'>http://example.com/test{{123 </a></p>
 !! end
+
+!! test
+T360814: Template titles starting with .
+!! options
+parsoid=wt2html
+subpage
+title=[[A/B/C]]
+!! wikitext
+{{.Foo}}
+{{./Foo}}
+{{../Foo}}
+{{.../Foo}}
+!! html/php
+<p><a href="/index.php?title=Template:.Foo&amp;action=edit&amp;redlink=1" class="new" title="Template:.Foo (page does not exist)">Template:.Foo</a>
+{{./Foo}}
+<a href="/index.php?title=A/B/Foo&amp;action=edit&amp;redlink=1" class="new" title="A/B/Foo (page does not exist)">A/B/Foo</a>
+<a href="/index.php?title=Template:.../Foo&amp;action=edit&amp;redlink=1" class="new" title="Template:.../Foo (page does not exist)">Template:.../Foo</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Template:.Foo?action=edit&amp;redlink=1" title="Template:.Foo" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":".Foo","href":"./Template:.Foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:.Foo"]}}'>Template:.Foo</a>
+{{./Foo}}
+<a rel="mw:WikiLink" href="./A/B/Foo?action=edit&amp;redlink=1" title="A/B/Foo" about="#mwt3" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":"../Foo","href":"./A/B/Foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["A/B/Foo"]}}'>A/B/Foo</a>
+<a rel="mw:WikiLink" href="./Template:.../Foo?action=edit&amp;redlink=1" title="Template:.../Foo" about="#mwt4" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":".../Foo","href":"./Template:.../Foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:.../Foo"]}}'>Template:.../Foo</a></p>
+
+!! end
