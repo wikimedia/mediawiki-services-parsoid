@@ -374,7 +374,7 @@ class TableFixups {
 	}
 
 	/**
-	 * $cell's last character is known to be a '|' (for <td>) of '!' (for <th>)
+	 * $cell's last character is known to be a '|' (for <td>) or '!' (for <th>)
 	 */
 	private static function stripTrailingPipe( Element $cell ): ?string {
 		$lc = $cell->lastChild;
@@ -387,10 +387,9 @@ class TableFixups {
 			return null;
 		}
 
-		$txt = $lc->textContent;
-		$lastCharIndex = strlen( $txt ) - 1;
-		$lc->textContent = substr( $txt, 0, $lastCharIndex );
-		return $txt[$lastCharIndex];
+		$lastChar = substr( $lc->textContent, -1 );
+		$lc->textContent = substr( $lc->textContent, 0, -1 );
+		return $lastChar;
 	}
 
 	private const PARSOID_ATTRIBUTES = [

@@ -49,18 +49,14 @@ class LinkHandlerUtils {
 		$prefix = $dp->prefix ?? '';
 
 		$tailLen = strlen( $tail );
-		if ( $tailLen && substr( $contentString, -$tailLen ) === $tail ) {
+		if ( $tailLen && str_ends_with( $contentString, $tail ) ) {
 			// strip the tail off the content
 			$contentString = substr( $contentString, 0, -$tailLen );
-		} else {
-			$tail = '';
 		}
 
 		$prefixLen = strlen( $prefix );
-		if ( $prefixLen && substr( $contentString, 0, $prefixLen ) === $prefix ) {
+		if ( $prefixLen && str_starts_with( $contentString, $prefix ) ) {
 			$contentString = substr( $contentString, $prefixLen );
-		} else {
-			$prefix = '';
 		}
 
 		return (object)[
@@ -389,7 +385,7 @@ class LinkHandlerUtils {
 				if ( $rtData->type === 'mw:PageProp/Language' ) {
 					$targetValue = implode( ':', $interwikiMatch );
 					// Strip initial colon
-					if ( $targetValue[0] === ':' ) {
+					if ( str_starts_with( $targetValue, ':' ) ) {
 						$targetValue = substr( $targetValue, 1 );
 					}
 					$target['value'] = $targetValue;

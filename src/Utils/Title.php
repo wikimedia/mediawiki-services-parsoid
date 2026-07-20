@@ -90,7 +90,7 @@ class Title implements LinkTarget {
 
 		// Initial colon indicates main namespace rather than specified default
 		// but should not create invalid {ns,title} pairs such as {0,Project:Foo}
-		if ( $title !== '' && $title[0] === ':' ) {
+		if ( str_starts_with( $title, ':' ) ) {
 			$title = ltrim( substr( $title, 1 ), '_' );
 			$defaultNs = 0;
 		}
@@ -146,7 +146,7 @@ class Title implements LinkTarget {
 
 				// If there's an initial colon after the interwiki, that also
 				// resets the default namespace
-				if ( $title !== '' && $title[0] === ':' ) {
+				if ( str_starts_with( $title, ':' ) ) {
 					$title = trim( substr( $title, 1 ), '_' );
 					$ns = 0;
 				}

@@ -384,11 +384,11 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 	$initCustomLinkbackCounter = '';
 	foreach ( $messages as $key => $msg ) {
 		// Skip error-test groups
-		if ( preg_match( '/error-test/', $key ) ) {
+		if ( str_contains( $key, 'error-test' ) ) {
 			continue;
 		}
 
-		if ( preg_match( '/^link_label_group-/', $key ) ) {
+		if ( str_starts_with( $key, 'link_label_group-' ) ) {
 			$group = substr( $key, 17 /* strlen( "link_label_group-" ) */ );
 			$groupCounterType = wfDetectCounterType( $msg );
 			if ( !$groupCounterType ) {

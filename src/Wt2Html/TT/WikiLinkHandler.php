@@ -109,12 +109,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		// Capture the title to resolve before handling colon escape
 		$title = Utils::decodeURIComponent( $info->href );
 
-		if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
+		if ( str_starts_with( ltrim( $info->href ), ':' ) ) {
 			$info->fromColonEscapedText = true;
 			// Remove the colon escape
 			$info->href = substr( ltrim( $info->href ), 1 );
 		}
-		if ( ( $info->href[0] ?? '' ) === ':' ) {
+		if ( str_starts_with( $info->href, ':' ) ) {
 			if ( $env->linting( 'multi-colon-escape' ) ) {
 				$lint = [
 					'dsr' => DomSourceRange::fromTsr( $token->dataParsoid->tsr ),
@@ -176,7 +176,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 					// An interwiki link.
 					$info->interwiki = $interwikiInfo;
 					// Remove the colon escape after an interwiki prefix
-					if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
+					if ( str_starts_with( ltrim( $info->href ), ':' ) ) {
 						$info->href = substr( ltrim( $info->href ), 1 );
 					}
 				} else {

@@ -111,9 +111,9 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( [ 'main' ], $c->getRoles() );
 		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
 		$this->assertSame( 'text/x-wiki', $c->getFormat( 'main' ) );
-		$this->assertSame(
+		$this->assertStringStartsWith(
 			"Our '''world''' is a planet where human beings have formed many societies.\n\n",
-			substr( $c->getContent( 'main' ), 0, 76 )
+			$c->getContent( 'main' )
 		);
 	}
 

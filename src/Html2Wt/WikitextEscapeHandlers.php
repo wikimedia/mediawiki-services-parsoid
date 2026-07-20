@@ -370,7 +370,7 @@ class WikitextEscapeHandlers {
 		// it does not need nowiking.
 		if ( $lastToken === $text ||
 			( is_string( $lastToken ) &&
-				$text === substr( $lastToken, -strlen( $text ) )
+				str_ends_with( $lastToken, $text )
 			)
 		) {
 			return false;
@@ -445,7 +445,7 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $text === substr( $buf, -strlen( $text ) ) ) {
+			if ( str_ends_with( $buf, $text ) ) {
 				// 'text' emerged unscathed
 				return false;
 			}

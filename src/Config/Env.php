@@ -550,7 +550,7 @@ class Env {
 		}
 
 		// Strip leading ':'
-		if ( $titleKey !== '' && $titleKey[0] === ':' && !$resolveOnly ) {
+		if ( !$resolveOnly && str_starts_with( $titleKey, ':' ) ) {
 			$titleKey = substr( $titleKey, 1 );
 		}
 		return $titleKey;

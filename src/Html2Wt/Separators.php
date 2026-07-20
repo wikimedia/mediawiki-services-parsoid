@@ -717,7 +717,7 @@ class Separators {
 					) ) {
 						// $matches[1] is just spaces and tabs
 						// note that trailingWS can be zero
-						return substr( $matches[1], strlen( $matches[1] ) - $dsr->trailingWS );
+						return substr( $matches[1], -$dsr->trailingWS );
 					}
 				} elseif ( ( $dsr->innerEnd() - 1 ) > $dsr->innerStart() ) {
 					// The > instead of >= in the test above is to

@@ -1502,7 +1502,7 @@ class WikitextSerializer {
 					continue;
 				}
 			} else {
-				if ( $tagLen > 0 && $tag[0] === '/' && substr( $tag, 1 ) === $nonHtmlTag ) {
+				if ( str_starts_with( $tag, '/' ) && substr( $tag, 1 ) === $nonHtmlTag ) {
 					$nonHtmlTag = null;
 				}
 				continue;

@@ -252,8 +252,7 @@ class UrlUtils {
 		if ( isset( $bits['authority'] ) ) {
 			$host = '.' . $bits['authority'];
 			foreach ( $domains as $domain ) {
-				$domain = '.' . $domain;
-				if ( substr( $host, -strlen( $domain ) ) === $domain ) {
+				if ( str_ends_with( $host, '.' . $domain ) ) {
 					return true;
 				}
 			}
