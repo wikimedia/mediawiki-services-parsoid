@@ -7288,6 +7288,22 @@ subpage title=[[Subpage test]]
 !! end
 
 !! test
+T234299: Colon-escaped child link doesn't drop trailing slash
+!! options
+subpage title=[[Subpage test]]
+!! wikitext
+[[:/child/]]
+[[/child/]]
+!! html/php
+<p><a href="/index.php?title=/child/&amp;action=edit&amp;redlink=1" class="new" title="/child/ (page does not exist)">/child/</a>
+<a href="/index.php?title=Subpage_test/child&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/child (page does not exist)">child</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href=".//child/?action=edit&amp;redlink=1" title="/child/" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["/child/"]}}'>/child/</a>
+<a rel="mw:WikiLink" href="./Subpage_test/child?action=edit&amp;redlink=1" title="Subpage test/child" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Subpage_test/child"},"sa":{"href":"/child/"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Subpage test/child"]}}'>child</a></p>
+!! end
+
+!! test
 T2561: {{/Subpage}}
 !! options
 subpage title=[[Page]]

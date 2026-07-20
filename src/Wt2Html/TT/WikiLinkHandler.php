@@ -637,9 +637,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			$morecontent = Utils::decodeURIComponent( $target->href );
 
 			// Try to match labeling in core
-			if ( $env->getSiteConfig()->namespaceHasSubpages(
-				$env->getContextTitle()->getNamespace()
-			) ) {
+			if (
+				!$target->fromColonEscapedText &&
+				$env->getSiteConfig()->namespaceHasSubpages(
+					$env->getContextTitle()->getNamespace()
+				)
+			) {
 				// subpage links with a trailing slash get the trailing slashes stripped.
 				// See https://gerrit.wikimedia.org/r/173431
 				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {
