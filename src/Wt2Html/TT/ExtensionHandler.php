@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwError;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -105,15 +106,15 @@ class ExtensionHandler extends XMLTagBasedHandler {
 		// Call after normalizing extension options, since that can affect the result
 		$dataMw = Utils::getExtArgInfo( $token );
 
+		$extApi = new ParsoidExtensionAPI( $env, [
+			'wt2html' => [
+				'frame' => $this->manager->getFrame(),
+				'parseOpts' => $this->options,
+				'extTag' => new ExtensionTag( $token ),
+			],
+		] );
 		if ( $nativeExt !== null ) {
 			$extArgs = $token->getAttributeV( 'options' );
-			$extApi = new ParsoidExtensionAPI( $env, [
-				'wt2html' => [
-					'frame' => $this->manager->getFrame(),
-					'parseOpts' => $this->options,
-					'extTag' => new ExtensionTag( $token ),
-				],
-			] );
 			try {
 				$extSrc = $dataMw->body->extsrc ?? '';
 				if ( !( $extConfig['options']['hasWikitextInput'] ?? true ) ) {
@@ -159,12 +160,25 @@ class ExtensionHandler extends XMLTagBasedHandler {
 			// a custom sourceToDom method (by returning false from
 			// sourceToDom).
 		}
+		$extSrc = $token->getAttributeV( 'source' );
+		if ( str_contains( $extSrc, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
+			// Convert to pFragments; this is a bit hacky
+			$pieces = preg_split(
+				'/(' . preg_quote( PipelineUtils::PARSOID_FRAGMENT_PREFIX, '/' ) . '\d+}})/',
+				$extSrc, -1, PREG_SPLIT_DELIM_CAPTURE
+			);
+			for ( $i = 1; $i < count( $pieces ); $i += 2 ) {
+				$pieces[$i] = $env->getPFragment( $pieces[$i] );
+			}
+			$extSrc = WikitextPFragment::newFromSplitWt( $pieces, null, unsafeConcat: true );
+		}
 
 		$start = hrtime( true );
 		$domFragment = PipelineUtils::parseToHTML(
 			$env,
-			$token->getAttributeV( 'source' ),
+			$extSrc,
 			$this->manager->getFrame(),
+			$extApi,
 		);
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();

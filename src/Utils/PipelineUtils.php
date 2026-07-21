@@ -909,10 +909,15 @@ class PipelineUtils {
 	/**
 	 * Fetches output of encapsulations that return HTML from the legacy parser
 	 */
-	public static function parseToHTML( Env $env, string $source, Frame $frame ): ?DocumentFragment {
+	public static function parseToHTML(
+		Env $env,
+		string|PFragment $source,
+		Frame $frame,
+		ParsoidExtensionAPI $extApi
+	): ?DocumentFragment {
 		$ret = $env->getDataAccess()->parseWikitextWithTitle(
 			$env->getPageConfig(), $env->getMetadata(), $source,
-			$frame->getTitle(),
+			$frame->getTitle(), $extApi,
 		);
 		return $ret === '' ? null : DOMUtils::parseHTMLToFragment(
 				$env->getTopLevelDoc(), DOMUtils::stripPWrapper( $ret )

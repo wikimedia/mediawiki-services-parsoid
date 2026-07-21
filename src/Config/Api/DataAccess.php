@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\StripState;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -333,6 +334,7 @@ class DataAccess extends IDataAccess {
 		ContentMetadataCollector $metadata,
 		string $wikitext,
 		?LinkTarget $titleOverride = null,
+		?ParsoidExtensionAPI $extApi = null,
 	): string {
 		$pageConfigTitle = $this->toPrefixedText( $titleOverride ?? $pageConfig->getLinkTarget() );
 		$revid = $titleOverride ? null : $pageConfig->getRevisionId();

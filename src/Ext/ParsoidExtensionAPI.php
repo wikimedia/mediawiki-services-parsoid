@@ -1150,7 +1150,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function removeNowikiEscapesFromContent( string $content ): string {
 		return preg_replace_callback(
-			'/{{#parsoid\0fragment:\d+}}/s',
+			'/' . preg_quote( PipelineUtils::PARSOID_FRAGMENT_PREFIX, '/' ) . '\d+}}/s',
 			function ( $matches ) {
 				$pFragment = $this->env->getPFragment( $matches[0] );
 				$fragment = DOMUtils::parseHTMLToFragment(

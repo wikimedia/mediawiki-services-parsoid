@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 
@@ -159,6 +160,7 @@ abstract class DataAccess {
 		ContentMetadataCollector $metadata,
 		string $wikitext,
 		?LinkTarget $titleOverride = null,
+		?ParsoidExtensionAPI $extApi = null,
 	): string {
 		// Temporarily omit the $titleOverride, while we migrate.
 		// It's effectively the same as what we were doing before.
