@@ -773,8 +773,6 @@ class WrapSectionsState {
 	private function insertSyntheticSection(
 		Element $syntheticTocMeta, Element $insertionPoint
 	): Element {
-		$prev = $insertionPoint->previousSibling;
-
 		// Create a pseudo-section contaning the TOC
 		$syntheticTocSection = $this->doc->createElement( 'section' );
 		$syntheticTocSection->setAttribute( 'data-mw-section-id', '-2' );
@@ -782,34 +780,63 @@ class WrapSectionsState {
 		$this->pseudoSectionCount++;
 		$syntheticTocSection->appendChild( $syntheticTocMeta );
 
-		// Ensure template continuity is not broken!
-		// If $prev is not an encapsulation wrapper, nothing to do!
-		if ( $prev && WTUtils::isEncapsulationWrapper( $prev ) ) {
-			'@phan-var Element $prev';
-			$prevAbout = DOMCompat::getAttribute( $prev, 'about' );
+		return $syntheticTocSection;
+	}
 
-			// First, handle the case of section-tag-stripping that VE does.
-			// So, find the leftmost non-section-wrapper node since we want
-			// If the about ids are different, $next & $prev belong to
-			// different transclusions and the TOC meta can be left alone.
-			$next = $insertionPoint->firstChild;
-			$nextAbout = $next instanceof Element ? DOMCompat::getAttribute( $next, 'about' ) : null;
-			if ( $prevAbout === $nextAbout ) {
-				$syntheticTocMeta->setAttribute( 'about', $prevAbout );
-			}
-
-			// Now handle case of section-tags not being stripped
-			// NOTE that $syntheticMeta is before $insertipnPoint
-			// If it is not-null, it is known to be a <section>.
-			$next = $insertionPoint;
-			'@phan-var Element $next';
-			$nextAbout = $next ? DOMCompat::getAttribute( $next, 'about' ) : null;
-			if ( $prevAbout === $nextAbout ) {
-				$syntheticTocSection->setAttribute( 'about', $prevAbout );
+	/**
+	 * Ensure this new <meta> tag doesn't break the continuity of the
+	 * the inner template wrapping layer without <section> tags OR the
+	 * outer template wrapper layer with <section> tags.
+	 */
+	private function ensureTemplateWrappingContinuity( Element $tocMeta ): void {
+		// First, handle case of section-tags not being stripped.
+		// We need to do this because $tocSection may be a synthetic toc section
+		// added in insertSyntheticSection.
+		$tocSection = $tocMeta->parentNode;
+		$tocSectionPrev = $tocSection->previousSibling;
+		// $tocSectionNext is a <section> node
+		$tocSectionNext = $tocSection->nextSibling;
+		if ( $tocSectionPrev instanceof Element && $tocSectionNext instanceof Element ) {
+			$prevAbout = DOMCompat::getAttribute( $tocSectionPrev, 'about' );
+			$nextAbout = DOMCompat::getAttribute( $tocSectionNext, 'about' );
+			if ( $prevAbout !== null && $prevAbout === $nextAbout ) {
+				'@phan-var Element $tocSection';
+				$tocSection->setAttribute( 'about', $prevAbout );
 			}
 		}
 
-		return $syntheticTocSection;
+		// Next, handle case of section-tags being stripped (ex: VE).
+		// If both nodes we determine to be prev & next if sections are stripped
+		// have identical non-null about ids, add that about id to $tocMeta.
+		// Otherwise, $tocMeta can be left alone.
+
+		// Since $tocMeta is inserted before the first heading, $tocSection is
+		// (a) either a lead section,
+		// (b) or a synthetic section without any other children besides $tocMeta.
+		// If (a), $tocMeta->previousSibling is null or a non-section and $tocSectionPrev is null.
+		// If (b), $tocMeta->previousSibling is null AND $tocSectionPrev is not the lead section,
+		//         and hence not a section.
+		// So, in either case, $prev and $tocSectionPrev are both not sections.
+		// And, so we can use $prev's about id as belonging to the inner wrapping layer.
+		$prev = $tocMeta->previousSibling ?? $tocSectionPrev;
+		Assert::invariant( !$prev instanceof Element || !self::isParsoidSection( $prev ),
+			"Didn't expect a <section> here" );
+
+		$prevAbout = $prev instanceof Element ? DOMCompat::getAttribute( $prev, 'about' ) : null;
+		if ( $prevAbout !== null ) {
+			Assert::invariant( $tocMeta->nextSibling === null,
+				"tocMeta was supposed to be last child of its parent." );
+			// First child of a section won't be a section
+			$next = $tocSectionNext->firstChild;
+
+			// When <section> wrappers are stripped, $tocMeta will be sandwiched between
+			// two nodes with identical $about ids. Add the $about to $tocMeta.
+			if ( $next instanceof Element &&
+				DOMCompat::getAttribute( $next, 'about' ) === $prevAbout
+			) {
+				$tocMeta->setAttribute( 'about', $prevAbout );
+			}
+		}
 	}
 
 	private function addSyntheticTOCMarker(): void {
@@ -857,8 +884,11 @@ class WrapSectionsState {
 						$insertionContainer = $this->insertSyntheticSection(
 							$syntheticTocMeta, $sectionTocIP
 						);
+					} else {
+						$insertionContainer->appendChild( $syntheticTocMeta );
 					}
-					$insertionContainer->appendChild( $syntheticTocMeta );
+
+					$this->ensureTemplateWrappingContinuity( $syntheticTocMeta );
 
 					// Set a synthetic zero-length dsr to suppress noisy warnings
 					// from the round trip testing script.

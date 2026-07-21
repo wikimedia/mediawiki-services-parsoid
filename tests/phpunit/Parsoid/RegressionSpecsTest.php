@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -285,7 +286,7 @@ EOT;
 	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapSectionsState
 	 */
 	public function testTocEdgeCases(): void {
-		// For the test below,
+		// For the next two tests below,
 		// - Synthetic meta should get an about id
 		//   matching the surrounding template
 		// - Synthetic section shoult not get an about id
@@ -315,6 +316,31 @@ EOT;
 		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticSection->previousSibling, 'about' ) ); // <span> for \n after 'foo'
 		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticSection->nextSibling->firstChild, 'about' ) ); // <h1>
 		$this->assertNull( DOMCompat::getAttribute( $syntheticSection, 'about' ) );
+
+		$wt = <<<EOT
+{{1x|1=
+foo
+=1=
+a
+
+=2=
+b
+
+==2.1==
+c
+
+==2.2==
+d
+}}
+EOT;
+		$docBody = $this->parseWT( $wt, [], true );
+		$syntheticMeta = DOMCompat::querySelector( $docBody, 'meta[property=mw:PageProp/toc]' );
+		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
+		$this->assertNotNull( $about );
+
+		ContentUtils::stripSectionWrappers( $docBody );
+		$this->assertSame( DOMCompat::getAttribute( $syntheticMeta->previousSibling, 'about' ), $about );
+		$this->assertSame( DOMCompat::getAttribute( $syntheticMeta->nextSibling, 'about' ), $about );
 
 		// For the test below,
 		// - Synthetic meta and synthetic section should not get an about id

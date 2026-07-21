@@ -113,6 +113,29 @@ class ContentUtils {
 	}
 
 	/**
+	 * Strip Parsoid-inserted section wrappers from the DOM.
+	 *
+	 * @param Element $node
+	 */
+	public static function stripSectionWrappers( Element $node ): void {
+		$n = $node->firstChild;
+		while ( $n ) {
+			$next = $n->nextSibling;
+			if ( $n instanceof Element ) {
+				// Recurse into subtree first
+				self::stripSectionWrappers( $n );
+
+				// Strip <section> tags
+				if ( WTUtils::isParsoidSectionTag( $n ) ) {
+					DOMUtils::migrateChildren( $n, $n->parentNode, $n );
+					$n->parentNode->removeChild( $n );
+				}
+			}
+			$n = $next;
+		}
+	}
+
+	/**
 	 * Strip Parsoid-inserted section wrappers, annotation wrappers, and synthetic nodes
 	 * (fallback id spans with HTML4 ids for headings, auto-generated TOC metas
 	 * and possibly other such in the future) from the DOM.
