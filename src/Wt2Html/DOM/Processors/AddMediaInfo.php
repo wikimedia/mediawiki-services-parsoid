@@ -396,14 +396,37 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
-		if ( $alt !== null ) {
-			$img->setAttribute( 'alt', $alt );
-		}
-
 		self::copyOverAttribute( $img, $span, 'resource' );
 
-		$img->setAttribute( 'src', self::getPath( $info ) );
-		$img->setAttribute( 'decoding', 'async' );
+		$imgAttribs = $info['thumbattribs'] ?? [
+			'decoding' => 'async',
+		];
+		// For attributes we copy over or use addNormalizedAttribute for,
+		// don't use the version from $imgAttribs
+		foreach ( [ 'width', 'height', 'resource', 'lang' ] as $name ) {
+			unset( $imgAttribs[$name] );
+		}
+		// override 'alt'
+		if ( $alt !== null ) {
+			$imgAttribs['alt'] = $alt;
+		}
+		// override 'src'
+		$imgAttribs['src'] = self::getPath( $info );
+		// Fill in srcset for "responsive" images if it is missing.
+		if ( empty( $imgAttribs['srcset'] ) && !empty( $info['responsiveUrls'] ) ) {
+			$candidates = [];
+			foreach ( $info['responsiveUrls'] as $density => $url ) {
+				$candidates[] = $url . ' ' . $density . 'x';
+			}
+			if ( $candidates ) {
+				$imgAttribs['srcset'] = implode( ', ', $candidates );
+			}
+		}
+
+		// Set image attributes
+		foreach ( $imgAttribs as $name => $value ) {
+			$img->setAttribute( $name, $value );
+		}
 
 		if ( $span->hasAttribute( 'lang' ) ) {
 			self::copyOverAttribute( $img, $span, 'lang' );
@@ -417,17 +440,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $img, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $img, 'width', (string)$size['width'], null, true );
-
-		// Handle "responsive" images, i.e. srcset
-		if ( !empty( $info['responsiveUrls'] ) ) {
-			$candidates = [];
-			foreach ( $info['responsiveUrls'] as $density => $url ) {
-				$candidates[] = $url . ' ' . $density . 'x';
-			}
-			if ( $candidates ) {
-				$img->setAttribute( 'srcset', implode( ', ', $candidates ) );
-			}
-		}
 
 		return $img;
 	}
