@@ -927,9 +927,22 @@ class MockApiHelper extends ApiHelper {
 				$normalizeTitle = $this->normalizeTitle;
 				$key = $normalizeTitle( $t );
 				$definedInPt = isset( $this->articleCache[$key] );
-				if ( in_array( $t, self::MISSING_TITLES, true ) ||
-					 !$definedInPt ) {
+				$explicitlyMissing = in_array(
+					$t,
+					self::MISSING_TITLES,
+					true
+				);
+
+				// A file can be known through the file repository even when
+				// there is no local file-description page.
+				$fileName = self::FNAMES[$key] ?? null;
+				$knownFile = $fileName !== null &&
+					isset( self::FILE_PROPS[$fileName] );
+				if ( $explicitlyMissing || !$definedInPt ) {
 					$props['missing'] = true;
+				}
+				if ( !$explicitlyMissing && !$definedInPt && $knownFile ) {
+					$props['known'] = true;
 				}
 				if ( in_array( $t, self::SPECIAL_TITLES, true ) ) {
 					$props['special'] = true;

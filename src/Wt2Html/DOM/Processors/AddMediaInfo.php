@@ -26,6 +26,34 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	// phpcs:disable Generic.Files.LineLength.TooLong
 
 	/**
+	 * Batch size to use for fetching page data to avoid exceeding LinkCache::MAX_SIZE
+	 */
+	private const LINK_BATCH_SIZE = 1000;
+
+	/**
+	 * @param Env $env
+	 * @param list<string> $titles
+	 * @return array<string,array>
+	 */
+	private static function getPageInfoBatched(
+		Env $env, array $titles
+	): array {
+		$pageInfo = [];
+		foreach (
+			array_chunk( $titles, self::LINK_BATCH_SIZE ) as $chunk
+		) {
+			$pageInfo = array_replace(
+				$pageInfo,
+				$env->getDataAccess()->getPageInfo(
+					$env->getPageConfig(),
+					$chunk
+				)
+			);
+		}
+		return $pageInfo;
+	}
+
+	/**
 	 * Extract the dimensions for media.
 	 *
 	 * @param Env $env
@@ -532,6 +560,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		$validContainers = [];
 		$files = [];
+		$limitFallbackTitles = [];
 
 		$containers = DOMCompat::querySelectorAll( $root, '[typeof*="mw:File"]' );
 
@@ -660,6 +689,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				'title' => $env->makeTitleFromText( $span->textContent ),
 			];
 
+			// title for getFileInfo, which expects the file DB key.
+			$pageInfoKey = $attrs['title']->getPrefixedText();
+
 			$file = [ $attrs['title']->getDBKey(), $dims ];
 			$infoKey = md5( json_encode( $file ) );
 
@@ -699,6 +731,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			} else {
 				// false signals, that the media limit was reached
 				$infoKey = false;
+				$limitFallbackTitles[$pageInfoKey] = true;
 			}
 
 			$validContainers[] = [
@@ -708,6 +741,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				// Pass the anchor because we did some work to find it above
 				'anchor' => $anchor,
 				'infoKey' => $infoKey,
+				'pageInfoKey' => $pageInfoKey,
 				'manualKey' => $manualKey,
 				'errs' => $errs,
 			];
@@ -734,6 +768,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			array_keys( $files ),
 			$infos
 		);
+		$limitFallbackInfo = [];
+		if ( $limitFallbackTitles ) {
+			$limitFallbackInfo = self::getPageInfoBatched(
+				$env,
+				array_keys( $limitFallbackTitles )
+			);
+		}
 
 		$hasThumb = false;
 		$needsTMHModules = false;
@@ -752,7 +793,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$broken = false;
 			// In case of image limit was reached, set media container in error state
 			if ( $c['infoKey'] === false ) {
-				$broken = true;
 				$env->getDataAccess()->addTrackingCategory(
 					$env->getPageConfig(),
 					$env->getMetadata(),
@@ -764,6 +804,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					'Image is not rendered due to image limit was exceeded',
 					[]
 				);
+
+				$pageInfo = $limitFallbackInfo[$c['pageInfoKey']] ?? null;
+				if ( $pageInfo === null ) {
+					$broken = true;
+				} else {
+					// Use the same missing-page definition as AddRedLinks.
+					$broken =
+						!empty( $pageInfo['missing'] ) &&
+						empty( $pageInfo['known'] );
+				}
 			} elseif ( !$files[$c['infoKey']] ) {
 				$broken = true;
 				$env->getDataAccess()->addTrackingCategory(
