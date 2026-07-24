@@ -801,46 +801,66 @@ class TableFixups {
 	}
 
 	/**
+	 * Does this table cell put next sibling in a SOL state?
+	 * If the cell's content effectively ends in a newline, it creates
+	 * SOL context in the source markup for the following table cell
+	 */
+	private static function putsNextSiblingInSOLState( Element $cell ): bool {
+		return (bool)preg_match(
+			"/\n(?:" . Utils::COMMENT_REGEXP_FRAGMENT . ")*\s*$/",
+			DOMCompat::getInnerHTML( $cell )
+		);
+	}
+
+	/**
 	 * $cell is known to be <td>/<th>, and known to be a wikitext tag, not HTML tag.
+	 * $prev is $cell's previous sibling.
+	 *
+	 * Here are the requirements:
+	 * 1. $prev should not be a HTML cell
+	 * 2. $prev should have valid DSR
+	 * 3. $cell should come from a template
+	 *    Template wrapping, which happens prior to this pass, may have combined
+	 *    various regions. The important indicator of whether we want to try
+	 *    to combine is if the $cell was the first node of a template.
+	 * 4. $cell should not be an already merged cell (we can revisit this if necessary)
+	 *    OR we should not have attempted and failed a merge.
+	 * 5. $cell should not be marked unmergeable (td-td, th-th, th-td scenarios)
+	 *    OR we are in a td-th scenario (even if $prev, a $td, is marked unmergable)
+	 * 6. $prev & $cell shouldn't be on different syntactic lines
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): ReparseScenario {
+		$cellIsTd = DOMUtils::nodeName( $cell ) === 'td';
+		$dp = DOMDataUtils::getDataParsoid( $cell );
 		$prev = $cell->previousSibling;
 		$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
-		if ( DOMUtils::nodeName( $cell ) === 'th' &&
-			$prev !== null && DOMUtils::nodeName( $prev ) === 'td' &&
-			!WTUtils::hasLiteralHTMLMarker( $prevDp )
-		) {
-			// This can only happen in independent-parsing (hence templated) scenarios
-			// The <th> tokenizing has to be undone and combined with the prevous <td>
-			return ReparseScenario::UNDO_TH_TOKENIZING;
-		}
-
-		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if (
-			// Template wrapping, which happens prior to this pass, may have combined
-			// various regions.  The important indicator of whether we want to try
-			// to combine is if the $cell was the first node of a template.
+			$prevDp !== null &&
+			// Condition 3
 			$dp->getTempFlag( TempData::AT_SRC_START ) &&
-			!$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
+			// Condition 4
 			!$dp->getTempFlag( TempData::MERGED_TABLE_CELL ) &&
-			!$dp->getTempFlag( TempData::FAILED_REPARSE )
+			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
+			// Conditions 1 & 2 (moved below the above cheaper checks)
+			!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
+			Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
+			// Condition 5
+			(
+				!$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) ||
+				( DOMUtils::nodeName( $prev ) === 'td' && !$cellIsTd /* th */ )
+			) &&
+			// Condition 6
+			!self::putsNextSiblingInSOLState( $prev )
 		) {
-			// Look for opportunities where table cells could combine. This requires
-			// $cell to be a templated cell.
-			if ( $prevDp &&
-				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
-				Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
-				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
-			) {
-				return ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL;
-			}
+			return ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL;
 		}
 
 		// FIXME: We're traversing with the outermost encapsulation, but encapsulations
-		// can be nested (ie. template in extension content) so the check is insufficient
+		// can be nested (ie. template in extension content) so the check is insufficient.
 		$inTplContent = $dtState->tplInfo !== null &&
 			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
-		$testRE = DOMUtils::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
+
+		$testRE = $cellIsTd ? '/[|]/' : '/[!|]/';
 		$noAttrReparsing = !$dp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) ||
 			// In TokenizerUtils::buildTableTokens(), we have a special case to add the
 			// no attribute syntax flag to || found in SOL position, since, coming from a
@@ -910,17 +930,17 @@ class TableFixups {
 		$reparseType = self::getReparseType( $cell, $dtState );
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
-		// but should have been parsed as <th>foo</th> when not the first child
+		// but should have been parsed as <th>foo</th>.
 		if ( $cellName === 'th' && $isTemplatedCell &&
-			$reparseType !== ReparseScenario::UNDO_TH_TOKENIZING &&
+			// Nothing to do here if it is going to be merged with previous cell
+			$reparseType !== ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL &&
 			// The ! wouldn't be the first content char if attrs were present
 			$cellDp->getTempFlag( TempData::TABLE_CELL_WITH_NO_ATTRIBUTE_SYNTAX ) &&
-			// This is checking that previous sibling is not "\n" which would
-			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
-			// If this weren't template output, we would check for "stx" === 'row'.
-			// FIXME: Note that this check is fragile and doesn't work always, but this is
-			// the price we pay for Parsoid's independent template parsing!
-			$cell->previousSibling instanceof Element
+			// Previous cell shouldn't put $cell in SOL context
+			(
+				$cell->previousSibling instanceof Element &&
+				!self::putsNextSiblingInSOLState( $cell->previousSibling )
+			)
 		) {
 			$fc = DiffDOMUtils::firstNonSepChild( $cell );
 			if ( $fc instanceof Text ) {
@@ -937,9 +957,7 @@ class TableFixups {
 			return true;
 		}
 
-		if ( $reparseType === ReparseScenario::UNDO_TH_TOKENIZING ||
-			$reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL
-		) {
+		if ( $reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL ) {
 			if ( self::reparseWithPreviousCell( $dtState, $cell ) ) {
 				return true;
 			} else {

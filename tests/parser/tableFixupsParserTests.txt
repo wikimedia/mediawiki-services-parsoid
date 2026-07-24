@@ -648,6 +648,111 @@ Ensure td-cell-type is switched to th when the first cell in a row is a <th>
 </tbody></table>
 !! end
 
+!! article
+Template:one-bang-th-cell
+!! text
+!b
+!! endarticle
+
+## FIXME: To prevent the "!!" from being parsed as a parser tests file directive,
+## we need the leading comment.
+!! article
+Template:two-bangs-th-cell
+!! text
+<!--cmt-->!!b
+!! endarticle
+
+!! test
+1. Edge cases related to td-th cell merging
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|-
+| a
+<!--x-->!b
+|-
+| a
+<!--x-->{{one-bang-th-cell}}
+|-
+| a <!--x-->{{one-bang-th-cell}}
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>a
+</td>
+<th>b
+</th></tr>
+<tr>
+<td>a
+</td>
+<th>b
+</th></tr>
+<tr>
+<td>a !b
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td>a
+<!--x--></td><th>b</th></tr>
+<tr>
+<td>a
+<!--x--></td><th about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"one-bang-th-cell","href":"./Template:One-bang-th-cell"},"params":{},"i":0}}]}'>b</th></tr>
+<tr>
+<td about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["| a &lt;!--x-->",{"template":{"target":{"wt":"one-bang-th-cell","href":"./Template:One-bang-th-cell"},"params":{},"i":0}}]}'>a <!--x-->!b</td></tr>
+</tbody></table>
+!! end
+
+## NOTE: this test also passes standalone mode, but the difference is that
+## the <!--cmt--> from above becomes part of the output, and there is no benefit
+## to adding a separate html/parsoid+standalone section to test in standalone mode.
+!! test
+2. Edge cases related to td-th cell merging
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|-
+| a
+<!--x-->!!b
+|-
+| a
+<!--x-->{{two-bangs-th-cell}}
+|-
+| a <!--x-->{{two-bangs-th-cell}}
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>a
+</td>
+<th>!b
+</th></tr>
+<tr>
+<td>a
+</td>
+<th>!b
+</th></tr>
+<tr>
+<td>a&#160;!!b
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr>
+<td>a
+<!--x--></td><th>!b</th></tr>
+<tr>
+<td>a
+<!--x--></td><th about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"two-bangs-th-cell","href":"./Template:Two-bangs-th-cell"},"params":{},"i":0}}]}'>!b</th></tr>
+<tr>
+<td about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["| a &lt;!--x-->",{"template":{"target":{"wt":"two-bangs-th-cell","href":"./Template:Two-bangs-th-cell"},"params":{},"i":0}}]}'>a <!--x-->!!b</td></tr>
+</tbody></table>
+!! end
+
 !! test
 Templated cell not merging with previous cell with attributes and trailing vertical bar
 !! wikitext
