@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
+use MediaWiki\Parser\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Document;
@@ -20,8 +21,12 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Batch size to use for fetching page data to avoid exceeding LinkCache::MAX_SIZE
+	 * @note LinkBatch works by warming up LinkCache, which is then consulted by Title.
+	 * Parsoid is requesting data in batches, which cannot overflow the cache (otherwise,
+	 * the performance gains from batching would be lost).
+	 * @see DataAccess::getPageInfo()
 	 */
-	private const LINK_BATCH_SIZE = 1000;
+	private const LINK_BATCH_SIZE = 5000;
 
 	/**
 	 * Add red links to a document.
