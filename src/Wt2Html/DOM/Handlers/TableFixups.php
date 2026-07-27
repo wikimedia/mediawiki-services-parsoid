@@ -826,16 +826,10 @@ class TableFixups {
 			!$dp->getTempFlag( TempData::FAILED_REPARSE )
 		) {
 			// Look for opportunities where table cells could combine. This requires
-			// $cell to be a templated cell. But, we don't support combining
-			// templated cells with other templated cells. So, previous sibling
-			// cannot be templated.
-			//
-			// So, bail out of scenarios where prevDp comes from a template (the checks
-			// for isValidDSR( $prevDp-> dsr ) and valid opening tag width catch this.
+			// $cell to be a templated cell.
 			if ( $prevDp &&
 				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
 				Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
-				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
 			) {
 				return ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL;
