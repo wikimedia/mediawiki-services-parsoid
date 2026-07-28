@@ -2377,6 +2377,48 @@ Link containing an equals sign
 <p><a rel="mw:WikiLink" href="./Special:BookSources/isbn=4-00-026157-6" title="Special:BookSources/isbn=4-00-026157-6">Special:BookSources/isbn=4-00-026157-6</a></p>
 !! end
 
+# T433320 is a test that uses a numeric character entity to escape the |
+!! test
+Link syntax containing numeric character entities
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+[[Main&#160;Page]]
+[[Foo&#124;bar]]
+[[Foo#a&#160;b]]
+[[Foo#a&#124;b]]
+!! html/php
+<p><a href="/wiki/Main_Page" title="Main Page">Main&#160;Page</a>
+[[Foo&#124;bar]]
+<a href="/wiki/Foo#a_b" title="Foo">Foo#a&#160;b</a>
+<a href="/wiki/Foo#a.7Cb" title="Foo">Foo#a&#124;b</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a>
+[[Foo<span typeof="mw:Entity">|</span>bar]]
+<a rel="mw:WikiLink" href="./Foo#a_b" title="Foo">Foo#a b</a>
+<a rel="mw:WikiLink" href="./Foo#a|b" title="Foo">Foo#a|b</a></p>
+!! end
+
+!! test
+Link syntax containing HTML entitles
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+[[Foo&copy;bar]]
+[[Foo#a&vert;b]]
+[[Foo#a&copy;b]]
+!! html/php
+<p><a href="/index.php?title=Foo%C2%A9bar&amp;action=edit&amp;redlink=1" class="new" title="Foo©bar (page does not exist)">Foo&#169;bar</a>
+<a href="/wiki/Foo#a.7Cb" title="Foo">Foo#a&#124;b</a>
+<a href="/wiki/Foo#a.C2.A9b" title="Foo">Foo#a&#169;b</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Foo©bar?action=edit&amp;redlink=1" title="Foo©bar" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo©bar"]}}'>Foo©bar</a>
+<a rel="mw:WikiLink" href="./Foo#a|b" title="Foo">Foo#a|b</a>
+<a rel="mw:WikiLink" href="./Foo#a©b" title="Foo">Foo#a©b</a></p>
+!! end
+
 !! article
 Foo & bar
 !! text

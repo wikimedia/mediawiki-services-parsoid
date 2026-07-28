@@ -351,7 +351,8 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 
 		// First check if the expanded href contains a pipe.
-		if ( str_contains( $hrefTokenStr, '|' ) ) {
+		// But, pipes are valid in fragment position.
+		if ( preg_match( "/^[^#]*\|/", $hrefTokenStr ) ) {
 			// It does. This 'href' was templated and also returned other
 			// parameters separated by a pipe. We don't have any sensible way to
 			// handle such a construct currently, so prevent people from editing
