@@ -14,9 +14,6 @@
 	"2. Template wrapping shouldn't ignore fostered content": {
 		"wt2wt": "\nhiho\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}"
 	},
-	"2. Using {{!}} in wikilinks (T290526)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'>[[<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[2,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span>]]</p>"
-	},
 	"2. includeonly in html attr value": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,155,0,0]}'><span id=\"v1\" about=\"#mwt\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"id\":\"v1\"},\"sa\":{\"id\":\"&lt;noinclude>v1&lt;/noinclude>&lt;includeonly>v2&lt;/includeonly>\"},\"dsr\":[0,76,66,7]}' data-mw='{\"attribs\":[[{\"txt\":\"id\"},{\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[10,21,null,null]}&apos;/>v1&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[23,35,null,null]}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[35,64,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>v2&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[64,64,null,null]}&apos;/>\"}]]}'>bar</span>\n<span id='\"v1\"' about=\"#mwt\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"id\":\"\\\"v1\\\"\"},\"sa\":{\"id\":\"&lt;noinclude>\\\"v1\\\"&lt;/noinclude>&lt;includeonly>\\\"v2\\\"&lt;/includeonly>\"},\"dsr\":[77,155,68,7]}' data-mw='{\"attribs\":[[{\"txt\":\"id\"},{\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[86,97,null,null]}&apos;/>\\\"v1\\\"&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[101,113,null,null]}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[113,144,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>\\\\\\\"v2\\\\\\\"&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[144,144,null,null]}&apos;/>\"}]]}'>bar</span></p>",
 		"wt2wt": "<span id=\"<noinclude>v1</noinclude><includeonly>v2</includeonly>\">bar</span>\n<span id=\"<noinclude>&quot;v1&quot;</noinclude><includeonly>&quot;v2&quot;</includeonly>\">bar</span>"
@@ -30,20 +27,11 @@
 	"8. Encapsulate foster-parented transclusion content": {
 		"wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}"
 	},
-	"<pre> inside a link": {
-		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"
-	},
-	"Anchor containing a #. (T65430)": {
-		"metadata": ""
-	},
 	"Attribute test: unquoted but illegal value (hash)": {
 		"wt2wt": "<font color=\"#x\">foo</font>"
 	},
 	"Bail on table cell attribute parsing on wikilink": {
 		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
-	},
-	"Broken link with fragment": {
-		"metadata": ""
 	},
 	"Category with newline in sort key": {
 		"metadata": "cat=Wikidata:Tools sort=*"
@@ -124,12 +112,6 @@
 	"Parsing of overlapping (improperly nested) inline html tags": {
 		"wt2wt": "<span><s>x</span>"
 	},
-	"Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
-		"wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']"
-	},
-	"Render invalid page names as plain text (T53090)": {
-		"wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
-	},
 	"Self closed html pairs (T7487)": {
 		"wt2html": "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>"
 	},
@@ -138,9 +120,6 @@
 	},
 	"Self-closed tag with broken attribute value quoting": {
 		"wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
-	},
-	"Special page link with fragment": {
-		"metadata": ""
 	},
 	"T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
 		"wt2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]"
@@ -159,9 +138,6 @@
 	},
 	"T368721: Closing block tags not on the stack of open elements in lists": {
 		"wt2wt": "<!-- block tag  -->*a\nb\n\n<!-- wikitext block tag -->\n*a</p>b"
-	},
-	"T4095: link with pipe and three closing brackets, version 2": {
-		"wt2wt": "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]"
 	},
 	"T4702: Mismatched <i>, <b> and <a> tags are invalid": {
 		"wt2wt": "''[http://example.com text]''\n[http://example.com '''text''']\n''Something [http://example.com in italic]''\n''Something [http://example.com mixed''''', even bold''''']'''\n'''''Now [http://example.com both]'''''"
@@ -231,9 +207,6 @@
 	},
 	"Verify that without displaytitle the title encodes & to &amp; (T291985)": {
 		"metadata": "Art&copy"
-	},
-	"Wikilink in wikilink": {
-		"wt2wt": "[[Hi|[[Ho]]<nowiki>]]</nowiki>"
 	},
 	"anchorencode encodes like the TOC generator: (T20431)": {
 		"wt2wt": "===_ +:.3A%3A _ &&amp;]] x===\n{{anchorencode: _ +:.3A%3A _ &&amp;<nowiki>]] x</nowiki>}}\n\n__NOEDITSECTION__"

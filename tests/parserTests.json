@@ -35,7 +35,7 @@
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
-				"expectedSHA1": "3ec5ce63e81814fbbb4e67c11c127360e8ab2713"
+				"expectedSHA1": "cd96e52664abe7ea22686cddf2a3d1f3d5ad3bd3"
 			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
@@ -79,7 +79,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "977e4111beaff166e3be8ec66b2b2b22b015dcf1"
+				"expectedSHA1": "abafcc99886159ad0fc709c3c6598e09b9f609d1"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -108,6 +108,10 @@
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
 				"expectedSHA1": "282022cbef995f6823328902606e5c45c57ccd07"
+			},
+			"wikiLinks.txt": {
+				"path": "tests/parser/wikiLinks.txt",
+				"expectedSHA1": "73a09c317cbec671d42164768c37362808f10a7b"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
