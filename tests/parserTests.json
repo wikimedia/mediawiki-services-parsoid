@@ -29,6 +29,10 @@
 				"path": "tests/parser/badCharacters.txt",
 				"expectedSHA1": "e7600d196c77d4affb44e39a400fa443c8f4caaa"
 			},
+			"catAndLangLinks.txt": {
+				"path": "tests/parser/catAndLangLinks.txt",
+				"expectedSHA1": "bf6c584c21653b3c811d2375584c79452ea268f6"
+			},
 			"definitionLists.txt": {
 				"path": "tests/parser/definitionLists.txt",
 				"expectedSHA1": "d6e8488b644139a8d56e755db65561fbb4e9214c"
@@ -79,7 +83,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "abafcc99886159ad0fc709c3c6598e09b9f609d1"
+				"expectedSHA1": "4423b11cd2d3085e54c25ed8d3dc269a9fdcf99d"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
