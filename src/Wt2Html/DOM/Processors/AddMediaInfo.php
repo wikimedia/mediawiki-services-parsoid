@@ -27,8 +27,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Batch size to use for fetching page data to avoid exceeding LinkCache::MAX_SIZE
+	 * This should be synchronized with AddRedLinks::LINK_BATCH_SIZE
+	 * TODO(os): Merge both into one constant or refactor getPageInfo to already handle LINK_BATCH_SIZE itself
 	 */
-	private const LINK_BATCH_SIZE = 1000;
+	private const LINK_BATCH_SIZE = 5000;
 
 	/**
 	 * @param Env $env

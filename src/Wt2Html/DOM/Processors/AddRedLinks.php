@@ -24,6 +24,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 	 * @note LinkBatch works by warming up LinkCache, which is then consulted by Title.
 	 * Parsoid is requesting data in batches, which cannot overflow the cache (otherwise,
 	 * the performance gains from batching would be lost).
+	 * @note This constant is also present at AddMediaInfo::LINK_BATCH_SIZE
 	 * @see DataAccess::getPageInfo()
 	 */
 	private const LINK_BATCH_SIZE = 5000;
