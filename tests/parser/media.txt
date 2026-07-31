@@ -1875,7 +1875,7 @@ File:Foobar.jpg|class=b|a
 </gallery>
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt1" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File" class="b"><a href="./File:Foobar.jpg" class="mw-file-description" title="a"><img alt="a" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" class="mw-file-element"/></a></span></div><div class="gallerytext">a</div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span class="b" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="a"><img alt="a" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" class="mw-file-element"/></a></span></div><div class="gallerytext">a</div></li>
 </ul>
 !! end
 

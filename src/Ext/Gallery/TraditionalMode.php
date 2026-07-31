@@ -176,7 +176,6 @@ class TraditionalMode extends Mode {
 		$thumb->setAttribute( 'style', $this->thumbStyle( $width, $height, $o->hasError ) );
 
 		$wrapper = $doc->createElement( 'span' );
-		$wrapper->setAttribute( 'typeof', $o->rdfaType );
 		if ( $o->thumb->hasAttribute( 'class' ) ) {
 			$classList = explode( ' ', DOMCompat::getAttribute( $o->thumb, 'class' ) );
 			// FIXME: ParsoidExtensionAPI::renderMedia could supply an option
@@ -189,6 +188,7 @@ class TraditionalMode extends Mode {
 				$wrapper->setAttribute( 'class', implode( ' ', $classList ) );
 			}
 		}
+		$wrapper->setAttribute( 'typeof', $o->rdfaType );
 		ParsoidExtensionAPI::migrateChildrenAndTransferWrapperDataAttribs(
 			$o->thumb, $wrapper
 		);
