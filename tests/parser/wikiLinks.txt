@@ -196,6 +196,14 @@ Foobarbaz
 Dummy article to suppress redlinks in tests
 !! end
 
+!! article
+אַ
+!! text
+Test for unicode normalization
+
+The page's name is U+05d0 U+05b7, with non-canonical form U+FB2E
+!! endarticle
+
 # -----------
 # Tests below
 # -----------
@@ -396,6 +404,38 @@ parsoid=wt2html
 </p>
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page"> </a> - empty space</p>
+!! end
+
+!! test
+Character reference normalization in link text (T3938)
+!! wikitext
+[[Main Page|this&that]]
+!! html
+<p><a href="/wiki/Main_Page" title="Main Page">this&amp;that</a>
+</p>
+!! end
+
+!! test
+(T21451) Links should refer to the normalized form.
+!! wikitext
+[[&#xFB2E;]]
+[[&#x5d0;&#x5b7;]]
+[[&#x5d0;ַ]]
+[[א&#x5b7;]]
+[[אַ]]
+!! html/php
+<p><a href="/wiki/%D7%90%D6%B7" title="אַ">&#xfb2e;</a>
+<a href="/wiki/%D7%90%D6%B7" title="אַ">&#x5d0;&#x5b7;</a>
+<a href="/wiki/%D7%90%D6%B7" title="אַ">&#x5d0;ַ</a>
+<a href="/wiki/%D7%90%D6%B7" title="אַ">א&#x5b7;</a>
+<a href="/wiki/%D7%90%D6%B7" title="אַ">אַ</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#xFB2E;"}}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;&amp;#x5b7;"}}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;ַ"}}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"א&amp;#x5b7;"}}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"אַ"}}'>אַ</a></p>
 !! end
 
 !! test

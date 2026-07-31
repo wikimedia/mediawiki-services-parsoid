@@ -81,9 +81,13 @@
 				"path": "tests/parser/media.txt",
 				"expectedSHA1": "73a0ab0b4447f2dcaa6cb5c40323ff748723c045"
 			},
+			"mediaLinks.txt": {
+				"path": "tests/parser/mediaLinks.txt",
+				"expectedSHA1": "bc3326939d21e87d67c1ae8ccf7fd8006375f833"
+			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "4423b11cd2d3085e54c25ed8d3dc269a9fdcf99d"
+				"expectedSHA1": "3b4cfcc351b1e4cce8ce606dccab03fff5aaaffb"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
