@@ -14,6 +14,7 @@
 			"separatorTests.txt": {},
 			"tableFixupsParserTests.txt": {},
 			"treeBuilder.txt": {},
+			"wtsTests.txt": {},
 			"v3ParserFunctions.txt": {}
 		}
 	},
@@ -87,7 +88,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "3b4cfcc351b1e4cce8ce606dccab03fff5aaaffb"
+				"expectedSHA1": "01452f3716d5cf404ecacdce764027eaf31e21ff"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -119,7 +120,7 @@
 			},
 			"wikiLinks.txt": {
 				"path": "tests/parser/wikiLinks.txt",
-				"expectedSHA1": "73a09c317cbec671d42164768c37362808f10a7b"
+				"expectedSHA1": "b8b856a389564321cbb4b4cb0c625cb83f62cc8e"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",

@@ -2257,3 +2257,13 @@ Wikilink extlink precedence
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Test" title="Test">[http://google.com test</a></p>
 !! end
+
+!! test
+Catch regression when unpacking misnested links
+!! options
+parsoid=wt2html
+!! wikitext
+{{1x|hi}}[http://example.com [[ho]]]
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"hi"}},"i":0}}]}'>hi</span><a rel="mw:ExtLink nofollow" href="http://example.com" class="external text"></a><a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"stx":"simple","a":{"href":"./Ho"},"sa":{"href":"ho"},"misnested":true}'>ho</a></p>
+!! end

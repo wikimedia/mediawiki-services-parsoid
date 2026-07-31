@@ -1,0 +1,120 @@
+{
+    "3a. Table cells without escapable prefixes after edits": {
+        "selser [manual]": "{|\n| id=\"x\" | -\n|}"
+    },
+    "9. T409669 Regression test: Don't move out format tags when originating as piped": {
+        "selser [[1]]": "''[[Foo bar baz|Foo bar baz]]''",
+        "selser [[[1]]]": "''[[Foo bar baz]]''"
+    },
+    "Consecutive <pre>s should not get merged": {
+        "html2html": "<pre data-parsoid='{\"dsr\":[0,2,1,0]}'>a</pre>\n\n<pre data-parsoid='{\"dsr\":[4,6,1,0]}'>b</pre>\n\n<pre data-parsoid='{\"dsr\":[8,10,1,0]}'>c</pre>\n\n<pre data-parsoid='{\"dsr\":[12,14,1,0]}'>d</pre>\n\n<pre data-parsoid='{\"dsr\":[16,18,1,0]}'>e</pre>\n <p data-parsoid='{\"dsr\":[20,21,0,0]}'>\n<br data-parsoid='{\"dsr\":[21,21,0,0]}'/></p>\n \n<pre data-parsoid='{\"dsr\":[24,26,1,0]}'>f</pre>\n"
+    },
+    "Normalizations should be restricted to edited content": {
+        "selser [2,0,0,2,3]": "qnd1q4\n\na\n= =\nzvmmb4\n",
+        "selser [0,4,0,0,3]": "a\n\n1b27ypv\n\n= =\n",
+        "selser [3,0,0,3,[2]]": "\n= =\n158zbx1b",
+        "selser [0,4,0,0,0]": "a\n\ncs5h4n\n\n= =\nb",
+        "selser [2,2,0,4,3]": "1u9m45m\n\na\n\n1wk6xex\n\n= =\nm4bj9",
+        "selser [[4],0,2,2,4]": "4zaulx\n\n8lgr3b\n\n= =\nq57o1d\n1yj3afc",
+        "selser [3,2,0,3,4]": "71i7pu\n\n= =\n1aurpu1",
+        "selser [0,0,2,0,[3]]": "a\n\n1d4voyj\n\n= =\n",
+        "selser [3,4,0,2,3]": "1dbwger\n\n= =\np3hzk\n",
+        "selser [1,2,0,4,4]": "a\n\n1k4ytql\n\n= =\n1tgll7o\n\nh7z05y",
+        "selser [1,2,0,0,0]": "a\n\n1qeflfy\n\n= =\nb",
+        "selser [1,2,2,3,0]": "a\n\n1sud6qp\n\n1suxewc\n\n= =\nb"
+    },
+    "Parsoid should not accept invalid interwiki shortcuts": {
+        "html2wt": "[[news:Foo|Foo]]\n[news:Foo Foo]\n[news:Foo Foo]"
+    },
+    "Remove a list item but do not insert newline above list": {
+        "selser [manual]": "header\n*foo\n\nfooter"
+    },
+    "Spaced heading with element": {
+        "selser [[3,4,0]]": "=== 1z3xsf hi ho ===",
+        "selser [[2,0,0]]": "=== 170gdm3hi <span id=\"x\">hi</span> hi ho ===",
+        "selser [1]": "=== hi <span id=\"x\">hi</span> hi ho ===",
+        "selser [2]": "y61ost\n\n=== hi <span id=\"x\">hi</span> hi ho ===",
+        "selser [[0,3,0]]": "=== hi  hi ho ===",
+        "selser [[4,[2],0]]": "=== 3r47fx<span id=\"x\">13z345whi</span> hi ho ===",
+        "selser [[3,4,3]]": "=== 7t8v47 ===",
+        "selser [[3,0,0]]": "=== <span id=\"x\">hi</span> hi ho ===",
+        "selser [[0,1,2]]": "=== hi <span id=\"x\" data-foobar=\"1f91hhe\">hi</span>r9yx8e hi ho ===",
+        "selser [[0,3,4]]": "=== hi 1wfz4el ===",
+        "selser [[0,1,0]]": "=== hi <span id=\"x\" data-foobar=\"bwaljq\">hi</span> hi ho ===",
+        "selser [[4,3,0]]": "=== 1r0v4o9 hi ho ===",
+        "selser [[0,[2],0]]": "=== hi <span id=\"x\">1icvnnlhi</span> hi ho ===",
+        "selser [[3,0,4]]": "=== <span id=\"x\">hi</span>12czxl1 ===",
+        "selser [[0,2,2]]": "=== hi 15wkygl<span id=\"x\">hi</span>vzqtm7 hi ho ===",
+        "selser [[3,0,3]]": "=== <span id=\"x\">hi</span> ===",
+        "selser [[0,0,2]]": "=== hi <span id=\"x\">hi</span>1w2au0v hi ho ===",
+        "selser [[4,[3],0]]": "=== 64yg7h<span id=\"x\"></span> hi ho ==="
+    },
+    "T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
+        "wt2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]",
+        "html2html": "<link typeof=\"mw:ExpandedAttrs\" about=\"#mwt2\" rel=\"mw:PageProp/Category\" href=\"./Category:Bugs-Regression\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Bugs-Regression\"},\"sa\":{\"href\":\"Category:Bugs-{{#if:blah|Regression|None}}\"},\"dsr\":[0,46,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Category:Bugs-&lt;span about=\\\"#mwt3\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"},{\\\"k\\\":\\\"3\\\"}]],\\\"dsr\\\":[16,44,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"Regression\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>Regression&lt;/span>\"}]]}'/>\n<link typeof=\"mw:ExpandedAttrs\" about=\"#mwt6\" rel=\"mw:PageProp/Category\" href=\"./Category:Bugs-Regression-2020\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Bugs-Regression-2020\"},\"sa\":{\"href\":\"Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}\"},\"dsr\":[47,116,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Category:Bugs-&lt;span about=\\\"#mwt7\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"},{\\\"k\\\":\\\"3\\\"}]],\\\"dsr\\\":[63,91,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"Regression\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>Regression&lt;/span>-&lt;span about=\\\"#mwt8\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"},{\\\"k\\\":\\\"2\\\"},{\\\"k\\\":\\\"3\\\"}]],\\\"dsr\\\":[92,114,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"#if:blah\\\",\\\"function\\\":\\\"if\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"2020\\\"},\\\"2\\\":{\\\"wt\\\":\\\"None\\\"}},\\\"i\\\":0}}]}&apos;>2020&lt;/span>\"}]]}'/>",
+        "html2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]",
+        "selser [2,0,0]": "fzlv20\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [3,0,0]": "\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [1,0,2]": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\nch5480\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [4,2,1]": "1qzsk51\n\n1q7u882\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]",
+        "selser [3,0,2]": "\n1z0mf5c\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [0,0,1]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]",
+        "selser [0,3,4]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n1cdxgr",
+        "selser [3,2,1]": "e3d6n4\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}]]",
+        "selser [0,0,4]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\nq4i7jz",
+        "selser [2,0,2]": "gp679p\n[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n2zkhkj\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [1,0,0]": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [0,3,2]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\nf3tw5x\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [0,4,0]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n11dapge\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [0,3,0]": "[[Category:Bugs-{{#if:blah|Regression|None}}|fragment]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [4,2,0]": "77wx48\n\n1dy0ips\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [3,2,0]": "1kxc4ot\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
+        "selser [4,2,2]": "1c1qznt\n\nklxc2j\n\n1ixrma7\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
+    },
+    "T88318: p-wrapped dash in table.": {
+        "wt2wt": "{|\n!-\n!-\n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[0,[1,4,3,3,[0,2,3,[2,4,1],2,0],0]]]": "{|\n|- data-foobar=\"1iw46q4\"\n!-\n!- <!--10ph6xs-->\n|-\n|1sxosdu\n|<small>-</small>\n|1xikuyp<br />1i2om9d\n-\n|12dri8j\n|<br />-\n|}",
+        "selser [[4,1]]": "{|<!--avsco0-->\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[2,2]]": "{|<!--198ykec-->\n<!--1ja8163-->!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [2]": "1qlsswu\n{|\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[2,1]]": "{|<!--g6mv6-->\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[3,1]]": "{|\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[4,[0,4,4,3,1,4]]]": "{|<!--sz0yg8-->\n!-\n!- <!--ammywp--><!--1qztxse-->\n|- data-foobar=\"x39tdc\"\n|<small>-</small>\n|<br />\n-\n|<br />-<!--5q1uzu-->\n|}",
+        "selser [1]": "{| data-foobar=\"1eth3uj\"\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[4,[[3,3,[2]],3,[0,0,0,1],4,[0,2,3,[0,4,[3]],0,[3,3]],0]]]": "{|<!--lfm8t7-->\n!1r6l1p8- \n|-\n|<nowiki>-</nowiki>\n| data-foobar=\"15cp7gd\" |<nowiki>- </nowiki><!--14jqi8b-->\n|-\n|1o8h1ob\n|<small>-</small>\n|<br />1d00lsm\n|\n|}",
+        "selser [[3,[1,0,3,4,[2,[2],3,1,3,[0,4]],4]]]": "{|\n|- data-foobar=\"1bj88qo\"\n!-\n!- \n<!--6f0mue-->|-\n|1qnprdx\n|nxpi5d<small>-</small>\n| data-foobar=\"j5al7i\" |<br />\n-\n|<br />11v0cd4<!--1nx3jrc-->\n|}",
+        "selser [[0,[2,3,2,0,1,0]]]": "{|\n<!--1guo0fq-->!-\n!- <!--ude1c1-->\n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|- data-foobar=\"arur3a\"\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[4,[[2,4,0],4,[0,[3],4,1],3,[0,2,0,[2,2,0],2,[0,3]],0]]]": "{|<!--1umn7ye-->\n!gvfg8v\n!-\n!15hviht\n!- <!--sgt3q3-->\n|-\n|\n|kkn25m\n| data-foobar=\"1n0s8vl\" |<nowiki>- </nowiki>\n|-\n|158hpl0\n|<small>-</small>\n|3mzszf<br />4wyn44\n-\n|yfh4qc\n|<br />\n|}",
+        "selser [[0,[[2,3,1],2,3,3,1,0]]]": "{|\n!esps5t\n!-\n! data-foobar=\"i5sm52\" |- <!--1ot4a6a-->\n|- data-foobar=\"ogk7sg\"\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}"
+    },
+    "Testing serialization after deletion of table cells": {
+        "selser [manual]": "{|\n!h1 !!h2 !!h3\n|c2 |||c3\n|}",
+        "selser [[0,[[2,4,[3],2,3,2,1],0]]]": "{|\n!csxba4\n!h1 \n!t84r7o!!\n!1awkle6\n!1cz1t59\n|c2 || data-foobar=\"ztx97e\"|c3\n|}",
+        "selser [1]": "{| data-foobar=\"1wk5r9j\"\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
+        "selser [[0,2]]": "{|\n<!--pikbtg-->!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
+        "selser [2]": "jjco8\n{|\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
+        "selser [[4,[[1,[4],2,4,0,0,1],2]]]": "{|<!--1suoukh-->\n! data-foobar=\"rk18oo\" |h1 !!18wtl70 \n!qnyy7b!!h3\n!zs6fgw\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 || data-foobar=\"kaqv9t\"|c3<!--ux8nfz-->\n|}",
+        "selser [[0,[[[2],0,0,2,0,1,0],3]]]": "{|\n!w2yar5h1 !!h2 !!h3\n!bwqkmm\n| id=\"x\" |c1 {{!}}{{!}} data-foobar=\"132iz66\"{{!}}c2 |||c3\n|}",
+        "selser [[2,[[1,0,0,0,1,0,3],0]]]": "{|<!--pql4jf-->\n! data-foobar=\"bhnvrw\" |h1 !!h2 !!h3\n| id=\"x\" data-foobar=\"12hrisq\" |c1 {{!}}{{!}}{{!}}c2 \n|}",
+        "selser [[4,[[1,0,1,0,0,4,4],0]]]": "{|<!--jbstp9-->\n! data-foobar=\"1pn0sp4\" |h1 !!h2 !! data-foobar=\"1f5qbgd\" |h3\n| id=\"x\" |c1 \n|uz7gua\n|vakcz3\n|}",
+        "selser [[0,[2,4]]]": "{|\n<!--5xh8o9-->!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3<!--w8wfis-->\n|}",
+        "selser [[0,1]]": "{|\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
+        "selser [[2,[[4,1,4,2,0,[4],[4]],3]]]": "{|<!--qcs46g-->\n!11pa019!! data-foobar=\"1y95ntw\" |h2 \n!zdryfg\n!h2f3sk\n| id=\"x\" |c1 {{!}}{{!}}{{!}}r4h39b |||1lmf1dk\n|}",
+        "selser [[4,2]]": "{|<!--cgr2fy--><!--1sny8l1-->\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
+        "selser [[3,[2,0]]]": "{|<!--1kfzavr-->\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}"
+    },
+    "WTS of an autolink surrounded by square brackets (T220018)": {
+        "html2wt": "[http://example.com<nowiki>]</nowiki>"
+    },
+    "WTS of an external link surrounded by square brackets (T220018)": {
+        "html2wt": "[[http://example.com foo]]"
+    },
+    "WTS of edited autolink surrounded by square brackets (T220018)": {
+        "wt2wt": "[http://example.com<nowiki>]</nowiki>",
+        "selser [manual]": "[http://example.com<nowiki>]</nowiki>"
+    },
+    "WTS of edited external link surrounded by square brackets (T220018)": {
+        "wt2wt": "[[http://example.com foo]]",
+        "selser [manual]": "[[http://example.com foo]]"
+    }
+}
