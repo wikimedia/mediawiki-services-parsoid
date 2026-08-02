@@ -1,0 +1,17 @@
+{
+	"Fuzz testing: Parser13": {
+		"wt2wt": "{| \n| http: / a |\n|}"
+	},
+	"Fuzz testing: Parser16": {
+		"wt2wt": "{|\n!https://|| || ||\n|}"
+	},
+	"Fuzz testing: Parser21": {
+		"wt2wt": "{|\n!irc://{{ftp://a\" onmouseover=\"alert('hello world');\"\n|\n|}"
+	},
+	"Fuzz testing: Parser22": {
+		"wt2wt": "http://===r:::https://b\n\n{|\n|}"
+	},
+	"Fuzz testing: Parser25 (T8055)": {
+		"wt2wt": "{{{| \n<LI CLASS=||\n >\n}}}blah\" onmouseover=\"alert('hello world');\" align=\"left\"'''MOVE MOUSE CURSOR OVER HERE"
+	}
+}

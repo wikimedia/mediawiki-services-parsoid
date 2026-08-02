@@ -42,6 +42,10 @@
 				"path": "tests/parser/extLinks.txt",
 				"expectedSHA1": "cd96e52664abe7ea22686cddf2a3d1f3d5ad3bd3"
 			},
+			"fuzzTests.txt": {
+				"path": "tests/parser/fuzzTests.txt",
+				"expectedSHA1": "781dec506deb2082736eaf4b76d0dcb69cb6cd14"
+			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
 				"expectedSHA1": "35d1315865785592dcc8ece6684b3b88096dddc5"
