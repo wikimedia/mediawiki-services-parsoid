@@ -2680,3 +2680,52 @@ parsoid={
 !! wikitext/edited
 === hi <span id="x" class="y">hi</span> hi ho ===
 !! end
+
+!! test
+Stripped tag in list
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    ["dd", "append", "ho"]
+  ]
+}
+!! wikitext
+:<i>hi</i></b>
+!! wikitext/edited
+:<i>hi</i></b>ho
+!! end
+
+!! test
+Misnested link nested in span
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    ["dd", "append", " ho"]
+  ]
+}
+!! wikitext
+: [http://google.com <span>[[Lala]]:</span>ok]-hi
+!! wikitext/edited
+: [http://google.com <span>[[Lala]]:</span>ok]-hi ho
+!! end
+
+## From T290938, wrapper unmodified was prevented due to the auto-inserted end
+!! test
+Preserve the order invalid attributes
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    ["div", "append", "ho"]
+  ]
+}
+!! wikitext
+<div width="95%" style="border: 3px solid darkblue">hi
+!! wikitext/edited
+<div width="95%" style="border: 3px solid darkblue">hiho
+!! end

@@ -127,3 +127,19 @@ parsoid=html2wt
 <p>x
 </p>
 !! end
+
+!!test
+RT-ed inter-element separators should be valid separators
+!! wikitext
+{|
+|- [[foo]]
+|}
+!! html/php
+<table>
+
+</table>
+!! html/parsoid
+<table>
+<tbody class='mw-empty-elt'><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""}}'></tr>
+</tbody></table>
+!!end

@@ -11014,28 +11014,6 @@ Empty table rows go away
 <tr class="mw-empty-elt"></tr>
 !! end
 
-###
-### Parsoid-centric tests for testing RTing of inter-element separators
-### Edge cases not tested by existing parser tests and specific to
-### Parsoid-specific serialization strategies.
-###
-
-!!test
-RT-ed inter-element separators should be valid separators
-!! wikitext
-{|
-|- [[foo]]
-|}
-!! html/php
-<table>
-
-</table>
-!! html/parsoid
-<table>
-<tbody class='mw-empty-elt'><tr class='mw-empty-elt' data-parsoid='{"startTagSrc":"|-","a":{"[[foo]]":null},"sa":{"[[foo]]":""}}'></tr>
-</tbody></table>
-!!end
-
 # Parsoid-only test of a DOM pass
 !!test
 Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out
@@ -11983,55 +11961,6 @@ aside tag is not allowed directly in wikitext (T278565)
 !! html
 <p>&lt;aside&gt;This aside tag in wikitext should be escaped&lt;/aside&gt;
 </p>
-!! end
-
-!! test
-Stripped tag in list
-!! options
-parsoid={
-  "modes": ["selser"],
-  "selser": "noauto",
-  "changes": [
-    ["dd", "append", "ho"]
-  ]
-}
-!! wikitext
-:<i>hi</i></b>
-!! wikitext/edited
-:<i>hi</i></b>ho
-!! end
-
-!! test
-Misnested link nested in span
-!! options
-parsoid={
-  "modes": ["selser"],
-  "selser": "noauto",
-  "changes": [
-    ["dd", "append", " ho"]
-  ]
-}
-!! wikitext
-: [http://google.com <span>[[Lala]]:</span>ok]-hi
-!! wikitext/edited
-: [http://google.com <span>[[Lala]]:</span>ok]-hi ho
-!! end
-
-## From T290938, wrapper unmodified was prevented due to the auto-inserted end
-!! test
-Preserve the order invalid attributes
-!! options
-parsoid={
-  "modes": ["selser"],
-  "selser": "noauto",
-  "changes": [
-    ["div", "append", "ho"]
-  ]
-}
-!! wikitext
-<div width="95%" style="border: 3px solid darkblue">hi
-!! wikitext/edited
-<div width="95%" style="border: 3px solid darkblue">hiho
 !! end
 
 !! test
