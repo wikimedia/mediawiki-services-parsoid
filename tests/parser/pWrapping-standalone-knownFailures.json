@@ -37,6 +37,25 @@
         "selser [2,0,[0,1],3,2,0,0,4,2,2,1,3,[4],2,0,1,4,0]": "1avukl<div></div>\n\n\n\n197iitj<div></div>a\n\ngmjhkt\n\n1i1l8aj\n10czl5r<div>a</div>b<div>dhzroh</div>8t09ip\n\nd\n\n\n\n\n\n1ebnfmz<div>e</div>",
         "selser [0,4,2,2,0,0,0,[3],4,3,0,0,0,2,2,1,4,2]": "<div></div>1ofrbjc\n\n1q06thu\n\n\n\n\n1hgtqn3\n<div></div>a\n\n\nvum19r\n\nb\n\n<div>b</div>1ptcp79\n\nd\n\ndmvgry\n\n\n\n1e22ig8\n\n1jvy72n<div>e</div>"
     },
+    "Extra new lines before and after lists are preserved": {
+        "html2wt": "a\n\n\n* b\n\n\nc",
+        "selser [0,0,[3,0],0,[4],3,3]": "a\n\n\n\n* 10x2a1y",
+        "selser [[3],4,[4,0],0,3,3,4]": "\n\n1htrbwe\n\nmbdls4\n\nlhzama",
+        "selser [1,0,[0,3],4,0,0,2]": "a\n\n1sdlaev\n*b\n1k8xl54\n\n\n\nc",
+        "selser [0,0,[4,1],3,4,4,0]": "a\n\n1484fwk\n\n1skjf24\n\n7z2qry\n\n\n\nc",
+        "selser [[3],0,[3,0],0,[4],3,0]": "\n\n\n* x7yop0\n\n\nc",
+        "selser [1,0,1,0,3,0,[4,4,0]]": "a\n\n\n\n\n\n1qciwap1xd4cx7\nc",
+        "selser [3,0,4,0,0,2,2]": "\n13hqha1\n*b\n8hjyf9\n\n1jhwsov\n\n\n\nc",
+        "selser [[3],3,2,3,[4],0,[0,3,2]]": "\n\nvtvy93\n\n\n\n* vpduic\n\n1nly2ch\nc",
+        "selser [0,0,2,0,[1],0,[0,0,2]]": "a\n\n19jl0yl\n\n\n\n*b\n\ny4gtyn\nc",
+        "selser [[3],0,[3,0],0,3,0,[0,0,4]]": "\n\n\n\n\ny9onar",
+        "selser [0,2,0,3,4,0,1]": "a\n\n16q6yvm\n\n\n\n\nu1mp0q\n\n\nc"
+    },
+    "Extra newlines: More paragraphs with indented comment": {
+        "html2wt": "a\n\n\nb\n",
+        "selser [[4],3,[0,0,0,0,3]]": "2tueq6\n\n\n   <!--boo-->\n",
+        "selser [2,2,0]": "cb3anx\n\na\n\ntiyqt3\n\n\n   <!--boo-->\n\nb"
+    },
     "Multiple lines without block tags": {
         "selser [4,1,0,[3,0,0],0,1,4,0]": "tkn1w8\n\na\n\n<!--foo-->e\n\nx \n\n1p28uxd\n\n z",
         "selser [2,0,2,1,3,3,0,2]": "1j5shwn<div>foo</div> a\n\njrdv3n\nb\nc\nd<!--foo--> e<div>foo</div>4z3kz2\n\n z",
@@ -44,5 +63,93 @@
         "selser [3,0,0,[0,0,2],4,3,[3],2]": " a\n\nb\nc\nd<!--foo-->13obem9 e\n\nrlzmk<div></div>d4mp6l\n\n z",
         "selser [3,[4],3,3,0,2,3,0]": "1gnvq3r\n\n2whicw\n\nx \n\n z",
         "selser [4,0,0,4,4,2,[3],[2]]": "h7hf32\n\n a\n\npawik2\n\ndvitc2\n\n18ltr5v\n\nx <div></div>1917jrw z"
+    },
+    "Multiple newlines after tables are converted to p-br-p tags": {
+        "selser [2,0,[2,2],0,2,2,3]": "1vlvcem\n{|\n|x\n|}\nh7tgjz\ngwxfxn\n1rr9v1k\n\n\n\n\nf2i27b\n",
+        "selser [3,4,2,4,[2,0],0,0]": "q9y9ul\n\n1dzf6n0\n\n\n\n\n1c6ecgs\n\nzdayuv\n\n=b=",
+        "selser [0,0,3,2,2,0,0]": "{|\n|x\n|}\n1gwrqpk\n\nqd1vqc\n\n\n\n=b=",
+        "selser [[0,[2,0]],3,0,3,[4,0],4,[3]]": "{|\n<!--dp0ho3-->|x\n|}\n\n\nr5akja\n\nqy67r3",
+        "selser [4,0,4,4,2,3,0]": "q19l6f\n\n1hwqo8z\n\n5mihjv\n\n1p6mg5l\n\n\n\n=b=",
+        "selser [2,0,1,2,2,0,2]": "ooegna\n{|\n|x\n|}\n\n\n\n\n\nijxeva\n\n8ud2z2\n\n\n\n1x17gwd\n\n=b=",
+        "selser [[0,[1,0]],4,[0,1],2,0,2,0]": "{|\n|- data-foobar=\"5ms7p7\"\n|x\n|}\n5dmvt7\n\n\n\n1lb803i\n\n\n\n\n1x89ymj\n\n=b=",
+        "selser [[3,[[4],0]],0,2,2,[4,2],4,3]": "{|\n|1qkry9z\n|}\nzhprdg\n\n\n\n\n140x1kp\n\ntomszg1k83zbt\n\ngp6sy2",
+        "selser [3,0,0,2,0,0,0]": "\n\n\n\n1r9koth\n\n\n\n=b="
+    },
+    "Paragraphs inside blockquotes/divs (extra line break on close)": {
+        "html2wt": "<blockquote><div>Line one\nLine two\n\n</div></blockquote>"
+    },
+    "Paragraphs inside blockquotes/divs (extra line break on open and close)": {
+        "html2wt": "<blockquote><div>\nLine one\n\nLine two\n\n</div></blockquote>"
+    },
+    "Paragraphs inside blockquotes/divs (no extra line breaks)": {
+        "html2wt": "<blockquote><div>Line one\nLine two</div></blockquote>"
+    },
+    "Paragraphs inside divs (extra line break on close)": {
+        "html2wt": "<div>Line one\nLine two\n\n</div>"
+    },
+    "Paragraphs inside divs (extra line break on open and close)": {
+        "html2wt": "<div>\nLine one\n\nLine two\n\n</div>"
+    },
+    "Paragraphs inside divs (no extra line breaks)": {
+        "html2wt": "<div>Line one\nLine two</div>"
+    },
+    "Paragraphs with extra newline spacing": {
+        "selser [2,2,1,0,[2,0,2],4,3,4,2,0,4,0,2]": "1p5wgdu\n\na\n\n1uqq7s6\n\nb (+2 nls)\n\nm0j4wq\nnlwdwp\nc (+3 nls)\n\n225o51\n\nkvvcz0\n\n15qp921\n\nd (+4 nls)\n\n13921h6\n\nlw982u\n\n\n\ne (+5 nls)",
+        "selser [3,0,0,2,3,0,4,2,3,0,0,0,1]": "\nb (+2 nls)\n\nh3cghw\n\nvxaa29\n\n1v4qexx\n\n\n\n\n\ne (+5 nls)",
+        "selser [[3],4,2,3,[3,0,0],3,[0,3],0,2,2,2,4,1]": "\n\n1xs9ccj\n\n1muasc3\n\nb (+2 nls)\n\n\n\nc (+3 nls)\n\no9cnyn\n\nd (+4 nls)\n\n12t0g19\n\n137115n\n\n\n\n\n1i8cxso\n\n\ne (+5 nls)",
+        "selser [1,2,2,0,1,2,[0,1],3,2,0,3,0,2]": "a\n\nqbbefq\n\n7k45lz\n\nb (+2 nls)\n\n\nc (+3 nls)\n\n1gjxhrm\n\n\n\nskkv54\n\nd (+4 nls)\n\nzbx540\n\n\n\ne (+5 nls)",
+        "selser [[4],4,[4],4,[0,3,4],4,0,0,[4],4,1,0,[3,0,0]]": "1xi6isp\n\n1p0ixdc\n\nrydgo2\n\n1i46z59\n\n654q2q\n\n1icytnk\n\n\n\n\ng08e2h\n\nzsz1s8\n\n\n\n\ne (+5 nls)",
+        "selser [0,2,1,3,[0,0,3],2,0,0,4,4,4,3,2]": "a\n\nypbs9h\n\nb (+2 nls)\n\n\n\n17acb57\n\n\n\n\n8joa2d\n\nvplse6\n\nxpcb8a\n\nbq3uom\n\n\n\ne (+5 nls)",
+        "selser [1,2,0,2,[0,4,0],0,0,0,[4],3,[3,0],2,[2,0,4]]": "a\n\n1h2md8m\n\nb (+2 nls)\n\n11c0qa4\n\nojrr5t\nc (+3 nls)\n\n\n\n\n8ahaal\n\n\n\n\n\n\n1ymqb8h\n\nkuadnh\n127xp8s",
+        "selser [4,4,3,0,[2,2,0],0,4,4,[4],4,2,2,1]": "4yp5nn\n\n1nlaulh\n\nnz5tdw\n6tela6\nc (+3 nls)\n\na4vab1\n\nvpvfk2\n\n1vg1wi1\n\n16s65vs\n\n1ptiiwx\n\n\n\n\n6phwxb\n\n\ne (+5 nls)",
+        "selser [3,0,4,3,[0,0,4],2,4,3,0,0,1,0,3]": "\n1s3o2oi\n\n\n\n\n1gxx3km\n\n1omx16r\n\n17a0znt\n\nd (+4 nls)\n\n\n",
+        "selser [3,4,3,0,[0,0,3],3,0,3,2,0,3,4,[0,0,2]]": "13xe03t\n\n\n\n\n\n\n3ghcnp\n\nd (+4 nls)\n\n1j6rd6g\n\n\n1ddbx3x\ne (+5 nls)",
+        "selser [[2],0,1,0,2,0,[4,0],3,[3],0,3,3,[3,4,2]]": "ytq2bba\n\nb (+2 nls)\n\nsq90h2\n\n\n\nc (+3 nls)\n\nv77kui\n\n\nbchjcm1k9m205\ne (+5 nls)"
+    },
+    "Paragraphs with newline spacing with comment lines in between": {
+        "html2wt": "----\na\nb\n\n----\na\nb\n\n----\na\nb\n\n----\na\n\nb\n\n----\na\n\nb\n\n----\na\n\n\nb\n\n----\na\n\n\nb\n\n----",
+        "selser [4,3,3,0,3,2,[0,4,0,0],0,0,0,[3,0,2,0,0,0,0],2,2,0,4,0,4,0,[2],0,2,0,[3],0,0,0,2,0,0,0,0,3,2,0,2,2,3,2,2,2,1,3,0]": "4idmdg\n\nv1u4kj\n\na\n19flyu<!--More than 1 comment, still stripped-->\nb\n----\n<!--foo-->yhh6od <!----> <!-- bar --> \nb\n\n1vzwza1\nksuej1\n----\n533jg6\n\n18693a9\n\n1b1zzq2b\n1j4oogd\n----\na\n\n<!--foo-->\npiqwm7\n\nb\n----\na\n\nsi4rzz<!--foo-->\n\noq15o2\n\n\n\nb\n\n1u7gllo\n\n1l7j2hn\n\n1hp408e\n\na\n\nug0tqu\n\n\n<!--foo-->\nb\n----",
+        "selser [1,2,3,0,0,2,[3,3,0,0],2,0,0,[4,0,4,0,0,4,3],4,0,3,1,3,4,0,[3],0,0,2,2,3,0,0,[2],0,3,0,[3],2,0,0,2,0,0,4,3,0,4,2,0]": "----kur8nv\n\n----1kgil6l\n<!--More than 1 comment, still stripped-->\nb\n\n9nm1fb\n----\n1g5hu4w<!--foo-->xc83vu<!----> 27n7tk\n\ndvmogw\n----a\n\n5w3avv\n\n----1pv6hwb\n3fto9i\n\na<!--foo-->\n\nxmhxk3b\n\n\n1e1n2gp\n<!--foo-->\n\nudauta\n\n\n\nb\n----1ytgmp5\nt5r6mc\n\n1neouug\n----",
+        "selser [0,0,2,0,0,3,0,0,4,0,[4,0,2,0,0,0,3],0,0,0,1,0,0,0,2,0,0,0,3,0,0,0,[2],0,2,0,3,0,0,4,2,3,3,2,0,4,2,0,2]": "----\nugqg84\n\na\n<!--foo-->\nb\n----a\n<!--foo--><!--More than 1 comment, still stripped-->\nb\n8a8i4f\n\n14p3eym<!--foo-->5k6xgo <!----> <!-- bar -->\n----\na\n<!--foo-->\n\nj4kzgd\n\nb\n----\n\n<!--foo-->\niel4beb\n1idp93\n----\n\n<!--foo-->10fyx94\n\nreu5h9\n\n\n\nb\n\n19sgszs\n\na\n\n1ux3wa1\n\n15knlnd\n\n\n\n<!--foo-->\nb\n1nos462\n----",
+        "selser [0,0,[2,2,3],0,3,3,0,0,2,4,[0,0,3,2,2,0,2],2,3,4,1,4,0,0,[3],0,2,4,2,2,4,4,0,0,0,0,2,0,2,2,1,3,1,3,4,2,2,0,0]": "----\n8iqt3ba\n18t9xnl<!--foo-->\n\na\n<!--foo--><!--More than 1 comment, still stripped-->\nb\ng5g4wq\n----19z39mj\n\na\n<!--foo-->1lxz6r6<!---->1avra4v <!-- bar -->1jnnr7 \nb\n\n1y1n5cj\n\n1baofm9\n\na\n\n1vdumlm<!--foo-->\n\n\nze3288\n----z4w7so\n\n1oyvpzk\n\na\n\na8olhi\n\n1r0h0ai\n\n1pj4344\n\nb\n----\nyhdpga\n\na\n\nie2pvd<!--foo-->\n\nljbyvk\n\n\nb\n----1wf7d0l\n\n9aers9\nyfi9gw\n\n\n\n<!--foo-->\nb\n----",
+        "selser [0,0,[3,0,2],0,0,0,[0,0,3,2],3,0,3,3,0,3,3,3,2,3,0,4,0,0,3,0,3,0,2,4,0,0,0,[3],0,3,3,2,3,0,0,[3],0,0,3,0]": "----\n<!--foo-->1cfe1r9\nb\n----\na\n<!--foo-->1kv89hz\nb\n----\nrecajl\n\niz11ly\n----a<!--foo-->tnuwbs\n\n1knfzvl\n----\n\n\n16neghi\n\n\n\nb\n----\n\n\n\n<!--foo-->\nb\n----",
+        "selser [0,3,3,2,4,0,3,2,4,3,[0,3,4,0,0,2,0],4,0,0,1,0,0,2,2,3,0,3,0,0,3,0,4,3,2,2,4,4,4,0,3,2,0,0,4,0,0,0,1]": "----1f66zr4\nn47tnq\n\n5jmuqp\n\n1r4xzcd\n\na\n1hn4lv<!----> 83rtdb<!-- bar --> \nb\n\n1kt0p1m\n----\na\n<!--foo-->\njs6wu\n\n10xch7v\n\nb\n----a\n\n943gpk\n\n1x4bitf\n----s1in1u\n13s4qy4\n\n1lv6da1\n\nlv0j52\n\n14zly32\n----\nhh4p2m\n\n\n\n<!--foo-->\nb\n----"
+    },
+    "Paragraphs with newline spacing with non-empty mixed comment and white-space lines in between": {
+        "html2wt": "----\na\nb\n\n----\na\nb\n\n----\na\n\nb\n\n----\na\n \n\nb\n\n----",
+        "selser [0,3,[0,4,2],3,1,0,1,0,0,4,2,3,0,2,0,2,0,3,0,3,[3],2,2,0,3]": "----a\nsgci4lkkecrw\nb\n----\na\n <!--foo--><!--More than 1 comment doesn't disable stripping of this line!-->\nb\n----ijh0ts\n\n9a6gc5\n\na<!--foo-->decf0j\n <!--bar-->\na76vx8\nb\n----\n\n\nlj3p7b\nfd5g6h\n\n\n <!--foo-->\n <!--bar-->\n \nb\n",
+        "selser [0,0,2,0,0,3,4,0,0,0,1,3,0,0,3,3,[4],0,2,2,0,2,2,0,0]": "----\nd03a05\n\na\n <!--foo-->\nb\n----1hhttf7\n----\na<!--foo-->\n \n1yoorrh\n1t1utlk\n----xbpuid\na\n\n7i21zg\n \n1q5ki3w\n\n\n <!--foo-->\n <!--bar-->\n \nb\n----"
+    },
+    "Paragraphs with newline spacing with non-empty white-space lines in between": {
+        "html2wt": "----\na\n\nb\n\n----\na\n \n\nb\n\n----",
+        "selser [0,3,[4],3,0,3,0,3,2,0,2,3,0]": "----2y2wh0\n\nb\n----18j2y5c\n\na\naj5awq\n\n\n \nb\n----",
+        "selser [0,0,1,0,[4],2,0,0,4,0,1,2,2]": "----\na\n \ng4unt5\n\n83ekqt\n----\n1rr1da8\n\n \n \nb\n\nd8t3up\n5smtg8\n----",
+        "selser [2,0,[4],4,1,3,0,4,0,4,0,0,2]": "1l51hcq\n----\n1vm7egp\n\n1hrk1i2\n\nb\n----1olcgo3\n\na\n\nyz8wnq\n\n\n \nb\nj6et0b\n----",
+        "selser [3,2,4,4,0,0,0,4,[4],0,2,3,2]": "kfvmkr\n\nzhj2dm\n\n1d8tvqj\n\nb\n----1pgs76x\n\n1cthmp7\n7y51dc\n\n\n \nb\n\nk284t3\n----",
+        "selser [1,0,0,0,3,3,4,0,[4],0,[0,0,3],2,4]": "----\na\n \n1tcdcfc\n\n110qe1v\n \n \n\n\n\n1vozlr0\n\nuqg61g"
+    },
+    "T10293: Use of center tag ruins paragraph formatting": {
+        "html2wt": "<center>\nfoo\n\n</center>\nbar\n\n baz\n"
+    },
+    "T17491: <ins>/<del> in blockquote": {
+        "html2wt": "<blockquote>\nFoo <del>bar</del> <ins>baz</ins> quux\n\n</blockquote>"
+    },
+    "T53086: Double newlines in blockquotes should be turned into paragraphs": {
+        "html2wt": "<blockquote>\nFoo\n\nBar\n\n</blockquote>"
+    },
+    "T8200: blockquotes and paragraph formatting": {
+        "html2wt": "<blockquote>\nfoo\n\n</blockquote>\nbar\n\n baz\n"
+    },
+    "T8200: paragraphs inside blockquotes (extra line break on close)": {
+        "html2wt": "<blockquote>Line one\n\nLine two\n\n</blockquote>"
+    },
+    "T8200: paragraphs inside blockquotes (extra line break on open and close)": {
+        "html2wt": "<blockquote>\nLine one\n\nLine two\n\n</blockquote>"
+    },
+    "T8200: paragraphs inside blockquotes (extra line break on open)": {
+        "selser [[0,[3],2]]": "<blockquote>\n\n\n1x8wibb\n\n\n\nLine two</blockquote>"
+    },
+    "T8200: paragraphs inside blockquotes (no extra line breaks)": {
+        "html2wt": "<blockquote>Line one\nLine two</blockquote>"
     }
 }
