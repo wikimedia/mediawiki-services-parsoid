@@ -1,0 +1,11 @@
+{
+	"Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
+		"wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>"
+	},
+	"Table attribute legitimate extension": {
+		"wt2wt": "{|\n! style=\"<nowiki>color:blue</nowiki>\" + |status\n|}"
+	},
+	"Table attribute safety": {
+		"wt2wt": "{|\n! style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\" + |status\n|}"
+	}
+}

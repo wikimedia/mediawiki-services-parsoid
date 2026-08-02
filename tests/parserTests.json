@@ -118,6 +118,10 @@
 				"path": "tests/parser/redirects.txt",
 				"expectedSHA1": "3181215937c83ccf2b804124ae4d1e9e0a698677"
 			},
+			"sanitizer.txt": {
+				"path": "tests/parser/sanitizer.txt",
+				"expectedSHA1": "de6d5be1f5ec5e3a9a29dc647062a863031246a1"
+			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
 				"expectedSHA1": "282022cbef995f6823328902606e5c45c57ccd07"
