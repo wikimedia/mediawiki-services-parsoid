@@ -477,14 +477,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	private static function replaceAnchor(
 		Env $env, PegTokenizer $urlParser, array $errs,
 		Element $oldAnchor, array $attrs, DataMw $dataMw, bool $isImage,
-		?string $captionText, int $page, string $lang
+		?string $captionText, int $page, string $lang, bool $isManualThumb
 	): Element {
 		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
 
 		if ( $isImage || $errs ) {
 			$anchor = $doc->createElement( 'a' );
-			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ): void {
+			$addDescriptionLink = static function ( Title $title ) use (
+				$env, $anchor, $page, $lang, $isManualThumb
+			): void {
 				$href = $env->makeLink( $title );
 				$qs = [];
 				if ( $page > 0 ) {
@@ -497,7 +499,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					$href .= '?' . http_build_query( $qs );
 				}
 				$anchor->setAttribute( 'href', $href );
-				$anchor->setAttribute( 'class', 'mw-file-description' );
+				// The file description class is omitted to prevent MultimediaViewer
+				// from launching and instead direct to the file description page
+				if ( !$isManualThumb ) {
+					$anchor->setAttribute( 'class', 'mw-file-description' );
+				}
 			};
 			if ( $attr !== null ) {
 				$discard = !$errs;
@@ -829,6 +835,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 
 			$info = $files[$c['infoKey']] ?? null;
+			$isManualThumb = false;
 
 			if ( $c['manualKey'] === false ) {
 				$env->getDataAccess()->addTrackingCategory(
@@ -850,6 +857,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					$errs[] = self::makeErr( 'apierror-unknownerror', $manualinfo['thumberror'] );
 				} else {
 					$info = $manualinfo;
+					$isManualThumb = true;
 				}
 			}
 
@@ -931,7 +939,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $errs, $anchor, $attrs, $dataMw, $isImage, $captionText,
 				(int)( $attrs['dims']['page'] ?? 0 ),
-				$attrs['dims']['lang'] ?? ''
+				$attrs['dims']['lang'] ?? '',
+				$isManualThumb
 			);
 			$anchor->appendChild( $elt );
 
