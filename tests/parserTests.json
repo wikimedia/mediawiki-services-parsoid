@@ -13,6 +13,7 @@
 			"selserWrappingParserTests.txt": {},
 			"separatorTests.txt": {},
 			"tableFixupsParserTests.txt": {},
+			"tokenStreamPatcher.txt": {},
 			"treeBuilder.txt": {},
 			"wtsTests.txt": {},
 			"v3ParserFunctions.txt": {}

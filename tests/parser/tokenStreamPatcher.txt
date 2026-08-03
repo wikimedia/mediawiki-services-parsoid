@@ -1,0 +1,383 @@
+### This file tests token stream patcher behavior
+### These tests won't always pass wt2wt and other modes.
+
+# The parsoid-compatible option below is only relevant when we are running
+# parser tests in integrated mode with Parsoid. This option is ignored
+# when this test file is run with Parsoid in standalone mode.
+!! options
+parsoid-compatible=wt2html,wt2wt
+version=2
+!! end
+
+# -------------------
+# Article definitions
+# -------------------
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+# This is the standard article assumed to exist.
+!! article
+Main Page
+!! text
+blah blah
+!! endarticle
+
+!!article
+Foo
+!!text
+FOO
+!!endarticle
+
+!!test
+1. Table tag in SOL posn. should get reparsed correctly with valid TSR
+!!options
+parsoid=wt2html,wt2wt
+!!wikitext
+{{1x|}}{| width = '100%'
+|foo
+|}
+!!html/parsoid
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":""}},"i":0}}]}'></span><table width="100%">
+<tbody><tr><td>foo</td></tr>
+</tbody></table>
+!!end
+
+## We used to, but no longer wt2wt this test since the default serializer
+## will normalize the include directives to serialize on their own line.
+## Selser will take care of preserving formatting in scenarios where they
+## intermingled with other wikitext.
+!!test
+2. Table tag in SOL posn. should get reparsed correctly with valid TSR
+!!options
+parsoid=wt2html
+!!wikitext
+<includeonly>a</includeonly>{| {{{b}}}
+|c
+|}
+!!html/parsoid
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"src":"&lt;includeonly>a&lt;/includeonly>"}' data-mw='{"src":"&lt;includeonly>a&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><table about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"{{{b}}}":null},"sa":{"{{{b}}}":""}}' data-mw='{"attribs":[[{"txt":"{{{b}}}","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Param\" data-parsoid=&#39;{\"pi\":[[]]}&#39; data-mw=&#39;{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"b\"},\"params\":{},\"i\":0}}]}&#39;>{{{b}}}&lt;/span>"},{"html":""}]]}'>
+<tbody><tr><td>c</td></tr>
+</tbody></table>
+!!end
+
+!! test
+Table wikitext syntax outside wiki-tables
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+!! wikitext
+a
+|+ not a caption
+! not a table heading!! neither is this
+|- not a table row
+| not a table cell || neither is this
+| class="foo bar" | baz
+b
+|}
+|-
+c
+!! html
+<p>a
+|+ not a caption
+! not a table heading!! neither is this
+|- not a table row
+| not a table cell || neither is this
+| class="foo bar" | baz
+b
+|}
+|-
+c
+</p>
+!! end
+
+# This test passes both integrated and standalone modes, but the
+# standalone mode passes even without the fixes in I9fc10b446
+# So, we pick the integrated mode version to protect the fixes
+# in I9fc10b446.
+!! test
+1. Templated table wikitext syntax outside wiki-tables
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+|-
+{{1x|!a!!b}}
+|-
+{{1x|{{!}}{{!}}a}}
+|-
+{{1x|{{!}}a {{!}}{{!}}b}}
+|-
+{{1x|1={{!}} class='boo' {{!}} bar}}
+!! html/php
+<p>|-
+!a!!b
+|-
+||a
+|-
+|a ||b
+|-
+| class='boo' | bar
+</p>
+!! html/parsoid+integrated
+<p>|-
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!a!!b"}},"i":0}}]}'>!a!!b</span>
+|-
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}{{!}}a"}},"i":0}}]}'>||a</span>
+|-
+<span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}a {{!}}{{!}}b"}},"i":0}}]}'>|a ||b</span>
+|-
+<span about="#mwt6" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}} class=&apos;boo&apos; {{!}} bar"}},"i":0}}]}'>| class='boo' | bar</span></p>
+!! end
+
+!! test
+2. Templated table wikitext syntax outside wiki-tables
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{1x|1={{!}}- class='trclass'}}
+!! html/php
+<p>|- class='trclass'
+</p>
+!! html/parsoid
+<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- class=&apos;trclass&apos;"}},"i":0}}]}'>|- class='trclass'</span></p>
+!! end
+
+!! test
+Content after <tr> like wikitext should get fully processed
+!! wikitext
+x
+|- [[Foo]] and {{1x|bar}}
+y
+!! html/php
+<p>x
+|- <a href="/wiki/Foo" title="Foo">Foo</a> and bar
+y
+</p>
+!! html/parsoid
+<p>x
+|- <a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"simple","a":{"href":"./Foo"},"sa":{"href":"Foo"}}'>Foo</a> and <span about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"bar"}},"i":0}}]}'>bar</span>
+y</p>
+!! end
+
+!! test
+Orphaned table row wikitext with templated table for an attribute should not duplicate table
+!! wikitext
+|-{{1x|
+{{{!}}
+{{!}}foo
+{{!}}}
+}}
+!! html/php
+<p>|-
+</p>
+<table>
+<tbody><tr>
+<td>foo
+</td></tr></tbody></table>
+!! html/parsoid
+<p>|-</p><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'></span><table about="#mwt1">
+<tbody><tr><td>foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+1. Support token gluing for <tr> tags
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}- title='test' <div>x</div> boo}} class="foo"
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr title="test" class="foo">
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- title=&apos;test&apos; &lt;div>x&lt;/div> boo"}},"i":0}}," class=\"foo\"\n|bar\n"]}'><tr title="test" class="foo">
+<td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+2. Support token gluing for <tr> tags in the present of extension tags
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{1x|1=
+{{{!}}
+{{!}}-}}<tag>foo</tag> class='foo' {{1x|1=title='test'}} id='moo' <!--comment-->
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr class="foo" title="test" id="moo">
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{{!}}\n{{!}}-"}},"i":0}},"&lt;tag>foo&lt;/tag> class=&apos;foo&apos; {{1x|1=title=&apos;test&apos;}} id=&apos;moo&apos; &lt;!--comment-->\n|bar\n|}"]}'>
+<tbody><tr class="foo" title="test" id="moo"><!--comment-->
+<td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+3. Unsupported token gluing scenario across an unclosed template
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}- title='test' <div>x</div> boo}} {{1x|1=class='foo'
+{{!}}a
+{{!}}-
+}}
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr title="test" class="foo">
+<td>a
+</td></tr>
+<tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- title=&apos;test&apos; &lt;div>x&lt;/div> boo"}},"i":0}}," ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"class=&apos;foo&apos;\n{{!}}a\n{{!}}-"}},"i":1}},"\n|bar\n|}"]}'>class='foo'</p>
+<table about="#mwt1">
+<tbody><tr title="test">
+<td>a</td></tr>
+<tr><td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+4. Non-token gluing scenario across an unclosed template should be handled properly
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}- title='test'
+{{!}}a
+{{!}}-
+}}
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr title="test">
+<td>a
+</td></tr>
+<tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- title=&apos;test&apos;\n{{!}}a\n{{!}}-"}},"i":0}},"\n|bar\n"]}'><tr title="test">
+<td>a</td></tr>
+<tr><td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+5. Non-token gluing scenario across an unclosed template should be handled properly
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}- title='test' <div>x</div> boo}} {{1x|
+{{!}}a
+{{!}}-
+}}
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr title="test">
+<td>a
+</td></tr>
+
+<tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}- title=&apos;test&apos; &lt;div>x&lt;/div> boo"}},"i":0}}," ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{!}}a\n{{!}}-\n"}},"i":1}},"\n|bar\n"]}'><tr title="test">
+<td>a</td></tr>
+<tr><td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+6. Non-token gluing scenario across multiple lines and templates
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{|
+{{1x|1=
+{{!}}-
+}}{{1x|{{!}}} }}
+[[Category:Foo]]
+!! html/php
+<table>
+</table>
+!! html/parsoid+integrated
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}-"}},"i":0}},{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}} "}},"i":1}}]}'>
+</table><span about="#mwt1"> </span>
+<link rel="mw:PageProp/Category" href="./Category:Foo"/>
+!! end
+
+!! article
+Template:Just tr
+!! text
+|-
+!! endarticle
+
+!! test
+7. Non-token gluing scenario where a templated tr is found in templated tr attribute position
+!! wikitext
+{|
+{{just tr}}{{just tr}}
+|}
+!! html/php
+<table>
+
+</table>
+!! html/parsoid
+<table>
+<tbody about="#mwt1" typeof="mw:Transclusion" class="mw-empty-elt" data-mw='{"parts":[{"template":{"target":{"wt":"just tr","href":"./Template:Just_tr"},"params":{},"i":0}},{"template":{"target":{"wt":"just tr","href":"./Template:Just_tr"},"params":{},"i":1}},"\n"]}'>
+</tbody></table>
+!! end
+
+!! test
+8. Unsupported token gluing scenario when includeonly tags show up
+!! wikitext
+{|
+{{1x|{{!}}-}}<includeonly>
+|+foo</includeonly>
+|bar
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<meta typeof="mw:Includes/IncludeOnly" data-parsoid='{"fostered":true}' data-mw='{"src":"&lt;includeonly>\n|+foo&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":"","fostered":true}'/><table>
+<tbody about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}-"}},"i":0}},"&lt;includeonly>\n|+foo&lt;/includeonly>\n|bar\n"]}'><tr>
+<td>bar
+</td></tr></tbody></table>
+!! end

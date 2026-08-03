@@ -1,0 +1,23 @@
+{
+    "1. Table tag in SOL posn. should get reparsed correctly with valid TSR": {
+        "wt2wt": "{{1x|}}\n{| width=\"100%\"\n|foo\n|}",
+        "selser [0,[0,3]]": "{{1x|}}{| width = '100%'\n|}",
+        "selser [0,[0,[0,2]]]": "{{1x|}}{| width = '100%'\n|foo<!--1lo6yer-->\n|}",
+        "selser [0,1]": "{{1x|}}{| width=\"100%\" data-foobar=\"d5ck45\"\n|foo\n|}",
+        "selser [0,[0,[[[2]],3]]]": "{{1x|}}{| width = '100%'\n|1lr4bk8foo\n|}",
+        "selser [0,[4,[4,2]]]": "{{1x|}}{| width = '100%'<!--1p4haoj--><!--1ifk60g--><!--1tu056n-->\n|}",
+        "selser [0,[4,[2,0]]]": "{{1x|}}{| width = '100%'<!--hxenqc--><!--xbh46y-->\n|foo\n|}",
+        "selser [0,[4,[3,0]]]": "{{1x|}}{| width = '100%'<!--qmxjva-->\n|}",
+        "selser [0,2]": "{{1x|}}16d54ej\n{| width = '100%'\n|foo\n|}",
+        "selser [0,[4,[[1],4]]]": "{{1x|}}{| width = '100%'<!--rsu6we-->\n| data-foobar=\"1qt3mgp\" |foo<!--1n7ytsm-->\n|}",
+        "selser [0,[0,1]]": "{{1x|}}{| width = '100%'\n|foo\n|}",
+        "selser [0,[0,[[3],0]]]": "{{1x|}}{| width = '100%'\n\n|}",
+        "selser [0,[0,[1,4]]]": "{{1x|}}{| width = '100%'\n|- data-foobar=\"1vrwrqu\"\n|foo<!--12a4fih-->\n|}",
+        "selser [0,[0,[[3],3]]]": "{{1x|}}{| width = '100%'\n|}",
+        "selser [0,[0,[2,0]]]": "{{1x|}}{| width = '100%'\n<!--19woy9y-->|foo\n|}",
+        "selser [0,[0,[[[3]],3]]]": "{{1x|}}{| width = '100%'\n|\n|}",
+        "selser [0,[0,[4,0]]]": "{{1x|}}{| width = '100%'\n<!--19hnpm1-->\n|}",
+        "selser [0,[3,[1,0]]]": "{{1x|}}{| width = '100%'\n|- data-foobar=\"9b7528\"\n|foo\n|}",
+        "selser [0,[0,[[1],4]]]": "{{1x|}}{| width = '100%'\n| data-foobar=\"bz5rz9\" |foo<!--4qz9ay-->\n|}"
+    }
+}

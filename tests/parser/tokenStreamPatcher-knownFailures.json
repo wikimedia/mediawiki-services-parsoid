@@ -1,0 +1,8 @@
+{
+	"1. Table tag in SOL posn. should get reparsed correctly with valid TSR": {
+		"wt2wt": "{{1x|}}\n{| width=\"100%\"\n|foo\n|}"
+	},
+	"8. Unsupported token gluing scenario when includeonly tags show up": {
+		"wt2wt": "<includeonly>\n|+foo</includeonly>\n{|\n{{1x|{{!}}-}}<includeonly>\n|+foo</includeonly>\n|bar\n|}"
+	}
+}
