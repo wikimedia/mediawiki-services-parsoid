@@ -651,7 +651,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				} elseif ( str_starts_with( $morecontent, '../' ) ) {
 					// Subpages on interwiki / language links aren't valid,
 					// so $target->title should always be present here
-					$morecontent = $target->title->getPrefixedText();
+					$morecontent = $target->title->getFullText();
 				}
 			}
 

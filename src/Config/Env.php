@@ -531,7 +531,13 @@ class Env {
 				}
 				$newBits = array_slice( $titleBits, 0, -$levels );
 				if ( $str !== $relUp[0] ) {
-					$newBits[] = substr( $str, $levels * 3 );
+					$lastBit = substr( $str, $levels * 3 );
+					if ( str_starts_with( $lastBit, "#" ) ) {
+						// Fragments should not get appended after a trailing "/"
+						$newBits[count( $newBits ) - 1] .= $lastBit;
+					} else {
+						$newBits[] = $lastBit;
+					}
 				}
 				$str = implode( '/', $newBits );
 				$reNormalize = true;
