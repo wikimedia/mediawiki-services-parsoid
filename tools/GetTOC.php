@@ -65,9 +65,7 @@ class GetTOC extends \MediaWiki\Maintenance\Maintenance {
 
 		// Set up parser options based on the requested parser type
 		$parserOptions = ParserOptions::newFromAnon();
-		if ( $parserType === 'parsoid' ) {
-			$parserOptions->setUseParsoid();
-		}
+		$parserOptions->setUseParsoid( $parserType === 'parsoid' );
 
 		// Get parser output
 		$status = $parserOutputAccess->getParserOutput(
