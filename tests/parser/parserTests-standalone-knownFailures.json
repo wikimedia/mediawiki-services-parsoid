@@ -504,6 +504,10 @@
     "Parser Functions: 2. Nested use (only outermost should be marked up)": {
         "html2wt": "FOO\n"
     },
+    "Parser hook: basic arguments": {
+        "wt2wt": "<tag width=\"200\" height=\"100\" depth=\"50\" square></tag>",
+        "html2wt": "<tag width=\"200\" height=\"100\" depth=\"50\" square></tag>"
+    },
     "Parsing an URL": {
         "html2wt": "http://fr.wikipedia.org/wiki/🍺\n",
         "selser [[[2]],2,0]": "[[:fr:🍺|1cq91rfhttp://fr.wikipedia.org/wiki/🍺]]\n\nszrdkt\n<!-- EasterEgg we love beer, better be able be able to link to it -->"

@@ -2672,7 +2672,7 @@ File:Foobar.jpg|</ref>
 !! test
 Gallery (with showfilename option)
 !! wikitext
-<gallery showfilename="">
+<gallery showfilename>
 File:Nonexistent.jpg|caption
 File:Nonexistent.jpg
 File:Foobar.jpg|some '''caption''' [[Main Page]]
@@ -2927,7 +2927,7 @@ File:Foobar.jpg|foo
 !! test
 Gallery in slideshow mode
 !! wikitext
-<gallery mode="slideshow" showthumbnails="">
+<gallery mode="slideshow" showthumbnails>
 File:Foobar.jpg
 </gallery>
 !! html/php

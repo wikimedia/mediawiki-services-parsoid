@@ -76,6 +76,9 @@
 	"Nested lists 6 (both elements empty)": {
 		"wt2wt": "\n**\n"
 	},
+	"Parser hook: basic arguments": {
+		"wt2wt": "<tag width=\"200\" height=\"100\" depth=\"50\" square></tag>"
+	},
 	"Parsing of overlapping (improperly nested) inline html tags": {
 		"wt2wt": "<span><s>x</span>"
 	},
