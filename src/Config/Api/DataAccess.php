@@ -332,10 +332,15 @@ class DataAccess extends IDataAccess {
 	public function parseWikitextWithTitle(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext,
+		string|PFragment $wikitext,
 		?LinkTarget $titleOverride = null,
 		?ParsoidExtensionAPI $extApi = null,
 	): string {
+		$ss = null;
+		if ( $wikitext instanceof PFragment ) {
+			$ss = StripState::new();
+			$wikitext = $wikitext->asMarkedWikitext( $ss );
+		}
 		$pageConfigTitle = $this->toPrefixedText( $titleOverride ?? $pageConfig->getLinkTarget() );
 		$revid = $titleOverride ? null : $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'parse', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
@@ -358,7 +363,17 @@ class DataAccess extends IDataAccess {
 			$this->setCache( $key, $data );
 		}
 		$this->mergeMetadata( $data, $metadata );
-		return $data['text']; # HTML
+		$html = $data['text'];
+		if ( $ss !== null && $extApi !== null ) {
+			// Replace our strip markers with their HTML rendering
+			$arr = $ss->splitWt( $html ); // html not wikitext
+			for ( $i = 1; $i < count( $arr ); $i += 2 ) {
+				// odd entries are PFragments
+				$arr[$i] = $arr[$i]->asHtmlString( $extApi );
+			}
+			$html = implode( '', $arr );
+		}
+		return $html;
 	}
 
 	/** @inheritDoc */

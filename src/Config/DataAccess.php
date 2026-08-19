@@ -114,33 +114,6 @@ abstract class DataAccess {
 		], $hrefList );
 	}
 
-	// Core must implement *one* of ::parseWikitext and
-	// ::parseWikitextWithTitle, at least during the transition period.
-
-	/**
-	 * Perform a parse on wikitext
-	 *
-	 * This replaces PHPParseRequest with onlypst = false, and Batcher.parse()
-	 *
-	 * @todo Parsoid should be able to do this itself.
-	 * @param PageConfig $pageConfig
-	 * @param ContentMetadataCollector $metadata Will collect metadata about
-	 *   the parsed content.
-	 * @param string $wikitext
-	 * @return string Output HTML
-	 */
-	public function parseWikitext(
-		PageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		string $wikitext,
-	): string {
-		// Using the PageConfig::getLinkTarget() (the "top level page")
-		// has been the implicit default in core.
-		return $this->parseWikitextWithTitle(
-			$pageConfig, $metadata, $wikitext, $pageConfig->getLinkTarget()
-		);
-	}
-
 	/**
 	 * Perform a parse on wikitext with an optional title override
 	 *
@@ -151,23 +124,17 @@ abstract class DataAccess {
 	 * @param PageConfig $pageConfig
 	 * @param ContentMetadataCollector $metadata Will collect metadata about
 	 *   the parsed content.
-	 * @param string $wikitext
+	 * @param string|PFragment $wikitext
 	 * @param ?LinkTarget $titleOverride
 	 * @return string Output HTML
 	 */
-	public function parseWikitextWithTitle(
+	abstract public function parseWikitextWithTitle(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext,
+		string|PFragment $wikitext,
 		?LinkTarget $titleOverride = null,
 		?ParsoidExtensionAPI $extApi = null,
-	): string {
-		// Temporarily omit the $titleOverride, while we migrate.
-		// It's effectively the same as what we were doing before.
-		return $this->parseWikitext(
-			$pageConfig, $metadata, $wikitext
-		);
-	}
+	): string;
 
 	/**
 	 * Preprocess wikitext

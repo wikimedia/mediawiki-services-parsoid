@@ -10,7 +10,10 @@ use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\LiteralStringPFragment;
+use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Fragments\StripState;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -569,11 +572,17 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
+	public function parseWikitextWithTitle(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext
+		string|PFragment $wikitext,
+		?LinkTarget $titleOverride = null,
+		?ParsoidExtensionAPI $extApi = null,
 	): string {
+		if ( $wikitext instanceof PFragment ) {
+			$ss = StripState::new();
+			$wikitext = $wikitext->asMarkedWikitext( $ss );
+		}
 		// Render to html the contents of known extension tags
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $wikitext, $match );
 		return match ( $match[1] ) {
