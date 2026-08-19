@@ -155,6 +155,11 @@ class TempData {
 	public const DISCARDABLE_DP = 1 << 13;
 
 	/**
+	 * Used to indicate that media should not render due to limit
+	 */
+	public const MEDIA_OVER_LIMIT = 1 << 14;
+
+	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used
 	 * in findAutoInsertedTags() in conjunction with data-stag to identify
 	 * auto-inserted tags, and for debugging.

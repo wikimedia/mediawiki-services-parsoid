@@ -1563,6 +1563,10 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 		}
 
+		if ( !$this->env->bumpWt2HtmlResourceUse( 'image' ) ) {
+			$container->dataParsoid->getTemp()->setFlag( TempData::MEDIA_OVER_LIMIT );
+		}
+
 		// Start off as broken media since we don't know if the file exists.
 		// In the AddMediaInfo pass, we'll replace the node after calling getFileInfo
 		$span = new TagTk( 'span', [ new KV( 'class', 'mw-file-element mw-broken-media' ) ] );

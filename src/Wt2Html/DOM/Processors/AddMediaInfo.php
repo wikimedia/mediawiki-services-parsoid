@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwError;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -712,16 +713,15 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// title for getFileInfo, which expects the file DB key.
 			$pageInfoKey = $attrs['title']->getPrefixedText();
 
+			$errs = [];
+			$manualKey = null;
 			$file = [ $attrs['title']->getDBKey(), $dims ];
 			$infoKey = md5( json_encode( $file ) );
 
-			$errs = [];
-			$manualKey = null;
-
-			if (
-				isset( $files[$infoKey] )
-				|| $env->bumpWt2HtmlResourceUse( 'image' )
-			) {
+			if ( DOMDataUtils::getDataParsoid( $container )->getTempFlag( TempData::MEDIA_OVER_LIMIT ) ) {
+				$limitFallbackTitles[$pageInfoKey] = $file;
+				$infoKey = false;
+			} else {
 				$files[$infoKey] = $file;
 
 				$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
@@ -737,21 +737,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					} else {
 						$file = [ $title->getDBkey(), $dims ];
 						$manualKey = md5( json_encode( $file ) );
-						if (
-							isset( $files[$manualKey] )
-							|| $env->bumpWt2HtmlResourceUse( 'image' )
-						) {
-							$files[$manualKey] = $file;
-						} else {
-							// false signals, that the media limit was reached
-							$manualKey = false;
-						}
+						$files[$manualKey] = $file;
 					}
 				}
-			} else {
-				// false signals, that the media limit was reached
-				$infoKey = false;
-				$limitFallbackTitles[$pageInfoKey] = true;
 			}
 
 			$validContainers[] = [
@@ -790,6 +778,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		);
 		$limitFallbackInfo = [];
 		if ( $limitFallbackTitles ) {
+			$env->getDataAccess()->addTrackingCategory(
+				$env->getPageConfig(),
+				$env->getMetadata(),
+				'media-limit-reached'
+			);
+			$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
 			$limitFallbackInfo = self::getPageInfoBatched(
 				$env,
 				array_keys( $limitFallbackTitles )
@@ -811,29 +805,24 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$hasThumb = $hasThumb || DOMUtils::hasTypeOf( $container, 'mw:File/Thumb' );
 
 			$broken = false;
-			// In case of image limit was reached, set media container in error state
+			// In case of image limit was reached, determine, if file exists or not
 			if ( $c['infoKey'] === false ) {
-				$env->getDataAccess()->addTrackingCategory(
-					$env->getPageConfig(),
-					$env->getMetadata(),
-					'media-limit-reached'
-				);
-				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
+				$pageInfo = $limitFallbackInfo[$c['pageInfoKey']] ?? null;
+				// If file does not exist, add error and category
+				if ( $pageInfo === null || ( !empty( $pageInfo['missing'] ) && empty( $pageInfo['known'] ) ) ) {
+					$broken = true;
+					$env->getDataAccess()->addTrackingCategory(
+						$env->getPageConfig(),
+						$env->getMetadata(),
+						'broken-file-category'
+					);
+					$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
+				}
 				$errs[] = self::makeErr(
 					'apierror-imagelimitexceeded',
 					'Image is not rendered due to image limit was exceeded',
 					[]
 				);
-
-				$pageInfo = $limitFallbackInfo[$c['pageInfoKey']] ?? null;
-				if ( $pageInfo === null ) {
-					$broken = true;
-				} else {
-					// Use the same missing-page definition as AddRedLinks.
-					$broken =
-						!empty( $pageInfo['missing'] ) &&
-						empty( $pageInfo['known'] );
-				}
 			} elseif ( !$files[$c['infoKey']] ) {
 				$broken = true;
 				$env->getDataAccess()->addTrackingCategory(
@@ -849,19 +838,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$info = $files[$c['infoKey']] ?? null;
 			$isManualThumb = false;
 
-			if ( $c['manualKey'] === false ) {
-				$env->getDataAccess()->addTrackingCategory(
-					$env->getPageConfig(),
-					$env->getMetadata(),
-					'media-limit-reached'
-				);
-				$env->getMetadata()->setOutputFlag( 'prevent-selective-update' );
-				$errs[] = self::makeErr(
-					'apierror-imagelimitexceeded',
-					'Image is not rendered due to image limit was exceeded',
-					[]
-				);
-			} elseif ( $c['manualKey'] !== null ) {
+			if ( $c['manualKey'] !== null ) {
 				$manualinfo = $files[$c['manualKey']];
 				if ( !$manualinfo ) {
 					$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
