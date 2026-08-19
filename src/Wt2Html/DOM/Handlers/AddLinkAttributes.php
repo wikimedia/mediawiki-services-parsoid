@@ -63,8 +63,20 @@ class AddLinkAttributes {
 			if ( $attribs['href'] ?? null ) {
 				$state->env->getMetadata()->addExternalLink( $attribs['href'] );
 			}
-		} elseif ( DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' ) ) {
-			DOMCompat::getClassList( $a )->add( 'extiw' );
+		} elseif (
+			DOMUtils::hasRel( $a, 'mw:WikiLink' ) ||
+			DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' )
+		) {
+			if ( DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' ) ) {
+				DOMCompat::getClassList( $a )->add( 'extiw' );
+			}
+			$titleAttr = DOMCompat::getAttribute( $a, 'title' );
+			if ( $titleAttr !== null ) {
+				$title = $state->env->makeTitleFromText( $titleAttr, null, true );
+				if ( $title !== null ) {
+					$state->env->getMetadata()->addLink( $title );
+				}
+			}
 		}
 
 		if ( WTUtils::isATagFromMagicLinkSyntax( $a ) ) {

@@ -21,12 +21,6 @@
         "selser [4,0,2,0,0]": "c95k3k<pre> Page</pre>m0cfjh\n\n]] [[Main Page|the main page <pre>[it's not very good]</pre>]]<pre>[it's not very good]</pre>",
         "selser [2,0,0,0,3]": "1cto0y\n\n[[Main<pre> Page</pre>]] [[Main Page|the main page <pre>[it's not very good]</pre>]]<pre>[it's not very good]</pre>"
     },
-    "Anchor containing a #. (T65430)": {
-        "metadata": ""
-    },
-    "Broken link with fragment": {
-        "metadata": ""
-    },
     "Internal link with is link trail and link prefix": {
         "html2wt": "[[Mótmælendatrú|xxxar]]\n[[Mótmælendatrú|mótmælendatrúar]]\n[[Söfnuður|mótmælendasöfnuður]]\n[[Söfnuður|mótmælendasöfnuðir]]\n[[Söfnuður|mótmælendasöfnuðirxxx]]\n"
     },
@@ -81,9 +75,6 @@
         "selser [0,3,[3,0,0,0,3,0,3,0,0,0,4,0,4,0,4,0,3,0,3,0,0,0,0]]": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}{{1x|foo/..}}{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}1369k38{{1x|foo././bar}}1s2pdje{{1x|foo{bar}}kc7br8{{1x|foo}bar}}{{1x|foo[bar}}{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]",
         "selser [2,2,2]": "1p7ag6r\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\nzgbtfl\n\n1s6qnfr\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]",
         "selser [2,0,[0,0,4,0,4,0,0,0,4,0,2,0,2,0,0,0,2,0,0,0,0,0,0]]": "1ys83ti\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}3vtcxh{{1x|foo/.}}17795w{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}nbklz1{{1x|foo>bar}}1jbv0hg]]\n[[{{1x|foo././bar}}zoqgl4]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}nhq2qs]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
-    },
-    "Special page link with fragment": {
-        "metadata": ""
     },
     "Subpage noslash link": {
         "html2wt": "[[Subpage test/subpage|subpage]]\n"

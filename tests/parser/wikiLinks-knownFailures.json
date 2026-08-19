@@ -5,20 +5,11 @@
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"
 	},
-	"Anchor containing a #. (T65430)": {
-		"metadata": ""
-	},
-	"Broken link with fragment": {
-		"metadata": ""
-	},
 	"Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
 		"wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']"
 	},
 	"Render invalid page names as plain text (T53090)": {
 		"wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
-	},
-	"Special page link with fragment": {
-		"metadata": ""
 	},
 	"T4095: link with pipe and three closing brackets, version 2": {
 		"wt2wt": "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]"
