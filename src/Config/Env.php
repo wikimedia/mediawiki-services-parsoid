@@ -196,7 +196,7 @@ class Env {
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
 	 *  - linterOverrides: (array) Override the site linting configs.
 	 *  - skipLanguageConversionPass: (bool) Should we skip the language
-	 *      conversion pass? (defaults to false)
+	 *      conversion pass? (defaults to true)
 	 *  - htmlVariantLanguage: Bcp47Code|null
 	 *      If non-null, the language variant used for Parsoid HTML
 	 *      as a BCP 47 object.
@@ -238,7 +238,7 @@ class Env {
 				$this->outputContentVersion . ' is not an available content version.' );
 		}
 		$this->skipLanguageConversionPass =
-			$options['skipLanguageConversionPass'] ?? false;
+			$options['skipLanguageConversionPass'] ?? true;
 		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
 		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );

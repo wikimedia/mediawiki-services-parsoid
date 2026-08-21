@@ -182,7 +182,7 @@ class Parsoid {
 			$envOptions['linterOverrides'] = $options['linterOverrides'];
 		}
 		$envOptions['skipLanguageConversionPass'] =
-			$options['skipLanguageConversionPass'] ?? false;
+			$options['skipLanguageConversionPass'] ?? true;
 		$envOptions['nativeTemplateExpansion'] =
 			$options['nativeTemplateExpansion'] ?? false;
 		$env = new Env(
