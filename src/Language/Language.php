@@ -7,18 +7,6 @@ namespace Wikimedia\Parsoid\Language;
  * Base class for Language objects.
  */
 class Language {
-
-	/** @var LanguageConverter|null */
-	private $converter;
-
-	public function getConverter(): ?LanguageConverter {
-		return $this->converter;
-	}
-
-	public function setConverter( LanguageConverter $converter ): void {
-		$this->converter = $converter;
-	}
-
 	/**
 	 * Returns true if a language code string is of a valid form, whether or not it exists.
 	 * This includes codes which are used solely for customisation via the MediaWiki namespace.

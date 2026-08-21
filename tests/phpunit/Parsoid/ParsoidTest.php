@@ -23,10 +23,6 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
 	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
-	protected function tearDown(): void {
-		PHPUtils::clearDeprecationFilters();
-	}
-
 	/**
 	 * @covers ::wikitext2html
 	 * @dataProvider provideWt2Html
@@ -160,9 +156,6 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testPb2Pb( $update, $input, $expected, $testOpts = [] ) {
 		$opts = [];
-		if ( $update === 'variant' ) {
-			PHPUtils::filterDeprecationForTest( '/pb2pb with variant/' );
-		}
 
 		$siteConfig = new MockSiteConfig( $opts );
 		$dataAccess = new MockDataAccess( $siteConfig, $opts );
@@ -305,135 +298,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 				],
 			],
-			// Language Variant conversion endpoint
-			"variant test 1" => [
-				'variant',
-				[
-					'html' => '<p>абвг abcd x</p>',
-					'parsoid' => null,
-					'mw' => null,
-					'counters' => '{"nodedata":-1,"annotation":0,"transclusion":1}',
-				],
-				[
-					'html' => '<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"rt":true,"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}]}\'>abcd</span> x</p>',
-					'parsoid' => '{"ids":[],"offsetType":"byte"}',
-					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
-					'version' => self::$defaultContentVersion,
-				],
-				[
-					'body_only' => true,
-					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
-					'variant' => [
-						'wikitext' => new Bcp47CodeValue( 'sr-Cyrl' ),
-						'html' => new Bcp47CodeValue( 'sr-Latn' ),
-					]
-				]
-			],
-			"variant test 2" => [
-				'variant',
-				[
-					'html' => '<p>абвг abcd x</p>',
-					'parsoid' => null,
-					'mw' => null,
-					'counters' => '{"nodedata":-1,"annotation":0,"transclusion":1}',
-				],
-				[
-					'html' => '<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"rt":true,"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}]}\'>абвг</span> абцд x</p>',
-					'parsoid' => '{"ids":[],"offsetType":"byte"}',
-					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
-					'version' => self::$defaultContentVersion,
-				],
-				[
-					'body_only' => true,
-					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
-					'variant' => [
-						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
-						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
-					]
-				]
-			],
-			"variant test 3" => [
-				'variant',
-				[
-					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><b id="mwAg">abcd</b></p></body>',
-					'parsoid' => '{"ids":{"mwAA":{"dsr":[0,11,0,0]},"mwAQ":{"dsr":[0,10,0,0]},"mwAg":{"dsr":[0,10,3,3]}},"offsetType":"byte"}',
-					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":2,"annotation":0,"transclusion":1}',
-				],
-				[
-					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
-					'parsoid' => '{"ids":{"mwAA":{"dsr":[0,11,0,0]},"mwAQ":{"dsr":[0,10,0,0]},"mwAg":{"dsr":[0,10,3,3]}},"offsetType":"byte"}',
-					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":2,"annotation":0,"transclusion":1}',
-					'version' => self::$defaultContentVersion,
-				],
-				[
-					'body_only' => true,
-					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
-					'variant' => [
-						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
-						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
-					]
-				]
-			],
-			// Note that id attributes are preserved, even if no data-parsoid
-			// is provided.
-			"variant test 4" => [
-				'variant',
-				[
-					'html' => '<body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr"><p id="mwAQ"><b id="mwAg">abcd</b></p></body>',
-					'parsoid' => null,
-					'mw' => null,
-					'counters' => '{"nodedata":-1,"annotation":0,"transclusion":1}',
-				],
-				[
-					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
-					'parsoid' => '{"ids":[],"offsetType":"byte"}',
-					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
-					'version' => self::$defaultContentVersion,
-				],
-				[
-					'body_only' => true,
-					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
-					'variant' => [
-						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
-						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
-					]
-				]
-			],
 		];
 		// phpcs:enable Generic.Files.LineLength.TooLong
-	}
-
-	/**
-	 * @covers ::implementsLanguageConversionBcp47
-	 * @dataProvider provideImplementsLanguageConversionBcp47
-	 */
-	public function testImplementsLanguageConversionBcp47( string $htmlVariantCode, $expected ) {
-		$opts = [];
-
-		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $siteConfig, $opts );
-		$parsoid = new Parsoid( $siteConfig, $dataAccess );
-
-		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
-
-		$actual = $parsoid->implementsLanguageConversionBcp47( $pageConfig, new Bcp47CodeValue( $htmlVariantCode ) );
-		$this->assertEquals( $expected, $actual );
-	}
-
-	public static function provideImplementsLanguageConversionBcp47() {
-		yield 'Variant conversion is implemented for en-x-piglatin' => [
-			'en-x-piglatin', true
-		];
-
-		yield 'Variant conversion is not implemented for kk-latn' => [
-			'kk-latn', false
-		];
 	}
 
 	/**

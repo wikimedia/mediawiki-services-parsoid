@@ -9,7 +9,6 @@ use Composer\Semver\Semver;
 use InvalidArgumentException;
 use LogicException;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
@@ -23,7 +22,6 @@ use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ComputeSelectiveStats;
@@ -33,7 +31,6 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Histogram;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Timing;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
 
@@ -114,15 +111,6 @@ class Parsoid {
 		return null;
 	}
 
-	/**
-	 * Determine if language conversion is enabled, aka if the optional
-	 * wikimedia/langconv library is installed.
-	 * @return bool True if the wikimedia/langconv library is available
-	 */
-	public static function supportsLanguageConversion(): bool {
-		return class_exists( '\Wikimedia\LangConv\ReplacementMachine' );
-	}
-
 	private function setupCommonOptions( array $options ): array {
 		$envOptions = [];
 		if ( isset( $options['offsetType'] ) ) {
@@ -136,12 +124,6 @@ class Parsoid {
 		}
 		if ( isset( $options['debugFlags'] ) ) {
 			$envOptions['debugFlags'] = $options['debugFlags'];
-		}
-		if ( !empty( $options['htmlVariantLanguage'] ) ) {
-			$envOptions['htmlVariantLanguage'] = $options['htmlVariantLanguage'];
-		}
-		if ( !empty( $options['wtVariantLanguage'] ) ) {
-			$envOptions['wtVariantLanguage'] = $options['wtVariantLanguage'];
 		}
 		if ( isset( $options['logLevels'] ) ) {
 			$envOptions['logLevels'] = $options['logLevels'];
@@ -181,8 +163,6 @@ class Parsoid {
 		if ( isset( $options['linterOverrides'] ) ) {
 			$envOptions['linterOverrides'] = $options['linterOverrides'];
 		}
-		$envOptions['skipLanguageConversionPass'] =
-			$options['skipLanguageConversionPass'] ?? true;
 		$envOptions['nativeTemplateExpansion'] =
 			$options['nativeTemplateExpansion'] ?? false;
 		$env = new Env(
@@ -226,9 +206,6 @@ class Parsoid {
 	 *   'contentmodel'         => (string|null) The content model of the input.
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
-	 *   'skipLanguageConversionPass'  => (bool) Skip the language variant conversion pass (defaults to false)
-	 *   'htmlVariantLanguage'  => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
-	 *   'wtVariantLanguage'    => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
 	 *   'linterOverrides'      => (array) Override the site linting configs.
 	 *   // Debugging options, not for use in production
@@ -474,8 +451,6 @@ class Parsoid {
 	 *   'offsetType'          => (string) ucs2, char, byte are valid values
 	 *                                     what kind of source offsets are present in the HTML?
 	 *   'contentmodel'        => (string|null) The content model of the input.
-	 *   'htmlVariantLanguage' => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
-	 *   'wtVariantLanguage'   => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
@@ -644,47 +619,6 @@ class Parsoid {
 				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 				break;
 
-			case 'variant':
-				PHPUtils::deprecated( __METHOD__ . ' with variant', '0.24' );
-				ContentUtils::convertOffsets(
-					$env, $doc, $env->getRequestOffsetType(), 'byte'
-				);
-
-				// Note that `maybeConvert` could still be a no-op, in case the
-				// __NOCONTENTCONVERT__ magic word is present, or the htmlVariant
-				// is a base language code or otherwise invalid.
-				$hasWtVariant = $options['variant']['wikitext'] ??
-					// Deprecated name for this option:
-					$options['variant']['source'] ?? false;
-				LanguageConverter::maybeConvert(
-					$env, $doc,
-					Utils::mwCodeToBcp47(
-						$options['variant']['html'] ??
-						// Deprecated name for this option:
-						$options['variant']['target'],
-						// Be strict in what we accept.
-						true, $this->siteConfig->getLogger()
-					),
-					$hasWtVariant ?
-					Utils::mwCodeToBcp47(
-						$options['variant']['wikitext'] ??
-						// Deprecated name for this option:
-						$options['variant']['source'],
-						// Be strict in what we accept.
-						true, $this->siteConfig->getLogger()
-					) : null
-				);
-
-				// NOTE: Keep this in sync with code in core's LanguageVariantConverter
-				// Update content-language and vary headers.
-				DOMUtils::addHttpEquivHeaders( $doc, [
-					'content-language' => $env->htmlContentLanguageBcp47()->toBcp47Code(),
-					'vary' => $env->htmlVary()
-				] );
-
-				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
-				break;
-
 			default:
 				throw new LogicException( $update . 'is an unknown transformation' );
 		}
@@ -767,26 +701,6 @@ class Parsoid {
 		throw new InvalidArgumentException(
 			"Unsupported downgrade: {$dg['from']} -> {$dg['to']}"
 		);
-	}
-
-	/**
-	 * Check if language variant conversion is implemented for a language
-	 *
-	 * @internal FIXME: Remove once Parsoid's language variant work is completed
-	 * @param PageConfig $pageConfig
-	 * @param Bcp47Code $htmlVariant Variant language to check
-	 * @return bool
-	 */
-	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $htmlVariant ): bool {
-		// Hardcode disable zh lang conversion support since Parsoid's
-		// implementation is incomplete and not performant (T346657).
-		if ( $pageConfig->getPageLanguageBcp47()->toBcp47Code() === 'zh' ) {
-			return false;
-		}
-
-		$metadata = new StubMetadataCollector( $this->siteConfig );
-		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
-		return LanguageConverter::implementsLanguageConversionBcp47( $env, $htmlVariant );
 	}
 
 	/**

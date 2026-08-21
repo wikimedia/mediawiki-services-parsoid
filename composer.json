@@ -18,12 +18,8 @@
 		"wiki": "https://www.mediawiki.org/wiki/Parsoid"
 	},
 	"suggest": {
-		"wikimedia/langconv": "Provides script conversion support",
 		"ext-readline": "Needed to support repl.php",
 		"ext-excimer": "Needed to support flamegraphs in parse.php"
-	},
-	"conflict": {
-		"wikimedia/langconv": "<0.4.2"
 	},
 	"require": {
 		"composer-runtime-api": "^2.0",
@@ -61,7 +57,6 @@
 		"sebastian/diff": "^5.1.1",
 		"wikimedia/alea": "^1.0.0",
 		"wikimedia/dodo": "^0.7.0",
-		"wikimedia/langconv": "^0.5.0",
 		"wikimedia/testing-access-wrapper": "^4.0.0"
 	},
 	"autoload": {

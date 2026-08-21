@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\ParserTests;
 use Closure;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Env;
@@ -410,7 +409,7 @@ class TestRunner {
 		$test->time = [];
 		$testOpts = $test->options;
 		if ( $testOpts['langconv'] ?? null ) {
-			// Variant conversion is moving to core
+			// Variant conversion has moved to core
 			return;
 		}
 
@@ -419,24 +418,6 @@ class TestRunner {
 
 		// Page language matches "wiki language" (which is set by
 		// the item 'language' option).
-
-		// Variant conversion is disabled by default
-		$this->envOptions['wtVariantLanguage'] = null;
-		$this->envOptions['htmlVariantLanguage'] = null;
-		// The test can explicitly opt-in to variant conversion with the
-		// 'langconv' option.
-		if ( $testOpts['langconv'] ?? null ) {
-			// Preferred option names, which are also specified in bcp-47 codes
-			// (Note that test options names are lowercased by the reader.)
-			if ( $testOpts['wtvariantlanguage'] ?? false ) {
-				$this->envOptions['wtVariantLanguage'] =
-					new Bcp47CodeValue( $testOpts['wtvariantlanguage'] );
-			}
-			if ( $testOpts['htmlvariantlanguage'] ?? false ) {
-				$this->envOptions['htmlVariantLanguage'] =
-					new Bcp47CodeValue( $testOpts['htmlvariantlanguage'] );
-			}
-		}
 
 		$env = $this->newEnv( $test, $test->wikitext ?? '' );
 

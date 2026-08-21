@@ -84,7 +84,6 @@ class Env {
 
 	/** @var ('byte'|'ucs2'|'char') */
 	private string $currentOffsetType = 'byte';
-	private bool $skipLanguageConversionPass = false;
 
 	/** @var array<string,mixed> */
 	private array $behaviorSwitches = [];
@@ -121,18 +120,6 @@ class Env {
 	 */
 	private string $outputContentVersion;
 
-	/**
-	 * If non-null, the language variant used for Parsoid HTML;
-	 * we convert to this if wt2html, or from this if html2wt.
-	 */
-	private ?Bcp47Code $htmlVariantLanguage;
-
-	/**
-	 * If non-null, the language variant to be used for wikitext.
-	 * If null, heuristics will be used to identify the original wikitext variant
-	 * in wt2html mode, and in html2wt mode new or edited HTML will be left unconverted.
-	 */
-	private ?Bcp47Code $wtVariantLanguage;
 	private ParserPipelineFactory $pipelineFactory;
 
 	/**
@@ -195,18 +182,6 @@ class Env {
 	 *                See `Parsoid\Wt2Html\DOM\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
 	 *  - linterOverrides: (array) Override the site linting configs.
-	 *  - skipLanguageConversionPass: (bool) Should we skip the language
-	 *      conversion pass? (defaults to true)
-	 *  - htmlVariantLanguage: Bcp47Code|null
-	 *      If non-null, the language variant used for Parsoid HTML
-	 *      as a BCP 47 object.
-	 *      We convert to this if wt2html, or from this if html2wt.
-	 *  - wtVariantLanguage: Bcp47Code|null
-	 *      If non-null, the language variant to be used for wikitext
-	 *      as a BCP 47 object.
-	 *      If null, heuristics will be used to identify the original
-	 *      wikitext variant in wt2html mode, and in html2wt mode new
-	 *      or edited HTML will be left unconverted.
 	 *  - logLevels: (string[]) Levels to log
 	 *  - topLevelDoc: Document Set explicitly
 	 *      when serializing otherwise it gets initialized for parsing.
@@ -237,10 +212,6 @@ class Env {
 			throw new \UnexpectedValueException(
 				$this->outputContentVersion . ' is not an available content version.' );
 		}
-		$this->skipLanguageConversionPass =
-			$options['skipLanguageConversionPass'] ?? true;
-		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
-		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->logLinterData = !empty( $options['logLinterData'] );
@@ -963,32 +934,6 @@ class Env {
 	 */
 	public function getOutputContentVersion(): string {
 		return $this->outputContentVersion;
-	}
-
-	/**
-	 * If non-null, the language variant used for Parsoid HTML; we convert
-	 * to this if wt2html, or from this (if html2wt).
-	 *
-	 * @return ?Bcp47Code a BCP-47 language code
-	 */
-	public function getHtmlVariantLanguageBcp47(): ?Bcp47Code {
-		return $this->htmlVariantLanguage; // Stored as BCP-47
-	}
-
-	/**
-	 * If non-null, the language variant to be used for wikitext.  If null,
-	 * heuristics will be used to identify the original wikitext variant
-	 * in wt2html mode, and in html2wt mode new or edited HTML will be left
-	 * unconverted.
-	 *
-	 * @return ?Bcp47Code a BCP-47 language code
-	 */
-	public function getWtVariantLanguageBcp47(): ?Bcp47Code {
-		return $this->wtVariantLanguage;
-	}
-
-	public function getSkipLanguageConversionPass(): bool {
-		return $this->skipLanguageConversionPass;
 	}
 
 	/**

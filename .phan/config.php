@@ -6,9 +6,6 @@ declare( strict_types = 1 );
 # is set in your environment and points to an up-to-date copy of mediawiki-core
 $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 
-$root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
-$hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
-
 if ( $STANDALONE ) {
 	$cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config-library.php';
 
@@ -45,22 +42,9 @@ if ( $STANDALONE ) {
 		'vendor/wikimedia/object-factory',
 		'vendor/wikimedia/idle-dom',
 	] );
-
-	if ( $hasLangConv ) {
-		# prefer our local wikimedia/langconv
-		$cfg['directory_list'][] = 'vendor/wikimedia/langconv';
-	} elseif ( is_dir( "{$VP}/vendor/wikimedia/langconv" ) ) {
-		$hasLangConv = true;
-	}
 }
 
 $cfg['minimum_target_php_version'] = '8.2';
-
-// If the optional wikimedia/langconv package isn't installed, ignore files
-// which require it.
-if ( !$hasLangConv ) {
-	$cfg['exclude_analysis_directory_list'][] = 'src/Language/';
-}
 
 $cfg['enable_class_alias_support'] = true; // should be on by default: T224704
 
@@ -110,10 +94,6 @@ if ( $STANDALONE ) {
 		'wikimedia/idle-dom',
 	] as $d ) {
 		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
-	}
-	// Prefer our local copy of langconv
-	if ( is_dir( "{$root}/vendor/wikimedia/langconv" ) ) {
-		wfCollectPhpFiles( "{$VP}/vendor/wikimedia/langconv", $cfg['exclude_file_list'] );
 	}
 }
 wfCollectPhpFiles( "vendor/composer/composer", $cfg['exclude_file_list'] );

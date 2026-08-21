@@ -26,7 +26,6 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMetaData;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ComputeDSR;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
-use Wikimedia\Parsoid\Wt2Html\DOM\Processors\LangConverter;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MarkFosteredContent;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTemplateMarkerMetas;
@@ -72,7 +71,6 @@ class ParserPipelineFactory {
 		'extpp' => RunExtensionProcessors::class,
 		'fostered' => MarkFosteredContent::class,
 		'linter' => Linter::class,
-		'lang-converter' => LangConverter::class,
 		'media' => AddMediaInfo::class,
 		'migrate-metas' => MigrateTemplateMarkerMetas::class,
 		'migrate-nls' => MigrateTrailingNLs::class,
@@ -201,7 +199,7 @@ class ParserPipelineFactory {
 	// are two such passes. FIXME: we should explore if we can move 'media' out of here.
 	//
 	// Nested (non-top-level) pipelines can never include the following:
-	// - lang-converter, convertoffsets, dedupe-styles, cleanup, markDiscardableDP
+	// - convertoffsets, dedupe-styles, cleanup, markDiscardableDP
 	//
 	// FIXME: Perhaps introduce a config flag in the processor config that
 	// verifies this property against a pipeline's 'toplevel' state.
@@ -214,8 +212,8 @@ class ParserPipelineFactory {
 	];
 
 	// NOTES about ordering:
-	// lang-converter, redlinks:
-	//    Language conversion and redlink marking are done here
+	// redlinks:
+	//    Redlink marking are done here
 	//    *before* we cleanup and mark discardable data-parsoid because they
 	//    are also used in pb2pb/html2html passes, and we want to
 	//    keep their input/output formats consistent.
@@ -229,9 +227,8 @@ class ParserPipelineFactory {
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
 		'dedupe-styles',
-		'lang-converter',
 		'redlinks',
-		'gen-anchors', # depends on lang-converter
+		'gen-anchors', # used to depend on lang-converter
 		'linter', 'strip-metas',
 		'dedupe-heading-ids',
 		'sections', 'convertoffsets',
@@ -245,7 +242,7 @@ class ParserPipelineFactory {
 
 	// Skipping sections, addmetadata from the above pipeline
 	//
-	// FIXME: Skip extpp, lang-converter, gen-anchors, dedupe-heading-ids, convertoffsets for now.
+	// FIXME: Skip extpp, gen-anchors, dedupe-heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		// Even though displayspace *could* be run in the nested pipeline,
@@ -282,7 +279,6 @@ class ParserPipelineFactory {
 	 */
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
 		'update-template',
-		'lang-converter', /* FIXME: Are lang converters idempotent? */
 		'linter',
 		'dedupe-heading-ids',
 		'sections',

@@ -6,12 +6,9 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 use MediaWiki\Parser\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Language\LanguageConverter;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -80,62 +77,19 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 			$prefixedTitleText = $env->getContextTitle()->getPrefixedText();
 
-			$variantMap = $this->getVariantTitles(
-				$env,
-				$root->ownerDocument,
-				$titles,
-				$titleMap,
-				$isDefaultCaptionLinks
-			);
-
 			foreach ( $links as $a ) {
 				$k = DOMCompat::getAttribute( $a, 'title' );
 				if ( $k === null ) {
 					continue;
 				}
 
-				$variantData = $variantMap[$k] ?? null;
-				$data = $variantData ?? $titleMap[$k] ?? null;
+				$data = $titleMap[$k] ?? null;
 
 				if ( $data === null ) {
 					// Likely a consequence of T237535; can be removed once
 					// that is fixed.
 					$env->log( 'warn', 'We should have data for the title: ' . $k );
 					continue;
-				}
-
-				// Convert links pointing to a variant title (T258856)
-				if ( $variantData !== null ) {
-					$variantTitle = $env->makeTitleFromURLDecodedStr(
-						$variantData['variantTitle']
-					);
-
-					$origHref = DOMCompat::getAttribute( $a, 'href' );
-					$origUrl = UrlUtils::parseUrl( $origHref ?? '' );
-
-					$newUrl = UrlUtils::parseUrl( $env->makeLink( $variantTitle ) );
-					$newUrl['query'] = $origUrl['query'];
-					$newUrl['fragment'] = $origUrl['fragment'];
-
-					$variantPrefixedText = $variantTitle->getPrefixedText();
-					DOMDataUtils::addNormalizedAttribute(
-						$a, 'title', $variantPrefixedText, $k
-					);
-					// Set $k to the new title for the selflink check below.
-					// Note that getVariantTitles doesn't set $variantData for
-					// missing titles, so we won't be in this block for the
-					// red-link-title case below.
-					$k = $variantPrefixedText;
-
-					DOMDataUtils::addNormalizedAttribute(
-						$a,
-						'href',
-						UrlUtils::assembleUrl( $newUrl ),
-						$origHref,
-						// Ensure we preserve the real original value
-						// added during initial link parsing.
-						true
-					);
 				}
 
 				$a->removeAttribute( 'class' ); // Clear all, if we're doing a pb2pb refresh
@@ -223,90 +177,6 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			}
 		}
 		return [ $nonDefaultCaptionLinks, $defaultCaptionLinks ];
-	}
-
-	/**
-	 * Attempt to resolve nonexistent link targets using their variants (T258856)
-	 *
-	 * @param Env $env
-	 * @param Document $doc
-	 * @param array<string,true> $titles map keyed by page titles
-	 * @param array<string,array> $titleMap map of resolved page data keyed by title
-	 * @param bool $isDefaultCaptionLinks whether the links being processed have default captions
-	 *
-	 * @return array<string,array> map of resolved variant page data keyed by original title
-	 */
-	private function getVariantTitles(
-		Env $env,
-		Document $doc,
-		array $titles,
-		array $titleMap,
-		bool $isDefaultCaptionLinks
-	): array {
-		// Optimize for the common case where the page language has no variants
-		if (
-			$env->getSkipLanguageConversionPass() ||
-			!$env->langConverterEnabled()
-		) {
-			return [];
-		}
-
-		$origsByVariant = [];
-
-		$langConverter = LanguageConverter::loadLanguageConverter( $env );
-
-		if ( !$langConverter ) {
-			return [];
-		}
-
-		// Gather all nonexistent page titles to search for their variants
-		foreach ( array_keys( $titles ) as $title ) {
-			if (
-				// T237535
-				isset( $titleMap[$title] ) &&
-				( empty( $titleMap[$title]['missing'] ) || !empty( $titleMap[$title]['known'] ) )
-			) {
-				continue;
-			}
-
-			// array_keys converts strings representing numbers to ints.
-			// So, cast $title to string explicitly.
-			$variantTitles = LanguageConverter::autoConvertToAllVariants( $doc, (string)$title, $langConverter );
-
-			foreach ( $variantTitles as $variantTitle ) {
-				$origsByVariant[$variantTitle][] = $title;
-			}
-		}
-
-		$variantsByOrig = [];
-		$variantTitles = array_keys( $origsByVariant );
-
-		foreach ( array_chunk( $variantTitles, self::LINK_BATCH_SIZE ) as $variantChunk ) {
-			$variantChunkData = $env->getDataAccess()->getPageInfo(
-				$env->getPageConfig(),
-				$variantChunk,
-				$isDefaultCaptionLinks
-			);
-
-			// Map resolved variant titles to their corresponding originals
-			foreach ( $variantChunkData as $variantTitle => $pageData ) {
-				// Handle invalid titles
-				// For example, a conversion might result in a title that's too long.
-				if ( !empty( $pageData['invalid'] ) ) {
-					continue;
-				}
-
-				// Handle non-existent variant titles
-				if ( !empty( $pageData['missing'] ) && empty( $pageData['known'] ) ) {
-					continue;
-				}
-
-				foreach ( $origsByVariant[$variantTitle] as $origTitle ) {
-					$variantsByOrig[$origTitle] = [ 'variantTitle' => (string)$variantTitle ] + $pageData;
-				}
-			}
-		}
-		return $variantsByOrig;
 	}
 
 	/**

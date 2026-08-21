@@ -27,14 +27,6 @@ These metrics cover all wikitext to $FORMAT endpoints (/wikitext/to/lint/, /wiki
 * `linting`: Tracked in Wt2Html/PP/Processors/Linter.php and covers total time spent running the linting DOM pass (note that there might linting code outside the linting pass).
 * `lint.offsetconversion`: Tracked in Logger/LintLogger.php and covers time spent converting lint offsets from ucs2 to a non-ucs2 format if there is a query parameter requetsing byte or non-ucs2 offsets in the wikitext string. (Not sure why we are tracking this).
 
-### Language converter
-
-* `langconv.init`: Tracked in LanguageConverter.php and covers initialization time
-* `langconv.$HTMLVARIANT.init`: Tracked in LanguageConverter.php and covers initialization time (metrics split between variants)
-* `langconv.total`: Tracked in LanguageConverter.php and covers time to requested html variant
-* `langconv.$HTMLVARIANT.total`: Tracked in LanguageConverter.php and covers time to convert to requested html variant (metrics split between variants)
-* `langconv.totalWithInit`: Tracked in LanguageConverter.php and includes both `langconv.init` and `langconv.total`.
-
 ## Size metrics
 
 To be done.

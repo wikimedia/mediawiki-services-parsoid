@@ -8,7 +8,6 @@ declare( strict_types = 1 );
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
@@ -167,18 +166,6 @@ class Parse extends ParseUtils {
 		$this->addOption(
 			'offsetType',
 			'Represent DSR as byte/ucs2/char offsets',
-			false,
-			true
-		);
-		$this->addOption(
-			'wtVariantLanguage',
-			'Language variant to use for wikitext',
-			false,
-			true
-		);
-		$this->addOption(
-			'htmlVariantLanguage',
-			'Language variant to use for HTML',
 			false,
 			true
 		);
@@ -425,12 +412,6 @@ class Parse extends ParseUtils {
 		if ( $this->hasOption( 'fragmentbank' ) ) {
 			$parsoidOpts['useFragmentBank'] = true;
 			$parsoidOpts['body_only'] = false;
-		}
-
-		foreach ( [ 'htmlVariantLanguage', 'wtVariantLanguage' ] as $opt ) {
-			if ( $this->hasOption( $opt ) ) {
-				$parsoidOpts[$opt] = new Bcp47CodeValue( $this->getOption( $opt ) );
-			}
 		}
 
 		foreach ( [
