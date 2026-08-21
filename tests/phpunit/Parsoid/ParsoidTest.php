@@ -23,6 +23,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
 	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
+	protected function tearDown(): void {
+		PHPUtils::clearDeprecationFilters();
+	}
+
 	/**
 	 * @covers ::wikitext2html
 	 * @dataProvider provideWt2Html
@@ -156,6 +160,9 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testPb2Pb( $update, $input, $expected, $testOpts = [] ) {
 		$opts = [];
+		if ( $update === 'variant' ) {
+			PHPUtils::filterDeprecationForTest( '/pb2pb with variant/' );
+		}
 
 		$siteConfig = new MockSiteConfig( $opts );
 		$dataAccess = new MockDataAccess( $siteConfig, $opts );

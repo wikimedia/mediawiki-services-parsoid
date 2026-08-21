@@ -645,6 +645,7 @@ class Parsoid {
 				break;
 
 			case 'variant':
+				PHPUtils::deprecated( __METHOD__ . ' with variant', '0.24' );
 				ContentUtils::convertOffsets(
 					$env, $doc, $env->getRequestOffsetType(), 'byte'
 				);
