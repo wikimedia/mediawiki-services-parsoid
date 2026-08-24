@@ -778,11 +778,6 @@ class MockApiHelper extends ApiHelper {
 			$info['thumbwidth'] = $twidth;
 			$info['thumbheight'] = $theight;
 			$info['thumburl'] = $turl;
-			$info['thumbattribs'] = [
-				// Just to preserve the order these are set in the core array
-				'src' => '',
-				'decoding' => 'async'
-			];
 			// src set info; added to core API result as part of T226683
 			// See Linker.php::processResponsiveImages() in core
 			foreach ( [ 2 ] as $scale ) {
@@ -818,6 +813,16 @@ class MockApiHelper extends ApiHelper {
 					$info['responsiveUrls']["$scale"] = $turl;
 				}
 			}
+		}
+
+		if ( !( $mediatype === 'AUDIO' || $mediatype === 'VIDEO' ) ) {
+			$info['thumbattribs'] = [
+				// Just to preserve the order these are set in the core array
+				'src' => '',
+				'decoding' => 'async',
+				// Configured with $wgNativeImageLazyLoading but the default is true
+				'loading' => 'lazy',
+			];
 		}
 
 		if ( isset( $props['derivatives'] ) ) {
