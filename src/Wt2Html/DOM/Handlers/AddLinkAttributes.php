@@ -74,7 +74,9 @@ class AddLinkAttributes {
 			if ( $titleAttr !== null ) {
 				$title = $state->env->makeTitleFromText( $titleAttr, null, true );
 				if ( $title !== null ) {
-					$state->env->getMetadata()->addLink( $title );
+					// T357048: Always pass a page id to ::addLink so that it
+					// doesn't kill performance by looking one up.
+					$state->env->getMetadata()->addLink( $title, 0 );
 				}
 			}
 		}
