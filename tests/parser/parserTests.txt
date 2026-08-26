@@ -10589,3 +10589,15 @@ wgReturnExperimentalPFragmentTypes=[ "ExtTagPFragment" ]
 !! html/parsoid+integrated
 <p><span data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"outer {{#parsoid\u0000fragment}}"},"parts":[{"template":{"target":{"wt":"#tag:spantag","function":"tag"},"params":{"1":{"wt":"outer &lt;spantag>inner&lt;/spantag>"}},"i":0}}]}' typeof="mw:Extension/spantag mw:Transclusion">outer <span data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"inner"}}' typeof="mw:Extension/spantag">inner</span></span></p>
 !! end
+
+!! test
+U+00A0 in extension attribute data-mw serializes as &nbsp;
+!! html/parsoid
+<pre typeof="mw:Extension/tag" about="#mwt1" data-parsoid='{"dsr":[0,35,25,6]}' data-mw='{"name":"tag","attrs":{"details":"S. 1"},"body":{"extsrc":"Test"}}'>'Test'
+array (
+  'details' => 'S. 1',
+)
+</pre>
+!! wikitext
+<tag details="S.&nbsp;1">Test</tag>
+!! end

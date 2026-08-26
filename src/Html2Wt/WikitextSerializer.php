@@ -449,6 +449,7 @@ class WikitextSerializer {
 								$vsi = Utils::escapeWtEntities( $vsi );
 								$vsi = str_replace( '>', '&gt;', $vsi );
 								$vsi = str_replace( '"', '&quot;', $vsi );
+								$vsi = str_replace( "\u{00A0}", '&nbsp;', $vsi );
 								$vv .= $vsi;
 							} else {
 								// Don't escape annotation tags
