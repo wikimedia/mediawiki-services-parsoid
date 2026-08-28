@@ -91,7 +91,6 @@ class PageConfig extends IPageConfig {
 		$this->page = [
 			'title' => $this->title->getPrefixedText(),
 			'ns' => $this->title->getNamespace(),
-			'pageid' => -1,
 			'pagelanguage' => $opts['pageLanguage'] ?? 'en',
 			'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
 		];
@@ -155,12 +154,6 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getPageId(): int {
-		$this->loadData();
-		return $this->page['pageid'] ?? 0;
-	}
-
-	/** @inheritDoc */
 	public function getPageLanguageBcp47(): Bcp47Code {
 		$this->loadData();
 		# Note that 'en' is a last-resort fail-safe fallback; it shouldn't
@@ -186,24 +179,6 @@ class PageConfig extends IPageConfig {
 	public function getParentRevisionId(): ?int {
 		$this->loadData();
 		return $this->rev['parentid'] ?? null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionTimestamp(): ?string {
-		$this->loadData();
-		return $this->rev['timestamp'] ?? null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionSha1(): ?string {
-		$this->loadData();
-		return $this->rev['sha1'] ?? null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionSize(): ?int {
-		$this->loadData();
-		return $this->rev['size'] ?? null;
 	}
 
 	/** @inheritDoc */

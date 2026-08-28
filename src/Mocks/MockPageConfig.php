@@ -17,9 +17,6 @@ class MockPageConfig extends PageConfig {
 	/** @var ?PageContent */
 	private $content;
 
-	/** @var int */
-	private $pageid;
-
 	private LinkTarget $title;
 
 	private Bcp47Code $pagelanguage;
@@ -38,7 +35,6 @@ class MockPageConfig extends PageConfig {
 		$this->content = $content;
 		$this->title = $content?->getLinkTarget() ??
 			Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
-		$this->pageid = $opts['pageid'] ?? -1;
 		$this->pagelanguage = $opts['pageLanguage'] ?? new Bcp47CodeValue( 'en' );
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 	}
@@ -51,11 +47,6 @@ class MockPageConfig extends PageConfig {
 	/** @inheritDoc */
 	public function getLinkTarget(): LinkTarget {
 		return $this->title;
-	}
-
-	/** @inheritDoc */
-	public function getPageId(): int {
-		return $this->pageid;
 	}
 
 	/** @inheritDoc */
@@ -76,22 +67,6 @@ class MockPageConfig extends PageConfig {
 	/** @inheritDoc */
 	public function getParentRevisionId(): ?int {
 		return null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionTimestamp(): ?string {
-		return null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionSha1(): ?string {
-		return null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionSize(): ?int {
-		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
-		throw new \BadMethodCallException( 'Not implemented' );
 	}
 
 	/** @inheritDoc */

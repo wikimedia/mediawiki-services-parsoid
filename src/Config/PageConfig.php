@@ -50,12 +50,6 @@ abstract class PageConfig {
 	abstract public function getLinkTarget(): LinkTarget;
 
 	/**
-	 * The page's ID, if any
-	 * @return int 0 if the page doesn't (yet?) exist
-	 */
-	abstract public function getPageId(): int;
-
-	/**
 	 * The page's language code.
 	 *
 	 * @return Bcp47Code a BCP-47 language code
@@ -79,24 +73,6 @@ abstract class PageConfig {
 	 * @return int|null
 	 */
 	abstract public function getParentRevisionId(): ?int;
-
-	/**
-	 * The revision's timestamp, if any
-	 * @return string|null "YYYYMMDDHHIISS" format
-	 */
-	abstract public function getRevisionTimestamp(): ?string;
-
-	/**
-	 * The revision's SHA1 checksum, if any
-	 * @return string|null Hex encoded
-	 */
-	abstract public function getRevisionSha1(): ?string;
-
-	/**
-	 * The revision's length, if known
-	 * @return int|null Bytes
-	 */
-	abstract public function getRevisionSize(): ?int;
 
 	/**
 	 * The revision's content
