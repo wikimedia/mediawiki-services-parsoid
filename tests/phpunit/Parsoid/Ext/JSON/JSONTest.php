@@ -33,7 +33,7 @@ class JSONTest extends TestCase {
 		$parsoidVersion = Parsoid::version();
 
 		$expected = # '<!DOCTYPE html>' . "\n" .
-			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body data-parsoid="{}"><table typeof="mw:Error" data-mw=\'{"errors":[{"key":"bad-json"}]}\'></table></body></html>';
+			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/></head><body data-parsoid="{}"><table typeof="mw:Error" data-mw=\'{"errors":[{"key":"bad-json"}]}\'></table></body></html>';
 
 		$doc = $json->toDOM( $API );
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
@@ -44,7 +44,7 @@ class JSONTest extends TestCase {
 		$pageContent =
 			'{"array":[{"foo":"bar","key":["string1",null,false,true,0,1,123,456.789]}]}';
 		$expected = # '<!DOCTYPE html>' . "\n" .
-			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body data-parsoid="{}"><table class="mw-json mw-json-object"><tbody><tr><th>array</th><td><table class="mw-json mw-json-array"><tbody><tr><td><table class="mw-json mw-json-object"><tbody><tr><th>foo</th><td class="value mw-json-string">bar</td></tr><tr><th>key</th><td><table class="mw-json mw-json-array"><tbody><tr><td class="value mw-json-string">string1</td></tr><tr><td class="value mw-json-null">null</td></tr><tr><td class="value mw-json-boolean">false</td></tr><tr><td class="value mw-json-boolean">true</td></tr><tr><td class="value mw-json-number">0</td></tr><tr><td class="value mw-json-number">1</td></tr><tr><td class="value mw-json-number">123</td></tr><tr><td class="value mw-json-number">456.789</td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>';
+			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/></head><body data-parsoid="{}"><table class="mw-json mw-json-object"><tbody><tr><th>array</th><td><table class="mw-json mw-json-array"><tbody><tr><td><table class="mw-json mw-json-object"><tbody><tr><th>foo</th><td class="value mw-json-string">bar</td></tr><tr><th>key</th><td><table class="mw-json mw-json-array"><tbody><tr><td class="value mw-json-string">string1</td></tr><tr><td class="value mw-json-null">null</td></tr><tr><td class="value mw-json-boolean">false</td></tr><tr><td class="value mw-json-boolean">true</td></tr><tr><td class="value mw-json-number">0</td></tr><tr><td class="value mw-json-number">1</td></tr><tr><td class="value mw-json-number">123</td></tr><tr><td class="value mw-json-number">456.789</td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>';
 
 		$opts = [ 'pageContent' => $pageContent ];
 

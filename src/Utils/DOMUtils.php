@@ -683,50 +683,6 @@ class DOMUtils {
 		return DOMCompat::querySelector( $node, 'img, video, audio' );
 	}
 
-	/**
-	 * Extract http-equiv headers from the HTML, including content-language and
-	 * vary headers, if present
-	 *
-	 * @param Document $doc
-	 * @return array<string,string>
-	 */
-	public static function findHttpEquivHeaders( Document $doc ): array {
-		$elts = DOMCompat::querySelectorAll( $doc, 'meta[http-equiv][content]' );
-		$r = [];
-		foreach ( $elts as $el ) {
-			$r[strtolower(
-				DOMCompat::getAttribute( $el, 'http-equiv' )
-			)] = DOMCompat::getAttribute( $el, 'content' );
-		}
-		return $r;
-	}
-
-	/**
-	 * Add or replace http-equiv headers in the HTML <head>.
-	 * This is used for content-language and vary headers, among possible
-	 * others.
-	 * @param Document $doc The HTML document to update
-	 * @param array<string,string|string[]> $headers An array mapping HTTP
-	 *   header names (which are case-insensitive) to new values.  If an
-	 *   array of values is provided, they will be joined with commas.
-	 */
-	public static function addHttpEquivHeaders( Document $doc, array $headers ): void {
-		foreach ( $headers as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$value = implode( ',', $value );
-			}
-			// HTTP header names are case-insensitive; hence the "i" suffix
-			// on this selector query.
-			$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$key}\"i]" );
-			if ( !$el ) {
-				// This also ensures there is a <head> element.
-				$el = self::appendToHead( $doc, 'meta', [ 'http-equiv' => $key ] );
-			}
-			$el->setAttribute( 'content', $value );
-
-		}
-	}
-
 	public static function extractInlinedContentVersion( Document $doc ): ?string {
 		$el = DOMCompat::querySelector( $doc,
 			'meta[property="mw:htmlVersion"], meta[property="mw:html:version"]' );

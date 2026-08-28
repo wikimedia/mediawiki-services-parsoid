@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -46,25 +45,6 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 		DOMUtils::appendToHead( $document, 'base', [
 			'href' => $env->getSiteConfig()->baseURI()
 		] );
-
-		// Indicate whether LanguageConverter is enabled, so that downstream
-		// caches can split on variant (if necessary)
-		DOMUtils::appendToHead( $document, 'meta', [
-				'http-equiv' => 'content-language',
-				// Note that this is "wrong": we should be returning
-				// $env->htmlContentLanguageBcp47()->toBcp47Code() directly
-				// but for back-compat we'll return the "old" mediawiki-internal
-				// code for now
-				'content' => Utils::bcp47ToMwCode( # T323052: remove this call
-					$env->htmlContentLanguageBcp47()->toBcp47Code()
-				),
-			]
-		);
-		DOMUtils::appendToHead( $document, 'meta', [
-				'http-equiv' => 'vary',
-				'content' => $env->htmlVary()
-			]
-		);
 
 		if ( $env->profiling() && $this->parentPipeline ) {
 			$body = DOMCompat::getBody( $document );

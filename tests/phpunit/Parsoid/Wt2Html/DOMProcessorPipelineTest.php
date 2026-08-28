@@ -69,7 +69,7 @@ class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 					ParserPipelineFactory::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
 				) ),
 				"<div>123</div>",
-				'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body data-parsoid=\'{"dsr":[0,39,0,0]}\'><section data-mw-section-id="0" data-parsoid="{}"><div data-parsoid=\'{"dsr":[null,39,null,null]}\'>123</div></section></body></html>',
+				'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head><meta charset="utf-8"/><base href="//my.wiki.example/wikix/"/></head><body data-parsoid=\'{"dsr":[0,39,0,0]}\'><section data-mw-section-id="0" data-parsoid="{}"><div data-parsoid=\'{"dsr":[null,39,null,null]}\'>123</div></section></body></html>',
 				true
 			],
 			[

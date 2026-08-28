@@ -262,7 +262,7 @@ class Parsoid {
 			( new LintLogger( $env ) )->logLintOutput();
 		}
 
-		$headers = DOMUtils::findHttpEquivHeaders( $doc );
+		$headers = self::pageBundleHeaders( $env );
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 
@@ -635,7 +635,7 @@ class Parsoid {
 			'body_only' => !empty( $options['body_only'] ),
 			// Prefer the passed in version, since this was just a transformation
 			'contentversion' => $pb->getContentVersion() ?? $env->getOutputContentVersion(),
-			'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
+			'headers' => self::pageBundleHeaders( $env ),
 			// Prefer the passed in content model
 			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
 			'offsetType' => $env->getCurrentOffsetType(),
@@ -764,4 +764,11 @@ class Parsoid {
 		return $topLevelDoc;
 	}
 
+	/** Return appropriate HTTP headers for Parsoid output. */
+	private static function pageBundleHeaders( Env $env ): array {
+		return [
+			'content-language' => $env->htmlContentLanguageBcp47()->toBcp47Code(),
+			'vary' => $env->htmlVary(),
+		];
+	}
 }
