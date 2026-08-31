@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -588,11 +589,19 @@ class TableFixups {
 	 * Examine combined $prev and $cell syntax to see how it should
 	 * have actually parsed and fix up $prev & $cell appropriately.
 	 *
+	 * Reparse always succeeds except in one case.
+	 *
+	 * When cells are merged, this returns the merged cell's next sibling.
+	 * This effectively skips further TableFixups processing on the merged cell
+	 * and its children. This is acceptable because the only way for this cell
+	 * to have td/th cells in it is via nested tables. In that case, we wouldn't
+	 * have table-fixup situations because Parsoid doesn't support nested templates.
+	 *
 	 * @param DTState $dtState
 	 * @param Element $cell
-	 * @return bool
+	 * @return ?Node|bool
 	 */
-	private static function reparseWithPreviousCell( DTState $dtState, Element $cell ): bool {
+	private static function reparseWithPreviousCell( DTState $dtState, Element $cell ) {
 		// NOTE: The comments in this method always assume
 		// <td> && '|', but sometimes <th> & '!' are involved.
 
@@ -632,6 +641,7 @@ class TableFixups {
 			( $cellIsTd && str_ends_with( $prevCellContent, "|" ) ) ||
 			( !$cellIsTd && !$prevIsTd && str_ends_with( $prevCellContent, "!" ) );
 
+		$next = $cell->nextSibling;
 		if ( $prevHasTrailingPipe ) {
 			// $prev is of form "..|"
 			// => no cell merging
@@ -642,11 +652,13 @@ class TableFixups {
 				// We saw these in T384737, it's worth keeping around these conservative
 				// checks for the time being
 				$env->log( "error/wt2html", "TableFixups: stripTrailingPipe failed." );
+				return false;
 			} else {
 				self::transferSourceBetweenCells(
 					// $prevHasTrailingPipe => $prevCellContent !== '' => last arg is false
 					$strippedChar, $prev, $cell, false /* emptyFromContent */
 				);
+				return true;
 			}
 		} elseif ( $prevIsTd &&
 			$prevDp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL )
@@ -658,12 +670,14 @@ class TableFixups {
 				// => <td>..|..</td>
 				self::convertAttribsToContent( $env, $frame, $cell, true, true );
 				self::mergeCells( $prevCellSrc, $prev, $cell );
+				return $next;
 			} else {
 				// $prev is of form "||" in SOL position, no attributes, no content
 				// Combined wikitext is "|||.."
 				// => <td></td><td..>..</td>
 				//    migrate "|" to $cell
 				self::transferSourceBetweenCells( '|', $prev, $cell, true /* emptyFromContent */ ); // '!'
+				return true;
 			}
 		} elseif ( !$prevHasAttrs ) {
 			// $prev has no attributes and is of form "|.." in SOL posn OR "||.." in non-SOL posn
@@ -718,6 +732,7 @@ class TableFixups {
 
 			// Merge cells
 			self::mergeCells( $prevCellSrc, $prev, $cell );
+			return $next;
 		} elseif ( $prevCellContent === '' ) {
 			// $prev has attributes and is of form "|..|" in SOL or "||..|" in non-SOL
 			// => no cell merging,
@@ -725,14 +740,19 @@ class TableFixups {
 			//    migrate "|" to $cell
 			self::convertAttribsToContent( $env, $frame, $prev, false, false );
 			self::transferSourceBetweenCells( '|', $prev, $cell, true /* emptyFromContent */ );
+			return true;
 		} else {
 			// $prev has attributes and is of form "|..|.." in SOL or "||..|.." in non-SOL
 			// => $cell merges into $prev (its attrs & pipes become content)
 			self::convertAttribsToContent( $env, $frame, $cell, true, true );
 			self::mergeCells( $prevCellSrc, $prev, $cell );
+			return $next;
 		}
 
-		return true;
+		// Should not get here. The throw ensures that code refactors that forget
+		// to handle the missing scenario will log errors vs. silently failing.
+		// @phan-suppress-next-line PhanPluginUnreachableCode
+		throw new UnreachableException( 'TableFixups:reparseWithPreviousCell: Unexpected scenario!' );
 	}
 
 	/**
@@ -958,8 +978,9 @@ class TableFixups {
 		}
 
 		if ( $reparseType === ReparseScenario::MAYBE_COMBINE_WITH_PREV_CELL ) {
-			if ( self::reparseWithPreviousCell( $dtState, $cell ) ) {
-				return true;
+			$res = self::reparseWithPreviousCell( $dtState, $cell );
+			if ( $res !== false ) { // common case
+				return $res;
 			} else {
 				// Clear property and retry $cell for other reparses
 				// The DOMTraverser will resume the handler on the
