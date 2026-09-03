@@ -653,10 +653,12 @@ class WTUtils {
 				return Utils::decodeWtEntities( $m[0] );
 		}, $comment );
 
-		// Now encode '-', '>' and '&' in the "true value" as HTML entities,
-		// so that they can be safely embedded in an HTML comment.
+		// Now encode '-', '>', '&', and some 'e's in the "true value" as
+		// HTML entities, so that they can be safely embedded in an HTML
+		// comment.  We make sure that the comment doesn't start with "esi"
+		// (T436137) and doesn't contain "-->".
 		// This part doesn't have to map strings 1-to-1.
-		return preg_replace_callback( '/[->&]/', static function ( $m ) {
+		return preg_replace_callback( '/[->&]|^e(?=si)/', static function ( $m ) {
 			return Utils::entityEncodeAll( $m[0] );
 		}, $trueValue );
 	}
