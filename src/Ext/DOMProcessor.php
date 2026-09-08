@@ -7,7 +7,6 @@ namespace Wikimedia\Parsoid\Ext;
 
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 
 /**
  * A Parsoid extension module may contain one or more DOMProcessors,
@@ -25,7 +24,7 @@ abstract class DOMProcessor {
 	 */
 	public function wtPostprocess(
 		ParsoidExtensionAPI $extApi,
-		Node $root,
+		DocumentFragment|Element $root,
 		array $options
 	): void {
 		/* do nothing by default */

@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\ParserTests;
 
 use stdClass;
 use Wikimedia\Parsoid\Core\DOMCompat;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
@@ -60,7 +61,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $root, array $options
+		ParsoidExtensionAPI $extApi, DocumentFragment|Element $root, array $options
 	): void {
 		// Pass an object since we want the data to be carried around across
 		// nodes in the DOM. Passing an array won't work since visitDOM doesn't
