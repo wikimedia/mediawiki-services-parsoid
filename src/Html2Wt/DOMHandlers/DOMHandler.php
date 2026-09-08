@@ -136,8 +136,11 @@ class DOMHandler {
 	 *  [ 'min' => <int>, 'max' => <int> ] or an empty array.
 	 */
 	protected function wtListEOL( Element $node, Node $otherNode ): array {
-		if ( !( $otherNode instanceof Element ) || DOMUtils::atTheTop( $otherNode ) ) {
+		if ( DOMUtils::atTheTop( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
+		}
+		if ( !( $otherNode instanceof Element ) ) {
+			return [ 'min' => 1, 'max' => 2 ];
 		}
 		'@phan-var Element $otherNode';/** @var Element $otherNode */
 

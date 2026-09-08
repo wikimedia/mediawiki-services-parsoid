@@ -85,10 +85,7 @@
         "html2wt": ":* d1\n:* d2\n"
     },
     "Mixed Lists: Test 8": {
-        "html2wt": ":* d1\n::* d2\n",
-        "selser [[[0,2,1]]]": ":*d1 tzb8dv\n::*d2",
-        "selser [[[[3],2,1]]]": ": zkuunv\n::*d2",
-        "selser [[[[4],4,1]]]": ":* 1elzkuo 5qe6k7\n::*d2"
+        "html2wt": ":* d1\n::* d2\n"
     },
     "Nested definition lists using html syntax": {
         "html2wt": "; x\n: a\n: b"
