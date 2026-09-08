@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use LogicException;
-use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -226,10 +225,9 @@ class DOMHandler {
 							$res = $parentTypes[DOMUtils::nodeName( $parentNode )] . $res;
 						}
 					} else {
-						$state->getEnv()->log( 'error/html2wt', 'Input DOM is not well-formed.',
-							"Top-level <li> found that is not nested in <ol>/<ul>\n LI-node:",
-							DOMCompat::getOuterHTML( $node )
-						);
+						// Top-level <li> found that is not nested in <ol>/<ul>\n LI-node
+						// Default to UL
+						$res = $parentTypes['ul'] . $res;
 					}
 				} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ) {
 					$res = $listTypes[$nodeName] . $res;
