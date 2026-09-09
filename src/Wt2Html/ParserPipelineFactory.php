@@ -196,6 +196,10 @@ class ParserPipelineFactory {
 	//    even if they are part of nested level pipelines, because such content might be
 	//    embedded in attributes and they may need to be processed independently.
 	//
+	// We should avoid running passes that involve database lookups. Ideally those should
+	// only be run at the toplevel to ensure we batch lookups. 'redlinks' and 'media'
+	// are two such passes. FIXME: we should explore if we can move 'media' out of here.
+	//
 	// Nested (non-top-level) pipelines can never include the following:
 	// - lang-converter, convertoffsets, dedupe-styles, cleanup, markDiscardableDP
 	//
@@ -207,7 +211,6 @@ class ParserPipelineFactory {
 		'ann-ids', 'annwrap',
 		'fixups', 'linkclasses',
 		'linkneighbours+dom-unpack',
-		'redlinks'
 	];
 
 	// NOTES about ordering:
@@ -227,6 +230,7 @@ class ParserPipelineFactory {
 		'displayspace',
 		'dedupe-styles',
 		'lang-converter',
+		'redlinks',
 		'gen-anchors', # depends on lang-converter
 		'linter', 'strip-metas',
 		'dedupe-heading-ids',
@@ -250,6 +254,7 @@ class ParserPipelineFactory {
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
 		'dedupe-styles',
+		'redlinks',
 		'linter',
 		'strip-metas',
 		'embedded-docs', // Need to run this recursively
@@ -264,6 +269,7 @@ class ParserPipelineFactory {
 		// with french spacing, we should run it once on the full DOM including
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
+		'redlinks',
 		'gen-anchors',
 		'strip-metas',
 		'convertoffsets', 'cleanup',
