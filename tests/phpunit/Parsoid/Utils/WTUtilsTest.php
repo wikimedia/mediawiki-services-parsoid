@@ -23,12 +23,13 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodedCommentLength
 	 * @dataProvider provideCommentEncoding
 	 */
-	public function testCommentEncoding( string $wikitext, string $html, int $length ) {
+	public function testCommentEncoding( string $wikitext, string $html ) {
 		$siteConfig = new MockSiteConfig( [] );
 		$actualHtml = WTUtils::encodeComment( $wikitext );
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
 		$this->assertEquals( $wikitext, $actualWt );
+		$length = strlen( "<!--$actualWt-->" );
 		$doc = ContentUtils::createAndLoadDocument(
 			"<html><body><!--$html--></body></html>",
 			siteConfig: $siteConfig,
@@ -42,15 +43,15 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	public static function provideCommentEncoding(): array {
 		// length includes the length of the <!-- and --> delimiters
 		return [
-			[ 'abc', 'abc', 10 ],
-			[ '& - >', '&#x26; &#x2D; &#x3E;', 12 ],
-			[ 'Use &gt; here', 'Use &#x26;gt; here', 20 ],
-			[ '--&gt;', '&#x2D;&#x2D;&#x3E;', 13 ],
-			[ '--&amp;gt;', '&#x2D;&#x2D;&#x26;gt;', 17 ],
-			[ '--&amp;amp;gt;', '&#x2D;&#x2D;&#x26;amp;gt;', 21 ],
+			[ 'abc', 'abc' ],
+			[ '& - >', '&#x26; &#x2D; &#x3E;' ],
+			[ 'Use &gt; here', 'Use &#x26;gt; here' ],
+			[ '--&gt;', '&#x2D;&#x2D;&#x3E;' ],
+			[ '--&amp;gt;', '&#x2D;&#x2D;&#x26;gt;' ],
+			[ '--&amp;amp;gt;', '&#x2D;&#x2D;&#x26;amp;gt;' ],
 			// T436137: protect against esi markup
-			[ 'edge', 'edge', 11 ],
-			[ 'esi content', '&#x65;si content', 18 ],
+			[ 'edge', 'edge' ],
+			[ 'esi content', '&#x65;si content' ],
 		];
 	}
 
