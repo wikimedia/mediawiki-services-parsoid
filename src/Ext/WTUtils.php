@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -43,5 +44,17 @@ class WTUtils {
 
 	public static function getDOMFragmentContents( Node $node, bool $clearAfter = false ): DocumentFragment {
 		return WTU::getDOMFragmentContents( $node, clearAfter: $clearAfter );
+	}
+
+	/**
+	 * Utility function: we often need to know the wikitext DSR length for
+	 * an HTML DOM comment value.
+	 *
+	 * @param Comment $node A comment node containing a DOM-escaped comment.
+	 * @return int The wikitext length in UTF-8 bytes necessary to encode this
+	 *   comment, including 7 characters for the `<!--` and `-->` delimiters.
+	 */
+	public static function decodedCommentLength( Comment $node ): int {
+		return WTU::decodedCommentLength( $node );
 	}
 }

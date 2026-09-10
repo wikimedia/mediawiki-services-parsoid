@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomPageBundle;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -379,6 +380,13 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Get data parsoid info, but don't create it if it doesn't exist.
+	 */
+	public static function getDataParsoidIfExists( Element $node ): ?DataParsoid {
+		return self::getAttributeObject( $node, 'data-parsoid', DataParsoid::hint() );
+	}
+
+	/**
 	 * Set data parsoid info on a node.
 	 *
 	 * @param Element $node node
@@ -547,6 +555,30 @@ class DOMDataUtils {
 	 */
 	public static function setDataMw( Element $node, ?DataMw $dmw ): void {
 		self::getNodeData( $node )->setDataMw( $node, $dmw );
+	}
+
+	/**
+	 * Fetch DSR for a node with the given id from an HtmlPageBundle.
+	 *
+	 * This is an optimized version which attempts to avoid parsing
+	 * the HTML or doing a full decode of the DataParsoid.  It is
+	 * intended to be used on an HtmlPageBundle with separated data-parsoid.
+	 *
+	 * It will return `null` for a document with inline data-parsoid, so
+	 * if `null` is returned, the document should be prepared+loaded and
+	 * the query redone.
+	 *
+	 * @param BasePageBundle $pb
+	 * @param string $id an ID string or an Element
+	 */
+	public static function getDsrFromPageBundle(
+		BasePageBundle $pb, string $id
+	): ?DomSourceRange {
+		$dp = $pb->parsoid['ids'][$id] ?? null;
+		$dsr = ( (array)$dp )['dsr'] ?? null;
+		// Again, we're not invoking this from a "proper" JsonCodec because
+		// this is an optimized fast path.
+		return $dsr ? DomSourceRange::newFromJsonArray( $dsr ) : null;
 	}
 
 	/**

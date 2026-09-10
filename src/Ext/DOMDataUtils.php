@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use Wikimedia\JsonCodec\Hint;
+use Wikimedia\Parsoid\Core\BasePageBundle;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -88,12 +90,19 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Get data parsoid info from DOM element
+	 * Get data parsoid info from DOM element, creating it if missing.
 	 * @param Element $elt
 	 * @return DataParsoid ( this is mostly used for type hinting )
 	 */
 	public static function getDataParsoid( Element $elt ): DataParsoid {
 		return DDU::getDataParsoid( $elt );
+	}
+
+	/**
+	 * Get data parsoid info from DOM element
+	 */
+	public static function getDataParsoidIfExists( Element $elt ): ?DataParsoid {
+		return DDU::getDataParsoidIfExists( $elt );
 	}
 
 	/**
@@ -115,15 +124,6 @@ class DOMDataUtils {
 	 */
 	public static function getDataMwIfExists( Element $node ): ?DataMw {
 		return DDU::getDataMwIfExists( $node );
-	}
-
-	/**
-	 * Check if there is meta wiki info on a DOM element
-	 * @param Element $elt
-	 * @return bool
-	 */
-	public static function dataMwExists( Element $elt ): bool {
-		return !DDU::getDataMw( $elt )->isEmpty();
 	}
 
 	/**
@@ -151,6 +151,26 @@ class DOMDataUtils {
 	 */
 	public static function setDataParsoidDiff( Element $elt, ?DataParsoidDiff $diffObj ): void {
 		DDU::setDataParsoidDiff( $elt, $diffObj );
+	}
+
+	/**
+	 * Fetch DSR for a node with the given id from an HtmlPageBundle.
+	 *
+	 * This is an optimized version which attempts to avoid parsing
+	 * the HTML or doing a full decode of the DataParsoid.  It is
+	 * intended to be used on an HtmlPageBundle with separated data-parsoid.
+	 *
+	 * It will return `null` for a document with inline data-parsoid, so
+	 * if `null` is returned, the document should be prepared+loaded and
+	 * the query redone.
+	 *
+	 * @param BasePageBundle $pb
+	 * @param string $id an ID string or an Element
+	 */
+	public static function getDsrFromPageBundle(
+		BasePageBundle $pb, string $id
+	): ?DomSourceRange {
+		return DDU::getDsrFromPageBundle( $pb, $id );
 	}
 
 	/**

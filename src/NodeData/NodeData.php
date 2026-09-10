@@ -134,7 +134,7 @@ class NodeData {
 	}
 
 	/**
-	 * Get data parsoid info from a node.
+	 * Get data parsoid info from a node, creating it if it doesn't exist.
 	 */
 	public function getDataParsoid( Element $node ): DataParsoid {
 		// Fast path
@@ -144,6 +144,19 @@ class NodeData {
 		}
 		// Fall back to generic case
 		return DOMDataUtils::getAttributeObjectDefault( $node, 'data-parsoid', DataParsoid::hint() );
+	}
+
+	/**
+	 * Get data parsoid wiki info from a node.
+	 */
+	public function getDataParsoidIfExists( Element $node ): ?DataParsoid {
+		// Fast path
+		$dp = $this->parsoid;
+		if ( $dp instanceof DataParsoid ) {
+			return $dp;
+		}
+		// Fall back to generic case
+		return DOMDataUtils::getAttributeObject( $node, 'data-parsoid', DataParsoid::hint() );
 	}
 
 	/**
