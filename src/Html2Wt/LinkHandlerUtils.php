@@ -617,21 +617,30 @@ class LinkHandlerUtils {
 				// if content == href this could be a simple link... eg [[Foo]].
 				// but if href is an absolute url with protocol, this won't
 				// work: [[http://example.com]] is not a valid simple link!
-				(
-					!$hrefHasProto &&
-					// Always compare against decoded uri because
-					// <a rel="mw:WikiLink" href="7%25 Solution">7%25 Solution</a></p>
-					// should serialize as [[7% Solution|7%25 Solution]]
-					(
-						$contentString === Utils::decodeURIComponent( $linkData->href ) ||
-						// normalize with underscores for comparison with href
-						$env->normalizedTitleKey( $contentString, true )
-							=== Utils::decodeURIComponent( $linkData->href )
-					)
-				);
+				( !$hrefHasProto &&
+					self::equivalentContentAndHref( $env, $contentString, $linkData->href ) );
 		}
 
 		return $canUseSimple;
+	}
+
+	private static function equivalentContentAndHref(
+		Env $env, string $content, string $href
+	): bool {
+		// Always compare against decoded uri because
+		// <a rel="mw:WikiLink" href="7%25 Solution">7%25 Solution</a></p>
+		// should serialize as [[7% Solution|7%25 Solution]]
+		$href = Utils::decodeURIComponent( $href );
+
+		return $content === $href ||
+			// Normalize with underscores for comparison with href
+			// Similar to makeLink that produces the href, normalizedTitleKey
+			// will return the getFullDBKey.  However, makeLink also calls
+			// Sanitizer::sanitizeTitleURI which does the encoding which we
+			// are undoing and also escapes the fragment, which the redundant
+			// str_replace mimics
+			str_replace( ' ', '_', $env->normalizedTitleKey( $content, true ) ?? '' )
+				=== $href;
 	}
 
 	/**

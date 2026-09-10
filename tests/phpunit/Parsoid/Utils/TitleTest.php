@@ -122,14 +122,14 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			'Default NS, overridden to main' => [ [ ':Foo bar', 2 ], 'Foo_bar', 0, null ],
 			'Default NS, overridden to not-main' => [ [ ':File:Foo bar', 2 ], 'Foo_bar', 6, null ],
 			'With fragment' => [ [ 'User:Basic page#frag#ment' ], 'Basic_page', 2, 'frag#ment' ],
-			'Should normalize fragment' => [ [ 'User:Basic page#frag ment' ], 'Basic_page', 2, 'frag_ment' ],
+			'Should normalize fragment' => [ [ 'User:Basic page#frag ment' ], 'Basic_page', 2, 'frag ment' ],
 
 			'Capitalization' => [ [ 'UsEr:foo Bar' ], 'Foo_Bar', 2, null ],
 			'Capitalization, case-sensitive' => [ [ 'foo Bar', 15 ], 'foo_Bar', 15, null ],
 
 			'Trim whitespace' => [ [ ' _ Basic _ page _ ' ], 'Basic_page', 0, null ],
 			'Trim whitespace with namespace and fragment' => [
-				[ ' _ User _ : _ Basic page _ #__ fragment _ ' ], 'Basic_page', 2, '_fragment'
+				[ ' _ User _ : _ Basic page _ #__ fragment _ ' ], 'Basic_page', 2, ' fragment'
 			],
 			'Replace whitespace' => [ [ "Bas\u{200E}ic\u{00A0}page" ], 'Basic_page', 0, null ],
 

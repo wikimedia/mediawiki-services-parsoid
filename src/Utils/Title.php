@@ -158,10 +158,8 @@ class Title implements LinkTarget {
 		$fragment = null;
 		$fragmentIndex = strpos( $title, '#' );
 		if ( $fragmentIndex !== false ) {
-			$fragment = substr( $title, $fragmentIndex + 1 );
+			$fragment = str_replace( '_', ' ', substr( $title, $fragmentIndex + 1 ) );
 			$title = rtrim( substr( $title, 0, $fragmentIndex ), '_' );
-			# TitleParser::splitTitleString replaces _ with spaces in
-			# $fragment here?
 		}
 
 		// This is from TitleParser::getTitleInvalidRegex()
