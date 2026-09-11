@@ -229,8 +229,10 @@ class DOMHandler {
 						}
 					} else {
 						// Top-level <li> found that is not nested in <ol>/<ul>\n LI-node
-						// Default to UL
-						$res = $parentTypes['ul'] . $res;
+						if ( !WTUtils::hasLiteralHTMLMarker( $dp ) ) {
+							// Default to UL if not a HTML <li>  tag
+							$res = $parentTypes['ul'] . $res;
+						}
 					}
 				} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ) {
 					$res = $listTypes[$nodeName] . $res;

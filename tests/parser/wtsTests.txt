@@ -2468,6 +2468,19 @@ b
 b
 !! end
 
+# As seen on a ptwiki page
+!! test
+List edge case: Unclosed HTML bare list item should RT properly
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+<li>a
+#b
+!! html/parsoid
+<li data-parsoid='{"stx":"html"}'>a
+<ol><li>b</li></ol></li>
+!! end
+
 # ---------------------------------------------------
 # End of tests spec'ing wikitext serialization norms |
 # ---------------------------------------------------
