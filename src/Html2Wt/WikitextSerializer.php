@@ -1636,9 +1636,10 @@ class WikitextSerializer {
 		}
 
 		if ( $state->redirectText && $state->redirectText !== 'unbuffered' ) {
-			$firstLine = explode( "\n", $state->out, 1 )[0];
-			$nl = preg_match( '/^(\s|$)/D', $firstLine ) ? '' : "\n";
-			$state->out = $state->redirectText . $nl . $state->out;
+			if ( !preg_match( '/^\s/', $state->out ) ) {
+				$state->out = "\n" . $state->out;
+			}
+			$state->out = $state->redirectText . $state->out;
 		}
 
 		return $state->out;
