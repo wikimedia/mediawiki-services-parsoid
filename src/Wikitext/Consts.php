@@ -210,12 +210,14 @@ class Consts {
 
 			/**
 			 * From \\MediaWiki\Tidy\RemexCompatMunger::$onlyInlineElements
+			 *
 			 */
 			'OnlyInlineElements' => PHPUtils::makeSet( [
 				'a', 'abbr', 'acronym', 'applet', 'audio', 'b', 'basefont', 'bdi', 'bdo',
 				'big', 'br', 'button', 'cite', 'code', 'data', 'del', 'dfn', 'em',
 				'font', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label',
-				'legend', 'map', 'mark', 'math', 'object', 'param', 'q', 'rb', 'rbc', 'rp',
+				'legend', 'map', 'mark', 'math', /* Bug: T429711 */ 'default:math',
+				'object', 'param', 'q', 'rb', 'rbc', 'rp',
 				'rt', 'rtc', 'ruby', 's', 'samp', 'select', 'small', 'source', 'span',
 				'strike', 'strong', 'sub', 'sup', 'textarea', 'time', 'track', 'tt', 'u',
 				'var', 'video', 'wbr'
