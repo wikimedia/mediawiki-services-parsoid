@@ -16,7 +16,7 @@ class SelectiveUpdateData {
 	/**
 	 * DOM document corresponding to $revHTML
 	 */
-	public Document $revDOM;
+	public ?Document $revDOM = null;
 
 	/**
 	 * If we are doing selective updates for a template edit,
