@@ -41,8 +41,10 @@ class DomPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,DocumentFragment> Additional named DocumentFragments. */
 		public array $fragments = [],
+		int $pbVersion = BasePageBundle::MIN_PB_VERSION_NUMBER,
 	) {
 		parent::__construct(
+			pbVersion: $pbVersion,
 			parsoid: $parsoid,
 			mw: $mw,
 			counters: $counters,
@@ -77,7 +79,9 @@ class DomPageBundle extends BasePageBundle {
 			],
 			$contentVersion,
 			$headers,
-			$contentmodel
+			$contentmodel,
+			[],
+			BasePageBundle::CURRENT_PB_VERSION_NUMBER
 		);
 	}
 
@@ -102,6 +106,7 @@ class DomPageBundle extends BasePageBundle {
 			$pb->headers,
 			$pb->contentmodel,
 			$fragments,
+			$pb->pbVersion
 		);
 	}
 
@@ -231,7 +236,7 @@ class DomPageBundle extends BasePageBundle {
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->contentVersion,
-			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
+			'idIndex' => $metadata->usedIdIndex ?? DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 		] + $options;
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), $options
@@ -329,7 +334,13 @@ class DomPageBundle extends BasePageBundle {
 		// Note that $this->parsoid and $this->mw are already serialized arrays
 		// so a naive jsonEncode is sufficient.  We use a JsonCodec to ensure
 		// that objects stay objects and arrays stay arrays, though.
-		$json = [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [], 'counters' => $this->counters ?? [] ];
+		$pbVersion = $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ?
+			$this->pbVersion : self::CURRENT_PB_VERSION_NUMBER;
+		$json = [
+			'pbVersion' => $pbVersion,
+			'parsoid' => $this->parsoid ?? [],
+			'mw' => $this->mw ?? [], 'counters' => $this->counters ?? []
+		];
 		if ( $this->fragments ) {
 			// Preserve fragments in the <head>
 			$json['fragments'] = array_map(
@@ -367,6 +378,7 @@ class DomPageBundle extends BasePageBundle {
 		if ( isset( $decoded['parsoid']['counter'] ) ) {
 			unset( $decoded['parsoid']['counter'] );
 		}
+
 		return new DomPageBundle(
 			$doc,
 			$decoded['parsoid'] ?? null,
@@ -376,6 +388,7 @@ class DomPageBundle extends BasePageBundle {
 			$options['headers'] ?? null,
 			$options['contentmodel'] ?? null,
 			$fragments,
+			intval( $decoded['pbVersion'] ?? BasePageBundle::MIN_PB_VERSION_NUMBER ),
 		);
 	}
 

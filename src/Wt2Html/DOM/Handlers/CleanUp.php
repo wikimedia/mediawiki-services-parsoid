@@ -409,6 +409,17 @@ class CleanUp {
 		Assert::invariant( $state->atTopLevel, 'This pass should only be run on the top-level' );
 
 		$env = $state->env;
+
+		// This code relies on the assumption that markDiscardableDataParsoid handler
+		// is run for *all* HTML that Parsoid processes which requires this handler to
+		// be run in *all* pipelines (toplevel, nested, embedded-docs, selective-update).
+		if ( $env->pageBundle ) {
+			$id = DOMCompat::getAttribute( $node, 'id' );
+			if ( $id !== null ) {
+				$env->pageBundle->usedIdIndex[$id] = true;
+			}
+		}
+
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$isFirstEncapsulationWrapperNode = ( $state->tplInfo->first ?? null ) === $node ||
 			// Traversal isn't done with tplInfo for section tags, but we should

@@ -496,7 +496,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			"<!DOCTYPE html>\n<html><head>" .
 			'<template data-tid="uOo/VU3m"><b id="mwAQ">be bold</b></template>' .
 			'<script id="mw-pagebundle" type="application/x-mw-pagebundle">' .
-			'{"parsoid":{"ids":{' .
+			'{"pbVersion":2,"parsoid":{"ids":{' .
 			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
 			'"mwAg":{"src":"test1"}}' .
@@ -510,7 +510,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			:
 			"<!DOCTYPE html>\n<html><head>" .
 			'<script id="mw-pagebundle" type="application/x-mw-pagebundle">' .
-			'{"parsoid":{"ids":{' .
+			'{"pbVersion":2,"parsoid":{"ids":{' .
 			'"mwAA":{"_type_":"stdClass"},' .
 			'"mwAQ":{"src":"test2"},' .
 			'"mwAg":{"src":"test1"}}' .
@@ -1113,13 +1113,17 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			] )
 		);
 		$expectedPb = [
+			'pbVersion' => 2,
 			'html' => <<<HTML
 <!DOCTYPE html>
 <html><head></head><body><div id="mwAQ"></div></body></html>
 HTML
 ,
 			'parsoid' => [
-				'ids' => [],
+				'ids' => [
+					'mwAA' => null,
+					'mwAQ' => null,
+				]
 			],
 			'mw' => [
 				'ids' => [
@@ -1136,7 +1140,7 @@ HTML
 			'headers' => null,
 			'contentmodel' => null,
 		];
-		$this->assertSame( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb, HtmlPageBundle::class ) );
+		$this->assertEquals( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb, HtmlPageBundle::class ) );
 
 		// Now convert from page bundle to page bundle!
 		$doc2 = DomPageBundle::fromHtmlPageBundle( $pb )->toDom( siteConfig: $siteConfig );
@@ -1146,7 +1150,7 @@ HTML
 			] )
 		);
 		$pb2->counters['nodedata'] = 1; // XXX round trip loses counters
-		$this->assertSame( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb2, HtmlPageBundle::class ) );
+		$this->assertEquals( $expectedPb, ( new JsonCodec() )->toJsonArray( $pb2, HtmlPageBundle::class ) );
 
 		// Convert from page bundle to inline HTML
 		$html2 = DomPageBundle::fromHtmlPageBundle( $pb )->toInlineAttributeHtml( $siteConfig, [ 'body_only' => true ] );

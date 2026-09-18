@@ -27,6 +27,11 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 class BasePageBundle implements JsonCodecable {
 	use JsonCodecableTrait;
 
+	public const MIN_PB_VERSION_NUMBER = 1;
+
+	// The version before we added this string is considered "v1"
+	public const CURRENT_PB_VERSION_NUMBER = 2;
+
 	public function __construct(
 		/**
 		 * A map from ID to the array serialization of DataParsoid for the Node
@@ -54,10 +59,21 @@ class BasePageBundle implements JsonCodecable {
 		 */
 		public ?array $headers = null,
 		public ?string $contentmodel = null,
+		/**
+		 * This is a map of used ids in the document that is built up as the
+		 * document is processed for use in DOMDataUtils::storeInPageBundle.
+		 * @var array<string,bool>
+		 */
+		public ?array $usedIdIndex = null,
+		public int $pbVersion = self::MIN_PB_VERSION_NUMBER,
 	) {
 		Assert::invariant(
 			!isset( $parsoid['counter'] ), "counter removed in Parsoid 0.23"
 		);
+
+		if ( $this->parsoid && $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ) {
+			$this->usedIdIndex = array_fill_keys( array_keys( $this->parsoid['ids'] ), true );
+		}
 	}
 
 	public function getContentVersion(): ?string {
@@ -152,6 +168,7 @@ class BasePageBundle implements JsonCodecable {
 			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
+			pbVersion: $this->pbVersion,
 		);
 	}
 
@@ -166,6 +183,7 @@ class BasePageBundle implements JsonCodecable {
 			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
+			pbVersion: $this->pbVersion,
 		);
 	}
 
@@ -194,7 +212,11 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
+		// When serializing, we reset version number if set to the min value
+		$pbVersion = $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ?
+			$this->pbVersion : self::CURRENT_PB_VERSION_NUMBER;
 		return [
+			'pbVersion' => $pbVersion,
 			'parsoid' => $this->parsoid,
 			'mw' => $this->mw,
 			'counters' => $this->counters,
@@ -216,6 +238,7 @@ class BasePageBundle implements JsonCodecable {
 			unset( $json['parsoid']['counter'] );
 		}
 		return new BasePageBundle(
+			pbVersion: $json['pbVersion'] ?? self::MIN_PB_VERSION_NUMBER,
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
 			counters: $json['counters'] ?? null,

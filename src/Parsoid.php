@@ -249,8 +249,7 @@ class Parsoid {
 			'storeInPageBundle' => $env->pageBundle,
 			'outputContentVersion' => $env->getOutputContentVersion(),
 			'useFragmentBank' => $options['useFragmentBank'] ?? false,
-			'idIndex' => $env->pageBundle ?
-				DOMDataUtils::usedIdIndex( $env->getSiteConfig(), $doc ) : null,
+			'idIndex' => $env->pageBundle ? $env->pageBundle->usedIdIndex : null,
 		] );
 		$parseTimeMs = $parseTiming->end();
 
@@ -623,12 +622,20 @@ class Parsoid {
 				throw new LogicException( $update . 'is an unknown transformation' );
 		}
 
+		$pb = $env->pageBundle;
+		if ( !$pb ) {
+			$idIndex = null;
+		} else {
+			// FIXME: We don't need to compute the usedIdIndex even if it isn't already Available
+			// because convertoffsets and redlinks don't introduce new id attributes.
+			// But, conservatively compute it.
+			$idIndex = $pb->usedIdIndex ?? DOMDataUtils::usedIdIndex( $env->getSiteConfig(), $doc );
+		}
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
-				'storeInPageBundle' => $env->pageBundle,
+				'storeInPageBundle' => $pb,
 				'outputContentVersion' => $env->getOutputContentVersion(),
-				'idIndex' => $env->pageBundle ?
-					DOMDataUtils::usedIdIndex( $env->getSiteConfig(), $doc ) : null,
+				'idIndex' => $idIndex
 			]
 		);
 		return HtmlPageBundle::fromDomPageBundle( $env->pageBundle, [

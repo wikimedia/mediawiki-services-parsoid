@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid\Core;
 
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
@@ -37,7 +38,7 @@ class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
 <html>
   <head>
     <script id="mw-pagebundle" type="application/x-mw-pagebundle">
-    {"parsoid": {"ids":{"mwAA":{"dsr":[0,13,0,0]},"mwAQ":{"dsr":[0,12,0,0]}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":1,"annotation":0,"transclusion":1}}
+    {"pbVersion":2,"parsoid":{"ids":{"mwAA":{"dsr":[0,13,0,0]},"mwAQ":{"dsr":[0,12,0,0]}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":1,"annotation":0,"transclusion":1}}
     </script>
   </head>
   <body><p id="mwAQ">Hello, world</p>
@@ -52,6 +53,8 @@ EOF
 EOF
 		];
 
+		// The 'dummy' id ensures we are testing that a null data-parsoid blob translates
+		// to inline-atribute-serialization without a data-parsoid object in the HTML for it.
 		yield 'complex' => [
 			'input' => <<< 'EOF'
 <!DOCTYPE html>
@@ -59,13 +62,15 @@ EOF
 	<head>
 		<script id="mw-pagebundle" type="application/x-mw-pagebundle">
 		{
+			"pbVersion":2,
 			"parsoid": {
 				"ids":{
 					"mwAA":{"dsr":[0,70,0,0]},
 					"mwAQ":{"dsr":[0,69,0,0]},
 					"mwAg":{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"12px"},{"ck":"class","ak":"class=skin-invert"},{"ck":"link","ak":"link=Love Symbol"}],"dsr":[0,69,null,null]},
 					"mwAw":{},
-					"mwBA":{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}}
+					"mwBA":{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}},
+					"dummy":null
 				},
 				"offsetType":"byte"
 			},
@@ -74,7 +79,7 @@ EOF
 		}
 		</script>
 		</head>
-		<body><p id="mwAQ"><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg"><a href="./Love_Symbol" title="Love Symbol" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA"/></a></span></p>
+		<body><p id="mwAQ"><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg"><a href="./Love_Symbol" title="Love Symbol" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA"/></a></span><span id="dummy"></span></p>
 </body></html>
 EOF
 ,
@@ -83,7 +88,7 @@ EOF
 <html><head>
 		
 		</head>
-		<body><p id="mwAQ" data-parsoid='{"dsr":[0,69,0,0]}'><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg" data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"12px"},{"ck":"class","ak":"class=skin-invert"},{"ck":"link","ak":"link=Love Symbol"}],"dsr":[0,69,null,null]}'><a href="./Love_Symbol" title="Love Symbol" id="mwAw" data-parsoid="{}"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+		<body><p id="mwAQ" data-parsoid='{"dsr":[0,69,0,0]}'><span class="skin-invert" typeof="mw:File/Frameless" id="mwAg" data-parsoid='{"optList":[{"ck":"frameless","ak":"frameless"},{"ck":"width","ak":"12px"},{"ck":"class","ak":"class=skin-invert"},{"ck":"link","ak":"link=Love Symbol"}],"dsr":[0,69,null,null]}'><a href="./Love_Symbol" title="Love Symbol" id="mwAw" data-parsoid="{}"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Foobar.jpg/20px-Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="1" width="12" class="mw-file-element" id="mwBA" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"1","width":"12"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span><span id="dummy"></span></p>
 </body></html>
 EOF
 		];
@@ -98,8 +103,50 @@ EOF
 		$doc = DOMUtils::parseHTML( $input );
 		$dpb = DomPageBundle::fromSingleDocument( $doc );
 		self::assertIsArray( $dpb->parsoid['ids'] );
-		$html2 = $dpb->toInlineAttributeHtml( siteConfig: new MockSiteConfig( [] ) );
-		$this->assertEquals( $output, $html2 );
+		// v2 pagebundle version + correct usedIdIndex
+		$this->assertSame( 2, $dpb->pbVersion );
+		$this->assertEquals( $dpb->usedIdIndex, array_fill_keys( array_keys( $dpb->parsoid['ids'] ), true ) );
+		$html = $dpb->toInlineAttributeHtml( siteConfig: new MockSiteConfig( [] ) );
+		$this->assertEquals( $output, $html );
+	}
+
+	/**
+	 * @covers ::fromSingleDocument
+	 * @dataProvider provideExtractPageBundle
+	 */
+	public function testPageBundleVersionHandling( $input, $output ) {
+		$origInput = $input;
+
+		// Convert $input to versionless pagebundle
+		$input = preg_replace( '/"pbVersion":\d+,/', '', $input );
+		$doc = DOMUtils::parseHTML( $input );
+		$dpb = DomPageBundle::fromSingleDocument( $doc );
+
+		// No version, no usedIdIndex!
+		$this->assertSame( BasePageBundle::MIN_PB_VERSION_NUMBER, $dpb->pbVersion );
+		$this->assertNull( $dpb->usedIdIndex );
+
+		// When serialized back to single-doc format, the pb version should be 2
+		$html = $dpb->toSingleDocumentHtml();
+		$this->assertMatchesRegularExpression( '/"pbVersion":2/', $html );
+
+		// When loaded back, the new versioned-pb should ensure that usedIdIndex is valid
+		$doc = DOMUtils::parseHTML( $html );
+		$dpb = DomPageBundle::fromSingleDocument( $doc );
+		self::assertIsArray( $dpb->parsoid['ids'] );
+		// v2 pagebundle version + correct usedIdIndex
+		$this->assertSame( 2, $dpb->pbVersion );
+		$this->assertEquals( $dpb->usedIdIndex, array_fill_keys( array_keys( $dpb->parsoid['ids'] ), true ) );
+
+		// Convert $input to a non-default version value
+		$input = preg_replace( '/"pbVersion":\d+,/', '"pbVersion":42,', $origInput );
+		$doc = DOMUtils::parseHTML( $input );
+		$dpb = DomPageBundle::fromSingleDocument( $doc );
+		$this->assertSame( 42, $dpb->pbVersion );
+		$this->assertEquals( $dpb->usedIdIndex, array_fill_keys( array_keys( $dpb->parsoid['ids'] ), true ) );
+		$html = $dpb->toSingleDocumentHtml();
+		// The version string should be preserved and not reset to default 2
+		$this->assertMatchesRegularExpression( '/"pbVersion":42/', $html );
 	}
 
 	/**
@@ -124,7 +171,7 @@ EOF;
 		$html2 = $dpb->toSingleDocumentHtml();
 		$this->assertEquals( <<<'EOF'
 <!DOCTYPE html>
-<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]},"counters":{"nodedata":0,"annotation":0,"transclusion":1}}</script></head><body>
+<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"pbVersion":2,"parsoid":{"ids":{"mwAA":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]},"counters":{"nodedata":0,"annotation":0,"transclusion":1}}</script></head><body>
   <p id="mwAA">Hello, world</p>
  
 </body></html>
@@ -184,10 +231,11 @@ EOF
 			//   | php bin/parse.php --pageBundle --body_only=false
 			'singleDocumentBefore' => <<<'EOF'
 <!DOCTYPE html>
-<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,59,0,0]},"mwAQ":{"dsr":[0,58,0,0]},"mwAg":{"dsr":[24,40,3,3]},"mwAw":{"stx":"html","dsr":[42,56,6,7]},"mwBA":{"optList":[{"ck":"link","ak":"link="},{"ck":"caption","ak":"'''bold stuff''': <span>x</span>"}],"dsr":[0,58,null,null]},"mwBQ":{"_type_":"stdClass"},"mwBg":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:Foobar.jpg"}}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":6,"annotation":0,"transclusion":1}}</script></head><body id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;b id=\"mwAg\">bold stuff&lt;/b>: &lt;span id=\"mwAw\">x&lt;/span>"}' id="mwBA"><span title="bold stuff: x" id="mwBQ"><img alt="bold stuff: x" resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBg"/></span></span></p>
+<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"pbVersion":2,"parsoid":{"ids":{"mwAA":{"dsr":[0,59,0,0]},"mwAQ":{"dsr":[0,58,0,0]},"mwAg":{"dsr":[24,40,3,3]},"mwAw":{"stx":"html","dsr":[42,56,6,7]},"mwBA":{"optList":[{"ck":"link","ak":"link="},{"ck":"caption","ak":"'''bold stuff''': <span>x</span>"}],"dsr":[0,58,null,null]},"mwBQ":{"_type_":"stdClass"},"mwBg":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:Foobar.jpg"}}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":6,"annotation":0,"transclusion":1}}</script></head><body id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;b id=\"mwAg\">bold stuff&lt;/b>: &lt;span id=\"mwAw\">x&lt;/span>"}' id="mwBA"><span title="bold stuff: x" id="mwBQ"><img alt="bold stuff: x" resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBg"/></span></span></p>
 EOF
 	   ,
 			'pageBundleBefore' => [
+				'pbVersion' => 2,
 				'html' => <<<'HTML'
 <!DOCTYPE html>
 <html><head></head><body id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;b id=\"mwAg\">bold stuff&lt;/b>: &lt;span id=\"mwAw\">x&lt;/span>"}' id="mwBA"><span title="bold stuff: x" id="mwBQ"><img alt="bold stuff: x" resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBg"/></span></span></p></body></html>
@@ -249,6 +297,7 @@ HTML
 			],
 			'newFragment' => '<p data-parsoid=\'{"dsr":[0,12,0,0]}\'>Hello, world</p>',
 			'pageBundleAfter' => [
+				'pbVersion' => 2,
 				'html' => <<<'HTML'
 <!DOCTYPE html>
 <html><head></head><body id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File" id="mwBA" data-mw='{"caption":"&lt;b id=\"mwAg\">bold stuff&lt;/b>: &lt;span id=\"mwAw\">x&lt;/span>"}'><span title="bold stuff: x" id="mwBQ"><img alt="bold stuff: x" resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBg"/></span></span></p></body></html>
@@ -326,11 +375,12 @@ HTML
 			//   | php bin/parse.php --pageBundle --body_only=false
 			'singleDocumentBefore' => <<<'EOF'
 <!DOCTYPE html>
-<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"ids":{"mwAA":{"dsr":[0,29,0,0]},"mwAQ":{"dsr":[0,28,0,0]},"mwAg":{"pi":[[{"k":"1"}]],"dsr":[7,26,null,null]},"mwAw":{"optList":[],"dsr":[0,28,null,null]},"mwBA":{"_type_":"stdClass"},"mwBQ":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:{{1x | Foobar.jpg}}"}}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":5,"annotation":0,"transclusion":2}}</script></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos; id=\"mwAg\"> Foobar.jpg&lt;/span>"}]]}' id="mwAw"><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>
+<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"pbVersion":2,"parsoid":{"ids":{"mwAA":{"dsr":[0,29,0,0]},"mwAQ":{"dsr":[0,28,0,0]},"mwAg":{"pi":[[{"k":"1"}]],"dsr":[7,26,null,null]},"mwAw":{"optList":[],"dsr":[0,28,null,null]},"mwBA":{"_type_":"stdClass"},"mwBQ":{"a":{"resource":"./File:Foobar.jpg","height":"28","width":"240"},"sa":{"resource":"File:{{1x | Foobar.jpg}}"}}},"offsetType":"byte"},"mw":{"ids":[]},"counters":{"nodedata":5,"annotation":0,"transclusion":2}}</script></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos; id=\"mwAg\"> Foobar.jpg&lt;/span>"}]]}' id="mwAw"><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>
 </body></html>
 EOF
 			,
 			'pageBundleBefore' => [
+				'pbVersion' => 2,
 				'html' => <<<'HTML'
 <!DOCTYPE html>
 <html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos; id=\"mwAg\"> Foobar.jpg&lt;/span>"}]]}' id="mwAw"><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>
@@ -377,6 +427,7 @@ HTML
 			],
 			'newFragment' => '<p data-parsoid=\'{"dsr":[0,12,0,0]}\'>Hello, world</p>',
 			'pageBundleAfter' => [
+				'pbVersion' => 2,
 				'html' => <<<'HTML'
 <!DOCTYPE html>
 <html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: https://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="15580374"/><meta property="mw:pageNamespace" content="0"/><meta property="isMainPage" content="true"/><meta property="mw:htmlVersion" content="2.8.0"/><meta property="mw:html:version" content="2.8.0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><base href="//en.wikipedia.org/wiki/"/><title>Main Page</title><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr" data-mw-parsoid-version="dev-master" data-mw-html-version="2.8.0" id="mwAA"><p id="mwAQ"><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" id="mwAw" data-mw='{"attribs":[[{"txt":"href"},{"html":"File:&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" id=\"mwAg\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x \",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" Foobar.jpg\"}},\"i\":0}}]}&apos;> Foobar.jpg&lt;/span>"}]]}'><a href="./File:Foobar.jpg" class="mw-file-description" id="mwBA"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" decoding="async" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" class="mw-file-element" id="mwBQ"/></a></span></p>

@@ -32,8 +32,10 @@ class HtmlPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,string> Additional named HTML fragments. */
 		public array $fragments = [],
+		int $pbVersion = BasePageBundle::MIN_PB_VERSION_NUMBER,
 	) {
 		parent::__construct(
+			pbVersion: $pbVersion,
 			parsoid: $parsoid,
 			mw: $mw,
 			counters: $counters,
@@ -64,7 +66,9 @@ class HtmlPageBundle extends BasePageBundle {
 			],
 			$contentVersion,
 			$headers,
-			$contentmodel
+			$contentmodel,
+			[],
+			BasePageBundle::CURRENT_PB_VERSION_NUMBER
 		);
 	}
 
@@ -154,6 +158,7 @@ class HtmlPageBundle extends BasePageBundle {
 			$dpb->headers ?? $options['headers'] ?? null,
 			$dpb->contentmodel ?? $options['contentmodel'] ?? null,
 			$fragments,
+			$dpb->pbVersion,
 		);
 		if ( isset( $options['offsetType'] ) ) {
 			$pb->parsoid['offsetType'] ??= $options['offsetType'];

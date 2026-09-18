@@ -316,6 +316,8 @@ class DOMDataUtils {
 
 		$nodeData = new NodeData;
 		// See if there is data-parsoid or data-mw in the page bundle
+		// The pagebundle will have a null value for data-parsoid for where
+		// there was no data-parsoid associated with it.
 		if ( isset( $pb->parsoid['ids'][$id] ) ) {
 			$nodeData->parsoid = [ $pb->parsoid['ids'][$id] ]; // Undecoded JSON blob
 		}
@@ -743,9 +745,12 @@ class DOMDataUtils {
 			} while ( isset( $idIndex[$uid] ) );
 			DOMCompat::setIdAttribute( $node, $uid );
 		}
-		if ( isset( $data->parsoid ) ) {
-			$pb->parsoid['ids'][$uid] = $data->parsoid;
-		}
+		// If $data-parsoid is not set, set the pagebundle value for it to null.
+		// This ensures that for all nodes with an id attribute set, there is an
+		// entry for it in the pagebundle data-parsoid blob. This then lets us
+		// use array_keys($PAGE_BUNDLE->parsoid['ids']) to get all ids used in the
+		// DOM without needing to walk the DOM
+		$pb->parsoid['ids'][$uid] = $data->parsoid ?? null;
 		if ( isset( $data->mw ) ) {
 			$pb->mw['ids'][$uid] = $data->mw;
 		}

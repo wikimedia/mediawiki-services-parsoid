@@ -221,6 +221,7 @@ class Env {
 			$this->pageBundle = DomPageBundle::newEmpty(
 				$this->topLevelDoc
 			);
+			$this->pageBundle->usedIdIndex = [];
 		}
 		// NOTE:
 		// Don't try to do this in setupTopLevelDoc since it is called on existing Env objects

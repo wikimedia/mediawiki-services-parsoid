@@ -161,6 +161,9 @@ class ParserPipelineFactory {
 				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
 			]
 		],
+		// NOTE: We rely on the assumption that markDiscardableDP is part of all
+		// pipelines (top-level, nested, embedded-docs, selective-update) to ensure
+		// that all HTML is examined for id atributes to track all used ids.
 		'markDiscardableDP' => [
 			'name' => 'CleanUp-markDiscardableDataParsoid',
 			'tplInfo' => true,
