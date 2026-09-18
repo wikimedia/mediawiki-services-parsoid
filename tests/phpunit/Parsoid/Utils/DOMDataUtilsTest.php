@@ -411,12 +411,12 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$this->assertSame(
 				$useFragmentBank ?
 				"<!DOCTYPE html>\n<html><head>" .
+				'<template data-tid="uOo/VU3m"><b>be bold</b></template>' .
 				'<template data-tid="uOo/VU3m-1"><b>be bold</b></template>' .
 				'<template data-tid="uOo/VU3m-2"><b>be bold</b></template>' .
 				'<template data-tid="uOo/VU3m-3"><b>be bold</b></template>' .
 				'<template data-tid="g/SsaX6L-1">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m-2"}}]]}\' data-mw-foo=\'{"_t":"uOo/VU3m-3"}\'>bold</b>!</template>' .
-				'<template data-tid="uOo/VU3m-4"><b>be bold</b></template>' .
-				'<template data-tid="g/SsaX6L-2">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw-foo=\'{"_t":"uOo/VU3m-1"}\' data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m-4"}}]]}\'>bold</b>!</template>' .
+				'<template data-tid="g/SsaX6L-2">This is pretty <b title="be bold" typeof="mw:ExpandedAttrs" data-mw=\'{"attribs":[["title",{"html":{"_t":"uOo/VU3m"}}]]}\' data-mw-foo=\'{"_t":"uOo/VU3m-1"}\'>bold</b>!</template>' .
 				'</head><body><p ' .
 				'title="This is pretty bold!" ' .
 				'typeof="mw:ExpandedAttrs" ' .
@@ -442,9 +442,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 				'"This is pretty &lt;b ' .
 				'typeof=\"mw:ExpandedAttrs\" ' .
 				'title=\"be bold\" ' .
-				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos; ' .
 				'data-mw=&apos;{\"attribs\":[[\"title\",{\"html\":' .
-				'\"&amp;lt;b>be bold&amp;lt;/b>\"}]]}&apos;' .
+				'\"&amp;lt;b>be bold&amp;lt;/b>\"}]]}&apos; ' .
+				'data-mw-foo=&apos;{\"_h\":\"&amp;lt;b>be bold&amp;lt;/b>\"}&apos;' .
 				'>bold&lt;/b>!"}]]}\'>' .
 				'Hello, world</p>' .
 				'</body></html>',

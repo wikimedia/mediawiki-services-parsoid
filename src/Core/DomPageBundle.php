@@ -284,7 +284,6 @@ class DomPageBundle extends BasePageBundle {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toDom( siteConfig: $siteConfig, fragments: $fragments );
 		$options = [
-			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 			'fragments' => array_values( $fragments )
 		] + $options;
 		DOMDataUtils::storeAndUnprepareDoc( $doc, $options );
