@@ -458,8 +458,11 @@ class DOMDataUtils {
 		$document = $node->ownerDocument;
 		$codec = self::getCodec( $document );
 		$docDp = &$pb->parsoid;
+
 		$origId = $uid;
-		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
+
+		$ids = $docDp['ids'];
+		if ( $uid !== null && is_array( $ids ) && array_key_exists( $uid, $ids ) ) {
 			$uid = null;
 		}
 		if ( $uid === '' ) {
@@ -671,7 +674,6 @@ class DOMDataUtils {
 				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );
 			}
-
 			if ( !empty( $options['storeInPageBundle'] ) ) {
 				$data ??= new stdClass;
 				$data->parsoid = $dp;

@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
-use Wikimedia\JsonCodec\JsonCodecable;
-use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -30,8 +28,7 @@ use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
  * See DomPageBundle for a similar structure used where the HTML string
  * has been parsed into a DOM.
  */
-class PageBundle implements JsonCodecable {
-	use JsonCodecableTrait;
+class PageBundle extends BasePageBundle {
 
 	/** The document, as an HTML string. */
 	public string $html;
@@ -70,11 +67,7 @@ class PageBundle implements JsonCodecable {
 		?string $contentmodel = null
 	) {
 		$this->html = $html;
-		$this->parsoid = $parsoid;
-		$this->mw = $mw;
-		$this->version = $version;
-		$this->headers = $headers;
-		$this->contentmodel = $contentmodel;
+		parent::__construct( $parsoid, $mw, $version, $headers, $contentmodel );
 	}
 
 	public function toDom(): Document {
@@ -262,17 +255,15 @@ class PageBundle implements JsonCodecable {
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		return [
-			'html' => $this->html,
-			'parsoid' => $this->parsoid,
-			'mw' => $this->mw,
-			'version' => $this->version,
-			'headers' => $this->headers,
-			'contentmodel' => $this->contentmodel,
-		];
+			'html' => $this->html
+		] + parent::toJsonArray();
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): PageBundle {
+		if ( isset( $json['counters']['nodedata'] ) ) {
+			$json['parsoid']['counter'] = $json['counters']['nodedata'];
+		}
 		return new PageBundle(
 			$json['html'] ?? '',
 			$json['parsoid'] ?? null,
@@ -281,5 +272,9 @@ class PageBundle implements JsonCodecable {
 			$json['headers'] ?? null,
 			$json['contentmodel'] ?? null
 		);
+	}
+
+	public function toBaseBundle(): BasePageBundle {
+		return new BasePageBundle( $this->parsoid, $this->mw, $this->version, $this->headers, $this->contentmodel );
 	}
 }

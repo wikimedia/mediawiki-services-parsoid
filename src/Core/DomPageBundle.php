@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\JsonCodec\JsonCodecable;
-use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -30,39 +28,10 @@ use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
  * See PageBundle for a similar structure used where the HTML DOM has been
  * serialized into a string.
  */
-class DomPageBundle implements JsonCodecable {
-	use JsonCodecableTrait;
+class DomPageBundle extends BasePageBundle {
 
 	/** The document, as a DOM. */
 	public ?Document $doc;
-
-	/**
-	 * A map from ID to the array serialization of DataParsoid for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{counter?:int,offsetType?:string,ids:array<string,array>}
-	 */
-	public $parsoid;
-
-	/**
-	 * A map from ID to the array serialization of DataMw for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{ids:array<string,array>}
-	 */
-	public $mw;
-
-	/** @var ?string */
-	public $version;
-
-	/**
-	 * A map of HTTP headers: both name and value should be strings.
-	 * @var array<string,string>|null
-	 */
-	public $headers;
-
-	/** @var string|null */
-	public $contentmodel;
 
 	public function __construct(
 		Document $doc, ?array $parsoid = null, ?array $mw = null,
@@ -70,11 +39,7 @@ class DomPageBundle implements JsonCodecable {
 		?string $contentmodel = null
 	) {
 		$this->doc = $doc;
-		$this->parsoid = $parsoid;
-		$this->mw = $mw;
-		$this->version = $version;
-		$this->headers = $headers;
-		$this->contentmodel = $contentmodel;
+		parent::__construct( $parsoid, $mw, $version, $headers, $contentmodel );
 		Assert::invariant(
 			!self::isSingleDocument( $doc ),
 			'single document should be unpacked before DomPageBundle created'
@@ -223,7 +188,7 @@ class DomPageBundle implements JsonCodecable {
 		$metadata = $options['pageBundle'] ?? null;
 		$dpb = new DomPageBundle(
 			$doc,
-			[ 'counter' => -1, 'ids' => [], ],
+			[ 'ids' => [], 'counter' => -1 ],
 			[ 'ids' => [], ],
 			$metadata->version ?? $options['contentversion'] ?? null,
 			$metadata->headers ?? $options['headers'] ?? null,
