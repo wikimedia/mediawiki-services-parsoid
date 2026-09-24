@@ -46,7 +46,7 @@ class SelserRevDomTest extends \PHPUnit\Framework\TestCase {
 	private function getEditedBundle( HtmlPageBundle $pb ): DomPageBundle {
 		return DomPageBundle::fromHtmlPageBundle( new HtmlPageBundle(
 			str_replace( '--', '..', $pb->html ),
-			parsoid: $pb->parsoid, mw: $pb->mw, version: $pb->version,
+			parsoid: $pb->parsoid, mw: $pb->mw, contentVersion: $pb->getContentVersion(),
 		) );
 	}
 

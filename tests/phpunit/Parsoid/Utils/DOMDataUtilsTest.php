@@ -1132,7 +1132,7 @@ HTML
 				'annotation' => 1, /* due to nested about id */
 				'transclusion' => 1,
 			],
-			'version' => '999.0.0',
+			'contentVersion' => '999.0.0',
 			'headers' => null,
 			'contentmodel' => null,
 		];

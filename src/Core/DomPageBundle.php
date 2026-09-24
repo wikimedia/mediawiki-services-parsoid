@@ -37,7 +37,7 @@ class DomPageBundle extends BasePageBundle {
 		public Document $doc,
 		?array $parsoid = null, ?array $mw = null,
 		?array $counters = null,
-		?string $version = null, ?array $headers = null,
+		?string $contentVersion = null, ?array $headers = null,
 		?string $contentmodel = null,
 		/** @var array<string,DocumentFragment> Additional named DocumentFragments. */
 		public array $fragments = [],
@@ -46,7 +46,7 @@ class DomPageBundle extends BasePageBundle {
 			parsoid: $parsoid,
 			mw: $mw,
 			counters: $counters,
-			version: $version,
+			contentVersion: $contentVersion,
 			headers: $headers,
 			contentmodel: $contentmodel,
 		);
@@ -58,7 +58,7 @@ class DomPageBundle extends BasePageBundle {
 
 	public static function newEmpty(
 		Document $doc,
-		?string $version = null,
+		?string $contentVersion = null,
 		?array $headers = null,
 		?string $contentmodel = null,
 	): self {
@@ -75,7 +75,7 @@ class DomPageBundle extends BasePageBundle {
 				'annotation' => -1,
 				'transclusion' => -1,
 			],
-			$version,
+			$contentVersion,
 			$headers,
 			$contentmodel
 		);
@@ -98,7 +98,7 @@ class DomPageBundle extends BasePageBundle {
 			$pb->parsoid,
 			$pb->mw,
 			$pb->counters,
-			$pb->version,
+			$pb->contentVersion,
 			$pb->headers,
 			$pb->contentmodel,
 			$fragments,
@@ -223,14 +223,14 @@ class DomPageBundle extends BasePageBundle {
 		$metadata = $options['pageBundle'] ?? null;
 		$dpb = self::newEmpty(
 			$doc,
-			$metadata->version ?? $options['contentversion'] ?? null,
+			$metadata->contentVersion ?? $options['contentversion'] ?? null,
 			$metadata->headers ?? $options['headers'] ?? null,
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null,
 		);
 		// FIXME: Should we init $dpb->counters here using databag?
 		$options = [
 			'storeInPageBundle' => $dpb,
-			'outputContentVersion' => $dpb->version,
+			'outputContentVersion' => $dpb->contentVersion,
 			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 		] + $options;
 		DOMDataUtils::visitAndStoreDataAttribs(

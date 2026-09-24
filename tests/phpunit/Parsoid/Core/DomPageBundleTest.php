@@ -238,7 +238,7 @@ HTML
 				'mw' => [
 					'ids' => [],
 				],
-				'version' => null,
+				'contentVersion' => null,
 				'headers' => null,
 				'contentmodel' => null,
 				'counters' => [
@@ -302,7 +302,7 @@ HTML
 					'ids' => [],
 				],
 				'counters' => [ 'nodedata' => 7, 'annotation' => 0, 'transclusion' => 1 ],
-				'version' => null,
+				'contentVersion' => null,
 				'headers' => null,
 				'contentmodel' => null,
 				'fragments' => [
@@ -371,7 +371,7 @@ HTML
 					'ids' => [],
 				],
 				'counters' => [ 'nodedata' => 5, 'annotation' => 0, 'transclusion' => 2 ],
-				'version' => null,
+				'contentVersion' => null,
 				'headers' => null,
 				'contentmodel' => null,
 			],
@@ -419,7 +419,7 @@ HTML
 					'ids' => [],
 				],
 				'counters' => [ 'nodedata' => 6, 'annotation' => 0, 'transclusion' => 2 ],
-				'version' => null,
+				'contentVersion' => null,
 				'headers' => null,
 				'contentmodel' => null,
 				'fragments' => [

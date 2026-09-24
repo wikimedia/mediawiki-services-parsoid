@@ -28,7 +28,7 @@ class HtmlPageBundle extends BasePageBundle {
 		public string $html,
 		?array $parsoid = null, ?array $mw = null,
 		?array $counters = null,
-		?string $version = null, ?array $headers = null,
+		?string $contentVersion = null, ?array $headers = null,
 		?string $contentmodel = null,
 		/** @var array<string,string> Additional named HTML fragments. */
 		public array $fragments = [],
@@ -37,7 +37,7 @@ class HtmlPageBundle extends BasePageBundle {
 			parsoid: $parsoid,
 			mw: $mw,
 			counters: $counters,
-			version: $version,
+			contentVersion: $contentVersion,
 			headers: $headers,
 			contentmodel: $contentmodel,
 		);
@@ -45,7 +45,7 @@ class HtmlPageBundle extends BasePageBundle {
 
 	public static function newEmpty(
 		string $html,
-		?string $version = null,
+		?string $contentVersion = null,
 		?array $headers = null,
 		?string $contentmodel = null,
 	): self {
@@ -62,7 +62,7 @@ class HtmlPageBundle extends BasePageBundle {
 				'annotation' => -1,
 				'transclusion' => -1,
 			],
-			$version,
+			$contentVersion,
 			$headers,
 			$contentmodel
 		);
@@ -73,14 +73,14 @@ class HtmlPageBundle extends BasePageBundle {
 	 * @return array{contentmodel: string, html: array{headers: array, body: string}, data-parsoid: array{headers: array{content-type: string}, body: ?array{counter?: int, offsetType?: 'byte'|'char'|'ucs2', ids: array<string, array>}}, data-mw?: array{headers: array{content-type: string}, body: ?array{ids: array<string, array>}}}
 	 */
 	public function responseData(): array {
-		$version = $this->version ?? '0.0.0';
+		$contentVersion = $this->contentVersion ?? '0.0.0';
 		$responseData = [
 			'contentmodel' => $this->contentmodel ?? '',
 			'html' => [
 				'headers' => array_merge( [
 					'content-type' => 'text/html; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/HTML/'
-						. $version . '"',
+						. $contentVersion . '"',
 				], $this->headers ?? [] ),
 				'body' => $this->html,
 			],
@@ -88,7 +88,7 @@ class HtmlPageBundle extends BasePageBundle {
 				'headers' => [
 					'content-type' => 'application/json; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/'
-						. $version . '"',
+						. $contentVersion . '"',
 				],
 				'body' => $this->parsoid,
 			],
@@ -98,7 +98,7 @@ class HtmlPageBundle extends BasePageBundle {
 				'headers' => [
 					'content-type' => 'application/json; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/counters/'
-						. $version . '"',
+						. $contentVersion . '"',
 				],
 				'body' => $this->counters,
 			];
@@ -109,12 +109,12 @@ class HtmlPageBundle extends BasePageBundle {
 				'counter' => $this->counters['nodedata'],
 			];
 		}
-		if ( Semver::satisfies( $version, '^999.0.0' ) ) {
+		if ( Semver::satisfies( $contentVersion, '^999.0.0' ) ) {
 			$responseData['data-mw'] = [
 				'headers' => [
 					'content-type' => 'application/json; charset=utf-8; ' .
 						'profile="https://www.mediawiki.org/wiki/Specs/data-mw/' .
-						$version . '"',
+						$contentVersion . '"',
 				],
 				'body' => $this->mw,
 			];
@@ -150,7 +150,7 @@ class HtmlPageBundle extends BasePageBundle {
 			$dpb->parsoid,
 			$dpb->mw,
 			$dpb->counters,
-			$dpb->version ?? $options['contentversion'] ?? null,
+			$dpb->contentVersion ?? $options['contentversion'] ?? null,
 			$dpb->headers ?? $options['headers'] ?? null,
 			$dpb->contentmodel ?? $options['contentmodel'] ?? null,
 			$fragments,

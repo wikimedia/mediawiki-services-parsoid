@@ -184,7 +184,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( PHPUtils::jsonDecode( $expected['parsoid'] ?? 'null' ), $encoded['parsoid'] ?? null );
 		$this->assertEquals( PHPUtils::jsonDecode( $expected['mw'] ?? 'null' ), $encoded['mw'] ?? null );
 		$this->assertEquals( PHPUtils::jsonDecode( $expected['counters'] ?? 'null' ), $encoded['counters'] ?? null );
-		$this->assertEquals( $expected['version'] ?? null, $encoded['version'] );
+		$this->assertEquals( $expected['contentVersion'] ?? null, $encoded['contentVersion'] );
 		if ( isset( $expected['headers'] ) ) {
 			$this->assertEquals( $expected['headers'] ?? null, $encoded['headers'] );
 		}
@@ -206,7 +206,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'parsoid' => '{"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
 					'mw' => '{"ids":[]}',
 					'counters' => '{"nodedata":2,"annotation":0,"transclusion":1}',
-					'version' => self::$defaultContentVersion,
+					'contentVersion' => self::$defaultContentVersion,
 				],
 				[
 					'inputOffsetType' => 'byte',
@@ -230,7 +230,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'parsoid' => '{"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'counters' => '{"nodedata":2,"annotation":0,"transclusion":1}',
-					'version' => self::$defaultContentVersion,
+					'contentVersion' => self::$defaultContentVersion,
 				],
 				[
 					'inputOffsetType' => 'ucs2',
@@ -252,7 +252,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'parsoid' => '{"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
-					'version' => self::$defaultContentVersion,
+					'contentVersion' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -271,7 +271,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'parsoid' => '{"ids":{"mwAA":{"dsr":[0,24,0,0]},"mwAQ":{"dsr":[0,23,0,0]},"mwAg":{"stx":"piped","a":{"href":"./Not_an_article"},"sa":{"href":"Not an article"},"dsr":[0,23,17,2]}},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'counters' => '{"nodedata":2,"annotation":0,"transclusion":1}',
-					'version' => self::$defaultContentVersion,
+					'contentVersion' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -292,7 +292,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'parsoid' => '{"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
-					'version' => self::$defaultContentVersion,
+					'contentVersion' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,

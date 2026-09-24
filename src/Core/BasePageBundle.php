@@ -47,7 +47,7 @@ class BasePageBundle implements JsonCodecable {
 		 * @var ?array{nodedata?:int,annotation?:int,transclusion?:int}
 		 */
 		public ?array $counters = null,
-		public ?string $version = null,
+		protected ?string $contentVersion = null,
 		/**
 		 * A map of HTTP headers: both name and value should be strings.
 		 * @var ?array<string,string>
@@ -61,11 +61,11 @@ class BasePageBundle implements JsonCodecable {
 	}
 
 	public function getContentVersion(): ?string {
-		return $this->version;
+		return $this->contentVersion;
 	}
 
 	public function setContentVersion( string $contentVersion ): void {
-		$this->version = $contentVersion;
+		$this->contentVersion = $contentVersion;
 	}
 
 	/**
@@ -128,7 +128,7 @@ class BasePageBundle implements JsonCodecable {
 			parsoid: $this->parsoid,
 			mw: $this->mw,
 			counters: $this->counters,
-			version: $this->version,
+			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
 		);
@@ -149,7 +149,7 @@ class BasePageBundle implements JsonCodecable {
 			parsoid: $this->parsoid,
 			mw: $this->mw,
 			counters: $this->counters,
-			version: $this->version,
+			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
 		);
@@ -163,7 +163,7 @@ class BasePageBundle implements JsonCodecable {
 			parsoid: $this->parsoid,
 			mw: $this->mw,
 			counters: $this->counters,
-			version: $this->version,
+			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
 		);
@@ -185,7 +185,7 @@ class BasePageBundle implements JsonCodecable {
 		return $this->parsoid !== null ||
 			$this->mw !== null ||
 			$this->counters !== null ||
-			$this->version !== null ||
+			$this->contentVersion !== null ||
 			$this->headers !== null ||
 			$this->contentmodel !== null;
 	}
@@ -198,7 +198,7 @@ class BasePageBundle implements JsonCodecable {
 			'parsoid' => $this->parsoid,
 			'mw' => $this->mw,
 			'counters' => $this->counters,
-			'version' => $this->version,
+			'contentVersion' => $this->contentVersion,
 			'headers' => $this->headers,
 			'contentmodel' => $this->contentmodel,
 		];
@@ -219,7 +219,9 @@ class BasePageBundle implements JsonCodecable {
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
 			counters: $json['counters'] ?? null,
-			version: $json['version'] ?? null,
+			// Retain b/c for older cached content that had pagebundles
+			// serialized with 'version' as the property name.
+			contentVersion: $json['version'] ?? $json['contentVersion'] ?? null,
 			headers: $json['headers'] ?? null,
 			contentmodel: $json['contentmodel'] ?? null
 		);
