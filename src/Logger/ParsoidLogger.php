@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Logger;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Throwable;
 use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Node;
@@ -171,6 +172,9 @@ class ParsoidLogger {
 			} elseif ( $arg instanceof Node ) {
 				$output .= ' ' .
 					XHtmlSerializer::serialize( $arg, [ 'noSideEffects' => true ] )['html'];
+			} elseif ( $arg instanceof Throwable ) {
+				// Exceptions aren't JsonCodecable; log the class and message instead.
+				$output .= ' ' . get_class( $arg ) . ': ' . $arg->getMessage();
 			} else {
 				$encode = fn ( $x ) => $this->codec->toJsonArray(
 					$x,
