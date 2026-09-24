@@ -1669,7 +1669,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 * @param Token $token
 	 * @param stdClass $target
 	 * @param list<DataMwError> $errs
-	 * @param ?array{url?:string} $info
+	 * @param ?array{url?:string,canonicaltitle?:LinkTarget} $info
 	 * @return array<string|Token>
 	 */
 	private function linkToMedia( Token $token, stdClass $target, array $errs, ?array $info ): array {
@@ -1696,13 +1696,10 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			$target->hrefSrc
 		);
 
-		// Normalize title according to how PHP parser does it currently
-		if ( isset( $info['url'] ) ) {
-			$normalizedFileName = preg_replace( '#.*/#', '', $info['url'], 1 );
-		} else {
-			$normalizedFileName = $target->title->getDBkey();
-		}
-		$link->setAttribute( 'title', str_replace( '_', ' ', $normalizedFileName ) );
+		$link->setAttribute(
+			'title', isset( $info['canonicaltitle'] ) ?
+				$info['canonicaltitle']->getText() : $target->title->getText()
+		);
 
 		if ( count( $errs ) > 0 ) {
 			// Set RDFa type to mw:Error so VE and other clients

@@ -182,7 +182,8 @@ class DataAccess extends IDataAccess {
 			'prop' => $propName,
 			"{$prefix}badfilecontexttitle" => $pageConfigTitle,
 			"{$prefix}prop" => implode( '|', [
-				'mediatype', 'mime', 'size', 'url', 'badfile', 'sha1', 'timestamp'
+				'mediatype', 'mime', 'size', 'url', 'badfile', 'sha1', 'timestamp',
+				'canonicaltitle'
 			] )
 		];
 		if ( $prefix === 'vi' ) {
@@ -258,6 +259,11 @@ class DataAccess extends IDataAccess {
 					foreach ( $fileinfo['thumbdata']['timedtext'] ?? [] as $j => $_d ) {
 						$this->stripProto( $fileinfo['thumbdata']['timedtext'][$j], 'src' );
 					}
+				}
+				if ( isset( $fileinfo['canonicaltitle'] ) ) {
+					$fileinfo['canonicaltitle'] = Title::newFromText(
+						$fileinfo['canonicaltitle'], $sc
+					);
 				}
 			}
 			$ret[] = $fileinfo;

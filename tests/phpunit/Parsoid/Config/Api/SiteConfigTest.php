@@ -229,7 +229,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:(?i:__NOTOC__)|(?i:__NOGALLERY__)|(?i:__FORCETOC__)|(?i:__TOC__)|(?i:__NOEDITSECTION__)|__NEWSECTIONLINK__|__NONEWSECTIONLINK__|__HIDDENCAT__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|__INDEX__|__NOINDEX__|__STATICREDIRECT__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOCONTENTCONVERT__|__NOCC__)|__NOGLOBAL__|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
+			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:__EXPECTSHORTPAGE__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|(?i:__FORCETOC__)|__HIDDENCAT__|__INDEX__|__NEWSECTIONLINK__|(?i:__NOCONTENTCONVERT__|__NOCC__)|(?i:__NOEDITSECTION__)|(?i:__NOGALLERY__)|__NOINDEX__|__NONEWSECTIONLINK__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOTOC__)|__STATICREDIRECT__|(?i:__TOC__)|__NOGLOBAL__|(?i:__NOMEDIAVIEWERCAROUSEL__)|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
 			$this->getSiteConfig()->solTransparentWikitextRegexp()
 		);
 	}
@@ -237,7 +237,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextNoWsRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:(?i:__NOTOC__)|(?i:__NOGALLERY__)|(?i:__FORCETOC__)|(?i:__TOC__)|(?i:__NOEDITSECTION__)|__NEWSECTIONLINK__|__NONEWSECTIONLINK__|__HIDDENCAT__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|__INDEX__|__NOINDEX__|__STATICREDIRECT__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOCONTENTCONVERT__|__NOCC__)|__NOGLOBAL__|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->))*)@',
+			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|(?:__EXPECTSHORTPAGE__|__EXPECTUNUSEDCATEGORY__|__EXPECTUNUSEDTEMPLATE__|(?i:__FORCETOC__)|__HIDDENCAT__|__INDEX__|__NEWSECTIONLINK__|(?i:__NOCONTENTCONVERT__|__NOCC__)|(?i:__NOEDITSECTION__)|(?i:__NOGALLERY__)|__NOINDEX__|__NONEWSECTIONLINK__|(?i:__NOTITLECONVERT__|__NOTC__)|(?i:__NOTOC__)|__STATICREDIRECT__|(?i:__TOC__)|__NOGLOBAL__|(?i:__NOMEDIAVIEWERCAROUSEL__)|__DISAMBIG__|(?i:__ARCHIVEDTALK__)|(?i:__NOTALK__)|__EXPECTED_UNCONNECTED_PAGE__)|<!--(?>[\s\S]*?-->))*)@',
 			$this->getSiteConfig()->solTransparentWikitextNoWsRegexp()
 		);
 	}
