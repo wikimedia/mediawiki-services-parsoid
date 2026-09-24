@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
+/** @phan-file-suppress PhanTypeMismatchArgumentSuperType */
+
 use Error;
 use SplObjectStorage;
 use Wikimedia\Assert\Assert;
@@ -55,7 +57,6 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * FIXME: At some point, more of the details should be extracted and documented
  * in pseudo-code as an algorithm.
  * @module
- * @phan-file-suppress PhanTypeMismatchArgumentSuperType
  */
 class DOMRangeBuilder {
 

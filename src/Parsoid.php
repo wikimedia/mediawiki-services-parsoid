@@ -297,9 +297,6 @@ class Parsoid {
 		}
 	}
 
-	/**
-	 *
-	 */
 	private function recordParseMetrics(
 		Env $env, float $parseTimeMs,
 		array $out, ?array $headers, string $contentmodel,
@@ -323,7 +320,7 @@ class Parsoid {
 		$version = 'default';
 
 		if ( Semver::satisfies(
-			$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
+		$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
 		) ) {
 			if ( $metrics ) {
 				$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
@@ -332,16 +329,16 @@ class Parsoid {
 		}
 
 		$this->siteConfig->incrementCounter( 'wt2html_parse_total', [
-			'type' => $mstr,
-			'version' => $version
+		'type' => $mstr,
+		'version' => $version
 		] );
 
 		// @phan-suppress-next-line PhanDeprecatedFunction
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $pageConfig->getPageMainContent() ) );
 		$timing->end(
-			"entry.wt2html.{$mstr}.size.input",
-			"wt2html_size_input_bytes",
-			[ "type" => $mstr ]
+		"entry.wt2html.{$mstr}.size.input",
+		"wt2html_size_input_bytes",
+		[ "type" => $mstr ]
 		);
 
 		$outSize = strlen( $out['html'] );
@@ -476,9 +473,6 @@ class Parsoid {
 		return $wikitext;
 	}
 
-	/**
-	 *
-	 */
 	private function recordSerializationMetrics(
 		array $options, float $serialTime, string $wikitext
 	) {

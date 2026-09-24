@@ -13,8 +13,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-/**
- */
 class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 	private Env $env;
 	private ParsoidExtensionAPI $extApi;

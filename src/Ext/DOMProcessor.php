@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+/** @phan-file-suppress PhanEmptyPublicMethod */
+
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -11,8 +13,6 @@ use Wikimedia\Parsoid\DOM\Node;
  * A Parsoid extension module may contain one or more DOMProcessors,
  * which allow Parsoid to post-process the DOM in the wt2html direction,
  * or pre-process the DOM in the html2wt direction.
- *
- * @phan-file-suppress PhanEmptyPublicMethod
  */
 abstract class DOMProcessor {
 

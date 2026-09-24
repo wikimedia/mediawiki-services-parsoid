@@ -6,8 +6,6 @@ namespace Wikimedia\Parsoid\Ext;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils as DDU;
 
-/**
- */
 class DiffDOMUtils {
 
 	/**

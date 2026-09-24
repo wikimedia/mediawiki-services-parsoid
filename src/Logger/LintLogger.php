@@ -80,9 +80,6 @@ class LintLogger {
 		}
 	}
 
-	/**
-	 *
-	 */
 	public function logLintOutput() {
 		$env = $this->env;
 

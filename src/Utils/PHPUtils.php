@@ -11,7 +11,6 @@ use Wikimedia\Assert\UnreachableException;
  * Over time, more functions can be migrated out of various other files here.
  * @module
  */
-
 class PHPUtils {
 	/**
 	 * Convert a counter to a Base64 encoded string.

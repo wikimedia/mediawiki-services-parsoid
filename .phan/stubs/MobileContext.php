@@ -1,8 +1,10 @@
 <?php
 
-// Stub MobileContext class from MobileFrontend extension
+/**
+ * Stub MobileContext class from MobileFrontend extension
+ */
 class MobileContext extends ContextSource {
-	public static function singleton() {
+	public static function singleton(): MobileContext {
 		return new self();
 	}
 

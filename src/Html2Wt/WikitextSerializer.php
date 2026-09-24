@@ -61,7 +61,6 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  * - add a generic 'can this HTML node be serialized to wikitext in this
  *   context' detection method and use that to adaptively switch between
  *   wikitext and HTML serialization.
- *
  */
 class WikitextSerializer {
 
@@ -694,7 +693,7 @@ class WikitextSerializer {
 		$buf .= $this->formatStringSubst( $formatStart, $part->targetWt, $forceTrim );
 
 		// Short-circuit transclusions without params
-		$paramKeys = array_map( fn ( ParamInfo $pi ) => $pi->k, $part->paramInfos );
+		$paramKeys = array_map( static fn ( ParamInfo $pi ) => $pi->k, $part->paramInfos );
 		if ( !$paramKeys ) {
 			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
 				$formatEnd = substr( $formatEnd, 1 );

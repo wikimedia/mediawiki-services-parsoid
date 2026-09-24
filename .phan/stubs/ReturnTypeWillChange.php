@@ -10,7 +10,6 @@
  * This is the solution suggested in https://phabricator.wikimedia.org/T311928#8047219 by
  * @Umherirrender.
  */
-
 #[\Attribute]
 class ReturnTypeWillChange {
 }

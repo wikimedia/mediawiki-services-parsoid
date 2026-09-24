@@ -105,7 +105,6 @@ class ParagraphWrapper extends TokenHandler {
 
 	/**
 	 * Reset the token buffer and new line info
-	 *
 	 */
 	private function resetBuffers(): void {
 		$this->tokenBuffer = [];
@@ -115,7 +114,6 @@ class ParagraphWrapper extends TokenHandler {
 
 	/**
 	 * Reset the current line info
-	 *
 	 */
 	private function resetCurrLine(): void {
 		if ( $this->currLineBlockTagSeen ) {
