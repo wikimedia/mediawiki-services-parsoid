@@ -60,6 +60,14 @@ class BasePageBundle implements JsonCodecable {
 		);
 	}
 
+	public function getContentVersion(): ?string {
+		return $this->version;
+	}
+
+	public function setContentVersion( string $contentVersion ): void {
+		$this->version = $contentVersion;
+	}
+
 	/**
 	 * Check if this pagebundle is valid.
 	 * @param string $contentVersion Document content version to validate against.
