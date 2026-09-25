@@ -54,6 +54,14 @@ class BasePageBundle implements JsonCodecable {
 	) {
 	}
 
+	public function getContentVersion(): ?string {
+		return $this->version;
+	}
+
+	public function setContentVersion( string $contentVersion ): void {
+		$this->version = $contentVersion;
+	}
+
 	/**
 	 * Build an HtmlPageBundle by adding HTML string contents to this
 	 * base page bundle.

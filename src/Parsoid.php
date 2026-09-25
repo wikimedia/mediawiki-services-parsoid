@@ -685,7 +685,7 @@ class Parsoid {
 		return HtmlPageBundle::fromDomPageBundle( $env->pageBundle, [
 			'body_only' => !empty( $options['body_only'] ),
 			// Prefer the passed in version, since this was just a transformation
-			'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
+			'contentversion' => $pb->getContentVersion() ?? $env->getOutputContentVersion(),
 			'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
 			// Prefer the passed in content model
 			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
@@ -730,7 +730,7 @@ class Parsoid {
 				self::$dgFunc( $pageBundle );
 
 				// FIXME: Maybe this resolve should just be part of the $dg
-				$pageBundle->version = self::resolveContentVersion( $dg['to'] );
+				$pageBundle->setContentVersion( self::resolveContentVersion( $dg['to'] ) );
 
 				// FIXME: Maybe this should be a helper to avoid the rt
 				$doc = DOMUtils::parseHTML( $pageBundle->html );
@@ -738,7 +738,7 @@ class Parsoid {
 				$meta = DOMCompat::querySelector( $doc,
 					'meta[property="mw:htmlVersion"], meta[property="mw:html:version"]' );
 				if ( $meta ) {
-					$meta->setAttribute( 'content', $pageBundle->version );
+					$meta->setAttribute( 'content', $pageBundle->getContentVersion() );
 					$pageBundle->html = ContentUtils::toXML( $doc );
 				}
 
