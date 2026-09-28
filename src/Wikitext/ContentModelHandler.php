@@ -81,10 +81,9 @@ class ContentModelHandler extends IContentModelHandler {
 		if ( $selserData->revDOM !== null ) {
 			$doc = $selserData->revDOM;
 			Assert::invariant(
-				!DOMDataUtils::isPreparedAndLoaded( $doc ),
-				"Expected the revision DOM to not be prepared & loaded."
+				DOMDataUtils::isPreparedAndLoaded( $doc ),
+				"Expected the revision DOM to be prepared & loaded."
 			);
-			DOMDataUtils::prepareAndLoadDoc( $doc, $env->getSiteConfig() );
 		} else {
 			// Why is it safe to use a reparsed dom for dom diff'ing?
 			// (Since that's the only use of `env.page.dom`)
@@ -184,11 +183,22 @@ class ContentModelHandler extends IContentModelHandler {
 		$pipelineFactory = $env->getPipelineFactory();
 
 		if ( $selectiveUpdateData ) {
-			$doc = ContentUtils::createAndLoadDocument(
-				$selectiveUpdateData->revHTML,
-				[ 'serializeNewEmptyDp' => true ], // isSelectiveUpdate
-				siteConfig: $env->getSiteConfig(),
-			);
+			$doc = $selectiveUpdateData->revDOM;
+			if ( $doc === null ) {
+				$doc = ContentUtils::createAndLoadDocument(
+					$selectiveUpdateData->revHTML,
+					[ 'serializeNewEmptyDp' => true ], // isSelectiveUpdate
+					siteConfig: $env->getSiteConfig(),
+				);
+			} else {
+				Assert::invariant(
+					DOMDataUtils::isPreparedAndLoaded( $doc ),
+					"Expected the revision DOM to be prepared & loaded."
+				);
+				// The caller loaded this DOM, so set the flag that
+				// createAndLoadDocument() would have set.
+				DOMDataUtils::getBag( $doc )->serializeNewEmptyDp = true; // isSelectiveUpdate
+			}
 			Assert::invariant(
 				!DomPageBundle::isSingleDocument( $doc ),
 				"toplevelDoc should not be a single-document page bundle"
