@@ -356,7 +356,7 @@ redirect_word =
  */
 block =
 /* Redirect has to be the first alternative; otherwise it gets parsed as a <ol>
- * In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
+ * In practice, WikitextContentHandler::extractRedirectTargetAndText() in MediaWiki strips
  * the redirect from the source so it never sees it. So, redirects should be
  * ignored if they come from a template.
  */
