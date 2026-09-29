@@ -109,6 +109,11 @@ class TemplateInfo implements JsonCodecable {
 			// non-numeric keys.
 			$info->named = $v->eq ?? !$info->isNumericKey();
 			$order = $v->order ?? ( $info->isNumericKey() ? (int)$k : $count );
+			if ( $ti->func === null || $oldPF ) {
+				// Just use the 'JSON order' unless this is a new-style
+				// parser function
+				$order = $count;
+			}
 			$count++;
 			$paramList[] = [ $order, $info ];
 		}
