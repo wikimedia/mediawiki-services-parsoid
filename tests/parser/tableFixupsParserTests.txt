@@ -1088,3 +1088,32 @@ parsoid=wt2html
 <tbody><tr><td about="#mwt3">class=<a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" typeof="mw:LocalizedAttrs" class="new" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'>Foo</a> bar |</td></tr>
 </tbody></table>
 !! end
+
+!! article
+Template:CellSplitTest
+!! text
+fostered
+| y
+!! endarticle
+
+!! test
+T439681: Cell-splitting shouldn't be tripped up by newlines
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+{{CellSplitTest}} || z
+|}
+!! html/php
+
+fostered
+<table><tbody><tr>
+<td>y</td>
+<td>z
+</td></tr></tbody></table>
+!! html/parsoid
+<p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"CellSplitTest","href":"./Template:CellSplitTest"},"params":{},"i":0}}," || z\n|}"]}'>fostered
+</p><table about="#mwt2">
+<tbody><tr><td>y</td><td>z
+</td></tr></tbody></table>
+!! end
