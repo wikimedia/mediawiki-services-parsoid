@@ -757,7 +757,7 @@ class DOMNormalizer {
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info
-					$options = [ 'storeDiffMark' => true, 'saveData' => true ];
+					$options = [ 'storeDiffMark' => true ];
 					$dump = ContentUtils::dumpDOM(
 						DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
@@ -766,9 +766,9 @@ class DOMNormalizer {
 					$this->state->getEnv()->log( 'error/html2wt/dom',
 						"--- Nested inserted dom-diff flags ---\n",
 						'Node:',
-						$node instanceof Element ? ContentUtils::toXML( $node, $options ) : $node->textContent,
+						$node instanceof Element ? ContentUtils::ppToXML( $node ) : $node->textContent,
 						"\nNode's parent:",
-						ContentUtils::toXML( $node->parentNode, $options ),
+						ContentUtils::ppToXML( $node->parentNode ),
 						$dump
 					);
 				}

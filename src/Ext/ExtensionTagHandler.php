@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\DOM\Element;
 abstract class ExtensionTagHandler {
 
 	/**
-	 * Convert an extension tag's content to "prepared and loaded" DOM.
+	 * Convert an extension tag's content to DOM
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $src Extension tag content
 	 * @param array $extArgs Extension tag arguments
@@ -89,7 +89,7 @@ abstract class ExtensionTagHandler {
 	/**
 	 * Serialize a DOM node created by this extension to wikitext.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param Element $node A node in a "prepared and loaded" document.
+	 * @param Element $node
 	 * @param bool $wrapperUnmodified
 	 * @return string|false Return false to use the default serialization.
 	 */

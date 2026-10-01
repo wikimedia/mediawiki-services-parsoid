@@ -7,7 +7,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
-use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\TOCData;
@@ -181,12 +180,8 @@ class Env {
 	 */
 	public $styleTagKeys = [];
 
-	/**
-	 * The DomPageBundle holding the JSON data for data-parsoid and data-mw
-	 * attributes, or `null` if these are to be encoded as inline HTML
-	 * attributes.
-	 */
-	public ?DomPageBundle $pageBundle = null;
+	/** @var bool */
+	public $pageBundle;
 
 	/** @var bool */
 	public $discardDataParsoid = false;
@@ -258,8 +253,7 @@ class Env {
 	 * @param ContentMetadataCollector $metadata
 	 * @param ?array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
-	 *  - pageBundle: (bool) When true, sets ids on nodes and stores
-	 *      data-* attributes in a JSON blob in Env::$pageBundle
+	 *  - pageBundle: (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
 	 *  - debugFlags: (bool[]) Debug flags
@@ -301,6 +295,7 @@ class Env {
 		$this->tocData = new TOCData();
 		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
 		$this->wrapSections = (bool)( $options['wrapSections'] ?? true );
+		$this->pageBundle = (bool)( $options['pageBundle'] ?? false );
 		$this->pipelineFactory = new ParserPipelineFactory( $this );
 		$defaultContentVersion = Parsoid::defaultHTMLVersion();
 		$this->inputContentVersion = $options['inputContentVersion'] ?? $defaultContentVersion;
@@ -343,13 +338,6 @@ class Env {
 			$this->profiling = true;
 		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
-		if ( $options['pageBundle'] ?? false ) {
-			$this->pageBundle = new DomPageBundle(
-				$this->topLevelDoc,
-				[ 'counter' => -1, 'ids' => [], ],
-				[ 'ids' => [], ]
-			);
-		}
 		// NOTE:
 		// Don't try to do this in setupTopLevelDoc since it is called on existing Env objects
 		// in a couple of places. That then leads to a multiple-write to tocdata property on

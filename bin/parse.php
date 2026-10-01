@@ -29,6 +29,9 @@ use Wikimedia\Parsoid\ParserTests\DummyAnnotation;
 use Wikimedia\Parsoid\ParserTests\TestUtils;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
+use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -738,6 +741,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( !$this->hasOption( 'pbin' ) && !$this->hasOption( 'pbinfile' ) ) {
 			return null;
 		}
+		$doc = DOMUtils::parseHTML( $input );
 		if ( $this->hasOption( 'pbinfile' ) ) {
 			$json = file_get_contents( $this->getOption( 'pbinfile' ) );
 		} else {
@@ -745,11 +749,12 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 		$pb = PHPUtils::jsonDecode( $json );
 		$pb = new PageBundle(
-			$input,
+			'',
 			$pb['parsoid'] ?? null,
 			[ 'ids' => [] ]  // FIXME: ^999.0.0
 		);
-		return $pb->toInlineAttributeHtml();
+		PageBundle::apply( $doc, $pb );
+		return ContentUtils::toXML( $doc );
 	}
 
 	/**
@@ -777,19 +782,24 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$this->output( $this->wt2Lint( $configOpts, $parsoidOpts, $input ) );
 		} elseif ( $parsoidOpts['pageBundle'] ?? false ) {
 			if ( $this->hasOption( 'pboutfile' ) ) {
-				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				file_put_contents(
 					$this->getOption( 'pboutfile' ),
 					PHPUtils::jsonEncode( [
-						'parsoid' => $pb->parsoid,
-						'mw' => $pb->mw,
+						'parsoid' => $html->parsoid,
+						'mw' => $html->mw,
 					] )
 				);
-				$html = $pb->html;
+				$html = $html->html;
 			} elseif ( $this->hasOption( 'pageBundle' ) ) {
-				$pb = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				// Stitch this back in, even though it was just extracted
-				$html = $pb->toSingleDocumentHtml();
+				$doc = DOMUtils::parseHTML( $html->html );
+				DOMDataUtils::injectPageBundle(
+					$doc,
+					new PageBundle( '', $html->parsoid, $html->mw )
+				);
+				$html = ContentUtils::toXML( $doc );
 			}
 			$this->output( $this->maybeNormalize( $html ) );
 		} else {

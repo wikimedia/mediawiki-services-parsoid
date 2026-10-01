@@ -26,9 +26,8 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
 		$this->assertEquals( $wikitext, $actualWt );
-		$doc = ContentUtils::createAndLoadDocument(
-			"<html><body><!--$html--></body></html>"
-		);
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( "<html><body><!--$html--></body></html>" );
 		$body = $doc->getElementsByTagName( "body" )->item( 0 );
 		$node = $body->childNodes->item( 0 );
 		$actualLen = WTUtils::decodedCommentLength( $node );
@@ -140,12 +139,11 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodedCommentLength
 	 */
 	public function testDecodedCommentLength() {
-		$doc = ContentUtils::createAndLoadDocument(
-			"<html><body><div>" .
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( "<html><body><div>" .
 			"<p><!--c1--></p>" .
 			"a <meta typeof='mw:Placeholder/UnclosedComment'/><!--c2\n-->" .
-			"</body></html>"
-		);
+			"</body></html>" );
 		$body = DOMCompat::getBody( $doc );
 		$body->setAttribute( 'hasUnclosedComment', "1" );
 		$div = $body->firstChild;

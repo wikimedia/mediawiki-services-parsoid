@@ -54,9 +54,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * the objects are not fully populated.
  * @property ParamInfo[][]|null $pi
  *
- * DOM fragment identifier for DocumentFragment tunneled through Tokens.
- * The identifier here indexes into Env::$fragmentMap to map to a
- * DocumentFragment.
+ * Expanded template HTML (native preprocessor only).
  * @property string|null $html
  *
  * On mw:Entity spans this is set to the decoded entity value.
@@ -390,10 +388,5 @@ class DataParsoid implements JsonCodecable {
 			}
 		}
 		return $dp;
-	}
-
-	public function isEmpty(): bool {
-		// First two checks short-circuit for the common case (dsr for nodes & tsr for tokens)
-		return !isset( $this->dsr ) && !isset( $this->tsr ) && $this->toJsonArray() === [];
 	}
 }
