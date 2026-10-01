@@ -9,7 +9,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
-use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -50,11 +49,6 @@ class DOMDataUtils {
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
 		return $doc->codec;
-	}
-
-	public static function isPrepared( Document $doc ): bool {
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		return isset( $doc->bag );
 	}
 
 	public static function prepareDoc( Document $doc ): void {
@@ -135,7 +129,7 @@ class DOMDataUtils {
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
 				// between nodes without getting cloned. Useful for debugging.
-				'Node id: ' . $nodeId . ' ' .
+				'Node id: ' . $nodeId .
 				'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
 			);
 		}
@@ -435,8 +429,17 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Get this document's pagebundle object
+	 * @param Document $doc
+	 * @return PageBundle
+	 */
+	public static function getPageBundle( Document $doc ): PageBundle {
+		return self::getBag( $doc )->getPageBundle();
+	}
+
+	/**
 	 * Removes the `data-*` attribute from a node, and migrates the data to the
-	 * given DomPageBundle. Generates a unique id with the following format:
+	 * document's JSON store. Generates a unique id with the following format:
 	 * ```
 	 * mw<base64-encoded counter>
 	 * ```
@@ -445,24 +448,21 @@ class DOMDataUtils {
 	 * TODO: Note that $data is effective a partial PageBundle containing
 	 * only the 'parsoid' and 'mw' properties.
 	 *
-	 * @param DomPageBundle $pb
 	 * @param Element $node node
 	 * @param stdClass $data data
 	 * @param array $idIndex Index of used id attributes in the DOM
 	 */
 	public static function storeInPageBundle(
-		DomPageBundle $pb, Element $node, stdClass $data, array $idIndex
+		Element $node, stdClass $data, array $idIndex
 	): void {
 		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$document = $node->ownerDocument;
+		$pb = self::getPageBundle( $document );
 		$codec = self::getCodec( $document );
 		$docDp = &$pb->parsoid;
-
 		$origId = $uid;
-
-		$ids = $docDp['ids'];
-		if ( $uid !== null && is_array( $ids ) && array_key_exists( $uid, $ids ) ) {
+		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
 			$uid = null;
 		}
 		if ( $uid === '' ) {
@@ -636,10 +636,9 @@ class DOMDataUtils {
 	 * @param ?array $options options
 	 *   - discardDataParsoid: Discard DataParsoid objects instead of storing them
 	 *   - keepTmp: Preserve DataParsoid::$tmp
-	 *   - storeInPageBundle: If set to a DomPageBundle, data will be stored
-	 *     in the given page bundle instead of data-parsoid and data-mw.
-	 *   - outputContentVersion: Version of output we're storing.  The page bundle
-	 *     didn't have data-mw before 999.x
+	 *   - storeInPageBundle: If true, data will be stored in the page bundle
+	 *     instead of data-parsoid and data-mw.
+	 *   - env: The Env object required for various features
 	 *   - idIndex: Array of used ID attributes
 	 */
 	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
@@ -674,6 +673,7 @@ class DOMDataUtils {
 				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );
 			}
+
 			if ( !empty( $options['storeInPageBundle'] ) ) {
 				$data ??= new stdClass;
 				$data->parsoid = $dp;
@@ -712,7 +712,7 @@ class DOMDataUtils {
 
 		// Store pagebundle
 		if ( $data !== null ) {
-			self::storeInPageBundle( $options['storeInPageBundle'], $node, $data, $options['idIndex'] );
+			self::storeInPageBundle( $node, $data, $options['idIndex'] );
 		}
 
 		// Indicate that this node's data has been stored so that if we try

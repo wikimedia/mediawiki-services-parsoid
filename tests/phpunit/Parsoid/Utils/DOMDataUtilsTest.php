@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Utils;
 
-use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -37,14 +37,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::storeInPageBundle
 	 */
 	public function testStoreInPageBundle() {
-		$dpb = DomPageBundle::fromPageBundle( new PageBundle(
-			"<p>Hello, world</p>",
-			[ 'counter' => -1, 'ids' => [], ],
-			[ 'ids' => [], ],
-		) );
-		DOMDataUtils::prepareDoc( $dpb->doc );
-		$p = DOMCompat::querySelector( $dpb->doc, 'p' );
-		DOMDataUtils::storeInPageBundle( $dpb, $p, (object)[
+		$doc = ContentUtils::createDocument( "<p>Hello, world</p>" );
+		$p = DOMCompat::querySelector( $doc, 'p' );
+		DOMDataUtils::storeInPageBundle( $p, (object)[
 			'parsoid' => [ 'go' => 'team' ],
 			'mw' => [ 'test' => 'me' ],
 		], DOMDataUtils::usedIdIndex( $p ) );
@@ -52,7 +47,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertNotEquals( '', $id );
 		// Use the 'native' getElementById, not DOMCompat::getElementById,
 		// in order to test T232390.
-		$el = $dpb->doc->getElementById( $id );
+		$el = $doc->getElementById( $id );
 		$this->assertEquals( $p, $el );
 	}
 

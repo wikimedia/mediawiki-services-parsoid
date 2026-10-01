@@ -7,7 +7,7 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
-use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage;
 
 class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
@@ -22,9 +22,7 @@ class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
 		$tb->resetState( [ 'toplevel' => true ] );
 		$tb->processChunk( $tokens );
 		$body = $tb->finalizeDOM();
-		$this->assertEquals(
-			$expected, ContentUtils::ppToXML( $body, [ 'innerXML' => true ] )
-		);
+		$this->assertEquals( $expected, DOMCompat::getInnerHTML( $body ) );
 	}
 
 	public function provideTreeBuilder(): array {
@@ -36,7 +34,7 @@ class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
 					new EndTagTk( 'p' ),
 					new EOFTk()
 				],
-				'<p data-parsoid="{}">Testing 123</p>'
+				'<p data-object-id="0">Testing 123</p>'
 			]
 		];
 	}

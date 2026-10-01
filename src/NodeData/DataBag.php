@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\Parsoid\Core\PageBundle;
+
 class DataBag {
 	/**
 	 * @var NodeData[] A map of node data-object-id ids to data objects.
@@ -15,6 +17,11 @@ class DataBag {
 	/** @var int An id counter for this document used for the dataObject map */
 	private int $nodeId = 0;
 
+	/** @var PageBundle the page bundle object into which all data-parsoid and data-mw
+	 * attributes will be extracted to for pagebundle API requests.
+	 */
+	private $pageBundle;
+
 	/**
 	 * FIXME: Figure out a decent interface for updating these depths
 	 * without needing to import the various util files.
@@ -22,6 +29,22 @@ class DataBag {
 	 * Map of start/end meta tag tree depths keyed by about id
 	 */
 	public array $transclusionMetaTagDepthMap = [];
+
+	public function __construct() {
+		$this->pageBundle = new PageBundle(
+			'',
+			[ "counter" => -1, "ids" => [] ],
+			[ "ids" => [] ]
+		);
+	}
+
+	/**
+	 * Return this document's pagebundle object
+	 * @return PageBundle
+	 */
+	public function getPageBundle(): PageBundle {
+		return $this->pageBundle;
+	}
 
 	/**
 	 * Get the data object for the node with data-object-id 'nodeId'.

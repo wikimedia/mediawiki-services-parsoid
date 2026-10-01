@@ -28,10 +28,6 @@ class DOMUtils {
 	/**
 	 * Parse HTML, return the tree.
 	 *
-	 * @note The resulting document is not "prepared and loaded"; use
-	 * ContentUtils::prepareAndLoadDocument() instead if that's what
-	 * you need.
-	 *
 	 * @param string $html
 	 * @param bool $validateXMLNames
 	 * @return Document

@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class JSONTest extends TestCase {
 	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
@@ -74,7 +73,8 @@ class JSONTest extends TestCase {
 			'</tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
 
-		$doc = DOMUtils::parseHTML( $html );
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( $html );
 
 		$opts = [ 'topLevelDoc' => $doc ];
 		$env = new MockEnv( $opts );

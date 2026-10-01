@@ -12,26 +12,19 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
- * A page bundle stores an HTML string with separated data-parsoid and
- * (optionally) data-mw content.  The data-parsoid and data-mw content
- * is indexed by the id attributes on individual nodes.  This content
- * needs to be loaded before the data-parsoid and/or data-mw
- * information can be used.
+ * PORT-FIXME: This is just a placeholder for data that was previously passed
+ * to entrypoint in JavaScript.  Who will construct these objects and whether
+ * this is the correct interface is yet to be determined.
  *
  * Note that the parsoid/mw properties of the page bundle are in "serialized
  * array" form; that is, they are flat arrays appropriate for json-encoding
  * and do not contain DataParsoid or DataMw objects.
- *
- * See DomPageBundle for a similar structure used where the HTML string
- * has been parsed into a DOM.
  */
-class PageBundle extends BasePageBundle {
-
-	/** The document, as an HTML string. */
-	public string $html;
+class PageBundle {
+	/** @var string */
+	public $html;
 
 	/**
 	 * A map from ID to the array serialization of DataParsoid for the Node
@@ -67,7 +60,11 @@ class PageBundle extends BasePageBundle {
 		?string $contentmodel = null
 	) {
 		$this->html = $html;
-		parent::__construct( $parsoid, $mw, $version, $headers, $contentmodel );
+		$this->parsoid = $parsoid;
+		$this->mw = $mw;
+		$this->version = $version;
+		$this->headers = $headers;
+		$this->contentmodel = $contentmodel;
 	}
 
 	public function toDom(): Document {
@@ -182,99 +179,5 @@ class PageBundle extends BasePageBundle {
 		// Note that $this->parsoid and $this->mw are already serialized arrays
 		// so a naive jsonEncode is sufficient.  We don't need a codec.
 		return PHPUtils::jsonEncode( [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ] );
-	}
-
-	public static function decodeFromHeadElement( string $s ): PageBundle {
-		// Note that only 'parsoid' and 'mw' are encoded, so these will be
-		// the only fields set in the decoded PageBundle
-		$decoded = PHPUtils::jsonDecode( $s );
-		return new PageBundle(
-			'', /* html */
-			$decoded['parsoid'] ?? null,
-			$decoded['mw'] ?? null
-		);
-	}
-
-	/**
-	 * Convert a DomPageBundle to a PageBundle.
-	 *
-	 * This serializes the DOM from the DomPageBundle, with the given $options.
-	 * The options can also provide defaults for content version, headers,
-	 * content model, and offsetType if they weren't already set in the
-	 * DomPageBundle.
-	 *
-	 * @param DomPageBundle $dpb
-	 * @param array $options XMLSerializer options
-	 * @return PageBundle
-	 */
-	public static function fromDomPageBundle( DomPageBundle $dpb, array $options = [] ): PageBundle {
-		$node = $dpb->doc;
-		if ( $options['body_only'] ?? false ) {
-			$node = DOMCompat::getBody( $dpb->doc );
-			$options += [ 'innerXML' => true ];
-		}
-		$out = XMLSerializer::serialize( $node, $options );
-		$pb = new PageBundle(
-			$out['html'],
-			$dpb->parsoid,
-			$dpb->mw,
-			$dpb->version ?? $options['contentversion'] ?? null,
-			$dpb->headers ?? $options['headers'] ?? null,
-			$dpb->contentmodel ?? $options['contentmodel'] ?? null
-		);
-		if ( isset( $options['offsetType'] ) ) {
-			$pb->parsoid['offsetType'] ??= $options['offsetType'];
-		}
-		return $pb;
-	}
-
-	/**
-	 * Convert this PageBundle to "single document" form, where page bundle
-	 * information is embedded in the <head> of the document.
-	 * @param array $options XMLSerializer options
-	 * @return string an HTML string
-	 */
-	public function toSingleDocumentHtml( array $options = [] ): string {
-		return DomPageBundle::fromPageBundle( $this )
-			->toSingleDocumentHtml( $options );
-	}
-
-	/**
-	 * Convert this PageBundle to "inline attribute" form, where page bundle
-	 * information is represented as inline JSON-valued attributes.
-	 * @param array $options XMLSerializer options
-	 * @return string an HTML string
-	 */
-	public function toInlineAttributeHtml( array $options = [] ): string {
-		return DomPageBundle::fromPageBundle( $this )
-			->toInlineAttributeHtml( $options );
-	}
-
-	// JsonCodecable -------------
-
-	/** @inheritDoc */
-	public function toJsonArray(): array {
-		return [
-			'html' => $this->html
-		] + parent::toJsonArray();
-	}
-
-	/** @inheritDoc */
-	public static function newFromJsonArray( array $json ): PageBundle {
-		if ( isset( $json['counters']['nodedata'] ) ) {
-			$json['parsoid']['counter'] = $json['counters']['nodedata'];
-		}
-		return new PageBundle(
-			$json['html'] ?? '',
-			$json['parsoid'] ?? null,
-			$json['mw'] ?? null,
-			$json['version'] ?? null,
-			$json['headers'] ?? null,
-			$json['contentmodel'] ?? null
-		);
-	}
-
-	public function toBaseBundle(): BasePageBundle {
-		return new BasePageBundle( $this->parsoid, $this->mw, $this->version, $this->headers, $this->contentmodel );
 	}
 }
