@@ -7,10 +7,7 @@ namespace Wikimedia\Parsoid\Config\Api;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -565,35 +562,6 @@ class SiteConfig extends ISiteConfig {
 	public function server(): string {
 		$this->loadSiteData();
 		return $this->siteData['server'];
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function exportMetadataToHeadBcp47(
-		Document $document,
-		ContentMetadataCollector $metadata,
-		string $defaultTitle,
-		Bcp47Code $lang
-	): void {
-		'@phan-var StubMetadataCollector $metadata'; // @var StubMetadataCollector $metadata
-		$moduleLoadURI = $this->server() . $this->scriptpath() . '/load.php';
-		// Parsoid/JS always made this protocol-relative, so match
-		// that (for now at least)
-		$moduleLoadURI = preg_replace( '#^https?://#', '//', $moduleLoadURI );
-		// Look for a displaytitle.
-		$displayTitle = $metadata->getPageProperty( 'displaytitle' ) ??
-			// Use the default title, properly escaped
-			Utils::escapeHtml( $defaultTitle );
-		$this->exportMetadataHelper(
-			$document,
-			$moduleLoadURI,
-			$metadata->getModules(),
-			$metadata->getModuleStyles(),
-			$metadata->getJsConfigVars(),
-			$displayTitle,
-			$lang
-		);
 	}
 
 	public function redirectRegexp(): string {

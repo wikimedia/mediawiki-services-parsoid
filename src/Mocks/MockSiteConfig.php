@@ -10,10 +10,7 @@ use Monolog\Logger;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -103,32 +100,6 @@ class MockSiteConfig extends SiteConfig {
 
 	public function baseURI(): string {
 		return '//my.wiki.example/wikix/';
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function exportMetadataToHeadBcp47(
-		Document $document,
-		ContentMetadataCollector $metadata,
-		string $defaultTitle,
-		Bcp47Code $lang
-	): void {
-		'@phan-var StubMetadataCollector $metadata'; // @var StubMetadataCollector $metadata
-		$moduleLoadURI = $this->server() . $this->scriptpath() . '/load.php';
-		// Look for a displaytitle.
-		$displayTitle = $metadata->getPageProperty( 'displaytitle' ) ??
-			// Use the default title, properly escaped
-			Utils::escapeHtml( $defaultTitle );
-		$this->exportMetadataHelper(
-			$document,
-			$moduleLoadURI,
-			$metadata->getModules(),
-			$metadata->getModuleStyles(),
-			$metadata->getJsConfigVars(),
-			$displayTitle,
-			$lang
-		);
 	}
 
 	public function redirectRegexp(): string {

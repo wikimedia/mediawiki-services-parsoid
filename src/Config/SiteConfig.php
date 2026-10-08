@@ -22,7 +22,6 @@ use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\ObjectFactory\ObjectFactory;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
@@ -773,23 +772,6 @@ abstract class SiteConfig {
 	 * @return string
 	 */
 	abstract public function server(): string;
-
-	/**
-	 * Export content metadata via meta tags (and via a stylesheet
-	 * for now to aid some clients).
-	 *
-	 * @param Document $document
-	 * @param ContentMetadataCollector $metadata
-	 * @param string $defaultTitle The default title to display, as an
-	 *   unescaped string
-	 * @param Bcp47Code $lang a BCP-47 language code
-	 */
-	abstract public function exportMetadataToHeadBcp47(
-		Document $document,
-		ContentMetadataCollector $metadata,
-		string $defaultTitle,
-		Bcp47Code $lang
-	): void;
 
 	/**
 	 * Helper function to create <head> elements from metadata.
