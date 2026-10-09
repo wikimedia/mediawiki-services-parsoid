@@ -31,6 +31,8 @@ class HtmlPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,string> Additional named HTML fragments. */
 		public array $fragments = [],
+		/** Forward-compatibility with MW 1.47 */
+		?string $contentVersion = null,
 	) {
 		parent::__construct(
 			parsoid: $parsoid,
@@ -38,6 +40,7 @@ class HtmlPageBundle extends BasePageBundle {
 			version: $version,
 			headers: $headers,
 			contentmodel: $contentmodel,
+			contentVersion: $contentVersion,
 		);
 	}
 
@@ -45,7 +48,9 @@ class HtmlPageBundle extends BasePageBundle {
 		string $html,
 		?string $version = null,
 		?array $headers = null,
-		?string $contentmodel = null
+		?string $contentmodel = null,
+		/** Forward-compatibility with MW 1.47 */
+		?string $contentVersion = null,
 	): self {
 		return new self(
 			$html,
@@ -56,7 +61,7 @@ class HtmlPageBundle extends BasePageBundle {
 			[
 				'ids' => [],
 			],
-			$version,
+			$version ?? $contentVersion,
 			$headers,
 			$contentmodel
 		);
