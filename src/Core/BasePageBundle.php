@@ -54,10 +54,13 @@ class BasePageBundle implements JsonCodecable {
 		 */
 		public ?array $headers = null,
 		public ?string $contentmodel = null,
+		/** Forward-compatibility with MW 1.47 */
+		?string $contentVersion = null,
 	) {
 		Assert::invariant(
 			!isset( $parsoid['counter'] ), "counter removed in Parsoid 0.23"
 		);
+		$this->version ??= $contentVersion;
 	}
 
 	public function getContentVersion(): ?string {
@@ -194,7 +197,8 @@ class BasePageBundle implements JsonCodecable {
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
 			counters: $json['counters'] ?? null,
-			version: $json['version'] ?? null,
+			// Forward compatibility with Parsoid >= 0.24
+			version: $json['version'] ?? $json['contentVersion'] ?? null,
 			headers: $json['headers'] ?? null,
 			contentmodel: $json['contentmodel'] ?? null
 		);

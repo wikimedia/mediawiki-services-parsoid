@@ -41,6 +41,8 @@ class DomPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,DocumentFragment> Additional named DocumentFragments. */
 		public array $fragments = [],
+		/** Forward-compatibility with MW 1.47 */
+		?string $contentVersion = null,
 	) {
 		parent::__construct(
 			parsoid: $parsoid,
@@ -49,6 +51,7 @@ class DomPageBundle extends BasePageBundle {
 			version: $version,
 			headers: $headers,
 			contentmodel: $contentmodel,
+			contentVersion: $contentVersion,
 		);
 		Assert::invariant(
 			!self::isSingleDocument( $doc ),
@@ -61,6 +64,8 @@ class DomPageBundle extends BasePageBundle {
 		?string $version = null,
 		?array $headers = null,
 		?string $contentmodel = null,
+		/** Forward-compatibility with MW 1.47 */
+		?string $contentVersion = null,
 	): self {
 		return new DomPageBundle(
 			$doc,
@@ -75,7 +80,7 @@ class DomPageBundle extends BasePageBundle {
 				'annotation' => -1,
 				'transclusion' => -1,
 			],
-			$version,
+			$version ?? $contentVersion,
 			$headers,
 			$contentmodel
 		);
