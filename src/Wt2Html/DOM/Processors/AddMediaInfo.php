@@ -921,6 +921,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
 			}
 
+			// Record a missing file too, as the legacy parser does.
+			// Special:WantedFiles uses the imagelinks table.
+			$env->getMetadata()->addImage(
+				$attrs['title'],
+				$info['timestamp'] ?? null,
+				$info['sha1'] ?? null,
+			);
+
 			if ( $broken ) {
 				continue;
 			}
@@ -940,12 +948,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 
 			$needsTMHModules = $needsTMHModules || ( !$isImage && !$errs );
-
-			$env->getMetadata()->addImage(
-				$attrs['title'],
-				$info['timestamp'] ?? null,
-				$info['sha1'] ?? null,
-			);
 
 			if ( isset( $dataMw->attribs ) && count( $dataMw->attribs ) === 0 ) {
 				unset( $dataMw->attribs );

@@ -4173,6 +4173,21 @@ images=Foobar.jpg
 </p>
 !! end
 
+!! test
+Collect media metadata for missing files and media links
+!! options
+showmedia
+!! wikitext
+[[Media:Missing-media.jpg]] [[Media:Foobar.jpg]] [[File:Missing-file.jpg|123]]
+!! metadata
+images=Missing-media.jpg, Foobar.jpg, Missing-file.jpg
+!! html/php
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Missing-media.jpg" class="new" title="Missing-media.jpg">Media:Missing-media.jpg</a> <a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Foobar.jpg</a> <span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Missing-file.jpg" class="new" title="File:Missing-file.jpg"><span class="mw-file-element mw-broken-media">123</span></a></span>
+</p>
+!! html/parsoid
+<p><a rel="mw:MediaLink" href="./Special:Upload?wpDestFile=Missing-media.jpg" title="Missing-media.jpg" resource="./Media:Missing-media.jpg" typeof="mw:Error" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'>Media:Missing-media.jpg</a> <a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg" resource="./Media:Foobar.jpg">Media:Foobar.jpg</a> <span class="mw-default-size" typeof="mw:Error mw:File" data-mw='{"caption":"123","errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:Upload?wpDestFile=Missing-file.jpg" class="new" title="File:Missing-file.jpg"><span class="mw-file-element mw-broken-media" resource="./File:Missing-file.jpg">123</span></a></span></p>
+!! end
+
 # Parsoid currently includes the fragment in the resource attribute, but
 # this may change in the future: T374893
 !! test

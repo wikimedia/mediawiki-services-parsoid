@@ -1739,6 +1739,13 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		} elseif ( isset( $info['thumberror'] ) ) {
 			$errs[] = new DataMwError( 'apierror-unknownerror', [], $info['thumberror'] );
 		}
+		// The legacy parser records a media link in the imagelinks table.
+		// It also records a missing file.
+		$env->getMetadata()->addImage(
+			$title,
+			$info['timestamp'] ?? null,
+			$info['sha1'] ?? null
+		);
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}
 
