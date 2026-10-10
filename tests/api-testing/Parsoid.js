@@ -494,11 +494,13 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	const validHtmlResponse = function(expectFunc) {
+	const validHtmlResponse = function(expectFunc, contentVersion) {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
-			res.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/html', 'HTML' ) );
+			res.headers['content-type'].should.satisfy(
+				contentTypeMatcher( 'text/html', 'HTML', contentVersion )
+			);
 			var doc = domino.createDocument(res.text);
 			if (expectFunc) {
 				return expectFunc(doc);
@@ -521,18 +523,22 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	const validPageBundleResponse = function(expectFunc) {
+	const validPageBundleResponse = function(expectFunc, contentVersion) {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
 			res.body.should.have.property('html');
 			res.body.html.should.have.property('headers');
 			res.body.html.headers.should.have.property('content-type');
-			res.body.html.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/html', 'HTML' ) );
+			res.body.html.headers['content-type'].should.satisfy(
+				contentTypeMatcher( 'text/html', 'HTML', contentVersion )
+			);
 			res.body.html.should.have.property('body');
 			res.body.should.have.property('data-parsoid');
 			res.body['data-parsoid'].should.have.property('headers');
 			res.body['data-parsoid'].headers.should.have.property('content-type');
-			res.body['data-parsoid'].headers['content-type'].should.satisfy( contentTypeMatcher( 'application/json', 'data-parsoid' ) );
+			res.body['data-parsoid'].headers['content-type'].should.satisfy(
+				contentTypeMatcher( 'application/json', 'data-parsoid', contentVersion )
+			);
 			res.body['data-parsoid'].should.have.property('body');
 			// TODO: Check data-mw when 999.x is the default.
 			console.assert(!semver.gte(defaultContentVersion, '999.0.0'));
@@ -718,8 +724,8 @@ describe('Parsoid API', function() {
 				contentmodel: 'json',
 			})
 			.expect(validHtmlResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('TABLE');
-			}))
+				doc.body.firstChild.nodeName.should.equal('DIV');
+			}, '0.0.0')) // Dummy version set in PageBundleParserOutputConverter
 			.end(done);
 		});
 
@@ -743,9 +749,9 @@ describe('Parsoid API', function() {
 				contentmodel: 'json',
 			})
 			.expect(validPageBundleResponse(function(doc) {
-				doc.body.firstChild.nodeName.should.equal('TABLE');
+				doc.body.firstChild.nodeName.should.equal('DIV');
 				should.not.exist(doc.querySelector('*[typeof="mw:Error"]'));
-			}))
+			}, '0.0.0')) // Dummy version set in PageBundleParserOutputConverter
 			.end(done);
 		});
 
@@ -1543,6 +1549,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		// FIXME: The REST API no longer returns Parsoid output for the JSON
+		// contentmodel and so Parsoid shouldn't be asked the serialize it
 		it('should accept html for json contentmodel as a string', function(done) {
 			client.req
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')
