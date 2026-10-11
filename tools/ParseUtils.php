@@ -89,8 +89,10 @@ abstract class ParseUtils extends Maintenance {
 		}
 
 		$this->siteConfig = $siteConfig;
+		$parserOptions = ParserOptions::newFromAnon();
+		$parserOptions->setUseParsoid();
 		$this->pageConfig = $pcFactory->createFromParserOptions(
-			ParserOptions::newFromAnon(),
+			$parserOptions,
 			$title,
 			$revisionRecord ?? $revision,
 			null,
