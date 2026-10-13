@@ -17159,3 +17159,33 @@ parsoid={
 !! wikitext/edited
 <div width="95%" style="border: 3px solid darkblue">hiho
 !! end
+
+!! test
+Encapsulate protected attributes whose names contain entities, comments, or templates (T440942)
+!! options
+parsoid=wt2html
+!! wikitext
+<div typ&#101;of="mw:Foo" d&#97;ta-mw="whoo" data-par&#115;oid="weird" ab&#111;ut="#mwt1" r&#101;l="mw:true" prop&#101;rty="mw:x">foo</div>
+
+<div ty<!-- -->peof="mw:Foo" da<!-- -->ta-mw="whoo" ab<!-- -->out="#mwt1">foo</div>
+
+<div {{1x|typeof}}="mw:Foo">foo</div>
+
+{| typ&#101;of="mw:Foo" ab<!-- -->out="#mwt1"
+|ok
+|}
+
+<meta itemprop="x" content="y" ab&#111;ut="#mwt9" typ&#101;of="mw:Extension/indicator" d&#97;ta-mw='{"name":"indicator","attrs":{"name":"z"},"html":"&lt;img src=x onerror=alert(1)&gt;"}'>
+!! html/parsoid
+<div data-x-typeof="mw:Foo" data-x-data-mw="whoo" data-x-data-parsoid="weird" data-x-about="#mwt1" data-x-rel="mw:true" data-x-property="mw:x">foo</div>
+
+<div data-x-typeof="mw:Foo" data-x-data-mw="whoo" data-x-about="#mwt1">foo</div>
+
+<div data-x-typeof="mw:Foo" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"typeof","html":"&lt;span typeof=\"mw:Transclusion\" data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"typeof\"}},\"i\":0}}]}&apos;>typeof&lt;/span>"},{"html":"mw:Foo"}]]}'>foo</div>
+
+<table data-x-typeof="mw:Foo" data-x-about="#mwt1">
+<tbody><tr><td>ok</td></tr>
+</tbody></table>
+
+<p>&lt;meta itemprop="x" content="y" ab&amp;#111;ut="#mwt9" typ&amp;#101;of="mw:Extension/indicator" d&amp;#97;ta-mw='{"name":"indicator","attrs":{"name":"z"},"html":"&amp;lt;img src=x onerror=alert(1)&amp;gt;"}'></p>
+!! end
