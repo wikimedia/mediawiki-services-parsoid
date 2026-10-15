@@ -24,6 +24,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
+use Wikimedia\Parsoid\Wt2Html\TokenizerUtils;
 
 /**
  * Generic attribute expansion handler.
@@ -268,10 +269,20 @@ class AttributeExpander extends UniversalTokenHandler {
 	 * Anything left behind (directives, template tokens, template args)
 	 * should just be converted to a plain string.
 	 *
+	 * However, entities in the preprocessed wikitext have been decoded,
+	 * so it can still contain comments, ex. from "&lt;!-- --&gt;".
+	 * Those are dropped here, so if $a is an attribute name, the result
+	 * can be a reserved name which the tokenizer didn't protect, since
+	 * the tokenizer only protects string-valued names.  Set $isKey to
+	 * protect it here instead. (T440942)
+	 *
 	 * @param mixed $a
+	 * @param bool $isKey Whether $a is an attribute name
 	 */
-	private static function tplToksToString( $a ): string {
+	private static function tplToksToString( $a, bool $isKey = false ): string {
 		if ( !is_array( $a ) ) {
+			// String-valued names were already protected by the tokenizer,
+			// and protecting them twice would mangle them.
 			return $a;
 		}
 		$buf = "";
@@ -282,7 +293,7 @@ class AttributeExpander extends UniversalTokenHandler {
 				$buf .= $t->dataParsoid->src ?? ''; /* drop it if dp->src is missing */
 			}
 		}
-		return $buf;
+		return $isKey ? TokenizerUtils::protectAttrs( $buf ) : $buf;
 	}
 
 	/**
@@ -465,7 +476,7 @@ class AttributeExpander extends UniversalTokenHandler {
 							// when we make iterative calls to expand template names.
 							// So, give up template expansion and convert them to strings.
 							foreach ( $kvs as $kv ) {
-								$kv->k = self::tplToksToString( $kv->k );
+								$kv->k = self::tplToksToString( $kv->k, true );
 								$kv->v = self::tplToksToString( $kv->v );
 
 								// $kStr is based on running tokensToString on $expandedK.
