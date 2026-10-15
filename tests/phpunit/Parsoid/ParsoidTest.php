@@ -40,6 +40,12 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		if ( !empty( $parserOpts['pageBundle'] ) ) {
 			$this->assertTrue( $out instanceof HtmlPageBundle );
 			$this->assertEquals( $expected, $out->html );
+			if ( isset( $parserOpts['expectedIds'] ) ) {
+				$this->assertEquals(
+					PHPUtils::jsonDecode( $parserOpts['expectedIds'] ),
+					$out->parsoid['ids']
+				);
+			}
 		} else {
 			$this->assertEquals( $expected, $out );
 		}
@@ -64,6 +70,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'pageBundle' => true,
 				]
 			],
+			// T415477: The first node keeps the duplicate id. Each node
+			// keeps its own data-parsoid.
 			[
 				"<div id='test'>abc</div><div id='test'>123</div>",
 				'<div id="test">abc</div><div id="mwAQ" data-x-id="test">123</div>',
@@ -71,6 +79,20 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'wrapSections' => false,
 					'pageBundle' => true,
+					'expectedIds' => '{"test":{"stx":"html","dsr":[0,24,15,6]},' .
+						'"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"stx":"html","dsr":[24,48,15,6]}}',
+				]
+			],
+			[
+				"<div id='test'>a</div>\n<span id='test'>b</span>",
+				"<div id=\"test\">a</div>\n<p id=\"mwAQ\"><span id=\"mwAg\" data-x-id=\"test\">b</span></p>",
+				[
+					'body_only' => true,
+					'wrapSections' => false,
+					'pageBundle' => true,
+					'expectedIds' => '{"test":{"stx":"html","dsr":[0,22,15,6]},' .
+						'"mwAA":{"dsr":[0,47,0,0]},"mwAQ":{"dsr":[23,47,0,0]},' .
+						'"mwAg":{"stx":"html","dsr":[23,47,16,7]}}',
 				]
 			],
 			[
@@ -289,9 +311,12 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 				[
 					'html' => '<p id="mwAQ"><a id="mwAg" href="./Not_an_article?action=edit&amp;redlink=1" title="Not an article">abcd</a></p>',
-					'parsoid' => '{"ids":[],"offsetType":"byte"}',
+					// Every id has a key, also when it has no data-parsoid.
+					'parsoid' => '{"ids":{"mwAA":null,"mwAQ":null,"mwAg":null},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'counters' => '{"nodedata":-1,"annotation":-1,"transclusion":-1}',
+					// The annotation and transclusion counters of the input
+					// are kept.
+					'counters' => '{"nodedata":-1,"annotation":0,"transclusion":1}',
 					'contentVersion' => self::$defaultContentVersion,
 				],
 				[

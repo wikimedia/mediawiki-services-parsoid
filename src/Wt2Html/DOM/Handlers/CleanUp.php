@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -414,9 +415,21 @@ class CleanUp {
 		// is run for *all* HTML that Parsoid processes which requires this handler to
 		// be run in *all* pipelines (toplevel, nested, embedded-docs, selective-update).
 		if ( $env->pageBundle ) {
+			// The document doesn't come from a page bundle; we create an
+			// input page bundle only to collect the used ids, for
+			// DOMDataUtils::usedIdIndex().
+			Assert::invariant(
+				$node->ownerDocument === $env->getTopLevelDoc(),
+				'Pipelines should use the top-level document'
+			);
+			$bag = DOMDataUtils::getBag( $node->ownerDocument );
+			$bag->inputPageBundle ??= new BasePageBundle(
+				parsoid: [ 'ids' => [] ],
+				pbVersion: BasePageBundle::VERSION_WITH_USEDID,
+			);
 			$id = DOMCompat::getAttribute( $node, 'id' );
 			if ( $id !== null ) {
-				$env->pageBundle->usedIdIndex[$id] = true;
+				$bag->inputPageBundle->parsoid['ids'][$id] ??= null;
 			}
 		}
 

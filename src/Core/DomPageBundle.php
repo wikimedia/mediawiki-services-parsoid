@@ -41,7 +41,7 @@ class DomPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,DocumentFragment> Additional named DocumentFragments. */
 		public array $fragments = [],
-		int $pbVersion = BasePageBundle::MIN_PB_VERSION_NUMBER,
+		int $pbVersion = BasePageBundle::VERSION_NO_USEDID,
 	) {
 		parent::__construct(
 			pbVersion: $pbVersion,
@@ -81,7 +81,7 @@ class DomPageBundle extends BasePageBundle {
 			$headers,
 			$contentmodel,
 			[],
-			BasePageBundle::CURRENT_PB_VERSION_NUMBER
+			BasePageBundle::VERSION_NO_USEDID,
 		);
 	}
 
@@ -236,7 +236,7 @@ class DomPageBundle extends BasePageBundle {
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->contentVersion,
-			'idIndex' => $metadata->usedIdIndex ?? DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
+			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 		] + $options;
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), $options
@@ -334,10 +334,8 @@ class DomPageBundle extends BasePageBundle {
 		// Note that $this->parsoid and $this->mw are already serialized arrays
 		// so a naive jsonEncode is sufficient.  We use a JsonCodec to ensure
 		// that objects stay objects and arrays stay arrays, though.
-		$pbVersion = $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ?
-			$this->pbVersion : self::CURRENT_PB_VERSION_NUMBER;
 		$json = [
-			'pbVersion' => $pbVersion,
+			'v' => $this->pbVersion,
 			'parsoid' => $this->parsoid ?? [],
 			'mw' => $this->mw ?? [], 'counters' => $this->counters ?? []
 		];
@@ -388,7 +386,7 @@ class DomPageBundle extends BasePageBundle {
 			$options['headers'] ?? null,
 			$options['contentmodel'] ?? null,
 			$fragments,
-			intval( $decoded['pbVersion'] ?? BasePageBundle::MIN_PB_VERSION_NUMBER ),
+			intval( $decoded['v'] ?? BasePageBundle::VERSION_NO_USEDID ),
 		);
 	}
 

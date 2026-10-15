@@ -27,17 +27,19 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 class BasePageBundle implements JsonCodecable {
 	use JsonCodecableTrait;
 
-	public const MIN_PB_VERSION_NUMBER = 1;
-
-	// The version before we added this string is considered "v1"
-	public const CURRENT_PB_VERSION_NUMBER = 2;
+	public const VERSION_NO_USEDID = 1;
+	public const VERSION_WITH_USEDID = 2;
 
 	public function __construct(
 		/**
 		 * A map from ID to the array serialization of DataParsoid for the Node
 		 * with that ID.
 		 *
-		 * @var ?array{counter?:int,offsetType?:'byte'|'ucs2'|'char',ids:array<string,array>}
+		 * When the page bundle has used ids (see ::hasUsedIds()), each id
+		 * attribute in the document has a key in this map, with the value
+		 * null if the node has no DataParsoid.
+		 *
+		 * @var ?array{counter?:int,offsetType?:'byte'|'ucs2'|'char',ids:array<string,array|null>}
 		 */
 		public ?array $parsoid = null,
 		/**
@@ -59,21 +61,12 @@ class BasePageBundle implements JsonCodecable {
 		 */
 		public ?array $headers = null,
 		public ?string $contentmodel = null,
-		/**
-		 * This is a map of used ids in the document that is built up as the
-		 * document is processed for use in DOMDataUtils::storeInPageBundle.
-		 * @var array<string,bool>
-		 */
-		public ?array $usedIdIndex = null,
-		public int $pbVersion = self::MIN_PB_VERSION_NUMBER,
+		// Safe default is to assume we don't have USEDID in $parsoid
+		public int $pbVersion = self::VERSION_NO_USEDID,
 	) {
 		Assert::invariant(
 			!isset( $parsoid['counter'] ), "counter removed in Parsoid 0.23"
 		);
-
-		if ( $this->parsoid && $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ) {
-			$this->usedIdIndex = array_fill_keys( array_keys( $this->parsoid['ids'] ), true );
-		}
 	}
 
 	public function getContentVersion(): ?string {
@@ -82,6 +75,10 @@ class BasePageBundle implements JsonCodecable {
 
 	public function setContentVersion( string $contentVersion ): void {
 		$this->contentVersion = $contentVersion;
+	}
+
+	public function hasUsedIds(): bool {
+		return $this->pbVersion >= self::VERSION_WITH_USEDID;
 	}
 
 	/**
@@ -147,6 +144,7 @@ class BasePageBundle implements JsonCodecable {
 			contentVersion: $this->contentVersion,
 			headers: $this->headers,
 			contentmodel: $this->contentmodel,
+			pbVersion: $this->pbVersion,
 		);
 	}
 
@@ -212,11 +210,8 @@ class BasePageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
-		// When serializing, we reset version number if set to the min value
-		$pbVersion = $this->pbVersion !== self::MIN_PB_VERSION_NUMBER ?
-			$this->pbVersion : self::CURRENT_PB_VERSION_NUMBER;
 		return [
-			'pbVersion' => $pbVersion,
+			'v' => $this->pbVersion,
 			'parsoid' => $this->parsoid,
 			'mw' => $this->mw,
 			'counters' => $this->counters,
@@ -238,7 +233,8 @@ class BasePageBundle implements JsonCodecable {
 			unset( $json['parsoid']['counter'] );
 		}
 		return new BasePageBundle(
-			pbVersion: $json['pbVersion'] ?? self::MIN_PB_VERSION_NUMBER,
+			// Conservatively assume that usedids aren't valid when reading
+			pbVersion: $json['v'] ?? self::VERSION_NO_USEDID,
 			parsoid: $json['parsoid'] ?? null,
 			mw: $json['mw'] ?? null,
 			counters: $json['counters'] ?? null,
@@ -248,5 +244,27 @@ class BasePageBundle implements JsonCodecable {
 			headers: $json['headers'] ?? null,
 			contentmodel: $json['contentmodel'] ?? null
 		);
+	}
+
+	/**
+	 * Helper for serialization compatibility testing in MediaWiki core
+	 * (see SerializationTestTrait::validateObjectEquality()).
+	 * @internal
+	 * @return array<string,callable|false>
+	 */
+	public static function normalizeForObjectEquality(): array {
+		return [
+			// Allow comparing VERSION_NO_USEDID and VERSION_WITH_USEDID bundles
+			'pbVersion' => false,
+			'parsoid' => static function ( ?array $parsoid ): ?array {
+				// remove the null-valued entries added by VERSION_WITH_USEDID
+				if ( isset( $parsoid['ids'] ) ) {
+					$parsoid['ids'] = array_filter(
+						$parsoid['ids'], static fn ( $dp ) => $dp !== null
+					);
+				}
+				return $parsoid;
+			},
+		];
 	}
 }

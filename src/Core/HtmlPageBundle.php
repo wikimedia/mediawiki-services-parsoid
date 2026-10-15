@@ -32,7 +32,7 @@ class HtmlPageBundle extends BasePageBundle {
 		?string $contentmodel = null,
 		/** @var array<string,string> Additional named HTML fragments. */
 		public array $fragments = [],
-		int $pbVersion = BasePageBundle::MIN_PB_VERSION_NUMBER,
+		int $pbVersion = BasePageBundle::VERSION_NO_USEDID,
 	) {
 		parent::__construct(
 			pbVersion: $pbVersion,
@@ -68,7 +68,7 @@ class HtmlPageBundle extends BasePageBundle {
 			$headers,
 			$contentmodel,
 			[],
-			BasePageBundle::CURRENT_PB_VERSION_NUMBER
+			BasePageBundle::VERSION_NO_USEDID,
 		);
 	}
 
