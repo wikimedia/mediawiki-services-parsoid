@@ -277,6 +277,46 @@ Migrate leading empty extension into an interstitial span
 !! end
 
 !! test
+T441087: Don't drop text between stashable category links between nested blocks
+!! wikitext
+{{1x|<div><div>x</div>[[Category:A]]foo[[Category:B]]<div>y</div></div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]]foo[[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link rel="mw:PageProp/Category" href="./Category:A"/>foo<link rel="mw:PageProp/Category" href="./Category:B"/><div>y</div></div>
+!! end
+
+!! test
+T441087: Don't drop text between empty extension tags between nested blocks
+!! wikitext
+{{1x|<div><div>x</div><section begin="a" />foo<section end="a" /><div>y</div></div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>&lt;section begin=\"a\" />foo&lt;section end=\"a\" />&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link typeof="mw:Extension/section" about="#mwt2" data-mw='{"name":"section","attrs":{"begin":"a"}}'/>foo<link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"end":"a"}}'/><div>y</div></div>
+!! end
+
+!! test
+T441087: Stash links separated only by whitespace between nested blocks
+!! wikitext
+{{1x|<div><div>x</div>[[Category:A]] [[Category:B]]<div>y</div></div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]] [[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><span class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:A"/><link rel="mw:PageProp/Category" href="./Category:B"/></span><div>y</div></div>
+!! end
+
+!! test
+T441087: Don't stash links that are the first and last children of a nested block
+!! wikitext
+{{1x|<div>[[Category:A]] [[Category:B]]</div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>[[Category:A]] [[Category:B]]&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:A"/> <link rel="mw:PageProp/Category" href="./Category:B"/></div>
+!! end
+
+!! test
+T441087: A link preceded by text isn't between blocks
+!! wikitext
+{{1x|<div>x [[Category:A]]<div>y</div></div>}}
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>x [[Category:A]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'>x <link rel="mw:PageProp/Category" href="./Category:A"/><div>y</div></div>
+!! end
+
+!! test
 T410826: named arguments to parser functions in "old-style" DOM
 !! options
 parsoid=html2wt

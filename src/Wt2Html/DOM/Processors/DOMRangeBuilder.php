@@ -1376,19 +1376,29 @@ class DOMRangeBuilder {
 			return true;
 		}
 
+		// Skip over IEW and comments, but not over other text (T441087).
 		$start = $last = $node;
-		$rangeExitSentinel = DOMCompat::getNextElementSibling( $range->end );
-		$next = DOMCompat::getNextElementSibling( $start );
+		$rangeExitSentinel = DOMUtils::nextNonSepSibling( $range->end );
+		$next = DOMUtils::nextNonSepSibling( $start );
 		// $next is past the last element of the template, so let's not consider it
 		if ( $next === $rangeExitSentinel ) {
 			$next = null;
 		}
-		while ( $next !== null && $next !== $rangeExitSentinel && $this->isStashableElt( $next ) ) {
+		while (
+			$next instanceof Element && $next !== $rangeExitSentinel &&
+			$this->isStashableElt( $next )
+		) {
 			$last = $next;
-			$next = DOMCompat::getNextElementSibling( $next );
+			$next = DOMUtils::nextNonSepSibling( $next );
 		}
 
-		$prev = DOMCompat::getPreviousElementSibling( $start );
+		$prev = DOMUtils::previousNonSepSibling( $start );
+		$atRangeTopLevel = $start->parentNode === $range->start->parentNode;
+		if ( ( $prev === null || $next === null ) && !$atRangeTopLevel ) {
+			// This is just the first/last link of a templated block element,
+			// not a template boundary.
+			return true;
+		}
 		if ( !$this->shouldStashRenderingTransparentNodes( $prev, $next, $start ) ) {
 			return true;
 		}
@@ -1444,7 +1454,7 @@ class DOMRangeBuilder {
 		return $target->nextSibling;
 	}
 
-	private function shouldStashRenderingTransparentNodes( ?Element $prev, ?Element $next, Element $node ): bool {
+	private function shouldStashRenderingTransparentNodes( ?Node $prev, ?Node $next, Element $node ): bool {
 		$about = DOMCompat::getAttribute( $node, "about" );
 		return (
 				// start of a template
@@ -1457,7 +1467,7 @@ class DOMRangeBuilder {
 			(
 				// end of a template (or start of a new one)
 				$next === null ||
-				DOMCompat::getAttribute( $next, "about" ) !== $about ||
+				( $next instanceof Element ? DOMCompat::getAttribute( $next, "about" ) : null ) !== $about ||
 				// or before a div or a table
 				in_array( DOMUtils::nodeName( $next ), [ 'div', 'table' ], true )
 			 );

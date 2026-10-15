@@ -644,6 +644,36 @@ class DOMUtils {
 	}
 
 	/**
+	 * Get the previous sibling node, skipping over comments and
+	 * whitespace-only text nodes.
+	 *
+	 * Unlike DiffDOMUtils::previousNonSepSibling, this doesn't skip
+	 * diff markers, which are only present in html2wt.
+	 */
+	public static function previousNonSepSibling( Node $node, ?Node $sentinel = null ): ?Node {
+		$prev = $node->previousSibling;
+		while ( $prev && $prev !== $sentinel && ( $prev instanceof Comment || self::isIEW( $prev ) ) ) {
+			$prev = $prev->previousSibling;
+		}
+		return $prev;
+	}
+
+	/**
+	 * Get the next sibling node, skipping over comments and
+	 * whitespace-only text nodes.
+	 *
+	 * Unlike DiffDOMUtils::nextNonSepSibling, this doesn't skip
+	 * diff markers, which are only present in html2wt.
+	 */
+	public static function nextNonSepSibling( Node $node ): ?Node {
+		$next = $node->nextSibling;
+		while ( $next && ( $next instanceof Comment || self::isIEW( $next ) ) ) {
+			$next = $next->nextSibling;
+		}
+		return $next;
+	}
+
+	/**
 	 * Check if the dom-subtree rooted at node has an element with tag name 'tagName'
 	 * By default, the root node is not checked.
 	 *

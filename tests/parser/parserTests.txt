@@ -4216,7 +4216,7 @@ Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered
 <tbody><tr>
 
 <td>foo
-<span class="mw-empty-elt"><meta typeof="mw:Includes/OnlyInclude/End"/></span></td></tr>
+<meta typeof="mw:Includes/OnlyInclude/End"/></td></tr>
 </tbody></table>
 
 <meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
@@ -9825,7 +9825,7 @@ Empty list item with rendering transparent tag
 <li class="mw-empty-elt"></li></ul>
 !! html/parsoid
 <ul about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"*hmm\n*[[category:123]]"}},"i":0}}]}'><li>hmm</li>
-<li class="mw-empty-elt"><span class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:123"/></span></li></ul>
+<li class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:123"/></li></ul>
 !! end
 
 !! test
