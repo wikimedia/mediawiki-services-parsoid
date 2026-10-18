@@ -34,7 +34,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  *
  *    Locate start and end metas. Walk upwards towards the root from both and
  *    find a common ancestor A. The subtree rooted at A is now effectively the
- *    scope of the dom template ouput.
+ *    scope of the dom template output.
  *
  * 2. findTopLevelNonOverlappingRanges
  *
