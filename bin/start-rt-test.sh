@@ -6,16 +6,18 @@ uid=""
 changeid=""
 testid=""
 checkout_cmd=""
-parsoid_host="mw-experimental.eqiad.wmnet"
+datacenter="eqiad"
+parsoid_host=""
 testreduce_host="ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud"
 
 usage() {
-	echo "USAGE: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] <rt-test-id>"
-	echo "   or: start-rt-test.sh [-u <uid>] [--parsoid-host <host>] [--testreduce-host <host>] --gerrit <changeid>"
+	echo "USAGE: start-rt-test.sh [-u <uid>] [--datacenter <dc>] [--parsoid-host <host>] [--testreduce-host <host>] <rt-test-id>"
+	echo "   or: start-rt-test.sh [-u <uid>] [--datacenter <dc>] [--parsoid-host <host>] [--testreduce-host <host>] --gerrit <changeid>"
 	echo " - -u <uid> is your bastion uid you use to log in to the parsoid and testreduce hosts"
 	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
 	echo " - <changeid> is a numeric gerrit change id for a parsoid patch"
-	echo " - --parsoid-host hostname running the Parsoid REST API (default: mw-experimental.eqiad.wmnet)"
+	echo " - --datacenter mw-parsoid datacenter to test against, eqiad or codfw (default: eqiad)"
+	echo " - --parsoid-host host with the /srv/parsoid-testing checkout mounted by mw-parsoid (default: mw-experimental.<dc>.wmnet)"
 	echo " - --testreduce-host hostname running the testreduce service (default: ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud)"
 	exit 1
 }
@@ -29,6 +31,10 @@ while [[ $# -gt 0 ]]; do
 			;;
 		--gerrit)
 			changeid="$2"
+			shift 2
+			;;
+		--datacenter)
+			datacenter="$2"
 			shift 2
 			;;
 		--parsoid-host)
@@ -54,6 +60,15 @@ done
 if [[ -z "$testid" && -z "$changeid" ]]; then
 	usage
 fi
+
+case "$datacenter" in
+	eqiad|codfw) ;;
+	*)
+		echo "Unknown datacenter: $datacenter"
+		usage
+		;;
+esac
+parsoid_host="${parsoid_host:-mw-experimental.$datacenter.wmnet}"
 
 # --- decide checkout command ---
 if [[ -n "$changeid" ]]; then
@@ -81,7 +96,7 @@ fi
 testid=$(echo -n "$testid" | head -c 8)
 
 echo "---- Deploying mw-parsoid ----"
-"$(dirname "$0")/deploy-mw-parsoid.sh" ${uid:+"-u" "${uid%@}"}
+"$(dirname "$0")/deploy-mw-parsoid.sh" ${uid:+"-u" "${uid%@}"} --datacenter "$datacenter"
 
 # Update code on parsoid host since RT testing scripts will hit the Parsoid REST API there
 echo "---- Updating code on $parsoid_host ----"
@@ -101,7 +116,7 @@ git checkout $testid
 git log --oneline -n 1
 EOF
 
-echo "---- Starting test run $testid on $testreduce_host ----"
+echo "---- Starting test run $testid on $testreduce_host against mw-parsoid-$datacenter ----"
 ssh "${uid}${testreduce_host}" <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
@@ -126,6 +141,8 @@ git log --oneline -n 1
 
 echo 'Adding new test id ...'
 echo $testid > /srv/parsoid-testing/tests/testreduce/parsoid.rt-test.ids
+# Read by rtTestWrapper.js to set the X-Wikimedia-Debug header
+echo $datacenter > /srv/parsoid-testing/tests/testreduce/parsoid.rt-test.datacenter
 
 echo 'Starting parsoid-rt clients ...'
 sudo service parsoid-rt-client restart

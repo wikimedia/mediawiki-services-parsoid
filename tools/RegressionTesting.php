@@ -46,9 +46,14 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'ctt-rt-testing-01.wikitextexp.eqiad1.wikimedia.cloud'
 		);
 		$this->addOptionWithDefault(
+			"datacenter",
+			"mw-parsoid datacenter to test against (eqiad or codfw)",
+			'eqiad'
+		);
+		$this->addOption(
 			"parsoidtest-server",
-			"Hostname of the parsoidtest server",
-			'mw-experimental.eqiad.wmnet'
+			"Hostname of the parsoidtest server (default: mw-experimental.<datacenter>.wmnet)",
+			false, true
 		);
 		$this->addOptionWithDefault(
 			"proxyURL",
@@ -60,10 +65,11 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"The outputContentVersion to use, if different from the default",
 			false, true
 		);
-		$this->addOptionWithDefault(
+		$this->addOption(
 			"headers",
-			"Extra HTTP headers to pass to runRtTests.js as a JSON string, e.g. '{\"X-Foo\":\"bar\"}'",
-			'{\"X-Wikimedia-Debug\":\"k8s-mw-parsoid-eqiad\"}', true
+			"Extra HTTP headers to pass to runRtTests.js as a JSON string, e.g. '{\"X-Foo\":\"bar\"}' " .
+			"(default: '{\"X-Wikimedia-Debug\":\"k8s-mw-parsoid-<datacenter>\"}')",
+			false, true
 		);
 		$this->addOption(
 			"titles",
@@ -170,10 +176,40 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @return string[]
 	 */
 	private function headers(): array {
-		if ( !$this->getOption( 'headers' ) ) {
+		// The value is passed through the remote shell, hence the
+		// backslash-escaped quotes.
+		$headers = $this->getOption(
+			'headers',
+			'{\"X-Wikimedia-Debug\":\"k8s-mw-parsoid-' . $this->datacenter() . '\"}'
+		);
+		if ( !$headers ) {
 			return [];
 		}
-		return [ '--headers', $this->getOption( 'headers' ) ];
+		return [ '--headers', $headers ];
+	}
+
+	/**
+	 * Return the mw-parsoid datacenter selected with --datacenter.
+	 * @return string
+	 */
+	private function datacenter(): string {
+		$dc = $this->getOption( 'datacenter' );
+		if ( !in_array( $dc, [ 'eqiad', 'codfw' ], true ) ) {
+			$this->fatalError( "Unknown datacenter: $dc" );
+		}
+		return $dc;
+	}
+
+	/**
+	 * Return the host with the /srv/parsoid-testing checkout which
+	 * mw-parsoid mounts.
+	 * @return string
+	 */
+	private function parsoidtestServer(): string {
+		return $this->getOption(
+			'parsoidtest-server',
+			'mw-experimental.' . $this->datacenter() . '.wmnet'
+		);
 	}
 
 	/**
@@ -221,7 +257,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->dashes( "Checking out $commit on parsoid host" );
 		$this->ssh( self::cmd(
 			'umask 0002 &&', $cdDir, '&& git fetch && git checkout', [ $commit ]
-		), $this->getOption( 'parsoidtest-server' ) );
+		), $this->parsoidtestServer() );
 
 		$this->dashes( "Running tests" );
 		$this->ssh( self::cmd(
@@ -449,7 +485,8 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		$this->dashes( "Deploying mw-parsoid" );
 		$this->sh( self::cmd( '../bin/deploy-mw-parsoid.sh',
-			$this->hasOption( 'uid' ) ? [ '-u', $this->getOption( 'uid' ) ] : []
+			$this->hasOption( 'uid' ) ? [ '-u', $this->getOption( 'uid' ) ] : [],
+			[ '--datacenter', $this->datacenter() ]
 		) );
 
 		$titles = [];
