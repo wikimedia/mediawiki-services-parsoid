@@ -109,6 +109,7 @@ class SanitizerUnitTest extends \PHPUnit\Framework\TestCase {
 			],
 			[ '/* insecure input */', 'foo: attr( title, url );' ],
 			[ '/* insecure input */', 'foo: attr( title url );' ],
+			[ '/* insecure input */', str_repeat( "attr(", 200000 ) . "background-image: image(asdf.png)" ]
 		];
 	}
 

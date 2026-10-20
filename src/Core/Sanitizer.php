@@ -1099,7 +1099,7 @@ class Sanitizer {
 			|| strpos( $text, self::UTF8_REPLACEMENT ) !== false
 		) {
 			return '/* invalid control char */';
-		} elseif ( preg_match( self::INSECURE_RE, $text ) ) {
+		} elseif ( preg_match( self::INSECURE_RE, $text ) || preg_last_error() !== PREG_NO_ERROR ) {
 			return '/* insecure input */';
 		} else {
 			return $text;
