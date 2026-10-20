@@ -1106,7 +1106,7 @@ class Sanitizer {
 			|| str_contains( $text, self::UTF8_REPLACEMENT )
 		) {
 			return '/* invalid control char */';
-		} elseif ( preg_match( self::INSECURE_RE, $text ) ) {
+		} elseif ( preg_match( self::INSECURE_RE, $text ) || preg_last_error() !== PREG_NO_ERROR ) {
 			return '/* insecure input */';
 		} else {
 			return $text;
