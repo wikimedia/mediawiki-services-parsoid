@@ -407,6 +407,56 @@ class DOMCompat {
 	}
 
 	/**
+	 * Test whether the element would be selected by the given selectors.
+	 * @param Element $element
+	 * @param string $selectors
+	 * @return bool
+	 * @see https://dom.spec.whatwg.org/#dom-element-matches
+	 */
+	public static function matches(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMElement|Element $element,
+		string $selectors,
+	): bool {
+		if ( self::isUsingDodo( $element ) ) {
+			return $element->matches( $selectors );
+		}
+		// For now, use Zest even when using the PHP 8.4 DOM to ensure
+		// equivalent behavior across DOM implementations.
+		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
+		return Zest::matches( $element, $selectors, self::zestOptions() );
+	}
+
+	/**
+	 * Return the closest inclusive ancestor of the element which
+	 * matches the given selectors, or null if there is none.
+	 * @param Element $element
+	 * @param string $selectors
+	 * @return Element|null
+	 * @see https://dom.spec.whatwg.org/#dom-element-closest
+	 */
+	public static function closest(
+		// For compatibility with code which might call this from
+		// outside Parsoid.
+		DOMElement|Element $element,
+		string $selectors
+	) {
+		if ( self::isUsingDodo( $element ) ) {
+			return $element->closest( $selectors );
+		}
+		// Correct operation of :scope in $selectors requires Zest > 4.1.2
+		$zOpts = [ 'scope' => $element ] + self::zestOptions();
+		for ( $el = $element; $el !== null; $el = self::getParentElement( $el ) ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
+			if ( Zest::matches( $el, $selectors, $zOpts ) ) {
+				return $el;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Return the last preceding sibling of the node that is an element, or null otherwise.
 	 * @param Element|CharacterData $node
 	 * @return Element|null

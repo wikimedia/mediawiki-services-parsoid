@@ -434,6 +434,90 @@ HTML;
 	}
 
 	/**
+	 * Create a document for the matches() and closest() tests, using
+	 * whichever DOM implementation DOMCompat is configured to use.
+	 */
+	private static function makeMatchesDoc(): Document {
+		$doc = DOMCompat::newDocument( true );
+		$html = $doc->createElement( 'html' );
+		$doc->appendChild( $html );
+		$body = $doc->createElement( 'body' );
+		$html->appendChild( $body );
+		DOMCompat::setInnerHTML( $body,
+			'<div id="outer" class="a b">'
+			. '<section id="mid" data-x="1">'
+			. '<p id="inner" class="c">text <span id="leaf">x</span></p>'
+			. '</section></div>'
+		);
+		return $doc;
+	}
+
+	public static function provideMatches() {
+		return [
+			'tag name' => [ 'leaf', 'span', true ],
+			'id' => [ 'leaf', '#leaf', true ],
+			'class' => [ 'inner', '.c', true ],
+			'class of ancestor' => [ 'inner', '.a', false ],
+			'attribute' => [ 'mid', '[data-x="1"]', true ],
+			'descendant combinator' => [ 'leaf', '.a span', true ],
+			'child combinator' => [ 'leaf', 'p > span', true ],
+			'child combinator, not a child' => [ 'leaf', 'div > span', false ],
+			'selector list' => [ 'leaf', 'em, span', true ],
+			'selector list, no match' => [ 'leaf', 'em, .a', false ],
+			':scope' => [ 'inner', ':scope', true ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideMatches
+	 * @covers ::matches()
+	 */
+	public function testMatches( string $id, string $selectors, bool $expected ) {
+		$doc = self::makeMatchesDoc();
+		$el = DOMCompat::getElementById( $doc, $id );
+		$this->assertSame( $expected, DOMCompat::matches( $el, $selectors ) );
+	}
+
+	public static function provideClosest() {
+		return [
+			'ancestor' => [ 'leaf', '.a', 'outer' ],
+			'inclusive of the element itself' => [ 'leaf', 'span', 'leaf' ],
+			'nearest match, not first in selector list' => [ 'leaf', 'div, section', 'mid' ],
+			'complex selector' => [ 'inner', 'body > div', 'outer' ],
+			'no match' => [ 'leaf', '.nope', null ],
+			'does not match descendants' => [ 'mid', 'span', null ],
+			// TODO: Enable once we require Zest > 4.1.2, which is needed for
+			// :scope to be the element closest() was called on, not the
+			// ancestor being tested.
+			// ':scope' => [ 'leaf', ':not(:scope)', 'inner' ],
+		];
+	}
+
+	/**
+	 * @dataProvider provideClosest
+	 * @covers ::closest()
+	 */
+	public function testClosest( string $id, string $selectors, ?string $expectedId ) {
+		$doc = self::makeMatchesDoc();
+		$el = DOMCompat::getElementById( $doc, $id );
+		$result = DOMCompat::closest( $el, $selectors );
+		$this->assertSame( $expectedId, $result ? DOMCompat::getAttribute( $result, 'id' ) : null );
+	}
+
+	/**
+	 * @covers ::closest()
+	 */
+	public function testClosestDetached() {
+		$doc = DOMCompat::newDocument( true );
+		// Keep a reference to $div, lest PHP free the detached parent
+		$div = $doc->createElement( 'div' );
+		$span = $doc->createElement( 'span' );
+		$div->appendChild( $span );
+		$this->assertSame( 'div', DOMUtils::nodeName( DOMCompat::closest( $span, 'div' ) ) );
+		$this->assertNull( DOMCompat::closest( $span, 'p' ) );
+	}
+
+	/**
 	 * @covers ::getPreviousElementSibling()
 	 */
 	public function testGetPreviousElementSibling() {
