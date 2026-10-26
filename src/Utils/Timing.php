@@ -3,22 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
 
 /**
  * A helper class to make it easier to compute timing metrics.
  */
 class Timing {
-	/**
-	 * This is typically a StatsdDataFactoryInterface, but really could be
-	 * anything which has a `timing()` method.  Set it to `null` to disable
-	 * metrics.
-	 *
-	 * @var ?object
-	 */
-	private ?object $metrics;
-
 	/**
 	 * @var float
 	 */
@@ -35,10 +25,8 @@ class Timing {
 	private function __construct( ?object $configOrMetrics, ?float $elapsed = null, bool $isTime = true ) {
 		if ( $configOrMetrics instanceof SiteConfig ) {
 			$this->siteConfig = $configOrMetrics;
-			$this->metrics = $configOrMetrics->metrics();
 		} else {
 			$this->siteConfig = null;
-			$this->metrics = $configOrMetrics;
 		}
 		$this->startTime = self::millis();
 		$this->elapsed = $elapsed;
@@ -54,7 +42,7 @@ class Timing {
 
 	/**
 	 * End this timing measurement, reporting it under the given `name`.
-	 * @param ?string $statsdCompat
+	 * @param ?string $statsdCompat Unused
 	 * @param ?string $name
 	 * @param ?array $labels
 	 * @return float Number of milliseconds reported
@@ -64,13 +52,7 @@ class Timing {
 		?string $name = null,
 		?array $labels = []
 	): float {
-		if ( $this->elapsed === null ) {
-			$this->elapsed = self::millis() - $this->startTime;
-		}
-		if ( $this->metrics ) {
-			Assert::invariant( $statsdCompat !== null, 'Recording metric without a key.' );
-			$this->metrics->timing( $statsdCompat, $this->elapsed );
-		}
+		$this->elapsed ??= self::millis() - $this->startTime;
 		if ( $this->siteConfig ) {
 			// Note that observeTiming takes a value in *milliseconds*
 			// despite the name of the metric ending in `_seconds`.
@@ -97,8 +79,7 @@ class Timing {
 	}
 
 	/**
-	 * Start a timing measurement, logging it to the given `$metrics` object
-	 * (which just needs to have a `timing()` method).
+	 * Start a timing measurement
 	 * @param ?object $configOrMetrics
 	 * @return Timing
 	 */

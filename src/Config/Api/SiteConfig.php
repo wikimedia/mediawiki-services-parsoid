@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config\Api;
 
-use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Core\LinkTarget;
@@ -106,6 +105,9 @@ class SiteConfig extends ISiteConfig {
 	/** If set, generate Parsoid v3 parser function output for all parser functions */
 	private bool $v3pf;
 
+	/** @var ?MockMetrics */
+	private $metrics;
+
 	/** @var string[] Base parameters for a siteinfo query */
 	public const SITE_CONFIG_QUERY_PARAMS = [
 		'action' => 'query',
@@ -141,6 +143,7 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		$this->v3pf = $opts['v3pf'] ?? false;
+		$this->metrics ??= new MockMetrics();
 	}
 
 	protected function reset(): void {
@@ -786,14 +789,7 @@ class SiteConfig extends ISiteConfig {
 		return $this->protocols;
 	}
 
-	/** @var ?MockMetrics */
-	private $metrics;
-
-	/** @inheritDoc */
-	public function metrics(): ?StatsdDataFactoryInterface {
-		if ( $this->metrics === null ) {
-			$this->metrics = new MockMetrics();
-		}
+	public function getMockMetrics(): MockMetrics {
 		return $this->metrics;
 	}
 

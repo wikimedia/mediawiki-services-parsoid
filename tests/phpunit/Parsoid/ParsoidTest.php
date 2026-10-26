@@ -342,12 +342,15 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$parsoid->wikitext2html( $pageConfig );
 
-		$metrics = $siteConfig->metrics();
+		$metrics = $siteConfig->getMockMetrics();
 		$this->assertInstanceOf( MockMetrics::class, $metrics );
 		$log = $metrics->log;
-		$this->assertContains(
-			[ 'timing', 'entry.wt2html.pageWithOldid.size.input', 17.0 ],
-			$log
+		$this->assertSame(
+			[ 'histogram', 'wt2html_size_input_bytes', 17.0,
+				[ 0.0, 5000.0, 10000.0 ],
+				[ 'type' => 'pageWithOldid' ]
+			],
+			$log[3]
 		);
 	}
 
@@ -368,18 +371,18 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$wt = $parsoid->html2wikitext( $pageConfig, $html );
 		$this->assertEquals( 'hiho', $wt );
 
-		$metrics = $siteConfig->metrics();
+		$metrics = $siteConfig->getMockMetrics();
 		$this->assertInstanceOf( MockMetrics::class, $metrics );
 		$log = $metrics->log;
-		$this->assertCount( 14, array_filter( $log, static fn ( $elem ) => $elem[0] === 'timing' ) );
+		$this->assertCount( 7, array_filter( $log, static fn ( $elem ) => $elem[0] === 'timing' ) );
 		$this->assertCount( 3, array_filter( $log, static fn ( $elem ) => $elem[0] === 'histogram' ) );
-		$this->assertEquals(
-			[ 'timing', 'entry.html2wt.size.input', 11.0 ],
-			$log[6]
+		$this->assertSame(
+			[ 'timing', 'legacy_html2wt_size_input_bytes', 11000.0 ],
+			$log[3]
 		);
-		$this->assertEquals(
-			[ 'timing', 'entry.html2wt.size.output', 4.0 ],
-			$log[11]
+		$this->assertSame(
+			[ 'timing', 'legacy_html2wt_size_output_bytes', 4000.0 ],
+			$log[6]
 		);
 	}
 

@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Mocks;
 
-use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
@@ -65,6 +64,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var string|bool */
 	private $externalLinkTarget;
 
+	/** @var ?MockMetrics */
+	private $metrics;
+
 	public function __construct( array $opts ) {
 		parent::__construct();
 
@@ -81,6 +83,7 @@ class MockSiteConfig extends SiteConfig {
 		$this->linkTrailRegex = $opts['linkTrailRegex'] ?? '/^([a-z]+)/sD'; // enwiki default
 		$this->externalLinkTarget = $opts['externallinktarget'] ?? false;
 		$this->v3pf = $opts['v3pf'] ?? false;
+		$this->metrics ??= new MockMetrics();
 
 		// Use Monolog's PHP console handler
 		$logger = new Logger( "Parsoid CLI" );
@@ -426,14 +429,7 @@ class MockSiteConfig extends SiteConfig {
 		return './Special:Upload?wpDestFile=' . $encodedFileName;
 	}
 
-	/** @var ?MockMetrics */
-	private $metrics;
-
-	/** @inheritDoc */
-	public function metrics(): ?StatsdDataFactoryInterface {
-		if ( $this->metrics === null ) {
-			$this->metrics = new MockMetrics();
-		}
+	public function getMockMetrics(): MockMetrics {
 		return $this->metrics;
 	}
 

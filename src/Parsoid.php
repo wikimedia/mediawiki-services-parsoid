@@ -301,8 +301,6 @@ class Parsoid {
 		array $out, ?array $headers, string $contentmodel,
 		array $options
 	): void {
-		$metrics = $this->siteConfig->metrics();
-
 		$pageConfig = $env->getPageConfig();
 
 		// This is somewhat suspect because ParsoidHandler::tryToCreatePageConfig
@@ -321,9 +319,6 @@ class Parsoid {
 		if ( Semver::satisfies(
 			$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
 		) ) {
-			if ( $metrics ) {
-				$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
-			}
 			$version = 'non-default';
 		}
 
@@ -497,8 +492,6 @@ class Parsoid {
 		array $options, float $serialTime, string $wikitext
 	): void {
 		$siteConfig = $this->siteConfig;
-		$metrics = $siteConfig->metrics();
-
 		$htmlSize = $options['htmlSize'] ?? 0;
 		$timing = Timing::fakeTiming( $this->siteConfig, $htmlSize, false );
 		// TODO: Remove fake timing after migration to histogram is complete
@@ -506,11 +499,6 @@ class Parsoid {
 		$this->histogram->observe( 'html2wt_size_input_bytes', $htmlSize );
 
 		if ( isset( $options['inputContentVersion'] ) ) {
-			if ( $metrics ) {
-				$metrics->increment(
-					'entry.html2wt.original.version.' . $options['inputContentVersion']
-				);
-			}
 			$this->siteConfig->incrementCounter(
 				'html2wt_original_version',
 				[ 'input_content_version' => $options['inputContentVersion'] ]

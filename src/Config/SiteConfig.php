@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Config;
 
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\StreamHandler;
@@ -309,15 +308,6 @@ abstract class SiteConfig {
 	 */
 	public function addHTMLTemplateParameters(): bool {
 		return $this->addHTMLTemplateParameters;
-	}
-
-	/**
-	 * Statistics aggregator, for counting and timing.
-	 *
-	 * @return StatsdDataFactoryInterface|null
-	 */
-	public function metrics(): ?StatsdDataFactoryInterface {
-		return null;
 	}
 
 	/**

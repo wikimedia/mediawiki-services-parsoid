@@ -74,28 +74,24 @@ class ExtensionHandler extends XMLTagBasedHandler {
 		$extensionName = $token->getAttributeV( 'name' );
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 
-		$metrics = $siteConfig->metrics();
-		if ( $metrics ) {
-			// Track uses of extensions
-			$wiki = $siteConfig->iwp();
-			$ns = $env->getContextTitle()->getNamespace();
-			if ( $ns === 0 ) {
-				// Article space
-				$nsName = 'main';
-			} elseif ( $siteConfig->namespaceIsTalk( $ns ) ) {
-				// Any talk namespace
-				$nsName = 'talk';
-			} else {
-				// Everything else
-				$nsName = "ns-$ns";
-			}
-			$metrics->increment( "extension.{$wiki}.{$nsName}.{$extensionName}" );
-			$siteConfig->incrementCounter( "extension_total", [
-				"wiki" => $wiki,
-				"namespace" => $nsName,
-				"name" => $extensionName,
-			] );
+		// Track uses of extensions
+		$wiki = $siteConfig->iwp();
+		$ns = $env->getContextTitle()->getNamespace();
+		if ( $ns === 0 ) {
+			// Article space
+			$nsName = 'main';
+		} elseif ( $siteConfig->namespaceIsTalk( $ns ) ) {
+			// Any talk namespace
+			$nsName = 'talk';
+		} else {
+			// Everything else
+			$nsName = "ns-$ns";
 		}
+		$siteConfig->incrementCounter( "extension_total", [
+			"wiki" => $wiki,
+			"namespace" => $nsName,
+			"name" => $extensionName,
+		] );
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
 		$options = $token->getAttributeV( 'options' );
