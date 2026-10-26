@@ -24,7 +24,7 @@
 		"colors": "^1.2.4",
 		"eslint": "8.57.0",
 		"eslint-config-wikimedia": "0.32.6",
-		"mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
+		"mocha": "^12.0.3",
 		"nock": "^9.2.5"
 	},
 	"scripts": {
