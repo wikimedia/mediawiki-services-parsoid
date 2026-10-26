@@ -922,6 +922,7 @@ class TableFixups {
 	 * @return mixed
 	 */
 	public static function handleTableCellTemplates( Element $tableOrCell, DTState $dtState ) {
+		$env = $dtState->env;
 		$cellName = $nodeName = DOMUtils::nodeName( $tableOrCell );
 		$isTemplatedCell = $isTemplatedNode = DOMUtils::hasTypeOf( $tableOrCell, 'mw:Transclusion' );
 		if ( $nodeName === 'table' ) {
@@ -929,6 +930,7 @@ class TableFixups {
 			// had been expanded in the preprocessor and there is no need to examine individual
 			// cells for reparsing. Skip the entire table.
 			if ( $isTemplatedNode && DOMDataUtils::getDataMw( $tableOrCell )->fromWellBalancedTemplate() ) {
+				$env->trace( "tablefixups", "Skipping table produced by a well-balanced template" );
 				return $tableOrCell->nextSibling;
 			}
 			return true;
@@ -947,7 +949,9 @@ class TableFixups {
 			// for additional processing.
 			return $cell;
 		}
+
 		$reparseType = self::getReparseType( $cell, $dtState );
+		$env->trace( "tablefixups", static fn () => "RPT: " . $reparseType->value . "; for ", $cell );
 
 		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
 		// but should have been parsed as <th>foo</th>.
