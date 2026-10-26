@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Logger;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
@@ -36,11 +35,6 @@ class LintLogger {
 	public static function convertDSROffsets(
 		Env $env, array &$lints, string $from = 'byte', string $to = 'ucs2'
 	): void {
-		$metrics = $env->getSiteConfig()->metrics();
-		$timer = null;
-		if ( $metrics ) {
-			$timer = Timing::start( $metrics );
-		}
 		// Note that Env::recordLint() validates that all of our DSRs use
 		// this source.
 		$source = $env->topFrame->getSource();
@@ -76,10 +70,6 @@ class LintLogger {
 			if ( ( $dsr[3] ?? 0 ) > 1 ) { // widths 0,1,null are fine
 				$dsr[3] = $dsr[1] - $dsr[3];
 			}
-		}
-
-		if ( $metrics ) {
-			$timer->end( "lint.offsetconversion" );
 		}
 	}
 

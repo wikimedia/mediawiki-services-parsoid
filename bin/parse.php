@@ -8,7 +8,6 @@ declare( strict_types = 1 );
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
 use Wikimedia\Parsoid\Tools\ParseUtils;
@@ -450,13 +449,14 @@ class Parse extends ParseUtils {
 			$this->transformFromWt( $configOpts, $parsoidOpts, $input );
 		}
 
-		if ( $this->hasOption( 'metrics' ) ) {
+		if ( $this->hasOption( 'metrics' ) && (
+			$this->siteConfig instanceof Wikimedia\Parsoid\Config\Api\SiteConfig ||
+			$this->siteConfig instanceof Wikimedia\Parsoid\Mocks\MockSiteConfig
+		) ) {
 			// FIXME: We're just using whatever siteConfig we ended up with,
 			// even though setupConfig may be called multiple times
-			$metrics = $this->siteConfig->metrics();
-			if ( $metrics instanceof MockMetrics ) {
-				$this->error( print_r( $metrics->log, true ) );
-			}
+			$metrics = $this->siteConfig->getMockMetrics();
+			$this->error( print_r( $metrics->log, true ) );
 		}
 	}
 }
