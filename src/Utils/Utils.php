@@ -33,6 +33,13 @@ class Utils {
 	public const COMMENT_OR_WS_REGEXP = '/^(\s|' . self::COMMENT_REGEXP_FRAGMENT . ')*$/D';
 
 	/**
+	 * Strip wikitext comments from a string
+	 */
+	public static function stripComments( string $str ): string {
+		return preg_replace( self::COMMENT_REGEXP, '', $str );
+	}
+
+	/**
 	 * Strip PHP namespace from the fully qualified class name
 	 * @param string $className
 	 * @return string

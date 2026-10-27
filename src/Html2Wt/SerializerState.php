@@ -490,7 +490,7 @@ class SerializerState {
 	private function sepIntroducedSOL( string $sep, Node $node ): void {
 		// Don't get tripped by newlines in comments!  Be wary of nowikis added
 		// by makeSepIndentPreSafe on the last line.
-		$nonCommentSep = preg_replace( Utils::COMMENT_REGEXP, '', $sep );
+		$nonCommentSep = Utils::stripComments( $sep );
 		if ( str_ends_with( $nonCommentSep, "\n" ) ) {
 			$this->onSOL = true;
 		}

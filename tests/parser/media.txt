@@ -4511,3 +4511,35 @@ flags=prevent-selective-update
 </li>
 </ul>
 !! end
+
+## Parsoid only, not supported in legacy
+!! test
+Comment in gallery line target
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+[[File:Foobar.jpg|<!--test-->123]]
+[[File:Foobar.jpg<!--test-->]]
+[[File:Foobar.jpg<!--te|st-->]]
+[[File:Foobar.jpg<!--test
+123-->]]
+
+<gallery>
+File:Foobar.jpg|<!--test-->123
+File:Foobar.jpg<!--test-->
+File:Foobar.jpg<!--te|st-->
+File:Foobar.jpg<!--test
+123-->
+</gallery>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;!--test-->123"}'><a href="./File:Foobar.jpg" class="mw-file-description" title="123"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" alt="123" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span>
+<span class="mw-default-size" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg"},"sa":{"resource":"File:Foobar.jpg&lt;!--test-->"}}'/></a></span>
+<span class="mw-default-size" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg"},"sa":{"resource":"File:Foobar.jpg&lt;!--te|st-->"}}'/></a></span>
+<span class="mw-default-size" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg"},"sa":{"resource":"File:Foobar.jpg&lt;!--test\n123-->"}}'/></a></span></p>
+
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt1" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="123"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" loading="lazy" alt="123" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" class="mw-file-element"/></a></span></div><div class="gallerytext"><!--test-->123</div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" loading="lazy" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg"},"sa":{"resource":"File:Foobar.jpg&lt;!--test-->"}}'/></a></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" loading="lazy" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg"},"sa":{"resource":"File:Foobar.jpg&lt;!--te|st-->"}}'/></a></span></div><div class="gallerytext"></div></li>
+</ul>
+!! end

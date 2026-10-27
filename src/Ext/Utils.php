@@ -10,6 +10,8 @@ use Wikimedia\Parsoid\Utils\Utils as U;
  * This class provides sundry helpers needed by extensions.
  */
 class Utils {
+	public const COMMENT_REGEXP_FRAGMENT = '<!--(?>[\s\S]*?-->)';
+
 	/**
 	 * Entity-escape anything that would decode to a valid wikitext entity.
 	 *
@@ -76,5 +78,12 @@ class Utils {
 	 */
 	public static function validateMediaParam( ?int $num ): bool {
 		return U::validateMediaParam( $num );
+	}
+
+	/**
+	 * Strip wikitext comments from a string
+	 */
+	public static function stripComments( string $str ): string {
+		return U::stripComments( $str );
 	}
 }

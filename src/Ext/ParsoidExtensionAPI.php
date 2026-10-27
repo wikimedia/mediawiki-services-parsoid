@@ -969,7 +969,8 @@ class ParsoidExtensionAPI {
 
 		$fileNs = $this->getSiteConfig()->canonicalNamespaceId( 'file' );
 
-		$decodedTitleStr = Utils::decodeWtEntities( $titleStr );
+		$noCommentTitleStr = Utils::stripComments( $titleStr );
+		$decodedTitleStr = Utils::decodeWtEntities( $noCommentTitleStr );
 		$title = $this->makeTitle( $decodedTitleStr, 0 );
 		if ( $title === null || $title->getNamespace() !== $fileNs ) {
 			$error = "{$extTagName}_no_image";

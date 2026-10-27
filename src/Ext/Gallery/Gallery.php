@@ -80,8 +80,10 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		ParsoidExtensionAPI $extApi, string $line, SourceRange $lineRange,
 		Opts $opts
 	): ?ParsedLine {
-		// Regexp from php's `renderImageGallery`
-		if ( !preg_match( '/^([^|]+)(\|(?:.*))?$/D', $line, $matches ) ) {
+		if ( !preg_match(
+			'/^((?:' . Utils::COMMENT_REGEXP_FRAGMENT . '|[^|])+)(\|(?:.*))?$/D',
+			$line, $matches
+		) ) {
 			return null;
 		}
 
@@ -89,10 +91,14 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$imageOptStr = $matches[2] ?? '';
 		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
 
+		// T18057: Comments are generally permitted in wikilink targets,
+		// so allow them here
+		$noCommentTitleStr = Utils::stripComments( $oTitleStr );
+
 		// WikiLinkHandler effectively decodes entities in titles by having
 		// PEG decode entities and preserving the decoding while stringifying.
 		// Match that behavior here by decoding entities in the title string.
-		$decodedTitleStr = Utils::decodeWtEntities( $oTitleStr );
+		$decodedTitleStr = Utils::decodeWtEntities( $noCommentTitleStr );
 
 		$noPrefix = false;
 		$title = $extApi->makeTitle( $decodedTitleStr, 0 );
