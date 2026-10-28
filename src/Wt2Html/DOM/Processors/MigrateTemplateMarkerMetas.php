@@ -181,6 +181,9 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( $options['inTemplate'] ) {
 			return;
 		}
+		if ( !$env->getPagePerfFlag( Env::HAS_ENCAPSULATED_TEMPLATES ) ) {
+			return;
+		}
 		$this->doMigrate( $root, $env );
 	}
 }

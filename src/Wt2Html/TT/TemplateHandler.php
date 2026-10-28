@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SourceRange;
@@ -1118,6 +1119,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		$toks = $res->tokens;
 
 		if ( $res->encap ) {
+			$this->env->setPagePerfFlag( Env::HAS_ENCAPSULATED_TEMPLATES );
 			$toks = $this->encapTokens( $state, $toks );
 		}
 		if ( $res->shuttle ) {
@@ -1142,6 +1144,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 			$state = new TemplateEncapsulator(
 				$this->env, $this->manager->getFrame(), $token, 'mw:Param'
 			);
+			$this->env->setPagePerfFlag( Env::HAS_ENCAPSULATED_TEMPLATES );
 			$toks = $this->encapTokens( $state, $toks );
 		}
 
