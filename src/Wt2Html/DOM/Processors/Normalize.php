@@ -13,6 +13,15 @@ class Normalize implements Wt2HtmlDOMProcessor {
 	/**
 	 * @inheritDoc
 	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {

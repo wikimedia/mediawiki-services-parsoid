@@ -9,6 +9,14 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class WrapSections implements Wt2HtmlDOMProcessor {
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return $env->getWrapSections();
+	}
 
 	/**
 	 * DOM Postprocessor entry function to walk DOM rooted at $root
@@ -24,10 +32,6 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		if ( !$env->getWrapSections() ) {
-			return;
-		}
-
 		$state = new WrapSectionsState(
 			$env,
 			$options['frame'],

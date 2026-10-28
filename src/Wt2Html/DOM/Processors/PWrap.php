@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class PWrap implements Wt2HtmlDOMProcessor {
-
 	/**
 	 * Flattens an array with other arrays for elements into
 	 * an array without nested arrays.
@@ -283,6 +282,16 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		// No p-wrapping in an inline context!
+		return empty( $options['inlineContext'] );
+	}
+
+	/**
 	 * Wrap children of <body> as well as children of
 	 * <blockquote> found anywhere in the DOM tree.
 	 *
@@ -291,11 +300,6 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		// No p-wrapping in an inline context!
-		if ( !empty( $options['inlineContext'] ) ) {
-			return;
-		}
-
 		$this->pWrapDOM( $env, $root );
 		$this->pWrapInsideTag( $env, $root, 'blockquote' );
 	}

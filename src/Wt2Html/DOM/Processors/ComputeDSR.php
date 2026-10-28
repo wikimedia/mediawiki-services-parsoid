@@ -699,6 +699,16 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		// Don't run this in template content
+		return !$options['inTemplate'];
+	}
+
+	/**
 	 * Computes DSR ranges for every node of a DOM tree.
 	 * This pass is only invoked on the top-level page.
 	 *
@@ -713,11 +723,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		// Don't run this in template content
-		if ( $options['inTemplate'] ) {
-			return;
-		}
-
 		$frame = $options['frame'] ?? $env->topFrame;
 		$srcOffsets = $options['srcOffsets'] ??
 			SourceRange::fromSource( $frame->getSource() );

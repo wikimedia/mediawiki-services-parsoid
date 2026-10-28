@@ -17,11 +17,16 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  */
 class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	private DOMTraverser $dt;
+	private array $runFilters;
 
 	public function __construct(
-		?DOMProcessorPipeline $domPP, bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false
+		?DOMProcessorPipeline $domPP,
+		bool $traverseWithTplInfo = false,
+		bool $applyToAttributeEmbeddedHTML = false,
+		array $runFilters = []
 	) {
 		$this->dt = new DOMTraverser( $traverseWithTplInfo, $applyToAttributeEmbeddedHTML );
+		$this->runFilters = $runFilters;
 	}
 
 	/**
@@ -31,6 +36,27 @@ class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	 */
 	public function addHandler( ?string $nodeName, callable $action ): void {
 		$this->dt->addHandler( $nodeName, $action );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		// No filters => always run
+		if ( !$this->runFilters ) {
+			return true;
+		}
+
+		// Return false only if all runFilters fail
+		foreach ( $this->runFilters as $f ) {
+			if ( $f( $env, $root ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

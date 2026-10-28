@@ -27,6 +27,15 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 	private const LINK_BATCH_SIZE = 5000;
 
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return true;
+	}
+
+	/**
 	 * Add red links to a document.
 	 *
 	 * @inheritDoc

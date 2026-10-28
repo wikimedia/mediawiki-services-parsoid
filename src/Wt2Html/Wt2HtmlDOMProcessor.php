@@ -19,6 +19,17 @@ interface Wt2HtmlDOMProcessor {
 	 * @param bool $atTopLevel Is this processor invoked on the top level page?
 	 *   If false, this is being invoked in a sub-pipeline (ex: extensions)
 	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool;
+
+	/**
+	 * @param Env $env
+	 * @param Element|DocumentFragment $root The root of the tree to process
+	 * @param array $options
+	 * @param bool $atTopLevel Is this processor invoked on the top level page?
+	 *   If false, this is being invoked in a sub-pipeline (ex: extensions)
+	 */
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void;

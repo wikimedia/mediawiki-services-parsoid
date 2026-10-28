@@ -15,6 +15,15 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return true;
+	}
+
+	/**
 	 * FIXME:
 	 * -- We have hardcoded check for Template: in English
 	 * -- We aren't checking for other instances (ex: template args)

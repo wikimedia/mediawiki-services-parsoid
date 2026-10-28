@@ -42,7 +42,7 @@ class DOMProcessorPipeline extends PipelineStage {
 				// Internal processor w/ ::run() method, class name given
 				$p['proc'] = new $p['Processor']( $this );
 			} else {
-				$t = new DOMPPTraverser( $this, $p['tplInfo'] ?? false );
+				$t = new DOMPPTraverser( $this, $p['tplInfo'] ?? false, false, $p['runFilters'] ?? [] );
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
@@ -89,10 +89,18 @@ class DOMProcessorPipeline extends PipelineStage {
 			}
 		}
 
+		$passOpts = [
+			'extApi' => $this->extApi,
+			'frame' => $this->frame,
+			'selparData' => $this->selparData,
+			// For linting embedded docs
+			'tplInfo' => $this->tplInfo,
+		] + $this->options;
+
 		foreach ( $this->processors as $pp ) {
-			// This is an optimization for the 'AddAnnotationIds' handler
-			// which is embedded in a DOMTraverser where we cannot check this flag.
-			if ( !empty( $pp['withAnnotations'] ) && !$this->env->hasAnnotations ) {
+			$processor = $pp['proc'];
+
+			if ( !$processor->shouldRun( $this->env, $node, $passOpts, $this->atTopLevel ) ) {
 				continue;
 			}
 
@@ -127,18 +135,8 @@ class DOMProcessorPipeline extends PipelineStage {
 
 			// FIXME: env, extApi, frame, selparData, options, atTopLevel can all be
 			// put into a stdclass or a real class (DOMProcConfig?) and passed around.
-			$pp['proc']->run(
-				$this->env,
-				$node,
-				[
-					'extApi' => $this->extApi,
-					'frame' => $this->frame,
-					'selparData' => $this->selparData,
-					// For linting embedded docs
-					'tplInfo' => $this->tplInfo,
-				] + $this->options,
-				$this->atTopLevel
-			);
+			'@phan-var Wt2HtmlDOMProcessor $processor';
+			$processor->run( $this->env, $node, $passOpts, $this->atTopLevel );
 
 			if ( $hasDumpFlags && ( $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] )
 				|| $env->hasDumpFlag( 'dom:post-*' ) )

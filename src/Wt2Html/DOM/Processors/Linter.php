@@ -1494,16 +1494,21 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return $env->linting();
+	}
+
+	/**
 	 * This is only invoked on the top-level document
 	 * @inheritDoc
 	 */
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		if ( !$env->linting() ) {
-			return;
-		}
-
 		// Track time spent linting so we can evaluate benefits
 		// of migrating this code off the critical path to its own
 		// post processor.

@@ -86,7 +86,9 @@ class ParserPipelineFactory {
 			'handlers' => [
 				[ 'nodeName' => 'meta', 'action' => [ AddAnnotationIds::class, 'handler' ] ]
 			],
-			'withAnnotations' => true
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, 'hasAnnotations' ]
+			]
 		],
 		'linkneighbours+dom-unpack' => [
 			'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
@@ -94,6 +96,10 @@ class ParserPipelineFactory {
 				// Link prefixes and suffixes
 				[ 'nodeName' => 'a', 'action' => [ HandleLinkNeighbours::class, 'handler' ] ],
 				[ 'nodeName' => null, 'action' => [ UnpackDOMFragments::class, 'handler' ] ]
+			],
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, "hasLinks" ],
+				[ DOMProcessorPipelineFilter::class, "hasDOMFragments" ]
 			]
 		],
 		'fixups' => [
@@ -108,6 +114,10 @@ class ParserPipelineFactory {
 				[ 'nodeName' => 'table', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+			],
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, "hasLists" ],
+				[ DOMProcessorPipelineFilter::class, "hasTemplates" ]
 			]
 		],
 		'dedupe-styles' => [
@@ -117,6 +127,13 @@ class ParserPipelineFactory {
 				// Deduplicate template styles
 				// (should run after dom-fragment expansion + after extension post-processors)
 				[ 'nodeName' => 'style', 'action' => [ DedupeStyles::class, 'dedupe' ] ]
+			],
+			'runFilters' => [
+				// TODO: Is it kosher to set manual template styles in top-level wt?
+				// If so, we need a different filter than this one. If not, we should
+				// update the regression test that exercises this functionality.
+				//
+				// DOMProcessorPipelineFilter::hasTemplates( ... )
 			]
 		],
 		// Strip marker metas -- removes left over marker metas (ex: metas
@@ -137,18 +154,27 @@ class ParserPipelineFactory {
 			'name' => 'AddLinkAttributes',
 			'handlers' => [
 				[ 'nodeName' => 'a', 'action' => [ AddLinkAttributes::class, 'handler' ] ]
+			],
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, "hasLinks" ]
 			]
 		],
 		'gen-anchors' => [
 			'name' => 'Headings-genAnchors',
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
+			],
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, "hasHeadings" ]
 			]
 		],
 		'dedupe-heading-ids' => [
 			'name' => 'Headings-dedupeIds',
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
+			],
+			'runFilters' => [
+				[ DOMProcessorPipelineFilter::class, "hasHeadings" ]
 			]
 		],
 		'cleanup' => [

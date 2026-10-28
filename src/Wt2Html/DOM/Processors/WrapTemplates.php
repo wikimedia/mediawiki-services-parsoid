@@ -10,6 +10,16 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class WrapTemplates implements Wt2HtmlDOMProcessor {
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		// Don't run this in template content
+		return !$options['inTemplate'];
+	}
+
+	/**
 	 * Encapsulate template-affected DOM structures by wrapping text nodes into
 	 * spans and adding RDFa attributes to all subtree roots according to
 	 * http://www.mediawiki.org/wiki/Parsoid/RDFa_vocabulary#Template_content
@@ -18,11 +28,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		// Don't run this in template content
-		if ( $options['inTemplate'] ) {
-			return;
-		}
-
 		$op = new DOMRangeBuilder( $root->ownerDocument, $options['frame'] );
 		$op->execute( $root );
 	}

@@ -17,6 +17,15 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  */
 class ConvertOffsets implements Wt2HtmlDOMProcessor {
 	/**
+	 * @inheritDoc
+	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		return true;
+	}
+
+	/**
 	 * DOM Postprocessor entry function to walk DOM rooted at $root
 	 * and convert the DSR offsets as needed.
 	 * @see ConvertUtils::convertOffsets

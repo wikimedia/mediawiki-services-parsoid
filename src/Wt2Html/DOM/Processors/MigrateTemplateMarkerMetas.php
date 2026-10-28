@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
+use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipelineFilter;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
@@ -174,16 +175,19 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	/**
 	 * @inheritDoc
 	 */
+	public function shouldRun(
+		Env $env, Element|DocumentFragment $root, array $options, bool $atTopLevel
+	): bool {
+		// Don't run this on template content
+		return !$options['inTemplate'] && DOMProcessorPipelineFilter::hasTemplates( $env, $root );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function run(
 		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		// Don't run this in template content
-		if ( $options['inTemplate'] ) {
-			return;
-		}
-		if ( !$env->getPagePerfFlag( Env::HAS_ENCAPSULATED_TEMPLATES ) ) {
-			return;
-		}
 		$this->doMigrate( $root, $env );
 	}
 }
