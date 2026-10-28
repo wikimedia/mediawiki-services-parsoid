@@ -923,9 +923,15 @@ class TableFixups {
 	 */
 	public static function handleTableCellTemplates( Element $tableOrCell, DTState $dtState ) {
 		$env = $dtState->env;
+
 		$cellName = $nodeName = DOMUtils::nodeName( $tableOrCell );
 		$isTemplatedCell = $isTemplatedNode = DOMUtils::hasTypeOf( $tableOrCell, 'mw:Transclusion' );
 		if ( $nodeName === 'table' ) {
+			// If the page has no templates, skip the entire table
+			if ( !$env->getPagePerfFlag( Env::HAS_ENCAPSULATED_TEMPLATES ) ) {
+				$env->trace( "tablefixups", "Skipping table on a page with no templates." );
+				return $tableOrCell->nextSibling;
+			}
 			// If the table is templated and is from a well-balanced template, individual cells
 			// had been expanded in the preprocessor and there is no need to examine individual
 			// cells for reparsing. Skip the entire table.
