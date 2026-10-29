@@ -13,7 +13,7 @@ class DOMProcessorPipelineFilter {
 	}
 
 	public static function hasAnnotations( Env $env, Element|DocumentFragment $root ): bool {
-		return $env->hasAnnotations;
+		return $env->getPagePerfFlag( Env::HAS_ANNOTATIONS );
 	}
 
 	public static function hasLinks( Env $env, Element|DocumentFragment $root ): bool {

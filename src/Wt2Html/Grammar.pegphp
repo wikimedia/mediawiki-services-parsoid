@@ -2003,7 +2003,7 @@ tvar_old_syntax_closing_HACK =
 		return $tagType !== 'anno';
 	}
 	"</>"
-	& { return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); }
+	& { return $this->env->getPagePerfFlag( Env::HAS_ANNOTATIONS ) && $this->siteConfig->isAnnotationTag( 'tvar' ); }
 	{
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();
@@ -2059,7 +2059,7 @@ annotation_tag =
 			}
 			$dp = new DataParsoid();
 			$dp->tsr = $tsr;
-			$this->env->hasAnnotations = true;
+			$this->env->setPagePerfFlag( Env::HAS_ANNOTATIONS );
 
 			return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw );
 		}

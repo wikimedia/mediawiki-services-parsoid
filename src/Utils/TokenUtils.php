@@ -218,7 +218,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isTranslationUnitMarker( Env $env, CommentTk $token ): bool {
-		return $env->hasAnnotations &&
+		return $env->getPagePerfFlag( Env::HAS_ANNOTATIONS ) &&
 			$env->getSiteConfig()->isAnnotationTag( 'translate' ) &&
 			preg_match( '/^T:/', $token->value ) === 1;
 	}

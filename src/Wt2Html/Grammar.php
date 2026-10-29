@@ -927,7 +927,7 @@ private function a59($t) {
 			}
 			$dp = new DataParsoid();
 			$dp->tsr = $tsr;
-			$this->env->hasAnnotations = true;
+			$this->env->setPagePerfFlag( Env::HAS_ANNOTATIONS );
 
 			return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw );
 		
@@ -1387,7 +1387,7 @@ private function a106($tagType) {
 	
 }
 private function a107($tagType) {
- return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); 
+ return $this->env->getPagePerfFlag( Env::HAS_ANNOTATIONS ) && $this->siteConfig->isAnnotationTag( 'tvar' ); 
 }
 private function a108($tagType) {
 

@@ -135,7 +135,6 @@ class Env {
 	public ?DomPageBundle $pageBundle = null;
 
 	private ?Document $domDiff = null;
-	public bool $hasAnnotations = false;
 
 	/**
 	 * Cache of wikitext source for a title; only used for ParserTests.
@@ -173,6 +172,7 @@ class Env {
 	private ?Title $cachedContextTitle = null;
 
 	public const HAS_ENCAPSULATED_TEMPLATES = 'hasEncapsulatedTemplates';
+	public const HAS_ANNOTATIONS = 'hasAnnotations';
 
 	/**
 	 * @param SiteConfig $siteConfig
