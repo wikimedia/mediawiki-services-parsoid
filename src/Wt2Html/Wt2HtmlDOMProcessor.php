@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 
 /**
  * wt2html DOM processor used to implement some DOM functionality
@@ -21,6 +20,6 @@ interface Wt2HtmlDOMProcessor {
 	 *   If false, this is being invoked in a sub-pipeline (ex: extensions)
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void;
 }

@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\SourceString;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -26,10 +25,8 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-
 		$selparData = $options['selparData'] ?? null;
 		if ( !$selparData ) {
 			error_log( "Missing selpar data" );

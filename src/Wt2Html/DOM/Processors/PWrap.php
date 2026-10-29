@@ -289,14 +289,13 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		// No p-wrapping in an inline context!
 		if ( !empty( $options['inlineContext'] ) ) {
 			return;
 		}
 
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
 		$this->pWrapDOM( $env, $root );
 		$this->pWrapInsideTag( $env, $root, 'blockquote' );
 	}

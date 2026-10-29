@@ -5,7 +5,8 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -23,7 +24,7 @@ class ConvertOffsets implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		Assert::invariant( $atTopLevel, 'This pass should only be run on the top-level' );
 		$doc = $root->ownerDocument;

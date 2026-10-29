@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -1497,7 +1498,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		if ( !$env->linting() ) {
 			return;

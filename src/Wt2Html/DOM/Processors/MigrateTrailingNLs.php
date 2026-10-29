@@ -224,7 +224,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->doMigrateTrailingNLs( $root, $env );
 	}

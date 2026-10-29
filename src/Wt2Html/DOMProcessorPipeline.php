@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\DOMPPTraverser;
@@ -60,7 +59,7 @@ class DOMProcessorPipeline extends PipelineStage {
 		$this->options['srcOffsets'] = $srcOffsets;
 	}
 
-	public function doPostProcess( Node $node ): void {
+	public function doPostProcess( Element|DocumentFragment $node ): void {
 		$env = $this->env;
 
 		$hasDumpFlags = $env->hasDumpFlags();
@@ -171,9 +170,7 @@ class DOMProcessorPipeline extends PipelineStage {
 		if ( isset( $options['selparData'] ) ) {
 			$this->selparData = $options['selparData'];
 		}
-		'@phan-var Node $input'; // @var Node $input
 		$this->doPostProcess( $input );
-		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $input;
 	}
 

@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwError;
@@ -574,9 +573,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
 		$urlParser = new PegTokenizer( $env );
 
 		$validContainers = [];

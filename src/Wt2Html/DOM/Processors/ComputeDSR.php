@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Source;
 use Wikimedia\Parsoid\Core\SourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -702,7 +703,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * This pass is only invoked on the top-level page.
 	 *
 	 * @param Env $env The environment/context for the parse pipeline
-	 * @param Node $root The root of the tree for which DSR has to be computed
+	 * @param Element|DocumentFragment $root The root of the tree for which DSR has to be computed
 	 * @param array $options Options governing DSR computation
 	 * - srcOffsets   : [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
@@ -710,7 +711,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param bool $atTopLevel Are we running this on the top level?
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		// Don't run this in template content
 		if ( $options['inTemplate'] ) {

@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class WrapSections implements Wt2HtmlDOMProcessor {
@@ -21,10 +20,9 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @param array $options
 	 * @param bool $atTopLevel Is this processor invoked on the top level page?
 	 *   If false, this is being invoked in a sub-pipeline (ex: extensions)
-	 * @phan-suppress-next-next-line PhanParamSignatureMismatch false positive
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, Element|DocumentFragment $root, array $options = [], bool $atTopLevel = false
 	): void {
 		if ( !$env->getWrapSections() ) {
 			return;
