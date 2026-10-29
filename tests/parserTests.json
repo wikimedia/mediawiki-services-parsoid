@@ -21,11 +21,11 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "ca4852ddeb977f5d90f95e358a21b70c827b89db",
+		"latestCommit": "b4f1332b1e7d662fc7282dea8fe4d90d33a3ca8b",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
-				"expectedSHA1": "bde694f4fa2f3167298ca9380ff5cf26bfbd2b7c"
+				"expectedSHA1": "c3483fbff5593b9ad735ceb722e29136a3b56197"
 			},
 			"badCharacters.txt": {
 				"path": "tests/parser/badCharacters.txt",
@@ -85,7 +85,7 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "046ff83f15d3f57cb3afe11c185ee686bf90e6ec"
+				"expectedSHA1": "053ca1f9fdd0bc7840812c2ab4ea298f1dd2a872"
 			},
 			"mediaLinks.txt": {
 				"path": "tests/parser/mediaLinks.txt",
@@ -93,7 +93,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "247e213569b28100471af70206e096719581fed2"
+				"expectedSHA1": "16dc8341ba85d14bdebf57fba7a22ed699701acd"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -117,11 +117,11 @@
 			},
 			"redirects.txt": {
 				"path": "tests/parser/redirects.txt",
-				"expectedSHA1": "3181215937c83ccf2b804124ae4d1e9e0a698677"
+				"expectedSHA1": "78081a42fb382f3209e7ebc341cc9c1078cdbe4d"
 			},
 			"sanitizer.txt": {
 				"path": "tests/parser/sanitizer.txt",
-				"expectedSHA1": "de6d5be1f5ec5e3a9a29dc647062a863031246a1"
+				"expectedSHA1": "fcd6c00a845452eb532cfe233f240566a087cd44"
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
@@ -129,7 +129,7 @@
 			},
 			"wikiLinks.txt": {
 				"path": "tests/parser/wikiLinks.txt",
-				"expectedSHA1": "8e1ca8104bfbe853dc954244c7ef44078377e5fa"
+				"expectedSHA1": "33c94b100279b755cddfd4c911fe644068a8da86"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
@@ -139,7 +139,7 @@
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "97a0fbb9309af4409b730ed5e062269cc3c2e3e4",
+		"latestCommit": "c1748ce4e43fcc427dc749d27e5c095054fa548e",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",

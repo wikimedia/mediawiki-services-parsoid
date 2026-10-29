@@ -16,9 +16,9 @@ require_once __DIR__ . '/Maintenance.php';
  *
  * Usage:
  *   $ cd $PARSOID
- *   $ php tools/fetch-parserTests.php <repo-key>
- *   $ php tools/fetch-parserTests.php --all
- *   $ php tools/fetch-parserTests.php --all --branch=REL1_43
+ *   $ php tools/FetchParserTests.php <repo-key>
+ *   $ php tools/FetchParserTests.php --all
+ *   $ php tools/FetchParserTests.php --all --branch=REL1_43
  *
  * Set the GERRITUA environment variable to a User-Agent string to avoid
  * throttling by Gerrit.  WMF staff may use the UA string at
