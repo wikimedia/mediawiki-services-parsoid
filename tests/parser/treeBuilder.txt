@@ -72,3 +72,31 @@ b
 b</code></p>
 <p class="mw-empty-elt"></p>
 !! end
+
+!! article
+Template:T442274
+!! text
+x
+== H ==
+y
+!! end
+
+## Use the RawHtml extension to mimic the Math extensions
+## returning native MathML for us.
+!! test
+Section wrapping a template that starts after a <math> root extension (T442274)
+!! options
+wgRawHtml=1
+parsoid={
+	"modes": ["wt2html"],
+	"wrapSections": true
+}
+!! wikitext
+<html><math><mi>x</mi></math></html>
+{{T442274}}
+!! html/parsoid
+<section data-mw-section-id="0" about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":["&lt;html>&lt;math>&lt;mi>x&lt;/mi>&lt;/math>&lt;/html>\n",{"template":{"target":{"wt":"T442274","href":"./Template:T442274"},"params":{},"i":0}}]}'><p about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["&lt;html>&lt;math>&lt;mi>x&lt;/mi>&lt;/math>&lt;/html>\n",{"template":{"target":{"wt":"T442274","href":"./Template:T442274"},"params":{},"i":0}}]}'><math typeof="mw:Extension/html" about="#mwt1" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"&lt;math>&lt;mi>x&lt;/mi>&lt;/math>"}}'><mi>x</mi></math>
+x</p><span about="#mwt2">
+</span></section><section data-mw-section-id="-1" about="#mwt3"><h2 about="#mwt2" id="H">H</h2><span about="#mwt2">
+</span><p about="#mwt2">y</p></section>
+!! end

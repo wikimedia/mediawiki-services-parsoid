@@ -666,29 +666,38 @@ class PipelineUtils {
 			}
 		}
 
+		// NOTE: This code could be simplified to just be
+		// $wrapperName = $wrapperType === 'BLOCK' ? 'div' : 'span'.
+		// But, debugging is a bit easier if we preserve the original wrapper name
+		// instead of using these synthetic wrapper names.
+
+		$defaultWrapperName = $wrapperType === 'BLOCK' ? 'div' : 'span';
+		$wrapperName = $nodeName = DOMUtils::nodeName( $node );
 		if ( $wrapperType === 'BLOCK' && !DOMUtils::isWikitextBlockNode( $node ) ) {
-			$wrapperName = 'div';
-		} elseif ( DOMUtils::nodeName( $node ) === 'a' ) {
+			$wrapperName = $defaultWrapperName;
+		} elseif ( $nodeName === 'a' ) {
 			// Do not use 'A' as a wrapper node because it could
 			// end up getting nested inside another 'A' and the DOM
 			// structure can change where the wrapper tokens are no
 			// longer siblings.
 			// Ex: "[http://foo.com Bad nesting [[Here]]].
-			$wrapperName = 'span';
+			$wrapperName = $defaultWrapperName;
 		} elseif (
-			in_array( DOMUtils::nodeName( $node ), [ 'style', 'script' ], true ) &&
-			( $node->nextSibling !== null )
+			in_array( $nodeName, [ 'style', 'script' ], true ) && ( $node->nextSibling !== null )
 		) {
 			// <style>/<script> tags are not fostered, so if we're wrapping
 			// more than a single node, they aren't a good representation for
 			// the content.  It can lead to fosterable content being inserted
 			// in a fosterable position after treebuilding is done, which isn't
 			// roundtrippable.
-			$wrapperName = 'span';
+			$wrapperName = $defaultWrapperName;
+		} elseif ( in_array( $nodeName, [ 'math', 'svg' ], true ) ) {
+			// Remex wraps <math> & <svg> attributes in ForeignAttributes which
+			// messes up our TreeBuilder logic further down the pipeline.
+			// So, fall back to the default wrapper name.
+			$wrapperName = $defaultWrapperName;
 		} elseif ( !( $node instanceof Element ) ) {
-			$wrapperName = 'span';
-		} else {
-			$wrapperName = DOMUtils::nodeName( $node );
+			$wrapperName = $defaultWrapperName;
 		}
 
 		if ( $node instanceof Element ) {
