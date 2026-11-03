@@ -746,3 +746,20 @@ Template emitting multi-cell output as plain content should be reparsed as multi
 <tbody><tr><td typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| ",{"template":{"target":{"wt":"multi cell output","href":"./Template:Multi_cell_output"},"params":{},"i":0}}]}'>n<sup>2</sup></td><td about="#mwt1">n<sup>3</sup></td><td about="#mwt1" style="background:#9F9;" class="table-yes" data-parsoid='{"stx":"row"}'>Yes</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Table cell attributes from template: ignore "|" in a preceding comment
+!! wikitext
+{|
+|<!--|<b>x</b>-->{{td_attrs_and_content|1=style='color:red'}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td style="color:red">foobar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td style="color:red" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["|&lt;!--|&lt;b>x&lt;/b>-->",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;color:red&apos;"}},"i":0}}]}'>foobar</td></tr>
+</tbody></table>
+!! end
