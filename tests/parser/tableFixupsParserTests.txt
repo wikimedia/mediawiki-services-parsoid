@@ -441,3 +441,20 @@ Ensure td-cell-type is switched to th when the first cell in a row is a <th>
 <th>c</th><th about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"tdfoo","href":"./Template:Tdfoo"},"params":{},"i":0}}]}'>y</th></tr>
 </tbody></table>
 !! end
+
+!! test
+Table cell attributes from template: ignore "|" in a preceding comment
+!! wikitext
+{|
+|<!--|<b>x</b>-->{{td_attrs_and_content|1=style='color:red'}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td style="color:red">foobar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td style="color:red" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["|&lt;!--|&lt;b>x&lt;/b>-->",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;color:red&apos;"}},"i":0}}]}'>foobar</td></tr>
+</tbody></table>
+!! end

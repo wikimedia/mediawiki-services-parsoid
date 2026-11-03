@@ -370,11 +370,51 @@ class TableFixups {
 		}
 
 		// Drop content that has been consumed by the reparsed attribute content.
-		// NOTE: We serialize and reparse data-object-id attributes as well which
-		// ensures stashed data-* attributes continue to be usable.
-		// FIXME: This is too naive.  What about all the care we showed in `collectAttributishContent`?
-		DOMCompat::setInnerHTML( $cell,
-			preg_replace( '/^[^|]*\|/', '', DOMCompat::getInnerHTML( $cell ) ) );
+		self::stripAttributishContent( $cell->firstChild );
+	}
+
+	/**
+	 * Remove content up to and including the first "|" in a text node.
+	 *
+	 * Heavily inspired by collectAttributishContent
+	 *
+	 * @return bool true if the "|" was found and stripping is complete
+	 */
+	private static function stripAttributishContent( ?Node $child ): bool {
+		while ( $child ) {
+			$next = $child->nextSibling;
+			if ( $child instanceof Text ) {
+				$text = $child->nodeValue;
+				$pos = strpos( $text, '|' );
+				if ( $pos !== false ) {
+					$rest = substr( $text, $pos + 1 );
+					if ( $rest === '' ) {
+						$child->parentNode->removeChild( $child );
+					} else {
+						$child->nodeValue = $rest;
+					}
+					return true;
+				}
+				$child->parentNode->removeChild( $child );
+			} elseif ( $child instanceof Element &&
+				!DOMUtils::hasTypeOf( $child, 'mw:Entity' ) &&
+				!DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' )
+			) {
+				if ( self::stripAttributishContent( $child->firstChild ) ) {
+					// The opening tag was consumed as part of the attributes,
+					// so unwrap the element.
+					DOMUtils::migrateChildren( $child, $child->parentNode, $child );
+					$child->parentNode->removeChild( $child );
+					return true;
+				}
+				$child->parentNode->removeChild( $child );
+			} else {
+				// Comments, entities, DOM fragments are consumed whole
+				$child->parentNode->removeChild( $child );
+			}
+			$child = $next;
+		}
+		return false;
 	}
 
 	/**
