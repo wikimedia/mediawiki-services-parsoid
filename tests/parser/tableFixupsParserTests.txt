@@ -863,3 +863,20 @@ parsoid=wt2html
 </tbody>
 </table>
 !! end
+
+!! test
+Table cell attributes from template: ignore "|" in a preceding comment
+!! wikitext
+{|
+|<!--|<b>x</b>-->{{td_attrs_and_content|1=style='color:red'}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td style="color:red">foobar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td style="color:red" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["|&lt;!--|&lt;b>x&lt;/b>-->",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;color:red&apos;"}},"i":0}}]}'>foobar</td></tr>
+</tbody></table>
+!! end
