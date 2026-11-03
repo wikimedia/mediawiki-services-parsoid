@@ -23,7 +23,7 @@
         "metadata": "cat=Wikidata:Tools sort=*"
     },
     "PAGESINCATEGORY invalid title fatal (r33546 fix)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESINCATEGORY:&lt;bogus>\",\"function\":\"pagesincategory\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_pagesincategory missing in Parsoid.</span></p>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,27,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESINCATEGORY:&lt;bogus>\",\"function\":\"pagesincategory\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_pagesincategory missing in Parsoid.</span></p>",
         "html2wt": "0\n"
     },
     "cats/langlinks: migrateTrailingSolTransparentLinks dom pass should not get tripped by comments and whitespace": {

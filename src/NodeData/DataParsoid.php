@@ -299,14 +299,22 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 		static $clearNullsFrom = [
 			'dsr', 'tsr', 'extTagOffsets',
 		];
+
+		// Convert object to array (a hackish way to
+		// collect all dynamic properties)
 		$result = (array)$this;
 		unset( $result['tmp'] );
+
 		// Conciseness: don't include `null` values from certain properties.
 		foreach ( $clearNullsFrom as $prop ) {
 			if ( !isset( $result[$prop] ) ) {
 				unset( $result[$prop] );
 			}
 		}
+
+		// Sort keys for deterministic serialization and eliminate
+		// need to change tests because of code changes
+		ksort( $result );
 		return $result;
 	}
 

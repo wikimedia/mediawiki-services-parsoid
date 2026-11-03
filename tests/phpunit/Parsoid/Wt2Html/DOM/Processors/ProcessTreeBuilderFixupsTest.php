@@ -32,12 +32,12 @@ class ProcessTreeBuilderFixupsTest extends TestCase {
 	public static function provideFixups(): array {
 		return [
 			'empty elements should be stripped' => [
-				'<span data-parsoid=\'{"autoInsertedStart":true,"autoInsertedEnd":true}\' data-mw=\'{"key":"value"}\'></span>',
+				'<span data-parsoid=\'{"autoInsertedEnd":true,"autoInsertedStart":true}\' data-mw=\'{"key":"value"}\'></span>',
 				'',
 			],
 			'Seemingly empty elements with mw:DOMFragment typeof should not be stripped' => [
-				'<span typeof="mw:DOMFragment" data-parsoid=\'{"autoInsertedStart":true,"autoInsertedEnd":true}\' data-mw=\'{"key":"value"}\'></span>',
-				'<span typeof="mw:DOMFragment" data-parsoid=\'{"autoInsertedStart":true,"autoInsertedEnd":true}\' data-mw=\'{"key":"value"}\'></span>',
+				'<span typeof="mw:DOMFragment" data-parsoid=\'{"autoInsertedEnd":true,"autoInsertedStart":true}\' data-mw=\'{"key":"value"}\'></span>',
+				'<span typeof="mw:DOMFragment" data-parsoid=\'{"autoInsertedEnd":true,"autoInsertedStart":true}\' data-mw=\'{"key":"value"}\'></span>',
 			],
 		];
 	}

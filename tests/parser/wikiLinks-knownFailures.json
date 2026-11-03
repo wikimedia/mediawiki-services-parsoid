@@ -1,6 +1,6 @@
 {
 	"2. Using {{!}} in wikilinks (T290526)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'>[[<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[2,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span>]]</p>"
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'>[[<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[2,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span>]]</p>"
 	},
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"

@@ -117,7 +117,7 @@ class SelserRevDomTest extends \PHPUnit\Framework\TestCase {
 	public function testSelectiveUpdateWithLoadedRevDom(): void {
 		$revText = '{{2x|456}} does not update';
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$revHtml = '<p data-parsoid=\'{"dsr":[0,26,0,0]}\'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[0,10,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span> does not update</p>';
+		$revHtml = '<p data-parsoid=\'{"dsr":[0,26,0,0]}\'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"dsr":[0,10,null,null],"pi":[[{"k":"1"}]]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span> does not update</p>';
 		$selparData = new SelectiveUpdateData( $revText, null, 'template' );
 		$selparData->templateTitle = '1x';
 		$selparData->revDOM = ContentUtils::createAndLoadDocument(
