@@ -57,7 +57,7 @@ parsoid=wt2html,selser
 {{!}}-
 }}
 !! html/parsoid
-<p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>
+<p data-parsoid='{"autoInsertedStart":true,"fostered":true}'>
 
 é
 
@@ -81,7 +81,7 @@ parsoid=wt2html
 ]]
 !! html/parsoid
 <figure typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"width","ak":"50px"},{"ck":"caption","ak":"\n{|\n{{1x|&lt;span>foo&lt;/span>}}\n|}\n"}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="6" width="50" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"6","width":"50"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
-<p about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"fostered":true,"autoInsertedStart":true,"firstWikitextNode":"TABLE","pi":[[{"k":"1"}]]}' data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>foo&lt;/span>"}},"i":0}},"\n|}"]}'><span>foo</span></p><table about="#mwt2">
+<p about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"firstWikitextNode":"TABLE","fostered":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["{|\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>foo&lt;/span>"}},"i":0}},"\n|}"]}'><span>foo</span></p><table about="#mwt2">
 
 </table>
 </figcaption></figure>
@@ -94,7 +94,7 @@ parsoid=wt2html
 !! wikitext
 [http://google.com <table>hi</table> ho]
 !! html/parsoid
-<a rel="mw:ExtLink nofollow" href="http://google.com" class="external text"><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>hi</p><table data-parsoid='{"stx":"html"}'></table> ho</a>
+<a rel="mw:ExtLink nofollow" href="http://google.com" class="external text"><p data-parsoid='{"autoInsertedStart":true,"fostered":true}'>hi</p><table data-parsoid='{"stx":"html"}'></table> ho</a>
 !! end
 
 !! test
@@ -195,7 +195,7 @@ parsoid=wt2html
 <table><tr><td>''a''</td><td title="&amp;">b</td></tr></table>
 [[Category:C]]
 !! html/parsoid
-<table data-parsoid='{"stx":"html"}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><i>a</i></td><td title="&amp;" data-parsoid='{"stx":"html","a":{"title":"&amp;"},"sa":{"title":"&amp;amp;"}}'>b</td></tr></tbody></table>
+<table data-parsoid='{"stx":"html"}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><i>a</i></td><td title="&amp;" data-parsoid='{"a":{"title":"&amp;"},"sa":{"title":"&amp;amp;"},"stx":"html"}'>b</td></tr></tbody></table>
 <link rel="mw:PageProp/Category" href="./Category:C" />
 !! end
 
@@ -224,13 +224,13 @@ T378906: Drop template-emitted leading/trailing newlines adjacent to <div>s prod
 <span>foo</span>{{1x|
 <div>bar</div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
 
-<div about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><p><span data-parsoid='{"stx":"html"}'>bar</span></p>
+<div about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><p><span data-parsoid='{"stx":"html"}'>bar</span></p>
 
-<div about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'></span><div about="#mwt5" data-parsoid='{"stx":"html"}'>bar</div>
+<div about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'></span><div about="#mwt5" data-parsoid='{"stx":"html"}'>bar</div>
 
-<p><span data-parsoid='{"stx":"html"}'>foo</span></p><span class="mw-empty-elt" about="#mwt6" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'></span><div about="#mwt6" data-parsoid='{"stx":"html"}'>bar</div>
+<p><span data-parsoid='{"stx":"html"}'>foo</span></p><span class="mw-empty-elt" about="#mwt6" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;div>bar&lt;/div>"}},"i":0}}]}'></span><div about="#mwt6" data-parsoid='{"stx":"html"}'>bar</div>
 !! end
 
 !! test
@@ -241,7 +241,7 @@ T378906: Migrate trailing category tags into an interstitial span
 [[Category:Bar]]
 }}{{1x|<div>bar</div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n[[Category:Foo]]\n[[Category:Bar]]\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt1"><link rel="mw:PageProp/Category" href="./Category:Foo"/><link rel="mw:PageProp/Category" href="./Category:Bar"/></span><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n[[Category:Foo]]\n[[Category:Bar]]\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt1"><link rel="mw:PageProp/Category" href="./Category:Foo"/><link rel="mw:PageProp/Category" href="./Category:Bar"/></span><div about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>bar&lt;/div>"}},"i":0}}]}'>bar</div>
 !! end
 
 !! test
@@ -255,7 +255,7 @@ T407798: Strip newlines between category link tags in templates
 </p>
 !! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"something\n[[Category:Foo]]\n[[es:Foo]]"}},"i":0}}]}'>something
-</span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"http://es.wikipedia.org/wiki/Foo"},"sa":{"href":"es:Foo"}}'/></p>
+</span><link rel="mw:PageProp/Category" href="./Category:Foo" about="#mwt1"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo" about="#mwt1" data-parsoid='{"a":{"href":"http://es.wikipedia.org/wiki/Foo"},"sa":{"href":"es:Foo"},"stx":"simple"}'/></p>
 !! end
 
 !! test
@@ -264,7 +264,7 @@ Migrate leading category into an interstitial span
 {{1x|<div>foo</div>
 }}{{1x|[[Category:Foo]]<div>bar</div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>bar&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt2" data-parsoid='{"stx":"html"}'>bar</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>bar&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt2" data-parsoid='{"stx":"html"}'>bar</div>
 !! end
 
 !! test
@@ -273,7 +273,7 @@ Migrate leading empty extension into an interstitial span
 {{1x|<div>foo</div>
 }}{{1x|<section begin="2011-05-16" /><div>bar</div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;section begin=\"2011-05-16\" />&lt;div>bar&lt;/div>"}},"i":0}}]}'><link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}'/></span><div about="#mwt2" data-parsoid='{"stx":"html"}'>bar</div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>foo&lt;/div>\n"}},"i":0}}]}'>foo</div><span class="mw-empty-elt" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;section begin=\"2011-05-16\" />&lt;div>bar&lt;/div>"}},"i":0}}]}'><link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"begin":"2011-05-16"}}'/></span><div about="#mwt2" data-parsoid='{"stx":"html"}'>bar</div>
 !! end
 
 !! test
@@ -281,7 +281,7 @@ T441087: Don't drop text between stashable category links between nested blocks
 !! wikitext
 {{1x|<div><div>x</div>[[Category:A]]foo[[Category:B]]<div>y</div></div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]]foo[[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link rel="mw:PageProp/Category" href="./Category:A"/>foo<link rel="mw:PageProp/Category" href="./Category:B"/><div>y</div></div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]]foo[[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link rel="mw:PageProp/Category" href="./Category:A"/>foo<link rel="mw:PageProp/Category" href="./Category:B"/><div>y</div></div>
 !! end
 
 !! test
@@ -289,7 +289,7 @@ T441087: Don't drop text between empty extension tags between nested blocks
 !! wikitext
 {{1x|<div><div>x</div><section begin="a" />foo<section end="a" /><div>y</div></div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>&lt;section begin=\"a\" />foo&lt;section end=\"a\" />&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link typeof="mw:Extension/section" about="#mwt2" data-mw='{"name":"section","attrs":{"begin":"a"}}'/>foo<link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"end":"a"}}'/><div>y</div></div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>&lt;section begin=\"a\" />foo&lt;section end=\"a\" />&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><link typeof="mw:Extension/section" about="#mwt2" data-mw='{"name":"section","attrs":{"begin":"a"}}'/>foo<link typeof="mw:Extension/section" about="#mwt3" data-mw='{"name":"section","attrs":{"end":"a"}}'/><div>y</div></div>
 !! end
 
 !! test
@@ -297,7 +297,7 @@ T441087: Stash links separated only by whitespace between nested blocks
 !! wikitext
 {{1x|<div><div>x</div>[[Category:A]] [[Category:B]]<div>y</div></div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]] [[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><span class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:A"/><link rel="mw:PageProp/Category" href="./Category:B"/></span><div>y</div></div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>&lt;div>x&lt;/div>[[Category:A]] [[Category:B]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'><div>x</div><span class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:A"/><link rel="mw:PageProp/Category" href="./Category:B"/></span><div>y</div></div>
 !! end
 
 !! test
@@ -305,7 +305,7 @@ T441087: Don't stash links that are the first and last children of a nested bloc
 !! wikitext
 {{1x|<div>[[Category:A]] [[Category:B]]</div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>[[Category:A]] [[Category:B]]&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:A"/> <link rel="mw:PageProp/Category" href="./Category:B"/></div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>[[Category:A]] [[Category:B]]&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:A"/> <link rel="mw:PageProp/Category" href="./Category:B"/></div>
 !! end
 
 !! test
@@ -313,7 +313,7 @@ T441087: A link preceded by text isn't between blocks
 !! wikitext
 {{1x|<div>x [[Category:A]]<div>y</div></div>}}
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>x [[Category:A]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'>x <link rel="mw:PageProp/Category" href="./Category:A"/><div>y</div></div>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"stx":"html"}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>x [[Category:A]]&lt;div>y&lt;/div>&lt;/div>"}},"i":0}}]}'>x <link rel="mw:PageProp/Category" href="./Category:A"/><div>y</div></div>
 !! end
 
 !! test
@@ -321,7 +321,7 @@ T410826: named arguments to parser functions in "old-style" DOM
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p data-parsoid='{"dsr":[0,52,0,0]}'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]],"dsr":[0,52,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"fullurl:User talk:cscott","function":"fullurl"},"params":{"action":{"wt":"edit&amp;section=new"}},"i":0}}]}'>//en.wikipedia.org/w/index.php?title=User_talk:Cscott&amp;action=edit&amp;section=new</span></p>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"fullurl:User talk:cscott","function":"fullurl"},"params":{"action":{"wt":"edit&amp;section=new"}},"i":0}}]}'>//en.wikipedia.org/w/index.php?title=User_talk:Cscott&amp;action=edit&amp;section=new</span></p>
 !! wikitext
 {{fullurl:User talk:cscott|action=edit&section=new}}
 !! end
@@ -343,7 +343,7 @@ T426371: Templated captions with leading templatestyles should not break the cap
 !! wikitext
 [[File:foobar.jpg|thumb|{{1x|1=<templatestyles src='Legend/styles.css' /><div>foo</div>}}]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=&lt;templatestyles src=&apos;Legend/styles.css&apos; />&lt;div>foo&lt;/div>}}"}],"dsr":[0,91,2,2]}'><a href="./File:Foobar.jpg" class="mw-file-description" data-parsoid='{"dsr":[2,24,null,null]}'><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption data-parsoid='{"dsr":[24,89,0,0]}'><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1","named":true}]],"dsr":[24,89,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;templatestyles src=&apos;Legend/styles.css&apos; />&lt;div>foo&lt;/div>"}},"i":0}}]}'><style data-mw-deduplicate="TemplateStyles:r123456" typeof="mw:Extension/templatestyles" about="#mwt2" data-mw='{"name":"templatestyles","attrs":{"src":"Legend/styles.css"}}'>small { font-size: 120% } big { font-size: 80% }</style></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=&lt;templatestyles src=&apos;Legend/styles.css&apos; />&lt;div>foo&lt;/div>}}"}],"dsr":[0,91,2,2]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","named":true}]],"dsr":[24,89,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;templatestyles src=&apos;Legend/styles.css&apos; />&lt;div>foo&lt;/div>"}},"i":0}}]}'><style data-mw-deduplicate="TemplateStyles:r123456" typeof="mw:Extension/templatestyles" about="#mwt2" data-mw='{"name":"templatestyles","attrs":{"src":"Legend/styles.css"}}'>small { font-size: 120% } big { font-size: 80% }</style></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
 !! end
 
 !! test
@@ -351,7 +351,7 @@ T426371: Templated captions with leading category links should not break the cap
 !! wikitext
 [[File:foobar.jpg|thumb|{{1x|1=[[Category:Foo]]<div>foo</div>}}]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=[[Category:Foo]]&lt;div>foo&lt;/div>}}"}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>foo&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"{{1x|1=[[Category:Foo]]&lt;div>foo&lt;/div>}}"}]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" loading="lazy" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"20","width":"180"},"sa":{"resource":"File:foobar.jpg"}}'/></a><figcaption><span class="mw-empty-elt" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[Category:Foo]]&lt;div>foo&lt;/div>"}},"i":0}}]}'><link rel="mw:PageProp/Category" href="./Category:Foo"/></span><div about="#mwt1" data-parsoid='{"stx":"html"}'>foo</div></figcaption></figure>
 !! end
 
 !! test
@@ -406,7 +406,7 @@ http://example.com/test{{
 }}
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink nofollow" href="http://example.com/test{{123+" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/test{{123+"},"sa":{"href":"http://example.com/test{{\n123 [[hmm]]\n}}"}}'>http://example.com/test{{123 </a></p>
+<p><a rel="mw:ExtLink nofollow" href="http://example.com/test{{123+" class="external free" data-parsoid='{"a":{"href":"http://example.com/test{{123+"},"sa":{"href":"http://example.com/test{{\n123 [[hmm]]\n}}"},"stx":"url"}'>http://example.com/test{{123 </a></p>
 !! end
 
 !! test

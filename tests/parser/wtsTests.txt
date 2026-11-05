@@ -28,8 +28,8 @@ Serializer shouldn't blindly user dataParsoid.srcTagName
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p><font class="x" data-parsoid='{"stx":"html","srcTagName":"FONT"}'>boo</font></p>
-<p><span class="x" data-parsoid='{"stx":"html","srcTagName":"FONT"}'>boo</span></p>
+<p><font class="x" data-parsoid='{"srcTagName":"FONT","stx":"html"}'>boo</font></p>
+<p><span class="x" data-parsoid='{"srcTagName":"FONT","stx":"html"}'>boo</span></p>
 !! wikitext
 <FONT class="x">boo</FONT>
 
@@ -1150,7 +1150,7 @@ parsoid=html2wt
 b
 </td><td data-parsoid='{"stx":"row"}'>c</td></tr>
 <tr><td><p>x</p>
-</td><td data-parsoid='{"stx":"row", "startTagSrc": "{{!}}{{!}}"}'>y</td></tr>
+</td><td data-parsoid='{"startTagSrc":"{{!}}{{!}}","stx":"row"}'>y</td></tr>
 </tbody></table>
 <table>
 <tbody>
@@ -1254,7 +1254,7 @@ Parsoid-like element ids should not be serialized to wikitext unless shadowed
 !! options
 parsoid=html2wt
 !! html/parsoid
-<div id="mwAQ" data-parsoid='{"stx":"html","a":{"id":"mwAQ"},"sa":{"id":"hello"}}'>ok</div>
+<div id="mwAQ" data-parsoid='{"a":{"id":"mwAQ"},"sa":{"id":"hello"},"stx":"html"}'>ok</div>
 !! wikitext
 <div id="hello">ok</div>
 !! end
@@ -1445,7 +1445,7 @@ mw:ExtLink -vs- mw:WikiLink (T94723)
 !! options
 parsoid=html2wt
 !! html/parsoid
-<a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"stx":"piped","a":{"href":"./Foo"},"sa":{"href":"Foo"}}'>Bar</a>
+<a rel="mw:WikiLink" href="./Foo" title="Foo" data-parsoid='{"a":{"href":"./Foo"},"sa":{"href":"Foo"},"stx":"piped"}'>Bar</a>
 <a rel="mw:WikiLink" href="./Foo" title="Foo">Bar</a>
 <a rel="mw:WikiLink" href="http://en.wikipedia.org/wiki/Foo" title="Foo">Bar</a>
 <a rel="mw:ExtLink" href="http://en.wikipedia.org/wiki/Foo" title="Foo">Bar</a>
@@ -1485,7 +1485,7 @@ Strip span tags added to mark misnested links
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://test.com"></a><a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"simple","a":{"href":"./One"},"sa":{"href":"one"},"misnested":true}'>one</a><span data-parsoid='{"misnested":true}'> two three</span></p>
+<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://test.com"></a><a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"a":{"href":"./One"},"misnested":true,"sa":{"href":"one"},"stx":"simple"}'>one</a><span data-parsoid='{"misnested":true}'> two three</span></p>
 !! wikitext
 [http://test.com][[one]] two three
 !! end
@@ -1495,7 +1495,7 @@ Use data-parsoid.firstWikitextNode to compute newline constraints for template c
 !! options
 parsoid=html2wt
 !! html/parsoid
-<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span><table about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"a":{"{{1x|c\n{{!}}d\n}}":null},"sa":{"{{1x|c\n{{!}}d\n}}":""},"firstWikitextNode":"TABLE","pi":[[{"k":"1"}]]}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c\n{{!}}d\n"}},"i":0}},"\n|}"]}'>
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span><table about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"a":{"{{1x|c\n{{!}}d\n}}":null},"firstWikitextNode":"TABLE","pi":[[{"k":"1"}]],"sa":{"{{1x|c\n{{!}}d\n}}":""}}' data-mw='{"parts":["{|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c\n{{!}}d\n"}},"i":0}},"\n|}"]}'>
 <tbody><tr><td>d
 </td></tr>
 </tbody></table>
@@ -1755,7 +1755,7 @@ bar
 !! wikitext
 foo {{1x|<span>bar</span> [[Category:baz]]}} bar
 !! html/parsoid
-<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>bar&lt;/span> [[Category:baz]]"}},"i":0}}]}'>bar</span><span about="#mwt1"> </span><link rel="mw:PageProp/Category" href="./Category:Baz" about="#mwt1" data-parsoid='{"stx":"simple","a":{"href":"./Category:Baz"},"sa":{"href":"Category:baz"}}'/> bar</p>
+<p>foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>bar&lt;/span> [[Category:baz]]"}},"i":0}}]}'>bar</span><span about="#mwt1"> </span><link rel="mw:PageProp/Category" href="./Category:Baz" about="#mwt1" data-parsoid='{"a":{"href":"./Category:Baz"},"sa":{"href":"Category:baz"},"stx":"simple"}'/> bar</p>
 !! end
 
 # Careful while editing these next 2 tests. There are \u200f characters
@@ -2372,7 +2372,7 @@ Don't escape pre elements that fail to parse as extension tags
 <pre>unclosed is not, so these are <span>tags</span></pre>
 !! html/parsoid
 <pre typeof="mw:Extension/pre" about="#mwt3" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"closed is extension tag, so everything is &lt;span>text&lt;/span>"}}'>closed is extension tag, so everything is &lt;span>text&lt;/span></pre>
-<pre data-parsoid='{"stx":"html","autoInsertedEnd":true}'>unclosed is not, so these are <span>tags</span></pre>
+<pre data-parsoid='{"autoInsertedEnd":true,"stx":"html"}'>unclosed is not, so these are <span>tags</span></pre>
 !! end
 
 !! test

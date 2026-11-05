@@ -29,14 +29,14 @@ a
 </code>
 </p>
 !! html/parsoid
-<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+<p><code data-parsoid='{"autoInsertedEnd":true,"stx":"html"}'>
 a</code></p>
 
-<p><code data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>b</code></p>
+<p><code data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"stx":"html"}'>b</code></p>
 
-<p><code data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>c</code></p>
+<p><code data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true,"stx":"html"}'>c</code></p>
 
-<p><code data-parsoid='{"stx":"html","autoInsertedStart":true}'>d
+<p><code data-parsoid='{"autoInsertedStart":true,"stx":"html"}'>d
 </code></p>
 !! end
 
@@ -51,9 +51,9 @@ b
 
 </code>
 !! html/parsoid
-<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+<p><code data-parsoid='{"autoInsertedEnd":true,"stx":"html"}'>
 b</code></p>
-<p><code data-parsoid='{"stx":"html","autoInsertedStart":true}'>
+<p><code data-parsoid='{"autoInsertedStart":true,"stx":"html"}'>
 <br/>
 </code></p>
 !! end
@@ -68,7 +68,7 @@ b
 
 </code>
 !! html/parsoid
-<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+<p><code data-parsoid='{"autoInsertedEnd":true,"stx":"html"}'>
 b</code></p>
 <p class="mw-empty-elt"></p>
 !! end
