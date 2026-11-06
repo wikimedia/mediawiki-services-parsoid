@@ -22,9 +22,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * use the property declarations below to satisfy phan and to provide type
  * information to IDEs.
  *
- * TODO: Declaring common properties would be beneficial for memory usage, but
- * changes the JSON serialized output and breaks tests.
- *
  * == Miscellaneous / General properties ==
  *
  * Used to emit original wikitext in some scenarios (entities, placeholder spans)
@@ -222,6 +219,18 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 	 */
 	public ?TempData $tmp;
 
+	// 1. Table nodes will almost always have all these properties
+	//    and we get some memory savings by declaring them as first-class properties.
+	// 2. HTML nodes will almost always have the first 3 properties
+	// 3. Almost all nodes will end up with the tsr property and some subset
+	//    of them will end up with a dsr property.
+	public ?SourceRange $tsr = null;
+	public ?DomSourceRange $dsr = null;
+	public ?string $stx = null;
+	public ?string $startTagSrc = null;
+	public ?bool $autoInsertedStart = null;
+	public ?bool $autoInsertedEnd = null;
+
 	/**
 	 * Deeply clone this object
 	 */
@@ -297,7 +306,7 @@ class DataParsoid implements JsonCodecable, RichCodecable {
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		static $clearNullsFrom = [
-			'dsr', 'tsr', 'extTagOffsets',
+			'dsr', 'tsr', 'extTagOffsets', 'autoInsertedStart', 'autoInsertedEnd', 'stx', 'startTagSrc',
 		];
 
 		// Convert object to array (a hackish way to

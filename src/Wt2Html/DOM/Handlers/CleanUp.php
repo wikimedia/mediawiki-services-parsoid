@@ -317,7 +317,7 @@ class CleanUp {
 			isset( Consts::$WTTagsWithNoClosingTags[DOMUtils::nodeName( $node )] ) &&
 			!WTUtils::serializeChildTableTagAsHTML( $node )
 		) {
-			unset( $dp->autoInsertedEnd );
+			$dp->autoInsertedEnd = null;
 		}
 
 		$isFirstEncapsulationWrapperNode = ( $state->tplInfo->first ?? null ) === $node ||
@@ -345,14 +345,7 @@ class CleanUp {
 		}
 
 		// Remove tsr
-		if ( property_exists( $dp, 'tsr' ) ) {
-			unset( $dp->tsr );
-		}
-
-		// Various places, like ContentUtils::shiftDSR, can set this to `null`
-		if ( property_exists( $dp, 'dsr' ) && $dp->dsr === null ) {
-			unset( $dp->dsr );
-		}
+		$dp->tsr = null;
 
 		// Make dsr zero-range for fostered content
 		// to prevent selser from duplicating this content
