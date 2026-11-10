@@ -433,3 +433,16 @@ title=[[A/B/C]]
 <a rel="mw:WikiLink" href="./Template:.../Foo?action=edit&amp;redlink=1" title="Template:.../Foo" about="#mwt4" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":".../Foo","href":"./Template:.../Foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:.../Foo"]}}'>Template:.../Foo</a></p>
 
 !! end
+
+!! test
+T444226: Backtracking modifying tsr
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+a<b <pre>x</pre>
+!! html/php
+<p>a&lt;b </p><pre>x</pre>
+!! html/parsoid
+<p>a&lt;b</p>
+<pre data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"x"}}' typeof="mw:Extension/pre">x</pre>
+!! end

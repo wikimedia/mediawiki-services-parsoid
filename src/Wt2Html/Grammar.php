@@ -1900,7 +1900,7 @@ private function a162($sp, $isbn, $isbncode) {
 private function a163($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
-		$dp = $t->dataParsoid;
+		$dp = clone $t->dataParsoid;
 		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
 
 		switch ( get_class( $t ) ) {

@@ -2100,7 +2100,7 @@ maybe_extension_tag =
 	t:xmlish_tag<tagType="ext">
 	{
 		$tagName = mb_strtolower( $t->getName() );
-		$dp = $t->dataParsoid;
+		$dp = clone $t->dataParsoid;
 		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
 
 		switch ( get_class( $t ) ) {
