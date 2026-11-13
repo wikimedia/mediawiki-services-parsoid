@@ -70,7 +70,7 @@ function retryingHTTPRequest(retries, requestOptions, delay) {
 	delay = delay || 100; // start with 100ms
 	requestOptions.headers = requestOptions.headers || {};
 	requestOptions.headers['User-Agent'] = requestOptions.headers['User-Agent']
-		|| 'Content Transform Team (content-transform-team@wikimedia.org)';
+		|| 'Content Platform Team (mediawiki-content-platform-team@wikimedia.org)';
 	return request(requestOptions)
 	.catch(function(error) {
 		if (retries--) {
