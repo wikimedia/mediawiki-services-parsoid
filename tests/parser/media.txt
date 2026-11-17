@@ -471,8 +471,12 @@ File:Foobar.jpg
 
 !! test
 Image with link parameter, wiki target
+!! options
+links
 !! wikitext
 [[File:Foobar.jpg|link=Main Page]]
+!! metadata
+link=Main_Page
 !! html/php
 <p><span class="mw-default-size" typeof="mw:File"><a href="/wiki/Main_Page" title="Main Page"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" width="1941" height="220" class="mw-file-element" /></a></span>
 </p>
@@ -497,8 +501,12 @@ File with link to page section
 # parsoid T51293 (part 1)
 !! test
 Image with link parameter, URL target
+!! options
+extlinks
 !! wikitext
 [[File:Foobar.jpg|link=http://example.com/]]
+!! metadata
+extlink=http://example.com/
 !! html/php
 <p><span class="mw-default-size" typeof="mw:File"><a href="http://example.com/" rel="nofollow"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" width="1941" height="220" class="mw-file-element" /></a></span>
 </p>
@@ -509,8 +517,12 @@ Image with link parameter, URL target
 # parsoid T51293 (part 2)
 !! test
 Image with link parameter, protocol-less URL target
+!! options
+extlinks
 !! wikitext
 [[File:Foobar.jpg|link=//example.com/]]
+!! metadata
+extlink=//example.com/
 !! html/php
 <p><span class="mw-default-size" typeof="mw:File"><a href="//example.com/" rel="nofollow"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" width="1941" height="220" class="mw-file-element" /></a></span>
 </p>

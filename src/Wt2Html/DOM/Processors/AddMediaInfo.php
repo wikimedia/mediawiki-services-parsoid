@@ -539,11 +539,17 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 							$anchor->setAttribute( $key, $val );
 						}
 					}
+					if ( $extLinkAttribs['href'] ?? null ) {
+						$env->getMetadata()->addExternalLink( $extLinkAttribs['href'] );
+					}
 				} else {
 					$link = $env->makeTitleFromText( $val, null, true );
 					if ( $link !== null ) {
 						$anchor->setAttribute( 'href', $env->makeLink( $link ) );
 						$anchor->setAttribute( 'title', $link->getPrefixedText() );
+						// T357048: Similar to AddLinkAttributes
+						// 0 page id to avoid an expensive lookup
+						$env->getMetadata()->addLink( $link, 0 );
 					} else {
 						// Treat same as if link weren't present
 						$addDescriptionLink( $attrs['title'] );
