@@ -2,7 +2,7 @@
 declare( strict_types = 1 );
 
 # In order to test in standalone mode, use --config-file=.phan/standalone.php
-# In integrated mode ($STANDALONE is false), you should be sure MW_INSTALL_DIR
+# In integrated mode ($STANDALONE is false), you should be sure MW_INSTALL_PATH
 # is set in your environment and points to an up-to-date copy of mediawiki-core
 $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 
