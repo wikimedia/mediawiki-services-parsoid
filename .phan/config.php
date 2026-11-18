@@ -44,7 +44,7 @@ if ( $STANDALONE ) {
 	] );
 }
 
-$cfg['minimum_target_php_version'] = '8.2';
+$cfg['minimum_target_php_version'] = '8.3';
 
 $cfg['enable_class_alias_support'] = true; // should be on by default: T224704
 

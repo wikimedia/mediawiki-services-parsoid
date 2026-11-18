@@ -6,7 +6,7 @@
 	"requires": {
 		"MediaWiki": ">= 1.41.0",
 		"platform": {
-			"php": ">= 8.1"
+			"php": ">= 8.3"
 		}
 	},
 	"AutoloadNamespaces": {
