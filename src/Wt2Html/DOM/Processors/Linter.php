@@ -1519,7 +1519,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->findLints( $root, $env, $options['tplInfo'] );
 		$this->postProcessLints( $env->getLints(), $env );
 
-		$timer->end( "linting", "linting", [] );
+		$timer->end( "linting", [] );
 	}
 
 }

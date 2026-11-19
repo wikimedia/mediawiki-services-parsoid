@@ -14,7 +14,7 @@ class TimingTest extends \PHPUnit\Framework\TestCase {
 	public function testFakeTimingMeasuresTime() {
 		$siteConfig = new MockSiteConfig( [] );
 		$timing = Timing::fakeTiming( $siteConfig, 1000, true );
-		$timing->end( 'example.statsd.key', 'example', [] );
+		$timing->end( 'example', [] );
 		$this->assertContains( [ 'timing', 'example', 1000.0 ], $siteConfig->getMockMetrics()->log );
 	}
 
@@ -24,7 +24,7 @@ class TimingTest extends \PHPUnit\Framework\TestCase {
 	public function testFakeTimingDoesntMeasureTime() {
 		$siteConfig = new MockSiteConfig( [] );
 		$timing = Timing::fakeTiming( $siteConfig, 1000, false );
-		$timing->end( 'example.statsd.key', 'example', [] );
+		$timing->end( 'example', [] );
 		$this->assertContains( [ 'timing', 'example', 1000000.0 ], $siteConfig->getMockMetrics()->log );
 	}
 }

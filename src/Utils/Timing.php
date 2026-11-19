@@ -42,16 +42,11 @@ class Timing {
 
 	/**
 	 * End this timing measurement, reporting it under the given `name`.
-	 * @param ?string $statsdCompat Unused
 	 * @param ?string $name
 	 * @param ?array $labels
 	 * @return float Number of milliseconds reported
 	 */
-	public function end(
-		?string $statsdCompat = null,
-		?string $name = null,
-		?array $labels = []
-	): float {
+	public function end( ?string $name = null, ?array $labels = [] ): float {
 		$this->elapsed ??= self::millis() - $this->startTime;
 		if ( $this->siteConfig ) {
 			// Note that observeTiming takes a value in *milliseconds*
