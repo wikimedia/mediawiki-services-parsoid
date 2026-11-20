@@ -52,8 +52,14 @@ Media link with text
 # Not sure if it is worth dealing with it.
 !! test
 Media link redirect
+!! options
+showmedia
 !! wikitext
 [[Media:Redirect to foobar.jpg]]
+!! metadata
+images=Redirect_to_foobar.jpg, Foobar.jpg
+!! metadata/parsoid+standalone
+images=Redirect_to_foobar.jpg
 !! html/php
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Redirect to foobar.jpg</a>
 </p>

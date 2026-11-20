@@ -936,11 +936,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			// Record a missing file too, as the legacy parser does.
 			// Special:WantedFiles uses the imagelinks table.
-			$env->getMetadata()->addImage(
-				$attrs['title'],
-				$info['timestamp'] ?? null,
-				$info['sha1'] ?? null,
-			);
+			$timestamp = $info['timestamp'] ?? null;
+			$sha1 = $info['sha1'] ?? null;
+			$env->getMetadata()->addImage( $attrs['title'], $timestamp, $sha1 );
+			// Also record the redirect target, as the legacy parser does.
+			$canonical = $info['canonicaltitle'] ?? null;
+			if ( $canonical && !$attrs['title']->isSameLinkAs( $canonical ) ) {
+				$env->getMetadata()->addImage( $canonical, $timestamp, $sha1 );
+			}
 
 			if ( $broken ) {
 				continue;

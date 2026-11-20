@@ -75,8 +75,13 @@ parsoid=wt2html,wt2wt,html2html
 Simple image redirect
 !! options
 parsoid=wt2html,wt2wt,html2html
+showmedia
 !! wikitext
 [[Image:Redirect to foobar.jpg]]
+!! metadata
+images=Redirect_to_foobar.jpg, Foobar.jpg
+!! metadata/parsoid+standalone
+images=Redirect_to_foobar.jpg
 !! html/php
 <p><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" loading="lazy" width="1941" height="220" class="mw-file-element" /></a></span>
 </p>

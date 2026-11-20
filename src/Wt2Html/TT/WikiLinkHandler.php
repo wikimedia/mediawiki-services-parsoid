@@ -1743,11 +1743,14 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 		// The legacy parser records a media link in the imagelinks table.
 		// It also records a missing file.
-		$env->getMetadata()->addImage(
-			$title,
-			$info['timestamp'] ?? null,
-			$info['sha1'] ?? null
-		);
+		$timestamp = $info['timestamp'] ?? null;
+		$sha1 = $info['sha1'] ?? null;
+		$env->getMetadata()->addImage( $title, $timestamp, $sha1 );
+		// Also record the redirect target, as the legacy parser does.
+		$canonical = $info['canonicaltitle'] ?? null;
+		if ( $canonical && !$title->isSameLinkAs( $canonical ) ) {
+			$env->getMetadata()->addImage( $canonical, $timestamp, $sha1 );
+		}
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}
 
