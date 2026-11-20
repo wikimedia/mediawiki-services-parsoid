@@ -46,7 +46,7 @@ class Attributes extends PlainAttributes {
 			}
 
 			$newAttrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] =
-				DOMDataUtils::stashObjectInDoc( $this->document, $newData );
+				(string)DOMDataUtils::stashObjectInDoc( $this->document, $newData );
 			return new self( $this->document, $newAttrs );
 		} else {
 			return $this;
