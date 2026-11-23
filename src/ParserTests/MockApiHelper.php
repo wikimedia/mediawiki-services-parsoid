@@ -753,10 +753,12 @@ class MockApiHelper extends ApiHelper {
 				$turl .= '-';
 				if ( $mediatype === 'VIDEO' ) {
 					// Hack in a 'seek' option, if provided (T258767)
-					if ( str_starts_with( $extraParam ?? '', 'seek' ) ) {
-						$turl .= $props['extraParams'][$extraParam] ?? '';
+					$seek = str_starts_with( $extraParam ?? '', 'seek' )
+						? ( $props['extraParams'][$extraParam] ?? '' )
+						: '';
+					if ( $seek !== '' ) {
+						$turl .= $seek . '-';
 					}
-					$turl .= '-';
 				}
 				$turl .= $normFileName;
 				switch ( $mediatype ) {

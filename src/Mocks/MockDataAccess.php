@@ -539,10 +539,12 @@ class MockDataAccess extends DataAccess {
 					$turl .= '/' . $urlWidth . 'px-';
 					if ( $mediatype === 'VIDEO' ) {
 						// Hack in a 'seek' option, if provided (T258767)
-						if ( isset( $txopts['thumbtime'] ) ) {
-							$turl .= $props['thumbtimes'][strval( $txopts['thumbtime'] )] ?? '';
+						$seek = isset( $txopts['thumbtime'] )
+							? ( $props['thumbtimes'][strval( $txopts['thumbtime'] )] ?? '' )
+							: '';
+						if ( $seek !== '' ) {
+							$turl .= $seek . '-';
 						}
-						$turl .= '-';
 					}
 					$turl .= $normFileName;
 					switch ( $mediatype ) {
