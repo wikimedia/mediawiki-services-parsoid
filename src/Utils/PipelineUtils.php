@@ -691,7 +691,9 @@ class PipelineUtils {
 			// in a fosterable position after treebuilding is done, which isn't
 			// roundtrippable.
 			$wrapperName = $defaultWrapperName;
-		} elseif ( in_array( $nodeName, [ 'math', 'svg' ], true ) ) {
+		} elseif (
+			$node instanceof Element && in_array( DOMUtils::localName( $node ), [ 'math', 'svg' ], true )
+		) {
 			// Remex wraps <math> & <svg> attributes in ForeignAttributes which
 			// messes up our TreeBuilder logic further down the pipeline.
 			// So, fall back to the default wrapper name.

@@ -114,17 +114,8 @@ class DisplaySpace {
 	 * @return bool|Element
 	 */
 	public static function textHandler( Node $node ) {
-		// <svg> and <math> tags get namespaces according to the official
-		// W3C parsing spec --- see 'a start tag whose tag name is
-		// "math"' and 'a start tag whose tag name is "svg"' cases in
-		// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
-		// --- and in those cases the element's `nodeName` will have an
-		// arbitrary namespace prefix prepended to it. Check for them using
-		// Element#localName instead. This is supposed to be "the case
-		// of the internal DOM storage, which is lower case" according to
-		// https://developer.mozilla.org/en-US/docs/Web/API/Element/localName
-		// but we don't particularly trust PHP/libxml so force lowercase.
-		$localName = $node instanceof Element ? strtolower( $node->localName ) : null;
+		// The nodeName of <svg> can have a namespace prefix: see DOMUtils::localName()
+		$localName = $node instanceof Element ? DOMUtils::localName( $node ) : null;
 		$nodeName = DOMUtils::nodeName( $node );
 
 		// Go to next sibling if we encounter pre, svg or raw text elements

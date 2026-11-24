@@ -158,7 +158,7 @@ class DOMDiff {
 				// Compare node name and attribute length
 				if (
 					!( $nodeB instanceof Element ) ||
-					DOMUtils::nodeName( $nodeA ) !== DOMUtils::nodeName( $nodeB ) ||
+					DOMUtils::localName( $nodeA ) !== DOMUtils::localName( $nodeB ) ||
 					!DiffUtils::attribsEquals(
 						$nodeA,
 						$nodeB,
@@ -300,7 +300,7 @@ class DOMDiff {
 							WTUtils::isBlockNodeWithVisibleWT( $baseNode )
 						);
 					} elseif ( $baseNode instanceof Element &&
-						DOMUtils::nodeName( $savedNewNode ) === DOMUtils::nodeName( $baseNode ) &&
+						DOMUtils::localName( $savedNewNode ) === DOMUtils::localName( $baseNode ) &&
 						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
 						( DOMDataUtils::getDataParsoid( $baseNode )->stx ?? null )
 					) {

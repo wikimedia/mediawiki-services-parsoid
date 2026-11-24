@@ -835,6 +835,23 @@ class DOMUtils {
 		return $node instanceof \DOMNode ? $node->nodeName : strtolower( $node->nodeName );
 	}
 
+	public static function localName( Element $elt ): string {
+		// <svg> and <math> tags get namespaces according to the official
+		// W3C parsing spec --- see 'a start tag whose tag name is
+		// "math"' and 'a start tag whose tag name is "svg"' cases in
+		// https://html.spec.whatwg.org/multipage/parsing.html#parsing-main-inbody
+		// --- and in those cases the element's `nodeName` can have an
+		// arbitrary namespace prefix prepended to it. On PHP < 8.4, libxml
+		// adds a "default:" prefix to these elements and their descendants
+		// when it moves them, for example when <section> tags are stripped.
+		// Element#localName does not have the prefix. It is supposed to be
+		// "the case of the internal DOM storage, which is lower case" according to
+		// https://developer.mozilla.org/en-US/docs/Web/API/Element/localName
+		// but we don't particularly trust PHP/libxml so force lowercase.
+		// TODO: Use nodeName() instead once PHP 8.4 is the minimum version (T438423)
+		return strtolower( $elt->localName );
+	}
+
 	public static function isNewlineWrappingSpan( Node $elt ): bool {
 		return self::nodeName( $elt ) === 'span' &&
 			$elt->firstChild === $elt->lastChild &&

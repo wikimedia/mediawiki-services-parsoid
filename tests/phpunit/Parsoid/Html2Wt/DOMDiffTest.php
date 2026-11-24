@@ -36,6 +36,12 @@ class DOMDiffTest extends TestCase {
 		$oldBody = DOMCompat::getBody( $oldDOM );
 		$body = DOMCompat::getBody( $newDOM );
 
+		if ( $test['stripWrappers'] ?? false ) {
+			// Do the same as selser does to both DOMs before the diff.
+			ContentUtils::stripUnnecessaryWrappersAndSyntheticNodes( $oldBody );
+			ContentUtils::stripUnnecessaryWrappersAndSyntheticNodes( $body );
+		}
+
 		$domDiff = new DOMDiff( $mockEnv );
 		$domDiff->diff( $oldBody, $body );
 
@@ -181,6 +187,22 @@ class DOMDiffTest extends TestCase {
 					'specs' => [
 						[ 'selector' => 'body', 'markers' => [ DiffMarkers::CHILDREN_CHANGED ] ],
 						[ 'selector' => 'body > p:nth-child(1)', 'markers' => [ DiffMarkers::MODIFIED_WRAPPER ] ],
+					]
+				]
+			],
+			// T444364: Removing <section> in the original DOM moves the MathML.
+			// This must not cause a diff when the edited DOM has no <section>.
+			[
+				[
+					'desc' => 'MathML in a section that the edited DOM does not have',
+					'orig' => '<section data-mw-section-id="0"><p>foo <math class="mwe-math-element" ' .
+						'xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>x</mi></mrow></math> bar</p></section>',
+					'edit' => '<p>foo <math class="mwe-math-element" ' .
+						'xmlns="http://www.w3.org/1998/Math/MathML"><mrow><mi>x</mi></mrow></math> bar</p>',
+					'stripWrappers' => true,
+					'specs' => [
+						[ 'selector' => 'body', 'markers' => [] ],
+						[ 'selector' => 'p', 'markers' => [] ],
 					]
 				]
 			]
