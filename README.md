@@ -9,6 +9,9 @@ ported to PHP.
 Please see the [overview of the project](https://www.mediawiki.org/wiki/Parsoid)
 for more information.
 
+To get started, see [Setting up Parsoid](docs/setup.md) and
+[Setting up Parsoid for development](docs/devsetup.md).
+
 License
 -------
 
